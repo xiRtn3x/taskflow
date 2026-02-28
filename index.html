@@ -1,0 +1,1519 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TaskFlow</title>
+<style>
+:root{
+  --blue:#007AFF;--red:#FF3B30;--green:#34C759;--orange:#FF9500;--purple:#AF52DE;
+  --bg:#F2F2F7;--card:#fff;--card2:#F2F2F7;--text:#000;--text2:#3C3C43;--text3:#8E8E93;
+  --sep:#C6C6C8;--nav-bg:rgba(242,242,247,.92);--tab-bg:rgba(255,255,255,.95);
+  --shadow:0 2px 14px rgba(0,0,0,.07);--r:13px;
+  --sb:env(safe-area-inset-bottom,0px);--accent:#007AFF;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#000;--card:#1C1C1E;--card2:#2C2C2E;--text:#fff;--text2:#EBEBF5;--text3:#8E8E93;
+  --sep:#38383A;--nav-bg:rgba(0,0,0,.92);--tab-bg:rgba(28,28,30,.95);
+}}
+body.th-warm{--bg:#FFF8F0;--card:#FFFDF9;--card2:#FFF3E4;--sep:#E8D5C0}
+body.th-forest{--bg:#F0F7F0;--card:#FAFFF8;--card2:#E8F5E8;--sep:#C8DFC8}
+body.th-night{--bg:#0D0D14;--card:#1A1A2E;--card2:#16213E;--text:#E8E8FF;--text2:#B8B8D8;--text3:#7878A8;--sep:#2A2A4A}
+body.th-rose{--bg:#FFF0F5;--card:#FFFBFC;--card2:#FFE8F0;--sep:#F0C8D8}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+#app{max-width:430px;margin:0 auto;min-height:100vh}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:10px 16px 8px;border-bottom:.5px solid var(--sep)}
+.nav-row{display:flex;align-items:center;gap:8px}
+.nav-title{font-size:28px;font-weight:700;letter-spacing:-.5px;flex:1}
+.nav-username{font-size:13px;font-weight:600;color:var(--text2)}
+.nav-btn{width:34px;height:34px;border-radius:50%;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;position:relative}
+.notif-dot{position:absolute;top:1px;right:1px;width:10px;height:10px;background:var(--red);border-radius:50%;border:2px solid var(--nav-bg)}
+
+/* TABS */
+.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:200;background:var(--tab-bg);backdrop-filter:blur(24px);border-top:.5px solid var(--sep);display:flex;padding:8px 0 calc(8px + var(--sb))}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;padding:4px 0}
+.tab:active{opacity:.6}
+.tab-icon{font-size:21px}
+.tab-label{font-size:10px;font-weight:500;color:var(--text3)}
+.tab.active .tab-label{color:var(--accent)}
+.fab{position:fixed;bottom:calc(70px + var(--sb));right:16px;width:54px;height:54px;border-radius:50%;background:var(--accent);color:#fff;font-size:26px;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(0,122,255,.35);display:flex;align-items:center;justify-content:center;z-index:150;transition:transform .2s}
+.fab:active{transform:scale(.9)}
+
+/* PAGES */
+.page{display:none;padding-bottom:88px}
+.page.active{display:block}
+
+/* CARDS */
+.card-group{background:var(--card);border-radius:var(--r);margin:0 16px 14px;overflow:hidden;box-shadow:var(--shadow)}
+.card-row{display:flex;align-items:center;padding:13px 16px;gap:12px;border-bottom:.5px solid var(--sep);cursor:pointer;transition:background .15s}
+.card-row:last-child{border-bottom:none}
+.card-row:active{background:var(--card2)}
+.sec{font-size:12px;font-weight:600;text-transform:uppercase;color:var(--text3);padding:18px 16px 6px;letter-spacing:.5px;display:flex;align-items:center;gap:8px;user-select:none}
+.super-sec{font-size:15px;font-weight:700;color:var(--text2);padding:18px 16px 6px;display:flex;align-items:center;gap:6px}
+
+/* TASK ITEM */
+.task-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--card);border-bottom:.5px solid var(--sep);cursor:pointer;transition:background .15s;position:relative}
+.task-item:last-child{border-bottom:none}
+.task-item:active{background:var(--card2)}
+.color-bar{position:absolute;left:0;top:0;bottom:0;width:4px}
+.check{width:24px;height:24px;border-radius:50%;border:2px solid var(--sep);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .2s;cursor:pointer;font-size:13px}
+.check.done{background:var(--green);border-color:var(--green);color:#fff}
+.task-info{flex:1;min-width:0;padding-left:4px}
+.task-title{font-size:16px;font-weight:500}
+.task-title.done{text-decoration:line-through;color:var(--text3)}
+.task-meta{font-size:12px;color:var(--text3);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.prog-wrap{margin-top:5px;display:flex;align-items:center;gap:7px}
+.prog-bg{flex:1;height:4px;background:var(--card2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s}
+.prog-label{font-size:11px;color:var(--text3);font-weight:600}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600}
+.b-red{background:#FF3B3018;color:var(--red)}
+.b-ora{background:#FF950018;color:var(--orange)}
+.b-grn{background:#34C75918;color:var(--green)}
+.b-blu{background:#007AFF18;color:var(--blue)}
+.b-pur{background:#AF52DE18;color:var(--purple)}
+.b-rec{background:#5AC8FA18;color:#0A84FF}
+.chevron{color:var(--text3);font-size:17px;flex-shrink:0}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;border:none;cursor:pointer;font-family:inherit;font-size:17px;font-weight:600;border-radius:12px;transition:opacity .15s}
+.btn:active{opacity:.7}
+.btn-p{background:var(--accent);color:#fff;padding:14px 20px;width:100%}
+.btn-d{background:var(--red);color:#fff;padding:14px 20px;width:100%;margin-top:8px}
+.btn-g{background:transparent;color:var(--accent);padding:6px 0;font-weight:500;font-size:16px}
+
+/* MODAL */
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:flex;align-items:flex-end;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s}
+.ov.open{opacity:1;pointer-events:all}
+.sheet{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-height:94vh;overflow-y:auto;padding-bottom:calc(20px + var(--sb));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.ov.open .sheet{transform:translateY(0)}
+.handle{width:36px;height:4px;background:var(--sep);border-radius:2px;margin:12px auto 0}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 8px}
+.mtitle{font-size:20px;font-weight:700}
+.mclose{color:var(--accent);font-size:17px;font-weight:500;cursor:pointer;padding:4px}
+
+/* FORM */
+.fg{padding:0 16px 14px}
+.fl{font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.fi{width:100%;background:var(--card2);border:none;border-radius:10px;padding:12px 14px;font-size:16px;color:var(--text);font-family:inherit;outline:none}
+.fi::placeholder{color:var(--text3)}
+.fsel{width:100%;background:var(--card2);border:none;border-radius:10px;padding:12px 14px;font-size:16px;color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none}
+.seg{display:flex;background:var(--card2);border-radius:9px;padding:2px;gap:2px}
+.seg-b{flex:1;padding:7px 4px;border:none;background:transparent;border-radius:7px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;font-family:inherit}
+.seg-b.on{background:var(--card);color:var(--text);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+.toggle{width:51px;height:31px;border-radius:16px;background:var(--sep);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--green)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:left .2s}
+.toggle.on::after{left:22px}
+
+/* AVATAR */
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover}
+
+/* DETAIL */
+.detail-ov{position:fixed;inset:0;background:var(--bg);z-index:400;transform:translateX(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);overflow-y:auto}
+.detail-ov.open{transform:translateX(0)}
+.detail-nav{position:sticky;top:0;background:var(--nav-bg);backdrop-filter:blur(20px);padding:14px 16px;display:flex;align-items:center;gap:8px;border-bottom:.5px solid var(--sep);z-index:10}
+.back{color:var(--accent);font-size:17px;cursor:pointer}
+
+/* SUBTASK */
+.sub-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:.5px solid var(--sep);background:var(--card);user-select:none}
+.sub-item:last-child{border-bottom:none}
+.sub-item.dragging{opacity:.35}
+.sub-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--sep);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;transition:all .2s}
+.sub-check.done{background:var(--green);border-color:var(--green);color:#fff}
+.drag-h{color:var(--text3);font-size:18px;cursor:grab;touch-action:none;flex-shrink:0;padding:0 4px}
+
+/* POOL */
+.pool-card{background:var(--card);border-radius:var(--r);margin:0 16px 12px;padding:16px;box-shadow:var(--shadow);cursor:pointer}
+.filter-bar{display:flex;gap:8px;padding:8px 16px;overflow-x:auto;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .15s;background:var(--card2);color:var(--text3)}
+.chip.on{background:var(--accent);color:#fff}
+
+/* CELEBRATION */
+.celeb-ov{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .3s}
+.celeb-ov.show{opacity:1;pointer-events:all}
+.celeb-face{font-size:88px;animation:bounce .6s ease infinite alternate}
+.celeb-txt{color:#fff;font-size:20px;font-weight:700;margin-top:18px;text-align:center;padding:0 32px;line-height:1.4}
+.celeb-sub{color:rgba(255,255,255,.65);font-size:14px;margin-top:8px}
+.conf{position:absolute;width:8px;height:8px;border-radius:2px;animation:fall linear forwards}
+@keyframes bounce{from{transform:translateY(0) rotate(-5deg)}to{transform:translateY(-18px) rotate(5deg)}}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+
+/* NOTIFICATION OVERLAY */
+.notif-ov{position:fixed;inset:0;z-index:8000;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .3s}
+.notif-ov.show{opacity:1;pointer-events:all}
+.notif-card{background:var(--card);border-radius:22px;padding:28px 24px;max-width:340px;width:90%;text-align:center}
+.notif-icon{font-size:56px;margin-bottom:12px}
+.notif-title{font-size:18px;font-weight:700;margin-bottom:8px}
+.notif-msg{font-size:15px;color:var(--text2);line-height:1.5;margin-bottom:20px}
+
+/* SETTINGS */
+.settings-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:flex-end;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s}
+.settings-ov.open{opacity:1;pointer-events:all}
+.settings-sheet{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding-bottom:calc(24px + var(--sb));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.settings-ov.open .settings-sheet{transform:translateY(0)}
+
+/* COLOR GRID */
+.color-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:4px 0}
+.cdot{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s}
+.cdot.sel{border-color:var(--text);transform:scale(1.15)}
+
+/* PHOTO */
+.photo-area{width:76px;height:76px;border-radius:50%;background:var(--card2);border:2px dashed var(--sep);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0}
+.photo-area img{width:100%;height:100%;object-fit:cover}
+
+/* CALENDAR */
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:0 16px 16px}
+.cal-day-name{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:4px 0}
+.cal-cell{min-height:36px;border-radius:8px;display:flex;flex-direction:column;align-items:center;padding:3px 2px;cursor:pointer;transition:background .15s;position:relative}
+.cal-cell:active{background:var(--card2)}
+.cal-num{font-size:13px;font-weight:500;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.cal-num.today{background:var(--accent);color:#fff;font-weight:700}
+.cal-num.other-month{color:var(--text3)}
+.cal-dot{width:5px;height:5px;border-radius:50%;margin-top:1px;flex-shrink:0}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:12px 16px}
+.cal-month{font-size:18px;font-weight:700}
+.cal-nav-btn{background:var(--card2);border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:17px}
+
+/* DRAG */
+.cat-block{transition:opacity .15s}
+.cat-block.dragging{opacity:.35}
+.drag-cat-h{color:var(--text3);font-size:15px;cursor:grab;touch-action:none;opacity:.7}
+
+/* INLINE SUBTASK INPUT */
+.sub-input-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.sub-input-row input{flex:1;background:var(--card2);border:none;border-radius:8px;padding:10px 12px;font-size:15px;color:var(--text);font-family:inherit;outline:none}
+.sub-input-row button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit}
+.new-sub-list{margin-top:8px}
+.new-sub-tag{display:flex;align-items:center;gap:6px;background:var(--card2);border-radius:8px;padding:8px 10px;margin-top:6px;user-select:none}
+.new-sub-tag.dragging{opacity:.35}
+.new-sub-h{color:var(--text3);font-size:16px;cursor:grab;touch-action:none}
+.new-sub-tag span{flex:1;font-size:14px}
+.rm-btn{background:none;border:none;color:var(--red);font-size:18px;cursor:pointer;line-height:1;padding:0}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(83px + var(--sb));left:50%;transform:translateX(-50%) translateY(16px);background:rgba(40,40,40,.96);color:#fff;padding:12px 20px;border-radius:14px;font-size:15px;font-weight:500;z-index:9999;white-space:nowrap;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;backdrop-filter:blur(12px);max-width:92vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* EMPTY */
+.empty{text-align:center;padding:56px 20px}
+.empty-icon{font-size:56px;margin-bottom:14px}
+.empty-title{font-size:21px;font-weight:700;margin-bottom:6px}
+.empty-sub{font-size:15px;color:var(--text3)}
+
+/* ONBOARDING */
+.onboard{position:fixed;inset:0;z-index:10000;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.onboard.hidden{display:none}
+.onboard-logo{font-size:64px;margin-bottom:16px}
+.onboard-title{font-size:28px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;text-align:center}
+.onboard-sub{font-size:15px;color:var(--text3);text-align:center;margin-bottom:32px;line-height:1.5}
+.onboard-card{background:var(--card);border-radius:var(--r);padding:20px;width:100%;max-width:360px;box-shadow:var(--shadow);margin-bottom:12px;cursor:pointer;transition:transform .15s}
+.onboard-card:active{transform:scale(.98)}
+.onboard-card-title{font-size:17px;font-weight:700;margin-bottom:4px}
+.onboard-card-sub{font-size:14px;color:var(--text3)}
+</style>
+</head>
+<body>
+
+<!-- ONBOARDING (shown on first visit or when no token) -->
+<div class="onboard" id="onboard">
+  <div class="onboard-logo">✅</div>
+  <div class="onboard-title">TaskFlow</div>
+  <div class="onboard-sub">Deine gemeinsame Aufgaben-App.<br>Wie möchtest du starten?</div>
+
+  <!-- Step 1: Name -->
+  <div id="ob-step1" style="width:100%;max-width:360px">
+    <div style="font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Dein Name</div>
+    <input class="fi" id="ob-name" placeholder="Name eingeben…" style="margin-bottom:12px;font-size:18px">
+    <button class="btn btn-p" onclick="obNext()">Weiter →</button>
+  </div>
+
+  <!-- Step 2: Group or Solo -->
+  <div id="ob-step2" style="display:none;width:100%;max-width:360px">
+    <div class="onboard-card" onclick="obChoose('solo')">
+      <div class="onboard-card-title">👤 Nur für mich</div>
+      <div class="onboard-card-sub">Aufgaben nur für dich, kein anderer hat Zugriff</div>
+    </div>
+    <div class="onboard-card" onclick="obChoose('create')">
+      <div class="onboard-card-title">🏠 Neue Gruppe erstellen</div>
+      <div class="onboard-card-sub">z.B. Haushalt, Familie oder Team</div>
+    </div>
+    <div class="onboard-card" onclick="obChoose('join')">
+      <div class="onboard-card-title">🔗 Gruppe beitreten</div>
+      <div class="onboard-card-sub">Mit Einladungscode einer bestehenden Gruppe beitreten</div>
+    </div>
+  </div>
+
+  <!-- Step 3a: Create Group -->
+  <div id="ob-step3-create" style="display:none;width:100%;max-width:360px">
+    <div class="onboard-card-title" style="margin-bottom:16px">🏠 Gruppe erstellen</div>
+    <input class="fi" id="ob-group-name" placeholder="Gruppenname (z.B. Familie Schmidt)…" style="margin-bottom:12px">
+    <button class="btn btn-p" onclick="obCreateGroup()">Gruppe erstellen</button>
+    <button class="btn btn-g" style="display:block;text-align:center;width:100%;margin-top:8px" onclick="obBack()">← Zurück</button>
+  </div>
+
+  <!-- Step 3b: Join Group -->
+  <div id="ob-step3-join" style="display:none;width:100%;max-width:360px">
+    <div class="onboard-card-title" style="margin-bottom:16px">🔗 Gruppe beitreten</div>
+    <input class="fi" id="ob-invite" placeholder="Einladungscode eingeben…" style="margin-bottom:12px;text-transform:uppercase;letter-spacing:2px">
+    <button class="btn btn-p" onclick="obJoinGroup()">Beitreten</button>
+    <button class="btn btn-g" style="display:block;text-align:center;width:100%;margin-top:8px" onclick="obBack()">← Zurück</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app" style="display:none">
+  <div class="nav">
+    <div class="nav-row">
+      <div class="nav-title" id="navTitle">Meine Aufgaben</div>
+      <span class="nav-username" id="navUsername"></span>
+      <button class="nav-btn" onclick="openProfile()" id="notifBtn"><span id="notifBtnIcon">👤</span><span class="notif-dot" id="notifDot" style="display:none"></span></button>
+      <button class="nav-btn" onclick="openSettings()">⚙️</button>
+    </div>
+  </div>
+
+  <!-- PAGES -->
+  <div class="page active" id="pageMy">
+    <div id="myTasksContainer"></div>
+    <div style="padding:0 16px 4px">
+      <div class="card-group" style="margin:0">
+        <div class="card-row" onclick="toggleFilter()">
+          <span style="flex:1;font-size:16px">Erledigte anzeigen</span>
+          <div class="toggle" id="toggleDone"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="page" id="pageAll">
+    <div class="filter-bar" id="allFilterBar"></div>
+    <div class="sec" style="padding-top:6px">Alle Aufgaben</div>
+    <div id="allTasksContainer"></div>
+  </div>
+
+  <div class="page" id="pagePool">
+    <div style="padding:16px 16px 0;display:flex;justify-content:space-between;align-items:center">
+      <div><div style="font-size:20px;font-weight:700">Aufgaben-Pool</div><div style="font-size:13px;color:var(--text3);margin-top:2px">Zufällig zugewiesen</div></div>
+    </div>
+    <div style="padding:10px 16px 0">
+      <button class="btn btn-p" onclick="shufflePool()" style="background:var(--purple)">🎲 Neu mischen</button>
+    </div>
+    <div class="filter-bar" id="poolFilterBar"></div>
+    <div id="poolContainer"></div>
+  </div>
+
+  <div class="page" id="pageCalendar">
+    <div class="cal-nav">
+      <button class="cal-nav-btn" onclick="calPrev()">‹</button>
+      <div class="cal-month" id="calMonthLabel"></div>
+      <button class="cal-nav-btn" onclick="calNext()">›</button>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div id="calTaskList" style="padding-bottom:20px"></div>
+  </div>
+
+  <div class="page" id="pageUsers">
+    <div class="sec">Gruppe</div>
+    <div id="groupContainer"></div>
+    <div class="sec">Mitglieder</div>
+    <div id="usersContainer"></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab(0)" id="tab0"><span class="tab-icon">✅</span><span class="tab-label">Meine</span></div>
+    <div class="tab" onclick="switchTab(1)" id="tab1"><span class="tab-icon">📋</span><span class="tab-label">Alle</span></div>
+    <div class="tab" onclick="switchTab(2)" id="tab2"><span class="tab-icon">🎲</span><span class="tab-label">Pool</span></div>
+    <div class="tab" onclick="switchTab(3)" id="tab3"><span class="tab-icon">📅</span><span class="tab-label">Kalender</span></div>
+    <div class="tab" onclick="switchTab(4)" id="tab4"><span class="tab-icon">👥</span><span class="tab-label">Gruppe</span></div>
+  </div>
+  <button class="fab" id="fabBtn" onclick="showAddTask()">+</button>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CELEBRATION -->
+<div class="celeb-ov" id="celebOv" onclick="closeceleb()">
+  <div id="confContainer" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
+  <div class="celeb-face" id="celebFace">😄</div>
+  <div class="celeb-txt" id="celebTxt"></div>
+  <div class="celeb-sub">Tippe um fortzufahren</div>
+</div>
+
+<!-- NOTIFICATION OVERLAY -->
+<div class="notif-ov" id="notifOv" onclick="closeNotifOv()">
+  <div class="notif-card" onclick="event.stopPropagation()">
+    <div class="notif-icon" id="notifOvIcon">🔔</div>
+    <div class="notif-title" id="notifOvTitle">Neue Benachrichtigung</div>
+    <div class="notif-msg" id="notifOvMsg"></div>
+    <button class="btn btn-p" onclick="closeNotifOv()">OK, verstanden!</button>
+  </div>
+</div>
+
+<!-- TASK MODAL -->
+<div class="ov" id="taskModal">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr"><div class="mtitle" id="modalTitle">Neue Aufgabe</div><span class="mclose" onclick="closeTaskModal()">Fertig</span></div>
+    <div class="fg"><label class="fl">Titel</label><input class="fi" id="taskTitle" placeholder="Aufgabe eingeben…"></div>
+    <div class="fg"><label class="fl">Beschreibung</label><textarea class="fi" id="taskDesc" rows="2" placeholder="Details…" style="resize:none"></textarea></div>
+    <div class="fg"><label class="fl">Kategorie</label><select class="fsel" id="taskCat"></select></div>
+    <div class="fg"><label class="fl">Priorität</label>
+      <div class="seg" id="prioCtrl">
+        <button class="seg-b" onclick="setPrio('Hoch',this)">🔴 Hoch</button>
+        <button class="seg-b on" onclick="setPrio('Mittel',this)">🟡 Mittel</button>
+        <button class="seg-b" onclick="setPrio('Niedrig',this)">🟢 Niedrig</button>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Deadline</label><input class="fi" id="taskDeadline" type="date"></div>
+    <div class="fg"><label class="fl">Zuständig</label><select class="fsel" id="taskAssignee" onchange="onAssigneeChange(this)"></select></div>
+    <div class="fg"><label class="fl">Wiederholt sich</label>
+      <select class="fsel" id="taskRepeat"><option value="Nie">Nie</option><option value="Täglich">Täglich</option><option value="Wöchentlich">Wöchentlich</option><option value="Monatlich">Monatlich</option></select>
+    </div>
+    <div class="fg"><label class="fl">Im Pool anzeigen</label><div class="toggle" id="poolToggle" onclick="this.classList.toggle('on')"></div></div>
+    <div class="fg">
+      <label class="fl">Unteraufgaben</label>
+      <div id="newSubList" class="new-sub-list"></div>
+      <div class="sub-input-row"><input type="text" id="newSubInput" placeholder="Unteraufgabe…" onkeydown="if(event.key==='Enter'){addNewSub();event.preventDefault()}"><button onclick="addNewSub()">+</button></div>
+    </div>
+    <div style="padding:0 16px 8px"><button class="btn btn-p" onclick="saveTask()">Speichern</button></div>
+    <div style="padding:0 16px" id="delTaskRow"></div>
+  </div>
+</div>
+
+<!-- PROFILE MODAL -->
+<div class="ov" id="profileModal">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr"><div class="mtitle">Mein Profil</div><span class="mclose" onclick="closeProfile()">Fertig</span></div>
+    <div class="fg">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="photo-area" id="profilePhotoArea" onclick="document.getElementById('profilePhotoInput').click()"></div>
+        <input type="file" id="profilePhotoInput" accept="image/*" style="display:none" onchange="handleProfilePhoto(this)">
+        <div style="flex:1"><label class="fl">Name</label><input class="fi" id="profileName" placeholder="Name…"></div>
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Meine Farbe</label><div class="color-grid" id="profileColorGrid"></div></div>
+    <div class="fg" id="colorOverrideSection"></div>
+    <div class="fg" id="groupInfoSection"></div>
+    <div style="padding:0 16px 8px"><button class="btn btn-p" onclick="saveProfile()">Speichern</button></div>
+    <div style="padding:0 16px 8px" id="leaveGroupRow"></div>
+    <div style="padding:0 16px 8px"><button class="btn btn-d" onclick="deleteAccount()">Account löschen</button></div>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="settings-ov" id="settingsOv">
+  <div class="settings-sheet">
+    <div class="handle"></div>
+    <div class="mhdr"><div class="mtitle">⚙️ Einstellungen</div><span class="mclose" onclick="closeSettings()">Fertig</span></div>
+    <div class="sec">Hintergrund</div>
+    <div style="padding:0 16px 16px;display:flex;gap:10px;flex-wrap:wrap" id="themeButtons"></div>
+    <div class="sec">Akzentfarbe</div>
+    <div style="padding:0 16px 16px"><div class="color-grid" id="accentGrid"></div></div>
+    <div class="sec">Eigene Kategorien</div>
+    <div id="customCatList" style="padding:0 16px 8px"></div>
+    <div style="padding:0 16px 16px;display:flex;gap:8px">
+      <input class="fi" id="newCatEmoji" placeholder="😀" style="width:56px;text-align:center">
+      <input class="fi" id="newCatName" placeholder="Kategorie Name…" style="flex:1">
+      <button class="btn" style="background:var(--accent);color:#fff;padding:10px 12px;font-size:15px;border-radius:10px" onclick="addCustomCat()">+</button>
+    </div>
+    <div class="sec">Daten</div>
+    <div style="padding:0 16px 16px">
+      <button class="btn" style="width:100%;background:var(--red);color:#fff;padding:13px;font-size:16px;border-radius:11px" onclick="resetTasks()">🗑️ Alle Aufgaben zurücksetzen</button>
+    </div>
+  </div>
+</div>
+
+<!-- TASK DETAIL -->
+<div class="detail-ov" id="taskDetail">
+  <div class="detail-nav">
+    <span class="back" onclick="closeDetail()">‹ Zurück</span>
+    <span style="flex:1"></span>
+    <span style="color:var(--accent);cursor:pointer;font-size:17px;font-weight:500" onclick="editCurrentTask()">Bearbeiten</span>
+  </div>
+  <div id="taskDetailContent"></div>
+</div>
+
+<!-- NOTIFICATIONS PANEL (bell icon) -->
+<div class="ov" id="notifPanel">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr"><div class="mtitle">🔔 Benachrichtigungen</div><span class="mclose" onclick="closeNotifPanel()">Schließen</span></div>
+    <div id="notifList" style="padding:0 16px 16px"></div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════════════
+const DEFAULT_CATS = {Arbeit:'💼',Haushalt:'🏠',Einkauf:'🛒',Gesundheit:'❤️',Freizeit:'🎯',Schule:'📚',Sonstiges:'📌'};
+const ALL_COLORS = ['#007AFF','#34C759','#FF3B30','#FF9500','#AF52DE','#FF2D55','#5AC8FA','#FFCC00','#FF6B35','#30D158','#64D2FF','#BF5AF2','#FF375F','#6E6E73','#00C7BE','#FFD60A','#0A84FF','#FF453A','#32D74B','#FF9F0A','#AC8E68','#636366','#48484A','#1C1C1E'];
+const THEMES = [{id:'',label:'Standard',bg:'#F2F2F7'},{id:'th-warm',label:'Warm',bg:'#FFF3E4'},{id:'th-forest',label:'Wald',bg:'#E8F5E8'},{id:'th-night',label:'Nacht',bg:'#1A1A2E'},{id:'th-rose',label:'Rosa',bg:'#FFE8F0'}];
+const PRIO = {Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn'};
+const CELEB = ['😄 Jawoll! Das hast du richtig gut gemacht!','🎉 Erledigt ist erledigt – du bist ein Star!','😎 Einfach top, weiter so!','🌟 Aufgabe gecrusht! Du machst das super!','💪 Stark! Diese Aufgabe hatte keine Chance!','😉 Zwinkerzwink – gut gemacht!','🚀 Abgehakt! Champion!','🏆 Einfach spitze!'];
+
+// ═══════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════
+let me = null;         // current user object
+let myToken = null;    // JWT-like token
+let users = [];        // group members
+let tasks = [];        // tasks for this scope
+let group = null;      // current group (or null)
+let appstate = {};     // pool, settings etc.
+
+let selectedPrio = 'Mittel';
+let newSubs = [];
+let editingTaskId = null;
+let currentDetailTask = null;
+let calYear = new Date().getFullYear();
+let calMonth = new Date().getMonth();
+let calSelectedDay = null;
+let profilePhotoData = null;
+let pollHash = null;
+let pollTimer = null;
+let pendingNotifQueue = [];
+
+// ═══════════════════════════════════════════════════════
+// API HELPERS
+// ═══════════════════════════════════════════════════════
+async function api(method, path, body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'x-token': myToken || '' }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch('/api' + path, opts);
+  if (!r.ok) {
+    const err = await r.json().catch(() => ({ error: r.statusText }));
+    throw new Error(err.error || r.statusText);
+  }
+  return r.json();
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT & AUTH
+// ═══════════════════════════════════════════════════════
+async function init() {
+  myToken = localStorage.getItem('tf_token');
+  if (myToken) {
+    try {
+      me = await api('GET', '/users/me');
+      await loadAll();
+      showApp();
+      startPolling();
+      return;
+    } catch(e) {
+      localStorage.removeItem('tf_token');
+      myToken = null;
+    }
+  }
+  showOnboard();
+}
+
+function showOnboard() {
+  document.getElementById('onboard').classList.remove('hidden');
+  document.getElementById('app').style.display = 'none';
+}
+
+function showApp() {
+  document.getElementById('onboard').classList.add('hidden');
+  document.getElementById('app').style.display = 'block';
+  render();
+  checkPendingNotifications();
+}
+
+async function loadAll() {
+  [users, tasks, group] = await Promise.all([
+    api('GET', '/users'),
+    api('GET', '/tasks'),
+    api('GET', '/groups/mine').catch(() => null)
+  ]);
+  try { appstate = await api('GET', '/appstate'); } catch(e) { appstate = {}; }
+  if (!appstate.catOrder) appstate.catOrder = [];
+  if (!appstate.poolTasks) appstate.poolTasks = [];
+  if (!appstate.poolAssignments) appstate.poolAssignments = {};
+  if (!appstate.customCats) appstate.customCats = {};
+  if (!appstate.theme) appstate.theme = '';
+  if (!appstate.accentColor) appstate.accentColor = '#007AFF';
+  applyTheme();
+  processRecurring();
+}
+
+async function saveAppstate() {
+  try { await api('POST', '/appstate', appstate); } catch(e) {}
+}
+
+// ═══════════════════════════════════════════════════════
+// ONBOARDING
+// ═══════════════════════════════════════════════════════
+function obNext() {
+  const name = document.getElementById('ob-name').value.trim();
+  if (!name) { showToast('Bitte Namen eingeben'); return; }
+  document.getElementById('ob-step1').style.display = 'none';
+  document.getElementById('ob-step2').style.display = 'block';
+}
+
+function obBack() {
+  document.getElementById('ob-step2').style.display = 'block';
+  document.getElementById('ob-step3-create').style.display = 'none';
+  document.getElementById('ob-step3-join').style.display = 'none';
+}
+
+async function obChoose(choice) {
+  const name = document.getElementById('ob-name').value.trim();
+  document.getElementById('ob-step2').style.display = 'none';
+  if (choice === 'solo') {
+    await doLogin(name);
+    // Mark as solo
+    try { await api('PATCH', '/users/me', { solo: true }); } catch(e) {}
+    me.solo = true;
+    await loadAll();
+    showApp();
+    startPolling();
+  } else if (choice === 'create') {
+    await doLogin(name);
+    document.getElementById('ob-step3-create').style.display = 'block';
+  } else {
+    await doLogin(name);
+    document.getElementById('ob-step3-join').style.display = 'block';
+  }
+}
+
+async function doLogin(name) {
+  const data = await api('POST', '/users/login', { username: name });
+  myToken = data.token;
+  localStorage.setItem('tf_token', myToken);
+  me = await api('GET', '/users/me');
+}
+
+async function obCreateGroup() {
+  const name = document.getElementById('ob-group-name').value.trim();
+  if (!name) { showToast('Gruppenname eingeben'); return; }
+  try {
+    group = await api('POST', '/groups', { name });
+    me = await api('GET', '/users/me');
+    await loadAll();
+    showApp();
+    startPolling();
+    showToast('🏠 Gruppe "' + name + '" erstellt! Einladungscode: ' + group.inviteCode);
+  } catch(e) { showToast('Fehler: ' + e.message); }
+}
+
+async function obJoinGroup() {
+  const code = document.getElementById('ob-invite').value.trim().toUpperCase();
+  if (!code) { showToast('Code eingeben'); return; }
+  try {
+    group = await api('POST', '/groups/join', { inviteCode: code });
+    me = await api('GET', '/users/me');
+    await loadAll();
+    showApp();
+    startPolling();
+    showToast('🎉 Gruppe "' + group.name + '" beigetreten!');
+  } catch(e) { showToast('Fehler: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════
+// POLLING (every 5s)
+// ═══════════════════════════════════════════════════════
+function startPolling() {
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async () => {
+    try {
+      const r = await api('GET', '/poll');
+      if (r.hash !== pollHash) {
+        pollHash = r.hash;
+        await loadAll();
+        render();
+      }
+      if (r.hasNotifications) {
+        document.getElementById('notifDot').style.display = 'block';
+        await checkPendingNotifications();
+      } else {
+        document.getElementById('notifDot').style.display = 'none';
+      }
+    } catch(e) {}
+  }, 5000);
+}
+
+async function checkPendingNotifications() {
+  try {
+    const notifs = await api('GET', '/users/notifications');
+    if (notifs && notifs.length > 0) {
+      // Show first notification as overlay
+      showNotifOverlay(notifs[0]);
+      // Clear them
+      await api('DELETE', '/users/notifications');
+      document.getElementById('notifDot').style.display = 'none';
+    }
+  } catch(e) {}
+}
+
+function showNotifOverlay(notif) {
+  const isTaskDone = notif.type === 'task_done';
+  document.getElementById('notifOvIcon').textContent = isTaskDone ? '🎉' : '📋';
+  document.getElementById('notifOvTitle').textContent = isTaskDone ? 'Aufgabe erledigt!' : 'Neue Aufgabe!';
+  document.getElementById('notifOvMsg').textContent = notif.text;
+  document.getElementById('notifOv').classList.add('show');
+}
+
+function closeNotifOv() { document.getElementById('notifOv').classList.remove('show'); }
+
+// ═══════════════════════════════════════════════════════
+// THEME
+// ═══════════════════════════════════════════════════════
+function applyTheme() {
+  document.body.className = appstate.theme || '';
+  document.documentElement.style.setProperty('--accent', appstate.accentColor || '#007AFF');
+}
+
+// ═══════════════════════════════════════════════════════
+// RECURRING
+// ═══════════════════════════════════════════════════════
+function todayStr() { return new Date().toISOString().split('T')[0]; }
+function getWeekStart(d) {
+  const dt = new Date(d + 'T00:00:00'), day = dt.getDay(), diff = day === 0 ? -6 : 1 - day;
+  dt.setDate(dt.getDate() + diff); return dt.toISOString().split('T')[0];
+}
+function getMonthStart(d) { return d.slice(0,8) + '01'; }
+
+function processRecurring() {
+  const today = todayStr();
+  if (!appstate.recurringLastRun) appstate.recurringLastRun = {};
+  let changed = false;
+  tasks.forEach(t => {
+    if (t.repeat === 'Nie' || !t.done) return;
+    const last = appstate.recurringLastRun[t._id] || t.repeatStart || t.deadline || today;
+    let reset = false;
+    if (t.repeat === 'Täglich' && last < today) reset = true;
+    if (t.repeat === 'Wöchentlich' && getWeekStart(last) < getWeekStart(today)) reset = true;
+    if (t.repeat === 'Monatlich' && getMonthStart(last) < getMonthStart(today)) reset = true;
+    if (reset) {
+      appstate.recurringLastRun[t._id] = today;
+      api('PATCH', '/tasks/' + t._id, { done: false, subtasks: (t.subtasks||[]).map(s=>({...s,done:false})) }).catch(()=>{});
+      t.done = false;
+      if (t.subtasks) t.subtasks.forEach(s => s.done = false);
+      changed = true;
+    }
+  });
+  if (changed) saveAppstate();
+}
+
+// ═══════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════
+function render() {
+  if (!me) return;
+  document.getElementById('navUsername').textContent = me.name;
+  const av = avatarHTML(me, 28);
+  document.getElementById('notifBtnIcon').innerHTML = av;
+  renderMyTasks();
+  renderAllTasks();
+  renderPool();
+  renderCalendar();
+  renderUsers();
+}
+
+function allCats() { return { ...DEFAULT_CATS, ...(appstate.customCats || {}) }; }
+function catIcon(cat) { return allCats()[cat] || '📌'; }
+function userById(id) { return users.find(u => u._id?.toString() === id?.toString()); }
+
+function userColor(assignee) {
+  if (assignee === 'all') return '#8E8E93';
+  // Check color overrides for this user
+  const overrides = me?.colorOverrides || {};
+  if (overrides[assignee]) return overrides[assignee];
+  const u = userById(assignee);
+  return u ? u.color : '#8E8E93';
+}
+
+function avatarHTML(u, size = 40) {
+  if (!u) return `<div class="av" style="width:${size}px;height:${size}px;background:#8E8E93;font-size:${Math.round(size*.4)}px">?</div>`;
+  if (u.photo) return `<div class="av" style="width:${size}px;height:${size}px"><img src="${u.photo}"></div>`;
+  return `<div class="av" style="width:${size}px;height:${size}px;background:${u.color||'#8E8E93'};font-size:${Math.round(size*.4)}px">${u.name?.[0]||'?'}</div>`;
+}
+
+function progressHTML(t) {
+  if (!t.subtasks?.length) return '';
+  const done = t.subtasks.filter(s => s.done).length, total = t.subtasks.length;
+  return `<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${Math.round(done/total*100)}%"></div></div><span class="prog-label">${done}/${total}</span></div>`;
+}
+
+function taskHTML(t, showColor = false) {
+  const color = userColor(t.assignee);
+  const isOverdue = t.deadline && !t.done && new Date(t.deadline + 'T00:00:00') < new Date();
+  const u = userById(t.assignee);
+  const assigneeName = t.assignee === 'all' ? '👥 Alle' : (u ? u.name : '');
+  return `<div class="task-item" onclick="openDetail('${t._id}')">
+    ${showColor ? `<div class="color-bar" style="background:${color}"></div>` : ''}
+    <div class="check ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask('${t._id}',true)">${t.done?'✓':''}</div>
+    <div class="task-info">
+      <div class="task-title ${t.done?'done':''}">${t.title}</div>
+      <div class="task-meta">
+        <span class="badge ${PRIO[t.prio]||'b-ora'}">${t.prio}</span>
+        ${t.deadline?`<span style="color:${isOverdue?'var(--red)':'var(--text3)'}">📅 ${formatDate(t.deadline)}${isOverdue?' ⚠️':''}</span>`:''}
+        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec">🔁 ${t.repeat}</span>`:''}
+        ${showColor&&assigneeName?`<span style="color:${color};font-weight:600">${assigneeName}</span>`:''}
+      </div>
+      ${progressHTML(t)}
+    </div>
+    <div class="chevron">›</div>
+  </div>`;
+}
+
+// ── MY TASKS ──────────────────────────────────────────
+function visibleToMe(t) {
+  // User sees: own tasks + tasks assigned to "all" + tasks randomly assigned to them (via pool)
+  if (t.assignee === 'all') return true;
+  if (t.assignee === me._id?.toString()) return true;
+  // Pool random assignment
+  const asgn = appstate.poolAssignments?.[t._id];
+  if (asgn && asgn.assignedUser === me._id?.toString()) return true;
+  return false;
+}
+
+function isRandomTask(t) {
+  if (t.assignee === 'all') return true;
+  const asgn = appstate.poolAssignments?.[t._id];
+  return !!(asgn && asgn.assignedUser === me._id?.toString() && t.assignee !== me._id?.toString());
+}
+
+function renderMyTasks() {
+  const showDone = appstate.showDone;
+  document.getElementById('toggleDone').className = 'toggle' + (showDone ? ' on' : '');
+  const myMine = tasks.filter(t => !isRandomTask(t) && t.assignee === me._id?.toString() && (showDone || !t.done));
+  const myRandom = tasks.filter(t => isRandomTask(t) && (showDone || !t.done));
+  const c = document.getElementById('myTasksContainer');
+  if (!myMine.length && !myRandom.length) {
+    c.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">Alles erledigt!</div><div class="empty-sub">Keine Aufgaben für dich.</div></div>`;
+    return;
+  }
+  let html = '';
+  if (myMine.length) {
+    html += `<div class="super-sec">👤 Eigene Aufgaben</div>`;
+    const cats = getOrderedCats(myMine);
+    cats.forEach(cat => {
+      const catTasks = myMine.filter(t => t.cat === cat);
+      if (!catTasks.length) return;
+      html += `<div class="cat-block" data-cat="${cat}">
+        <div class="sec"><span class="drag-cat-h" data-cat="${cat}">⠿</span>${catIcon(cat)} ${cat}</div>
+        <div class="card-group">${catTasks.map(t => taskHTML(t, false)).join('')}</div>
+      </div>`;
+    });
+  }
+  if (myRandom.length) {
+    html += `<div class="super-sec">🎲 Random Aufgaben</div>`;
+    html += `<div class="card-group">${myRandom.map(t => taskHTML(t, true)).join('')}</div>`;
+  }
+  c.innerHTML = html;
+  initCatDrag();
+}
+
+function getOrderedCats(taskList) {
+  const found = [...new Set(taskList.map(t => t.cat))];
+  const ordered = (appstate.catOrder || []).filter(c => found.includes(c));
+  found.forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
+  return ordered;
+}
+
+function initCatDrag() {
+  const container = document.getElementById('myTasksContainer');
+  let dragging = null;
+  function getBlocks() { return [...container.querySelectorAll('.cat-block')]; }
+  function start(e) {
+    const h = e.target.closest('.drag-cat-h'); if (!h) return;
+    e.preventDefault(); dragging = h.closest('.cat-block');
+    if (dragging) dragging.classList.add('dragging');
+  }
+  function move(e) {
+    if (!dragging) return; e.preventDefault();
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    const blocks = getBlocks().filter(b => b !== dragging);
+    let target = null;
+    for (const b of blocks) { const r = b.getBoundingClientRect(); if (y < r.top + r.height/2) { target = b; break; } }
+    if (target) container.insertBefore(dragging, target); else container.appendChild(dragging);
+  }
+  function end() {
+    if (!dragging) return; dragging.classList.remove('dragging');
+    appstate.catOrder = getBlocks().map(b => b.dataset.cat);
+    saveAppstate(); dragging = null;
+  }
+  container.addEventListener('touchstart', start, { passive: false });
+  container.addEventListener('touchmove', move, { passive: false });
+  container.addEventListener('touchend', end);
+  container.addEventListener('mousedown', start);
+  container.addEventListener('mousemove', move);
+  container.addEventListener('mouseup', end);
+}
+
+// ── ALL TASKS ─────────────────────────────────────────
+function renderAllTasks() {
+  const bar = document.getElementById('allFilterBar');
+  const sd = appstate.showDoneAll;
+  bar.innerHTML = `<button class="chip${!sd?' on':''}" onclick="setAllFilter(false)">Offen</button><button class="chip${sd?' on':''}" onclick="setAllFilter(true)">Alle</button>`;
+  const c = document.getElementById('allTasksContainer');
+  const list = tasks.filter(t => sd || !t.done);
+  if (!list.length) { c.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Keine Aufgaben</div></div>`; return; }
+  c.innerHTML = `<div class="card-group">${list.map(t => taskHTML(t, true)).join('')}</div>`;
+}
+function setAllFilter(v) { appstate.showDoneAll = v; saveAppstate(); renderAllTasks(); }
+
+// ── POOL ──────────────────────────────────────────────
+function buildPoolAssignments(ids) {
+  const asgns = {};
+  const uids = users.map(u => u._id?.toString());
+  if (!uids.length) return asgns;
+  let idx = Math.floor(Math.random() * uids.length);
+  ids.forEach(id => {
+    const t = tasks.find(t => t._id?.toString() === id);
+    if (!t) return;
+    if (t.assignee !== 'all') { asgns[id] = { assignedUser: t.assignee, subtaskAssignments: {} }; return; }
+    const last = appstate.poolAssignments?.[id]?.assignedUser;
+    const subAsgn = {};
+    (t.subtasks || []).forEach(s => { subAsgn[s.id] = uids[idx % uids.length]; idx++; });
+    let main = uids[idx % uids.length];
+    if (uids.length > 1 && main === last) { idx++; main = uids[idx % uids.length]; }
+    const firstUndone = (t.subtasks || []).find(s => !s.done);
+    if (firstUndone) main = subAsgn[firstUndone.id] || main;
+    else if (!t.subtasks?.length) { idx++; }
+    asgns[id] = { assignedUser: main, subtaskAssignments: subAsgn };
+  });
+  return asgns;
+}
+
+function renderPool() {
+  const bar = document.getElementById('poolFilterBar');
+  const pf = appstate.poolFilter || 'all';
+  bar.innerHTML = `<button class="chip${pf==='all'?' on':''}" onclick="setPoolFilter('all')">Alle</button>` +
+    users.map(u => `<button class="chip${pf===u._id?.toString()?' on':''}" style="${pf===u._id?.toString()?'background:'+u.color+';color:#fff':'color:'+u.color}" onclick="setPoolFilter('${u._id}')">${u.name}</button>`).join('');
+
+  const poolable = tasks.filter(t => t.inPool && !t.done);
+  if (!appstate.poolTasks?.length && poolable.length) doShuffle(false);
+  if (!appstate.poolAssignments || !Object.keys(appstate.poolAssignments).length)
+    appstate.poolAssignments = buildPoolAssignments(appstate.poolTasks || []);
+
+  let toShow = (appstate.poolTasks || []).map(id => tasks.find(t => t._id?.toString() === id)).filter(Boolean).filter(t => !t.done);
+  if (pf !== 'all') toShow = toShow.filter(t => appstate.poolAssignments?.[t._id?.toString()]?.assignedUser === pf);
+
+  const c = document.getElementById('poolContainer');
+  if (!toShow.length) { c.innerHTML = `<div class="empty"><div class="empty-icon">🎲</div><div class="empty-title">Keine Aufgaben</div><div class="empty-sub">Neu mischen oder Filter ändern.</div></div>`; return; }
+
+  c.innerHTML = toShow.map(t => {
+    const id = t._id?.toString();
+    const asgn = appstate.poolAssignments?.[id];
+    const u = userById(asgn?.assignedUser);
+    const color = u ? u.color : '#8E8E93';
+    const subsHTML = t.subtasks?.length ? `<div style="margin-top:10px;border-top:.5px solid var(--sep);padding-top:8px">
+      ${t.subtasks.map(s => { const su = userById(asgn?.subtaskAssignments?.[s.id]); return `<div style="display:flex;align-items:center;gap:8px;padding:3px 0;font-size:13px"><span style="color:${s.done?'var(--green)':'var(--sep)'}">${s.done?'✓':'○'}</span><span style="${s.done?'text-decoration:line-through;color:var(--text3)':'color:var(--text2)'};flex:1">${s.title}</span>${su?`<span style="color:${su.color};font-weight:600;font-size:11px">${su.name}</span>`:''}</div>`; }).join('')}
+    </div>` : '';
+    return `<div class="pool-card" style="border-left:4px solid ${color}" onclick="openDetail('${id}')">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px">
+        <div style="font-size:17px;font-weight:600;flex:1">${catIcon(t.cat)} ${t.title}</div>
+        <span style="color:${color};font-weight:700;font-size:13px;padding-left:8px">${u?.name||'?'}</span>
+      </div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:8px">${t.deadline?'📅 '+formatDate(t.deadline):''}</div>
+      <div style="display:flex;gap:8px"><span class="badge ${PRIO[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span></div>
+      ${progressHTML(t)}${subsHTML}
+    </div>`;
+  }).join('');
+}
+
+function setPoolFilter(id) { appstate.poolFilter = id; saveAppstate(); renderPool(); }
+
+function doShuffle(notify = true) {
+  const poolable = tasks.filter(t => t.inPool && !t.done);
+  if (!poolable.length) { if (notify) showToast('Keine Pool-Aufgaben vorhanden.'); return; }
+  appstate.poolTasks = shuffleArr(poolable).slice(0, Math.min(4, poolable.length)).map(t => t._id?.toString());
+  appstate.poolAssignments = buildPoolAssignments(appstate.poolTasks);
+  appstate.poolFilter = 'all';
+  saveAppstate();
+  if (notify) showToast('🎲 Neu gemischt!');
+}
+
+function shufflePool() { doShuffle(true); renderPool(); renderMyTasks(); }
+
+// ── CALENDAR ──────────────────────────────────────────
+function renderCalendar() {
+  const label = new Date(calYear, calMonth).toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+  document.getElementById('calMonthLabel').textContent = label;
+  const grid = document.getElementById('calGrid');
+  const days = ['Mo','Di','Mi','Do','Fr','Sa','So'];
+  const today = new Date(); today.setHours(0,0,0,0);
+  const firstDay = new Date(calYear, calMonth, 1);
+  const startDow = firstDay.getDay() === 0 ? 6 : firstDay.getDay() - 1;
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const daysInPrev = new Date(calYear, calMonth, 0).getDate();
+
+  // Build task deadline map
+  const deadlineMap = {};
+  tasks.filter(t => t.deadline && visibleToMe(t)).forEach(t => {
+    const d = t.deadline;
+    if (!deadlineMap[d]) deadlineMap[d] = [];
+    deadlineMap[d].push(t);
+  });
+
+  let html = days.map(d => `<div class="cal-day-name">${d}</div>`).join('');
+  const totalCells = Math.ceil((startDow + daysInMonth) / 7) * 7;
+  for (let i = 0; i < totalCells; i++) {
+    let day, month = calMonth, year = calYear, other = false;
+    if (i < startDow) { day = daysInPrev - startDow + i + 1; month = calMonth - 1; other = true; if (month < 0) { month = 11; year--; } }
+    else if (i >= startDow + daysInMonth) { day = i - startDow - daysInMonth + 1; month = calMonth + 1; other = true; if (month > 11) { month = 0; year++; } }
+    else { day = i - startDow + 1; }
+    const dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+    const isToday = new Date(dateStr+'T00:00:00').getTime() === today.getTime();
+    const isSel = dateStr === calSelectedDay;
+    const dtasks = deadlineMap[dateStr] || [];
+    const dots = dtasks.slice(0,3).map(t => `<div class="cal-dot" style="background:${userColor(t.assignee)}"></div>`).join('');
+    html += `<div class="cal-cell${isSel?' sel':''}" onclick="calSelectDay('${dateStr}')" style="${isSel?'background:var(--card2);border-radius:10px':''}">
+      <div class="cal-num${isToday?' today':''}${other?' other-month':''}">${day}</div>
+      <div style="display:flex;gap:2px;margin-top:2px;flex-wrap:wrap;justify-content:center">${dots}</div>
+    </div>`;
+  }
+  grid.innerHTML = html;
+  if (calSelectedDay) renderCalTaskList(calSelectedDay);
+}
+
+function calSelectDay(d) {
+  calSelectedDay = calSelectedDay === d ? null : d;
+  renderCalendar();
+}
+
+function renderCalTaskList(d) {
+  const dayTasks = tasks.filter(t => t.deadline === d && visibleToMe(t));
+  const c = document.getElementById('calTaskList');
+  if (!dayTasks.length) { c.innerHTML = ''; return; }
+  c.innerHTML = `<div class="sec">📅 ${formatDate(d)}</div><div class="card-group">${dayTasks.map(t => taskHTML(t, true)).join('')}</div>`;
+}
+
+function calPrev() { calMonth--; if (calMonth < 0) { calMonth = 11; calYear--; } renderCalendar(); }
+function calNext() { calMonth++; if (calMonth > 11) { calMonth = 0; calYear++; } renderCalendar(); }
+
+// ── USERS/GROUP PAGE ──────────────────────────────────
+function renderUsers() {
+  const gc = document.getElementById('groupContainer');
+  if (group) {
+    gc.innerHTML = `<div class="card-group">
+      <div class="card-row">
+        ${group.photo ? `<div class="av" style="width:44px;height:44px"><img src="${group.photo}"></div>` : `<div style="font-size:36px">${group.name[0]}</div>`}
+        <div style="flex:1"><div style="font-size:17px;font-weight:600">${group.name}</div><div style="font-size:13px;color:var(--text3)">Code: <b style="letter-spacing:1px">${group.inviteCode}</b></div></div>
+        ${group.creatorId === me._id?.toString() ? `<button onclick="editGroup()" style="background:var(--card2);border:none;border-radius:8px;padding:6px 10px;color:var(--text3);cursor:pointer;font-size:13px">✏️</button>` : ''}
+      </div>
+    </div>`;
+  } else {
+    gc.innerHTML = `<div style="padding:0 16px 16px"><button class="btn btn-p" onclick="createGroupFromProfile()">+ Gruppe erstellen</button><div style="margin-top:8px"><button class="btn btn-g" onclick="joinGroupFromProfile()">Gruppe beitreten</button></div></div>`;
+  }
+
+  const uc = document.getElementById('usersContainer');
+  uc.innerHTML = `<div class="card-group">${users.map(u => {
+    const isMe = u._id?.toString() === me._id?.toString();
+    const tCount = tasks.filter(t => (t.assignee === u._id?.toString() || t.assignee === 'all') && !t.done).length;
+    return `<div class="card-row">
+      ${avatarHTML(u)}
+      <div style="flex:1"><div style="font-size:16px;font-weight:500">${u.name} ${isMe?'<span style="color:var(--green);font-size:12px">● Du</span>':''}</div><div style="font-size:13px;color:var(--text3)">${tCount} offene Aufgabe${tCount!==1?'n':''}</div></div>
+      ${isMe ? `<button onclick="openProfile()" style="background:var(--card2);border:none;border-radius:8px;padding:6px 10px;color:var(--text3);cursor:pointer;font-size:13px">✏️</button>` : ''}
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ═══════════════════════════════════════════════════════
+// DETAIL VIEW
+// ═══════════════════════════════════════════════════════
+function openDetail(id) {
+  const t = tasks.find(t => t._id?.toString() === id);
+  if (!t) return;
+  currentDetailTask = id;
+  const asgn = appstate.poolAssignments?.[id];
+  const effectiveAssignee = (t.assignee === 'all' && asgn) ? asgn.assignedUser : t.assignee;
+  const u = userById(effectiveAssignee);
+  const color = userColor(effectiveAssignee);
+  const assigneeName = effectiveAssignee === 'all' ? '👥 Alle' : (u ? u.name : '');
+  const isOverdue = t.deadline && !t.done && new Date(t.deadline+'T00:00:00') < new Date();
+
+  const subsHTML = t.subtasks?.length ? `
+    <div class="sec">Unteraufgaben (${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})</div>
+    <div class="card-group" id="detailSubList">
+      ${t.subtasks.map(s => `<div class="sub-item" data-sid="${s.id}">
+        <span class="drag-h">⠿</span>
+        <div class="sub-check ${s.done?'done':''}" onclick="toggleSub('${id}','${s.id}')">${s.done?'✓':''}</div>
+        <span style="font-size:15px;flex:1;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>
+      </div>`).join('')}
+      <div class="sub-item" style="cursor:pointer" onclick="addSubFromDetail('${id}')">
+        <span style="width:26px"></span><div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px">+</div>
+        <span style="color:var(--accent);font-size:15px">Unteraufgabe hinzufügen</span>
+      </div>
+    </div>` : `<div style="padding:0 16px 8px"><button class="btn btn-g" onclick="addSubFromDetail('${id}')">+ Unteraufgabe hinzufügen</button></div>`;
+
+  document.getElementById('taskDetailContent').innerHTML = `
+    <div style="padding:18px 16px 8px">
+      <div style="font-size:25px;font-weight:700;letter-spacing:-.5px;margin-bottom:10px">${t.title}</div>
+      <div style="display:flex;gap:7px;flex-wrap:wrap">
+        <span class="badge ${PRIO[t.prio]||'b-ora'}">${t.prio}</span>
+        <span class="badge b-blu">${catIcon(t.cat)} ${t.cat}</span>
+        ${t.done?'<span class="badge b-grn">✓ Erledigt</span>':''}
+        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec">🔁 ${t.repeat}</span>`:''}
+      </div>
+      ${t.desc?`<div style="font-size:15px;color:var(--text2);line-height:1.55;margin-top:12px">${t.desc}</div>`:''}
+    </div>
+    ${t.subtasks?.length?`<div style="padding:0 16px 4px">${progressHTML(t)}</div>`:''}
+    <div class="sec">Details</div>
+    <div class="card-group">
+      <div class="card-row"><span>👤</span><span style="flex:1">Zuständig</span><span style="color:${color};font-weight:600">${assigneeName}</span></div>
+      ${t.deadline?`<div class="card-row"><span>📅</span><span style="flex:1">Deadline</span><span style="color:${isOverdue?'var(--red)':'var(--text3)'}">${formatDate(t.deadline)}${isOverdue?' ⚠️':''}</span></div>`:''}
+      ${t.inPool?`<div class="card-row"><span>🎲</span><span style="flex:1">Im Pool</span><span style="color:var(--green)">Ja</span></div>`:''}
+    </div>
+    ${subsHTML}
+    <div style="padding:8px 16px 4px"><button class="btn btn-p" onclick="toggleTask('${id}',true);closeDetail()">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button></div>
+    <div style="padding:4px 16px 24px"><button class="btn btn-d" onclick="deleteTaskFromDetail('${id}')">Aufgabe löschen</button></div>`;
+
+  document.getElementById('taskDetail').classList.add('open');
+  if (t.subtasks?.length) setTimeout(() => initSubDrag(id), 50);
+}
+
+function closeDetail() { document.getElementById('taskDetail').classList.remove('open'); }
+function editCurrentTask() { if (currentDetailTask) { closeDetail(); setTimeout(() => showAddTask(currentDetailTask), 220); } }
+
+function deleteTaskFromDetail(id) {
+  const btn = document.getElementById('taskDetailContent').querySelector('.btn-d');
+  if (!btn) return;
+  btn.outerHTML = `<div style="padding:4px 16px 24px;display:flex;gap:8px">
+    <button class="btn" style="flex:1;background:var(--card2);color:var(--text);font-size:15px" onclick="openDetail('${id}')">Abbrechen</button>
+    <button class="btn" style="flex:1;background:var(--red);color:#fff;font-size:15px" onclick="confirmDelete('${id}')">Löschen ✓</button>
+  </div>`;
+}
+
+async function confirmDelete(id) {
+  try {
+    await api('DELETE', '/tasks/' + id);
+    tasks = tasks.filter(t => t._id?.toString() !== id);
+    appstate.poolTasks = (appstate.poolTasks||[]).filter(p => p !== id);
+    delete (appstate.poolAssignments||{})[id];
+    saveAppstate(); render(); closeDetail();
+    showToast('🗑️ Aufgabe gelöscht');
+  } catch(e) { showToast('Fehler: ' + e.message); }
+}
+
+async function toggleSub(taskId, subId) {
+  const t = tasks.find(t => t._id?.toString() === taskId);
+  if (!t) return;
+  const s = t.subtasks?.find(s => s.id === subId);
+  if (s) s.done = !s.done;
+  try {
+    await api('PATCH', '/tasks/' + taskId, { subtasks: t.subtasks });
+    render(); openDetail(taskId);
+  } catch(e) { showToast('Fehler beim Speichern'); }
+}
+
+async function addSubFromDetail(taskId) {
+  const title = prompt('Unteraufgabe:'); if (!title) return;
+  const t = tasks.find(t => t._id?.toString() === taskId); if (!t) return;
+  if (!t.subtasks) t.subtasks = [];
+  t.subtasks.push({ id: uid(), title, done: false });
+  await api('PATCH', '/tasks/' + taskId, { subtasks: t.subtasks });
+  render(); openDetail(taskId);
+}
+
+function initSubDrag(taskId) {
+  const list = document.getElementById('detailSubList'); if (!list) return;
+  let dragging = null;
+  function getItems() { return [...list.querySelectorAll('.sub-item[data-sid]')]; }
+  function start(e) { const h = e.target.closest('.drag-h'); if (!h) return; e.preventDefault(); dragging = h.closest('.sub-item'); if (dragging) dragging.classList.add('dragging'); }
+  function move(e) {
+    if (!dragging) return; e.preventDefault();
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    const items = getItems().filter(i => i !== dragging); let target = null;
+    for (const item of items) { const r = item.getBoundingClientRect(); if (y < r.top + r.height/2) { target = item; break; } }
+    const addBtn = list.querySelector('.sub-item:not([data-sid])');
+    if (target) list.insertBefore(dragging, target); else if (addBtn) list.insertBefore(dragging, addBtn); else list.appendChild(dragging);
+  }
+  async function end() {
+    if (!dragging) return; dragging.classList.remove('dragging');
+    const t = tasks.find(t => t._id?.toString() === taskId);
+    if (t) {
+      const newOrder = getItems().map(el => el.dataset.sid);
+      t.subtasks.sort((a, b) => newOrder.indexOf(a.id) - newOrder.indexOf(b.id));
+      await api('PATCH', '/tasks/' + taskId, { subtasks: t.subtasks });
+    }
+    dragging = null;
+  }
+  list.addEventListener('touchstart', start, { passive: false });
+  list.addEventListener('touchmove', move, { passive: false });
+  list.addEventListener('touchend', end);
+  list.addEventListener('mousedown', start);
+  window.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+}
+
+// ═══════════════════════════════════════════════════════
+// TASK ACTIONS
+// ═══════════════════════════════════════════════════════
+async function toggleTask(id, withCelebration = false) {
+  const t = tasks.find(t => t._id?.toString() === id); if (!t) return;
+  const wasDone = t.done;
+  t.done = !t.done;
+  render();
+  try {
+    await api('PATCH', '/tasks/' + id, { done: t.done });
+    if (!wasDone && withCelebration) celebrate();
+  } catch(e) { t.done = wasDone; render(); showToast('Fehler beim Speichern'); }
+}
+
+function toggleFilter() { appstate.showDone = !appstate.showDone; saveAppstate(); renderMyTasks(); }
+
+// ═══════════════════════════════════════════════════════
+// TASK MODAL
+// ═══════════════════════════════════════════════════════
+function populateCatDropdown() {
+  const sel = document.getElementById('taskCat'); if (!sel) return;
+  const cats = allCats();
+  sel.innerHTML = Object.entries(cats).map(([name, icon]) => `<option value="${name}">${icon} ${name}</option>`).join('');
+}
+
+function refreshNewSubList() {
+  const el = document.getElementById('newSubList'); if (!el) return;
+  el.innerHTML = newSubs.map((s, i) => `<div class="new-sub-tag" data-ni="${i}">
+    <span class="new-sub-h">⠿</span><span style="flex:1;font-size:14px">${s.title}</span>
+    <button class="rm-btn" onclick="removeNewSub(${i})">×</button>
+  </div>`).join('');
+  initNewSubDrag();
+}
+
+function initNewSubDrag() {
+  const list = document.getElementById('newSubList'); if (!list) return;
+  let dragging = null;
+  function getItems() { return [...list.querySelectorAll('.new-sub-tag')]; }
+  function start(e) { const h = e.target.closest('.new-sub-h'); if (!h) return; e.preventDefault(); dragging = h.closest('.new-sub-tag'); if (dragging) dragging.classList.add('dragging'); }
+  function move(e) { if (!dragging) return; e.preventDefault(); const y = e.touches?e.touches[0].clientY:e.clientY; const items = getItems().filter(i=>i!==dragging); let t=null; for(const item of items){const r=item.getBoundingClientRect();if(y<r.top+r.height/2){t=item;break;}} if(t)list.insertBefore(dragging,t);else list.appendChild(dragging); }
+  function end() { if (!dragging) return; dragging.classList.remove('dragging'); const o=getItems().map(el=>parseInt(el.dataset.ni)); newSubs=o.map(i=>newSubs[i]); refreshNewSubList(); dragging=null; }
+  list.addEventListener('touchstart', start, {passive:false}); list.addEventListener('touchmove', move, {passive:false}); list.addEventListener('touchend', end);
+  list.addEventListener('mousedown', start); window.addEventListener('mousemove', move); window.addEventListener('mouseup', end);
+}
+
+function addNewSub() {
+  const inp = document.getElementById('newSubInput'); const title = inp.value.trim(); if (!title) return;
+  newSubs.push({ id: uid(), title, done: false }); inp.value = ''; refreshNewSubList();
+}
+function removeNewSub(i) { newSubs.splice(i, 1); refreshNewSubList(); }
+
+function onAssigneeChange(sel) { if (sel.value === 'all') document.getElementById('poolToggle').classList.add('on'); }
+
+function showAddTask(editId = null) {
+  editingTaskId = editId;
+  const t = editId ? tasks.find(t => t._id?.toString() === editId) : null;
+  newSubs = t ? [...(t.subtasks||[])].map(s => ({...s})) : [];
+  populateCatDropdown();
+  document.getElementById('modalTitle').textContent = editId ? 'Aufgabe bearbeiten' : 'Neue Aufgabe';
+  document.getElementById('taskTitle').value = t?.title || '';
+  document.getElementById('taskDesc').value = t?.desc || '';
+  document.getElementById('taskCat').value = t?.cat || 'Arbeit';
+  document.getElementById('taskDeadline').value = t?.deadline || '';
+  document.getElementById('taskRepeat').value = t?.repeat || 'Nie';
+  selectedPrio = t?.prio || 'Mittel';
+  document.querySelectorAll('#prioCtrl .seg-b').forEach(b => b.classList.remove('on'));
+  const pi = ['Hoch','Mittel','Niedrig'].indexOf(selectedPrio);
+  if (pi >= 0) document.querySelectorAll('#prioCtrl .seg-b')[pi]?.classList.add('on');
+  document.getElementById('poolToggle').className = 'toggle' + ((t?.inPool) ? ' on' : '');
+
+  // Assignee: show all group members + "Alle"
+  const sel = document.getElementById('taskAssignee');
+  sel.innerHTML = `<option value="all">👥 Alle Nutzer</option>` + users.map(u => `<option value="${u._id}">${u.name}</option>`).join('');
+  sel.value = t?.assignee || me._id?.toString() || 'all';
+  if (sel.value === 'all') document.getElementById('poolToggle').classList.add('on');
+
+  document.getElementById('delTaskRow').innerHTML = editId ? `<button class="btn btn-d" onclick="deleteTaskFromModal('${editId}')">Aufgabe löschen</button>` : '';
+  refreshNewSubList();
+  document.getElementById('newSubInput').value = '';
+  document.getElementById('taskModal').classList.add('open');
+}
+
+function closeTaskModal() { document.getElementById('taskModal').classList.remove('open'); }
+function setPrio(p, el) { selectedPrio = p; document.querySelectorAll('#prioCtrl .seg-b').forEach(b => b.classList.remove('on')); el.classList.add('on'); }
+
+async function saveTask() {
+  const title = document.getElementById('taskTitle').value.trim();
+  if (!title) { showToast('⚠️ Titel eingeben!'); return; }
+  const inPool = document.getElementById('poolToggle').classList.contains('on');
+  const assignee = document.getElementById('taskAssignee').value;
+  const wasForOther = assignee !== 'all' && assignee !== me._id?.toString();
+
+  const taskData = {
+    title, desc: document.getElementById('taskDesc').value,
+    cat: document.getElementById('taskCat').value, prio: selectedPrio,
+    deadline: document.getElementById('taskDeadline').value,
+    assignee, repeat: document.getElementById('taskRepeat').value,
+    repeatStart: todayStr(),
+    inPool: inPool || assignee === 'all',
+    done: false, subtasks: [...newSubs]
+  };
+
+  try {
+    if (editingTaskId) {
+      await api('PATCH', '/tasks/' + editingTaskId, taskData);
+      const idx = tasks.findIndex(t => t._id?.toString() === editingTaskId);
+      if (idx >= 0) tasks[idx] = { ...tasks[idx], ...taskData };
+    } else {
+      const created = await api('POST', '/tasks', taskData);
+      tasks.push(created);
+      if (wasForOther) showToast('📨 Aufgabe an ' + (userById(assignee)?.name || 'Nutzer') + ' gesendet!');
+    }
+    newSubs = [];
+    appstate.poolTasks = (appstate.poolTasks||[]).filter(id => tasks.find(t => t._id?.toString() === id && t.inPool && !t.done));
+    saveAppstate(); render(); closeTaskModal();
+    showToast(editingTaskId ? '✅ Gespeichert' : '✅ Aufgabe erstellt');
+  } catch(e) { showToast('Fehler: ' + e.message); }
+}
+
+function deleteTaskFromModal(id) {
+  const row = document.getElementById('delTaskRow');
+  row.innerHTML = `<div style="display:flex;gap:8px">
+    <button class="btn" style="flex:1;background:var(--card2);color:var(--text);font-size:15px" onclick="showAddTask('${id}')">Abbrechen</button>
+    <button class="btn" style="flex:1;background:var(--red);color:#fff;font-size:15px" onclick="confirmDeleteModal('${id}')">Löschen ✓</button>
+  </div>`;
+}
+
+async function confirmDeleteModal(id) {
+  try {
+    await api('DELETE', '/tasks/' + id);
+    tasks = tasks.filter(t => t._id?.toString() !== id);
+    saveAppstate(); render(); closeTaskModal();
+    showToast('🗑️ Aufgabe gelöscht');
+  } catch(e) { showToast('Fehler: ' + e.message); }
+}
+
+// ═══════════════════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════════════════
+function openProfile() {
+  profilePhotoData = me.photo || null;
+  document.getElementById('profileName').value = me.name;
+
+  // Photo area
+  const pa = document.getElementById('profilePhotoArea');
+  if (me.photo) pa.innerHTML = `<img src="${me.photo}">`;
+  else pa.innerHTML = `<div style="width:100%;height:100%;background:${me.color};display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff">${me.name[0]}</div>`;
+
+  // My color
+  const cg = document.getElementById('profileColorGrid');
+  cg.innerHTML = `<div class="color-grid">${ALL_COLORS.map(c => `<div class="cdot${me.color===c?' sel':''}" style="background:${c}" onclick="pickProfileColor('${c}')"></div>`).join('')}</div>`;
+
+  // Color overrides for other users
+  const overSection = document.getElementById('colorOverrideSection');
+  const otherUsers = users.filter(u => u._id?.toString() !== me._id?.toString());
+  if (otherUsers.length) {
+    overSection.innerHTML = `<label class="fl">Farben der anderen Nutzer (nur für dich)</label>` +
+      otherUsers.map(u => {
+        const override = me.colorOverrides?.[u._id?.toString()] || u.color;
+        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          ${avatarHTML(u, 32)}
+          <span style="flex:1;font-size:15px">${u.name}</span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;max-width:160px">
+            ${ALL_COLORS.slice(0,12).map(c => `<div class="cdot${override===c?' sel':''}" style="background:${c};width:24px;height:24px;border-width:2px" onclick="pickOverrideColor('${u._id}','${c}',this)"></div>`).join('')}
+          </div>
+        </div>`;
+      }).join('');
+  } else overSection.innerHTML = '';
+
+  // Group info
+  const gs = document.getElementById('groupInfoSection');
+  if (group) {
+    gs.innerHTML = `<label class="fl">Gruppe</label>
+      <div style="background:var(--card2);border-radius:10px;padding:12px 14px;font-size:15px">
+        <b>${group.name}</b> · Code: <b>${group.inviteCode}</b>
+      </div>`;
+    document.getElementById('leaveGroupRow').innerHTML = `<button class="btn btn-d" onclick="leaveGroup()" style="background:#FF9500">Gruppe verlassen</button>`;
+  } else {
+    gs.innerHTML = '';
+    document.getElementById('leaveGroupRow').innerHTML = '';
+  }
+
+  document.getElementById('profileModal').classList.add('open');
+}
+
+function closeProfile() { document.getElementById('profileModal').classList.remove('open'); }
+
+function pickProfileColor(c) {
+  me.color = c;
+  const cg = document.getElementById('profileColorGrid');
+  cg.querySelectorAll('.cdot').forEach(el => el.classList.toggle('sel', el.style.background === c));
+}
+
+function pickOverrideColor(userId, color, el) {
+  if (!me.colorOverrides) me.colorOverrides = {};
+  me.colorOverrides[userId] = color;
+  // Update UI
+  const parent = el.closest('div[style*="display:flex;gap:6px"]');
+  if (parent) parent.querySelectorAll('.cdot').forEach(d => d.classList.toggle('sel', d.style.background === color));
+}
+
+function handleProfilePhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    profilePhotoData = e.target.result;
+    const pa = document.getElementById('profilePhotoArea');
+    pa.innerHTML = `<img src="${profilePhotoData}">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveProfile() {
+  const name = document.getElementById('profileName').value.trim();
+  try {
+    me = await api('PATCH', '/users/me', { name: name || me.name, color: me.color, photo: profilePhotoData, colorOverrides: me.colorOverrides || {} });
+    // update in users list
+    const idx = users.findIndex(u => u._id?.toString() === me._id?.toString());
+    if (idx >= 0) users[idx] = { ...users[idx], ...me };
+    render(); closeProfile(); showToast('✅ Profil gespeichert');
+  } catch(e) { showToast('Fehler: ' + e.message); }
+}
+
+async function leaveGroup() {
+  if (!confirm('Gruppe wirklich verlassen?')) return;
+  try {
+    await api('POST', '/groups/leave');
+    group = null; me.groupId = null;
+    await loadAll(); render(); closeProfile();
+    showToast('Gruppe verlassen');
+  } catch(e) { showToast('Fehler: ' + e.message); }
+}
+
+async function deleteAccount() {
+  if (!confirm('Account wirklich löschen? Alle deine Daten werden gelöscht.')) return;
+  try {
+    await api('DELETE', '/users/me');
+    localStorage.removeItem('tf_token');
+    location.reload();
+  } catch(e) { showToast('Fehler: ' + e.message); }
+}
+
+function createGroupFromProfile() {
+  const name = prompt('Gruppenname:'); if (!name) return;
+  api('POST', '/groups', { name }).then(async g => {
+    group = g; me = await api('GET', '/users/me');
+    await loadAll(); render(); showToast('🏠 Gruppe erstellt! Code: ' + g.inviteCode);
+  }).catch(e => showToast('Fehler: ' + e.message));
+}
+
+function joinGroupFromProfile() {
+  const code = prompt('Einladungscode eingeben:'); if (!code) return;
+  api('POST', '/groups/join', { inviteCode: code.trim().toUpperCase() }).then(async g => {
+    group = g; me = await api('GET', '/users/me');
+    await loadAll(); render(); showToast('🎉 Gruppe beigetreten!');
+  }).catch(e => showToast('Fehler: ' + e.message));
+}
+
+function editGroup() {
+  const name = prompt('Neuer Gruppenname:', group.name); if (!name) return;
+  api('PATCH', '/groups/mine', { name }).then(() => {
+    group.name = name; renderUsers(); showToast('✅ Gruppe aktualisiert');
+  }).catch(e => showToast('Fehler: ' + e.message));
+}
+
+// ═══════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════
+function openSettings() {
+  // Themes
+  document.getElementById('themeButtons').innerHTML = THEMES.map(th =>
+    `<button onclick="setTheme('${th.id}')" style="background:${th.bg};border:2px solid ${appstate.theme===th.id?'var(--text)':'transparent'};border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;color:${th.id==='th-night'?'#fff':'#333'}">${th.label}</button>`
+  ).join('');
+  // Accent
+  document.getElementById('accentGrid').innerHTML = `<div class="color-grid">${ALL_COLORS.slice(0,12).map(c => `<div class="cdot${appstate.accentColor===c?' sel':''}" style="background:${c}" onclick="setAccent('${c}')"></div>`).join('')}</div>`;
+  renderCustomCats();
+  document.getElementById('settingsOv').classList.add('open');
+}
+function closeSettings() { document.getElementById('settingsOv').classList.remove('open'); }
+function setTheme(t) { appstate.theme = t; applyTheme(); saveAppstate(); openSettings(); }
+function setAccent(a) { appstate.accentColor = a; applyTheme(); saveAppstate(); openSettings(); }
+
+function renderCustomCats() {
+  const list = document.getElementById('customCatList');
+  const customs = Object.entries(appstate.customCats||{});
+  if (!customs.length) { list.innerHTML = `<div style="color:var(--text3);font-size:14px;padding-bottom:8px">Noch keine eigenen Kategorien.</div>`; return; }
+  list.innerHTML = customs.map(([name, icon]) => `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--sep)">
+    <span style="font-size:20px">${icon}</span><span style="flex:1;font-size:15px">${name}</span>
+    <button onclick="removeCustomCat('${name}')" style="background:none;border:none;color:var(--red);font-size:18px;cursor:pointer">×</button>
+  </div>`).join('');
+}
+
+function addCustomCat() {
+  const emoji = document.getElementById('newCatEmoji').value.trim() || '📌';
+  const name = document.getElementById('newCatName').value.trim();
+  if (!name) { showToast('Name eingeben!'); return; }
+  if (!appstate.customCats) appstate.customCats = {};
+  appstate.customCats[name] = emoji;
+  document.getElementById('newCatEmoji').value = '';
+  document.getElementById('newCatName').value = '';
+  saveAppstate(); renderCustomCats(); populateCatDropdown();
+  showToast(`✅ "${name}" hinzugefügt`);
+}
+
+function removeCustomCat(name) { if (appstate.customCats) delete appstate.customCats[name]; saveAppstate(); renderCustomCats(); }
+
+async function resetTasks() {
+  if (!confirm('Alle Aufgaben wirklich löschen?')) return;
+  for (const t of [...tasks]) {
+    try { await api('DELETE', '/tasks/' + t._id); } catch(e) {}
+  }
+  tasks = []; appstate.poolTasks = []; appstate.poolAssignments = {};
+  saveAppstate(); render(); closeSettings(); showToast('🗑️ Alle Aufgaben gelöscht');
+}
+
+// ═══════════════════════════════════════════════════════
+// CELEBRATION
+// ═══════════════════════════════════════════════════════
+function celebrate() {
+  const faces = ['😄','😁','🥳','😎','🤩','😜','🎉'];
+  document.getElementById('celebFace').textContent = faces[Math.floor(Math.random()*faces.length)];
+  document.getElementById('celebTxt').textContent = CELEB[Math.floor(Math.random()*CELEB.length)];
+  const cc = document.getElementById('confContainer'); cc.innerHTML = '';
+  const cols = ['#FF3B30','#34C759','#007AFF','#FF9500','#AF52DE','#FFCC00'];
+  for (let i = 0; i < 50; i++) {
+    const p = document.createElement('div'); p.className = 'conf';
+    p.style.cssText = `left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;
+    cc.appendChild(p);
+  }
+  document.getElementById('celebOv').classList.add('show');
+  setTimeout(closeceleb, 4000);
+}
+function closeceleb() { document.getElementById('celebOv').classList.remove('show'); }
+
+// ═══════════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════════
+const PAGE_IDS = ['pageMy','pageAll','pagePool','pageCalendar','pageUsers'];
+const NAV_TITLES = ['Meine Aufgaben','Alle Aufgaben','Aufgaben-Pool','Kalender','Gruppe'];
+function switchTab(i) {
+  PAGE_IDS.forEach((p, j) => { document.getElementById(p).classList.toggle('active', j===i); document.getElementById('tab'+j).classList.toggle('active', j===i); });
+  document.getElementById('navTitle').textContent = NAV_TITLES[i];
+  document.getElementById('fabBtn').style.display = i === 4 ? 'none' : '';
+}
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function uid() { return Math.random().toString(36).substr(2,9); }
+function shuffleArr(arr) { const a=[...arr]; for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function formatDate(d) { if(!d)return''; return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'}); }
+
+init();
+</script>
+</body>
+</html>
