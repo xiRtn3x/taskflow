@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>TaskFlow</title>
+<style>
+:root{
+  --ios-blue:#007AFF;--ios-red:#FF3B30;--ios-green:#34C759;
+  --ios-orange:#FF9500;--ios-purple:#AF52DE;
+  --bg:#F2F2F7;--card:#FFFFFF;--card2:#F2F2F7;
+  --text:#000;--text2:#3C3C43;--text3:#8E8E93;
+  --sep:#C6C6C8;--nav-bg:rgba(242,242,247,0.9);--tab-bar:rgba(255,255,255,0.95);
+  --shadow:0 2px 14px rgba(0,0,0,0.07);--radius:13px;
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --accent:#007AFF;
+}
+@media(prefers-color-scheme:dark){
+  :root{--bg:#000;--card:#1C1C1E;--card2:#2C2C2E;--text:#fff;--text2:#EBEBF5;--text3:#8E8E93;--sep:#38383A;--nav-bg:rgba(0,0,0,0.9);--tab-bar:rgba(28,28,30,0.95)}
+}
+/* THEME OVERRIDES */
+body.theme-warm{--bg:#FFF8F0;--card:#FFFDF9;--card2:#FFF3E4;--sep:#E8D5C0;--nav-bg:rgba(255,248,240,0.9);--tab-bar:rgba(255,253,249,0.95)}
+body.theme-forest{--bg:#F0F7F0;--card:#FAFFF8;--card2:#E8F5E8;--sep:#C8DFC8;--nav-bg:rgba(240,247,240,0.9);--tab-bar:rgba(250,255,248,0.95)}
+body.theme-night{--bg:#0D0D14;--card:#1A1A2E;--card2:#16213E;--text:#E8E8FF;--text2:#B8B8D8;--text3:#7878A8;--sep:#2A2A4A;--nav-bg:rgba(13,13,20,0.92);--tab-bar:rgba(26,26,46,0.95)}
+body.theme-rose{--bg:#FFF0F5;--card:#FFFBFC;--card2:#FFE8F0;--sep:#F0C8D8;--nav-bg:rgba(255,240,245,0.9);--tab-bar:rgba(255,251,252,0.95)}
+/* BG IMAGE */
+body.bg-bubbles .page-bg{background:radial-gradient(circle at 20% 30%,rgba(0,122,255,0.06) 0%,transparent 50%),radial-gradient(circle at 80% 70%,rgba(175,82,222,0.05) 0%,transparent 50%)}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,'SF Pro Text',BlinkMacSystemFont,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;transition:background .3s}
+#app{max-width:430px;margin:0 auto;min-height:100vh;position:relative}
+
+/* NAV */
+.nav-bar{position:sticky;top:0;z-index:100;background:var(--nav-bg);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);padding:12px 16px 10px;border-bottom:.5px solid var(--sep)}
+.nav-row{display:flex;justify-content:space-between;align-items:center}
+.nav-title{font-size:32px;font-weight:700;letter-spacing:-.5px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-user-btn{display:flex;align-items:center;gap:6px;cursor:pointer;background:var(--card2);border-radius:20px;padding:5px 10px 5px 5px}
+.nav-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;overflow:hidden;flex-shrink:0}
+.nav-avatar img{width:100%;height:100%;object-fit:cover}
+.nav-name{font-size:13px;font-weight:600}
+.settings-btn{width:34px;height:34px;border-radius:50%;background:var(--card2);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:17px}
+
+/* TABS */
+.tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:200;background:var(--tab-bar);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border-top:.5px solid var(--sep);display:flex;padding:8px 0 calc(8px + var(--safe-bottom))}
+.tab-item{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;padding:4px 0;transition:opacity .15s}
+.tab-item:active{opacity:.6}
+.tab-icon{font-size:22px}
+.tab-label{font-size:10px;font-weight:500;color:var(--text3)}
+.tab-item.active .tab-label{color:var(--accent)}
+
+/* PAGES */
+.page{display:none;padding-bottom:90px}
+.page.active{display:block}
+
+/* SECTION HEADER */
+.section-header{font-size:13px;font-weight:600;text-transform:uppercase;color:var(--text3);padding:16px 16px 8px;letter-spacing:.5px;display:flex;align-items:center;gap:8px;user-select:none}
+.super-header{font-size:16px;font-weight:700;color:var(--text2);padding:20px 16px 6px 16px;letter-spacing:-.2px;display:flex;align-items:center;gap:8px}
+.drag-cat-handle{color:var(--text3);font-size:15px;cursor:grab;touch-action:none;opacity:.7}
+.cat-block{transition:opacity .15s}
+.cat-block.dragging-cat{opacity:.35}
+
+/* CARD GROUP */
+.card-group{background:var(--card);border-radius:var(--radius);margin:0 16px 14px;overflow:hidden;box-shadow:var(--shadow)}
+.card-row{display:flex;align-items:center;padding:13px 16px;gap:12px;border-bottom:.5px solid var(--sep);cursor:pointer;transition:background .15s}
+.card-row:last-child{border-bottom:none}
+.card-row:active{background:var(--card2)}
+
+/* TASK ITEM */
+.task-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--card);border-bottom:.5px solid var(--sep);cursor:pointer;transition:background .15s;position:relative}
+.task-item:active{background:var(--card2)}
+.task-item:last-child{border-bottom:none}
+.task-color-bar{position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:2px 0 0 2px}
+.task-check{width:24px;height:24px;border-radius:50%;border:2px solid var(--sep);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .2s;cursor:pointer}
+.task-check.done{background:var(--ios-green);border-color:var(--ios-green);color:#fff;font-size:13px}
+.task-info{flex:1;min-width:0;padding-left:4px}
+.task-title{font-size:16px;font-weight:500}
+.task-title.done-text{text-decoration:line-through;color:var(--text3)}
+.task-meta{font-size:12px;color:var(--text3);margin-top:4px;display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+
+/* PROGRESS */
+.progress-wrap{margin-top:6px;display:flex;align-items:center;gap:8px}
+.progress-bar-bg{flex:1;height:4px;background:var(--card2);border-radius:2px;overflow:hidden}
+.progress-bar-fill{height:100%;background:var(--ios-green);border-radius:2px;transition:width .3s}
+.progress-label{font-size:11px;color:var(--text3);font-weight:600;white-space:nowrap}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-red{background:#FF3B3018;color:var(--ios-red)}
+.badge-orange{background:#FF950018;color:var(--ios-orange)}
+.badge-green{background:#34C75918;color:var(--ios-green)}
+.badge-blue{background:#007AFF18;color:var(--ios-blue)}
+.badge-purple{background:#AF52DE18;color:var(--ios-purple)}
+.chevron{color:var(--text3);font-size:17px;flex-shrink:0}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;border:none;cursor:pointer;font-family:inherit;font-size:17px;font-weight:600;border-radius:12px;transition:opacity .15s}
+.btn:active{opacity:.7}
+.btn-primary{background:var(--accent);color:#fff;padding:14px 20px;width:100%}
+.btn-danger{background:var(--ios-red);color:#fff;padding:14px 20px;width:100%;margin-top:10px}
+.btn-ghost{background:transparent;color:var(--accent);padding:6px 0;font-weight:500;font-size:16px}
+
+.fab{position:fixed;bottom:calc(72px + var(--safe-bottom));right:16px;width:56px;height:56px;border-radius:50%;background:var(--accent);color:#fff;font-size:28px;border:none;cursor:pointer;box-shadow:0 4px 22px rgba(0,122,255,.35);display:flex;align-items:center;justify-content:center;z-index:150;transition:transform .2s}
+.fab:active{transform:scale(.92)}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:300;display:flex;align-items:flex-end;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-sheet{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-height:94vh;overflow-y:auto;padding-bottom:calc(20px + var(--safe-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.modal-overlay.open .modal-sheet{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:var(--sep);border-radius:2px;margin:12px auto 0}
+.modal-header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 8px}
+.modal-title{font-size:20px;font-weight:700}
+.modal-close{color:var(--accent);font-size:17px;font-weight:500;cursor:pointer;padding:4px}
+
+/* FORM */
+.form-group{padding:0 16px 14px}
+.form-label{font-size:13px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.form-input{width:100%;background:var(--card2);border:none;border-radius:10px;padding:12px 14px;font-size:16px;color:var(--text);font-family:inherit;outline:none}
+.form-input::placeholder{color:var(--text3)}
+.form-select{width:100%;background:var(--card2);border:none;border-radius:10px;padding:12px 14px;font-size:16px;color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none;appearance:none}
+.seg-control{display:flex;background:var(--card2);border-radius:9px;padding:2px;gap:2px}
+.seg-btn{flex:1;padding:7px 4px;border:none;background:transparent;border-radius:7px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;font-family:inherit}
+.seg-btn.active{background:var(--card);color:var(--text);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.12)}
+
+/* TOGGLE */
+.toggle{width:51px;height:31px;border-radius:16px;background:var(--sep);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+.toggle.on{background:var(--ios-green)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);transition:left .2s}
+.toggle.on::after{left:22px}
+
+/* AVATAR */
+.avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+
+/* DETAIL */
+.detail-overlay{position:fixed;inset:0;background:var(--bg);z-index:400;transform:translateX(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);overflow-y:auto}
+.detail-overlay.open{transform:translateX(0)}
+.detail-nav{position:sticky;top:0;background:var(--nav-bg);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);padding:14px 16px;display:flex;align-items:center;gap:8px;border-bottom:.5px solid var(--sep);z-index:10}
+.back-btn{color:var(--accent);font-size:17px;cursor:pointer;display:flex;align-items:center;gap:4px}
+
+/* SUBTASK */
+.subtask-item{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:.5px solid var(--sep);background:var(--card);user-select:none}
+.subtask-item:last-child{border-bottom:none}
+.subtask-item.dragging-sub{opacity:.35}
+.subtask-check{width:20px;height:20px;border-radius:50%;border:2px solid var(--sep);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;transition:all .2s}
+.subtask-check.done{background:var(--ios-green);border-color:var(--ios-green);color:#fff}
+.sub-drag-handle{color:var(--text3);font-size:18px;cursor:grab;touch-action:none;flex-shrink:0;padding:0 4px}
+
+/* POOL */
+.pool-card{background:var(--card);border-radius:var(--radius);margin:0 16px 12px;padding:16px;box-shadow:var(--shadow)}
+.pool-filter-bar{display:flex;gap:8px;padding:8px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.pool-filter-bar::-webkit-scrollbar{display:none}
+.filter-chip{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;font-weight:600;border:none;cursor:pointer;font-family:inherit;transition:all .15s;background:var(--card2);color:var(--text3)}
+.filter-chip.active{background:var(--accent);color:#fff}
+
+/* ALL filter */
+.all-filter-bar{display:flex;gap:8px;padding:12px 16px 4px;overflow-x:auto;scrollbar-width:none}
+.all-filter-bar::-webkit-scrollbar{display:none}
+
+/* SUBTASK INPUT */
+.subtask-input-row{display:flex;gap:8px;align-items:center;margin-top:8px}
+.subtask-input-row input{flex:1;background:var(--card2);border:none;border-radius:8px;padding:10px 12px;font-size:15px;color:var(--text);font-family:inherit;outline:none}
+.subtask-input-row button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 14px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;flex-shrink:0}
+.new-subtask-list{margin-top:8px}
+.new-subtask-tag{display:flex;align-items:center;gap:6px;background:var(--card2);border-radius:8px;padding:8px 10px;margin-top:6px;user-select:none}
+.new-subtask-tag.dragging-new{opacity:.35}
+.new-sub-handle{color:var(--text3);font-size:16px;cursor:grab;touch-action:none}
+.new-subtask-tag span{flex:1;font-size:14px}
+.new-subtask-tag .rm-btn{background:none;border:none;color:var(--ios-red);font-size:18px;cursor:pointer;line-height:1;padding:0}
+
+/* TOAST */
+.toast{position:fixed;bottom:calc(85px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);background:rgba(40,40,40,.96);color:#fff;padding:12px 20px;border-radius:14px;font-size:15px;font-weight:500;z-index:999;white-space:nowrap;opacity:0;transition:opacity .3s,transform .3s;pointer-events:none;backdrop-filter:blur(12px);max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px}
+.empty-icon{font-size:60px;margin-bottom:16px}
+.empty-title{font-size:22px;font-weight:700;margin-bottom:8px}
+.empty-sub{font-size:15px;color:var(--text3)}
+
+/* SHUFFLE BAR */
+.shuffle-bar{display:flex;justify-content:space-between;align-items:center;padding:16px 16px 0}
+.shuffle-btn{background:var(--ios-purple);color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.shuffle-btn:active{opacity:.7}
+
+/* COLOR PICKER */
+.color-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;padding:4px 0}
+.color-dot{width:36px;height:36px;border-radius:50%;cursor:pointer;border:3px solid transparent;transition:transform .15s,border-color .15s;display:flex;align-items:center;justify-content:center}
+.color-dot.selected{border-color:var(--text);transform:scale(1.15)}
+.color-dot:active{transform:scale(.9)}
+
+/* CELEBRATION OVERLAY */
+.celebrate-overlay{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .3s}
+.celebrate-overlay.show{opacity:1;pointer-events:all}
+.celebrate-smiley{font-size:90px;animation:bounce 0.6s ease infinite alternate}
+.celebrate-text{color:#fff;font-size:20px;font-weight:700;margin-top:20px;text-align:center;padding:0 32px;line-height:1.4}
+.celebrate-sub{color:rgba(255,255,255,.7);font-size:14px;margin-top:8px}
+.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:fall linear forwards}
+@keyframes bounce{from{transform:translateY(0) rotate(-5deg)}to{transform:translateY(-20px) rotate(5deg)}}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
+@keyframes winky{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-8deg)}75%{transform:rotate(8deg)}}
+
+/* SETTINGS OVERLAY */
+.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;display:flex;align-items:flex-end;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s}
+.settings-overlay.open{opacity:1;pointer-events:all}
+.settings-sheet{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-height:88vh;overflow-y:auto;padding-bottom:calc(24px + var(--safe-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.settings-overlay.open .settings-sheet{transform:translateY(0)}
+
+/* RECURRING BADGE */
+.recur-badge{background:#5AC8FA18;color:#0A84FF;padding:2px 7px;border-radius:10px;font-size:11px;font-weight:600}
+
+/* EDIT USER OVERLAY */
+.edit-user-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:600;display:flex;align-items:flex-end;backdrop-filter:blur(6px);opacity:0;pointer-events:none;transition:opacity .25s}
+.edit-user-overlay.open{opacity:1;pointer-events:all}
+.edit-user-sheet{background:var(--card);border-radius:22px 22px 0 0;width:100%;max-height:90vh;overflow-y:auto;padding-bottom:calc(24px + var(--safe-bottom));transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1)}
+.edit-user-overlay.open .edit-user-sheet{transform:translateY(0)}
+
+/* PHOTO UPLOAD */
+.photo-upload-area{width:80px;height:80px;border-radius:50%;background:var(--card2);border:2px dashed var(--sep);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;overflow:hidden;flex-shrink:0}
+.photo-upload-area img{width:100%;height:100%;object-fit:cover}
+</style>
+</head>
+<body>
+<div id="app">
+  <!-- NAV -->
+  <div class="nav-bar">
+    <div class="nav-row">
+      <div class="nav-title" id="navTitle">Meine Aufgaben</div>
+      <div class="nav-right">
+        <button class="settings-btn" onclick="openSettings()">⚙️</button>
+        <div class="nav-user-btn" onclick="showSelectUser()" id="navUserBtn"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MY TASKS -->
+  <div class="page active" id="pageMy">
+    <div class="card-group" style="margin-top:16px">
+      <div class="card-row" onclick="toggleFilter()">
+        <span style="flex:1;font-size:16px">Erledigte anzeigen</span>
+        <div class="toggle" id="toggleDone"></div>
+      </div>
+    </div>
+    <div id="myTasksContainer"></div>
+  </div>
+
+  <!-- ALL TASKS -->
+  <div class="page" id="pageAll">
+    <div class="all-filter-bar" id="allFilterBar"></div>
+    <div class="section-header" style="padding-top:8px">Alle Aufgaben</div>
+    <div id="allTasksContainer"></div>
+  </div>
+
+  <!-- POOL -->
+  <div class="page" id="pagePool">
+    <div class="shuffle-bar">
+      <div><div style="font-size:20px;font-weight:700">Aufgaben-Pool</div><div style="font-size:13px;color:var(--text3);margin-top:2px">Zufällig zugewiesen</div></div>
+      <button class="shuffle-btn" onclick="shufflePool()">🎲 Neu mischen</button>
+    </div>
+    <div class="pool-filter-bar" id="poolFilterBar"></div>
+    <div id="poolContainer"></div>
+  </div>
+
+  <!-- USERS -->
+  <div class="page" id="pageUsers">
+    <div class="section-header">Nutzer</div>
+    <div id="usersContainer"></div>
+    <div style="padding:8px 16px 16px">
+      <button class="btn btn-primary" onclick="showAddUser()">+ Nutzer hinzufügen</button>
+    </div>
+  </div>
+
+  <div class="tab-bar">
+    <div class="tab-item active" onclick="switchTab(0)" id="tab0"><span class="tab-icon">✅</span><span class="tab-label">Meine</span></div>
+    <div class="tab-item" onclick="switchTab(1)" id="tab1"><span class="tab-icon">📋</span><span class="tab-label">Alle</span></div>
+    <div class="tab-item" onclick="switchTab(2)" id="tab2"><span class="tab-icon">🎲</span><span class="tab-label">Pool</span></div>
+    <div class="tab-item" onclick="switchTab(3)" id="tab3"><span class="tab-icon">👥</span><span class="tab-label">Nutzer</span></div>
+  </div>
+  <button class="fab" id="fabBtn" onclick="showAddTask()">+</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- CELEBRATION -->
+<div class="celebrate-overlay" id="celebrateOverlay" onclick="closeCelebration()">
+  <div id="confettiContainer" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
+  <div class="celebrate-smiley" id="celebrateSmiley">😄</div>
+  <div class="celebrate-text" id="celebrateText">Super gemacht!</div>
+  <div class="celebrate-sub">Tippe um fortzufahren</div>
+</div>
+
+<!-- ADD TASK MODAL -->
+<div class="modal-overlay" id="taskModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title" id="modalTaskTitle">Neue Aufgabe</div>
+      <span class="modal-close" onclick="closeTaskModal()">Fertig</span>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Titel</div>
+      <input class="form-input" id="taskTitleInput" placeholder="Aufgabe eingeben…">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Beschreibung</div>
+      <textarea class="form-input" id="taskDescInput" placeholder="Details…" rows="2" style="resize:none"></textarea>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Kategorie</div>
+      <select class="form-select" id="taskCatInput"></select>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Priorität</div>
+      <div class="seg-control" id="priorityControl">
+        <button class="seg-btn" onclick="setPrio('Hoch',this)">🔴 Hoch</button>
+        <button class="seg-btn active" onclick="setPrio('Mittel',this)">🟡 Mittel</button>
+        <button class="seg-btn" onclick="setPrio('Niedrig',this)">🟢 Niedrig</button>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Deadline</div>
+      <input class="form-input" id="taskDeadline" type="date">
+    </div>
+    <div class="form-group">
+      <div class="form-label">Zuständig</div>
+      <select class="form-select" id="taskAssignee" onchange="onAssigneeChange(this)"></select>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Wiederholt sich</div>
+      <select class="form-select" id="taskRepeat">
+        <option value="Nie">Nie</option>
+        <option value="Täglich">Täglich</option>
+        <option value="Wöchentlich">Wöchentlich</option>
+        <option value="Monatlich">Monatlich</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Im Pool anzeigen</div>
+      <div class="toggle" id="taskPoolToggle" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Unteraufgaben</div>
+      <div id="newSubtaskList" class="new-subtask-list"></div>
+      <div class="subtask-input-row">
+        <input type="text" id="newSubtaskInput" placeholder="Unteraufgabe…" onkeydown="if(event.key==='Enter'){addNewSubtask();event.preventDefault()}">
+        <button onclick="addNewSubtask()">+</button>
+      </div>
+    </div>
+    <div style="padding:0 16px 8px"><button class="btn btn-primary" onclick="saveTask()">Speichern</button></div>
+    <div style="padding:0 16px" id="deleteTaskRow"></div>
+  </div>
+</div>
+
+<!-- ADD USER MODAL -->
+<div class="modal-overlay" id="userModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Nutzer hinzufügen</div>
+      <span class="modal-close" onclick="closeUserModal()">Abbrechen</span>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Profilbild (optional)</div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="photo-upload-area" id="newUserPhotoArea" onclick="document.getElementById('newUserPhotoInput').click()">
+          <span style="font-size:26px">📷</span>
+          <span style="font-size:10px;color:var(--text3);margin-top:2px">Foto</span>
+        </div>
+        <input type="file" id="newUserPhotoInput" accept="image/*" style="display:none" onchange="handleNewUserPhoto(this)">
+        <div style="flex:1">
+          <div class="form-label" style="margin-bottom:6px">Name</div>
+          <input class="form-input" id="userNameInput" placeholder="Name eingeben…">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Farbe</div>
+      <div class="color-grid" id="colorGridNew"></div>
+    </div>
+    <div style="padding:0 16px 20px"><button class="btn btn-primary" onclick="saveUser()">Hinzufügen</button></div>
+  </div>
+</div>
+
+<!-- EDIT USER OVERLAY -->
+<div class="edit-user-overlay" id="editUserOverlay">
+  <div class="edit-user-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">Nutzer bearbeiten</div>
+      <span class="modal-close" onclick="closeEditUser()">Fertig</span>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Profilbild</div>
+      <div style="display:flex;align-items:center;gap:16px">
+        <div class="photo-upload-area" id="editUserPhotoArea" onclick="document.getElementById('editUserPhotoInput').click()"></div>
+        <input type="file" id="editUserPhotoInput" accept="image/*" style="display:none" onchange="handleEditUserPhoto(this)">
+        <div style="flex:1">
+          <div class="form-label" style="margin-bottom:6px">Name</div>
+          <input class="form-input" id="editUserNameInput" placeholder="Name…">
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="form-label">Farbe wählen</div>
+      <div class="color-grid" id="colorGridEdit"></div>
+    </div>
+    <div style="padding:0 16px 8px"><button class="btn btn-primary" onclick="saveEditUser()">Speichern</button></div>
+    <div style="padding:0 16px 8px"><button class="btn btn-danger" onclick="deleteUser()">Nutzer löschen</button></div>
+  </div>
+</div>
+
+<!-- SELECT USER MODAL -->
+<div class="modal-overlay" id="selectUserModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header"><div class="modal-title">Wer bist du?</div></div>
+    <div id="selectUserList"></div>
+    <div style="padding:8px 16px 8px"><button class="btn btn-ghost" onclick="showAddUser()">+ Neuen Nutzer erstellen</button></div>
+  </div>
+</div>
+
+<!-- TASK DETAIL -->
+<div class="detail-overlay" id="taskDetail">
+  <div class="detail-nav">
+    <span class="back-btn" onclick="closeDetail()">‹ Zurück</span>
+    <span style="flex:1"></span>
+    <span style="color:var(--accent);cursor:pointer;font-size:17px;font-weight:500" onclick="editCurrentTask()">Bearbeiten</span>
+  </div>
+  <div id="taskDetailContent"></div>
+</div>
+
+<!-- SETTINGS OVERLAY -->
+<div class="settings-overlay" id="settingsOverlay">
+  <div class="settings-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-header">
+      <div class="modal-title">⚙️ Einstellungen</div>
+      <span class="modal-close" onclick="closeSettings()">Fertig</span>
+    </div>
+
+    <div class="section-header">Hintergrundfarbe</div>
+    <div style="padding:0 16px 16px;display:flex;gap:10px;flex-wrap:wrap" id="themeButtons"></div>
+
+    <div class="section-header">App-Style</div>
+    <div style="padding:0 16px 16px" id="styleButtons"></div>
+
+    <div class="section-header">Eigene Kategorien</div>
+    <div id="customCatList" style="padding:0 16px 8px"></div>
+    <div style="padding:0 16px 16px;display:flex;gap:8px">
+      <input class="form-input" id="newCatEmoji" placeholder="😀" style="width:60px;text-align:center">
+      <input class="form-input" id="newCatName" placeholder="Kategorie Name…" style="flex:1">
+      <button class="btn" style="background:var(--accent);color:#fff;padding:10px 14px;font-size:15px;border-radius:10px" onclick="addCustomCat()">+</button>
+    </div>
+
+    <div class="section-header">Daten</div>
+    <div style="padding:0 16px 16px">
+      <button class="btn" style="width:100%;background:var(--ios-red);color:#fff;padding:13px;font-size:16px;border-radius:11px" onclick="resetAllTasks()">🗑️ Alle Aufgaben zurücksetzen</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== CONSTANTS =====
+const DEFAULT_CATS = {
+  'Arbeit':'💼','Haushalt':'🏠','Einkauf':'🛒',
+  'Gesundheit':'❤️','Freizeit':'🎯','Schule':'📚','Sonstiges':'📌'
+};
+
+const ALL_COLORS = [
+  '#007AFF','#34C759','#FF3B30','#FF9500','#AF52DE','#FF2D55',
+  '#5AC8FA','#FFCC00','#FF6B35','#30D158','#64D2FF','#BF5AF2',
+  '#FF375F','#6E6E73','#00C7BE','#FFD60A','#0A84FF','#FF453A',
+  '#32D74B','#FF9F0A','#AC8E68','#636366','#48484A','#1C1C1E'
+];
+
+const CELEBRATE_MSGS = [
+  '😄 Jawoll! Das hast du richtig gut gemacht!',
+  '🎉 Erledigt ist erledigt – du bist ein Star!',
+  '😎 Boah, du bist so produktiv. Ich bin beeindruckt!',
+  '🌟 Aufgabe gecrusht! Du machst das super!',
+  '✨ Perfekt erledigt! Gib dir selbst einen Klaps!',
+  '🥳 Haha, schon fertig?! Schnell wie der Blitz!',
+  '💪 Stark! Diese Aufgabe hatte keine Chance gegen dich!',
+  '😉 Zwinkerzwink – gut gemacht! Weiter so!',
+  '🚀 Abgehakt! Ab zur nächsten Aufgabe, Champion!',
+  '🏆 Einfach spitze! Du erledigst das besser als ich es je könnte!'
+];
+
+const PRIO_BADGE = {'Hoch':'badge-red','Mittel':'badge-orange','Niedrig':'badge-green'};
+
+const THEMES = [
+  {id:'',label:'Standard',color:'#F2F2F7'},
+  {id:'theme-warm',label:'Warm',color:'#FFF3E4'},
+  {id:'theme-forest',label:'Wald',color:'#E8F5E8'},
+  {id:'theme-night',label:'Nacht',color:'#1A1A2E'},
+  {id:'theme-rose',label:'Rosa',color:'#FFE8F0'}
+];
+
+// ===== STATE =====
+let state = {
+  users:[],tasks:[],currentUser:null,
+  selectedPrio:'Mittel',selectedColor:'#007AFF',
+  showDone:false,showDoneAll:false,
+  editingTaskId:null,poolTasks:[],poolAssignments:{},
+  currentDetailTask:null,poolFilter:'all',
+  newSubtasks:[],catOrder:[],
+  customCats:{},
+  theme:'',accentColor:'#007AFF',
+  editingUserId:null,newUserPhotoData:null,editUserPhotoData:null,
+  recurringLastRun:null
+};
+
+// ===== STORAGE (MongoDB via REST API) =====
+let saveTimer=null;
+
+async function load(){
+  try{
+    const r=await fetch('/api/state');
+    if(r.ok){
+      const data=await r.json();
+      if(data)Object.assign(state,data);
+    }
+  }catch(e){
+    console.warn('Laden fehlgeschlagen, nutze lokalen Stand.',e);
+    // Fallback: localStorage als Offline-Cache
+    try{const cached=localStorage.getItem('taskflow-cache');if(cached)Object.assign(state,JSON.parse(cached));}catch(_){}
+  }
+}
+
+async function save(){
+  // Lokalen Cache sofort aktualisieren
+  try{localStorage.setItem('taskflow-cache',JSON.stringify(state));}catch(_){}
+  // Debounced API-Speicherung (max 1x pro Sekunde)
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(async()=>{
+    try{
+      await fetch('/api/state',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(state)
+      });
+    }catch(e){
+      console.warn('Speichern fehlgeschlagen (offline?).',e);
+    }
+  },800);
+}
+
+// ===== INIT =====
+async function init(){
+  await load();
+  ['users','tasks','poolTasks','newSubtasks','catOrder','customCats','poolAssignments'].forEach(k=>{if(!state[k])state[k]=k.endsWith('s')||k==='catOrder'?[]:{}});
+  if(!state.theme)state.theme='';
+  if(!state.accentColor)state.accentColor='#007AFF';
+  if(!state.recurringLastRun)state.recurringLastRun={};
+
+  if(state.users.length===0){
+    state.users=[{id:uid(),name:'Anna',color:'#007AFF',photo:null},{id:uid(),name:'Max',color:'#34C759',photo:null}];
+    const a=state.users[0].id,m=state.users[1].id;
+    const today=new Date().toISOString().split('T')[0];
+    state.tasks=[
+      {id:uid(),title:'Wocheneinkauf',desc:'Milch, Brot, Obst',cat:'Einkauf',prio:'Mittel',deadline:tomorrow(),assignee:a,repeat:'Wöchentlich',repeatStart:today,done:false,inPool:true,subtasks:[{id:uid(),title:'Milch kaufen',done:false},{id:uid(),title:'Brot kaufen',done:true},{id:uid(),title:'Obst kaufen',done:false}],isRandom:false},
+      {id:uid(),title:'Arzttermin',desc:'',cat:'Gesundheit',prio:'Hoch',deadline:in3days(),assignee:'all',repeat:'Nie',done:false,inPool:true,subtasks:[],isRandom:false},
+      {id:uid(),title:'Bericht schreiben',desc:'Quartalsbericht Q4',cat:'Arbeit',prio:'Hoch',deadline:in3days(),assignee:m,repeat:'Nie',done:false,inPool:true,subtasks:[{id:uid(),title:'Einleitung',done:true},{id:uid(),title:'Hauptteil',done:false}],isRandom:false},
+    ];
+    await save();
+  }
+
+  applyTheme();
+  processRecurring();
+
+  if(!state.currentUser){showSelectUser();return;}
+  render();
+}
+
+function uid(){return Math.random().toString(36).substr(2,9)}
+function tomorrow(){const d=new Date();d.setDate(d.getDate()+1);return d.toISOString().split('T')[0]}
+function in3days(){const d=new Date();d.setDate(d.getDate()+3);return d.toISOString().split('T')[0]}
+function today(){return new Date().toISOString().split('T')[0]}
+
+function allCats(){return {...DEFAULT_CATS,...(state.customCats||{})}}
+function catIcon(cat){return allCats()[cat]||'📌'}
+
+function userColor(assignee){
+  if(assignee==='all')return'#8E8E93';
+  const u=state.users.find(u=>u.id===assignee);
+  return u?u.color:'#8E8E93';
+}
+
+function avatarHTML(u,size=40){
+  const sz=size+'px';
+  if(u&&u.photo) return `<div class="avatar" style="width:${sz};height:${sz}"><img src="${u.photo}"></div>`;
+  return `<div class="avatar" style="width:${sz};height:${sz};background:${u?u.color:'#8E8E93'};font-size:${Math.round(size*.45)}px">${u?u.name[0]:'?'}</div>`;
+}
+
+// ===== THEME =====
+function applyTheme(){
+  document.body.className=state.theme||'';
+  document.documentElement.style.setProperty('--accent',state.accentColor||'#007AFF');
+}
+
+// ===== RECURRING TASKS =====
+function getWeekStart(dateStr){
+  const d=new Date(dateStr+'T00:00:00');
+  const day=d.getDay();
+  const diff=(day===0?-6:1-day);
+  d.setDate(d.getDate()+diff);
+  return d.toISOString().split('T')[0];
+}
+function getMonthStart(dateStr){return dateStr.slice(0,8)+'01'}
+
+function processRecurring(){
+  const todayStr=today();
+  let changed=false;
+  state.tasks.forEach(t=>{
+    if(t.repeat==='Nie'||!t.done)return;
+    const lastRun=state.recurringLastRun[t.id]||t.repeatStart||t.deadline||todayStr;
+    let shouldReset=false;
+    if(t.repeat==='Täglich'&&lastRun<todayStr)shouldReset=true;
+    if(t.repeat==='Wöchentlich'&&getWeekStart(lastRun)<getWeekStart(todayStr))shouldReset=true;
+    if(t.repeat==='Monatlich'&&getMonthStart(lastRun)<getMonthStart(todayStr))shouldReset=true;
+    if(shouldReset){
+      t.done=false;
+      t.subtasks.forEach(s=>s.done=false);
+      state.recurringLastRun[t.id]=todayStr;
+      // advance deadline
+      if(t.deadline){
+        const d=new Date(t.deadline+'T00:00:00');
+        if(t.repeat==='Täglich')d.setDate(d.getDate()+1);
+        else if(t.repeat==='Wöchentlich')d.setDate(d.getDate()+7);
+        else if(t.repeat==='Monatlich')d.setMonth(d.getMonth()+1);
+        t.deadline=d.toISOString().split('T')[0];
+      }
+      changed=true;
+    }
+  });
+  if(changed)save();
+}
+
+function recurPeriodStr(t){
+  if(!t.deadline||t.repeat==='Nie')return'';
+  const d=new Date(t.deadline+'T00:00:00');
+  if(t.repeat==='Täglich'){
+    return`📅 ${formatDate(t.deadline)} (täglich)`;
+  }
+  if(t.repeat==='Wöchentlich'){
+    const ws=getWeekStart(t.deadline);
+    const we=new Date(ws+'T00:00:00');we.setDate(we.getDate()+6);
+    return`📅 KW ${getWeekNum(d)} · ${formatDate(ws)}–${formatDate(we.toISOString().split('T')[0])}`;
+  }
+  if(t.repeat==='Monatlich'){
+    return`📅 ${d.toLocaleDateString('de-DE',{month:'long',year:'numeric'})}`;
+  }
+  return`📅 ${formatDate(t.deadline)}`;
+}
+
+function getWeekNum(d){
+  const onejan=new Date(d.getFullYear(),0,1);
+  return Math.ceil((((d-onejan)/86400000)+onejan.getDay()+1)/7);
+}
+
+// ===== TOAST =====
+let toastTimer;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+// ===== CELEBRATION =====
+function celebrate(taskTitle){
+  const msg=CELEBRATE_MSGS[Math.floor(Math.random()*CELEBRATE_MSGS.length)];
+  const smileys=['😄','😁','🥳','😎','🤩','😜'];
+  document.getElementById('celebrateSmiley').textContent=smileys[Math.floor(Math.random()*smileys.length)];
+  document.getElementById('celebrateText').textContent=msg;
+  launchConfetti();
+  document.getElementById('celebrateOverlay').classList.add('show');
+  setTimeout(closeCelebration,4000);
+}
+function closeCelebration(){document.getElementById('celebrateOverlay').classList.remove('show');}
+
+function launchConfetti(){
+  const c=document.getElementById('confettiContainer');
+  c.innerHTML='';
+  const cols=['#FF3B30','#34C759','#007AFF','#FF9500','#AF52DE','#FFCC00','#FF2D55','#5AC8FA'];
+  for(let i=0;i<50;i++){
+    const p=document.createElement('div');
+    p.className='confetti-piece';
+    p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.5+Math.random()*2}s;animation-delay:${Math.random()*0.5}s`;
+    c.appendChild(p);
+  }
+}
+
+// ===== RENDER =====
+function render(){
+  const cu=state.users.find(u=>u.id===state.currentUser);
+  const btn=document.getElementById('navUserBtn');
+  if(cu){
+    const av=avatarHTML(cu,28);
+    btn.innerHTML=`${av}<span class="nav-name">${cu.name}</span>`;
+  }
+  renderMyTasks();
+  renderAllTasks();
+  renderPool();
+  renderUsers();
+}
+
+function progressHTML(t){
+  if(!t.subtasks||t.subtasks.length===0)return'';
+  const done=t.subtasks.filter(s=>s.done).length,total=t.subtasks.length;
+  return`<div class="progress-wrap"><div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${Math.round(done/total*100)}%"></div></div><span class="progress-label">${done}/${total}</span></div>`;
+}
+
+function taskHTML(t,showColor=false){
+  const u=state.users.find(u=>u.id===t.assignee);
+  const assigneeName=t.assignee==='all'?'👥 Alle':(u?u.name:'');
+  const color=userColor(t.assignee);
+  const isOverdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();
+  const deadStr=t.deadline?`<span style="color:${isOverdue?'var(--ios-red)':'var(--text3)'}">📅 ${formatDate(t.deadline)}${isOverdue?' ⚠️':''}</span>`:'';
+  const repeatStr=t.repeat!=='Nie'?`<span class="recur-badge">🔁 ${t.repeat}</span>`:'';
+  return`<div class="task-item" onclick="openDetail('${t.id}')">
+    ${showColor?`<div class="task-color-bar" style="background:${color}"></div>`:''}
+    <div class="task-check ${t.done?'done':''}" onclick="event.stopPropagation();toggleTask('${t.id}')">${t.done?'✓':''}</div>
+    <div class="task-info">
+      <div class="task-title ${t.done?'done-text':''}">${t.title}</div>
+      <div class="task-meta">
+        <span class="badge ${PRIO_BADGE[t.prio]}">${t.prio}</span>
+        ${deadStr}${repeatStr}
+        ${showColor&&assigneeName?`<span style="color:${color};font-weight:600">${assigneeName}</span>`:''}
+      </div>
+      ${progressHTML(t)}
+    </div>
+    <div class="chevron">›</div>
+  </div>`;
+}
+
+// ===== MY TASKS with two super-categories =====
+function getOrderedCats(tasks){
+  const found=[...new Set(tasks.map(t=>t.cat))];
+  const ordered=state.catOrder.filter(c=>found.includes(c));
+  found.forEach(c=>{if(!ordered.includes(c))ordered.push(c);});
+  return ordered;
+}
+
+function renderMyTasks(){
+  // Own = directly assigned; Random = got via shuffle
+  const own=state.tasks.filter(t=>{
+    if(!state.showDone&&t.done)return false;
+    return t.assignee===state.currentUser&&!t.isRandom;
+  });
+  // Random = pool-assigned to this user (isRandom flag) OR "all" tasks
+  const random=state.tasks.filter(t=>{
+    if(!state.showDone&&t.done)return false;
+    // "all" tasks always appear under random
+    if(t.assignee==='all')return true;
+    // tasks flagged as randomly assigned to this user
+    return t.isRandom&&t.assignee===state.currentUser;
+  });
+
+  const c=document.getElementById('myTasksContainer');
+  if(!c)return;
+  document.getElementById('toggleDone').className='toggle'+(state.showDone?' on':'');
+
+  if(own.length===0&&random.length===0){
+    c.innerHTML=`<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">Alles erledigt!</div><div class="empty-sub">Keine Aufgaben für dich.</div></div>`;
+    return;
+  }
+
+  let html='';
+
+  if(own.length>0){
+    html+=`<div class="super-header">👤 Eigene Aufgaben</div>`;
+    const cats=getOrderedCats(own);
+    cats.forEach(cat=>{
+      const tasks=own.filter(t=>t.cat===cat);
+      if(!tasks.length)return;
+      html+=`<div class="cat-block" data-cat="${cat}">
+        <div class="section-header"><span class="drag-cat-handle" data-cat="${cat}">⠿</span>${catIcon(cat)} ${cat}</div>
+        <div class="card-group">${tasks.map(t=>taskHTML(t,false)).join('')}</div>
+      </div>`;
+    });
+  }
+
+  if(random.length>0){
+    html+=`<div class="super-header">🎲 Random Aufgaben</div>`;
+    const cats=getOrderedCats(random);
+    cats.forEach(cat=>{
+      const tasks=random.filter(t=>t.cat===cat);
+      if(!tasks.length)return;
+      html+=`<div class="card-group" style="margin-top:0">${tasks.map(t=>taskHTML(t,t.assignee==='all')).join('')}</div>`;
+    });
+  }
+
+  c.innerHTML=html;
+  initCatDrag();
+}
+
+// Category drag
+function initCatDrag(){
+  const container=document.getElementById('myTasksContainer');
+  let dragging=null;
+  function getBlocks(){return[...container.querySelectorAll('.cat-block')]}
+  function pointerStart(e){
+    const h=e.target.closest('.drag-cat-handle');if(!h)return;
+    e.preventDefault();
+    dragging=h.closest('.cat-block');
+    if(dragging)dragging.classList.add('dragging-cat');
+  }
+  function pointerMove(e){
+    if(!dragging)return;e.preventDefault();
+    const y=e.touches?e.touches[0].clientY:e.clientY;
+    const blocks=getBlocks().filter(b=>b!==dragging);
+    let target=null;
+    for(const b of blocks){const r=b.getBoundingClientRect();if(y<r.top+r.height/2){target=b;break;}}
+    if(target)container.insertBefore(dragging,target);else container.appendChild(dragging);
+  }
+  function pointerEnd(){
+    if(!dragging)return;
+    dragging.classList.remove('dragging-cat');
+    state.catOrder=getBlocks().map(b=>b.dataset.cat);
+    save();dragging=null;
+  }
+  container.addEventListener('touchstart',pointerStart,{passive:false});
+  container.addEventListener('touchmove',pointerMove,{passive:false});
+  container.addEventListener('touchend',pointerEnd);
+  container.addEventListener('mousedown',pointerStart);
+  container.addEventListener('mousemove',pointerMove);
+  container.addEventListener('mouseup',pointerEnd);
+}
+
+// ===== ALL TASKS =====
+function renderAllTasks(){
+  const bar=document.getElementById('allFilterBar');
+  bar.innerHTML=`<button class="filter-chip${!state.showDoneAll?' active':''}" onclick="setAllFilter(false)">Offen</button><button class="filter-chip${state.showDoneAll?' active':''}" onclick="setAllFilter(true)">Alle</button>`;
+  const c=document.getElementById('allTasksContainer');if(!c)return;
+  const tasks=state.tasks.filter(t=>state.showDoneAll||!t.done);
+  if(!tasks.length){c.innerHTML=`<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">Keine Aufgaben</div></div>`;return;}
+  c.innerHTML=`<div class="card-group">${tasks.map(t=>taskHTML(t,true)).join('')}</div>`;
+}
+function setAllFilter(v){state.showDoneAll=v;renderAllTasks();}
+
+// ===== POOL =====
+function buildPoolAssignments(poolTaskIds){
+  const assignments={};
+  const userIds=state.users.map(u=>u.id);
+  if(!userIds.length)return assignments;
+  let userIdx=Math.floor(Math.random()*userIds.length); // start random offset each time
+
+  poolTaskIds.forEach(id=>{
+    const t=state.tasks.find(t=>t.id===id);
+    if(!t)return;
+    if(t.assignee!=='all'){
+      assignments[id]={assignedUser:t.assignee,subtaskAssignments:{}};return;
+    }
+    // Ensure different assignment than last time
+    const lastAsgn=state.poolAssignments&&state.poolAssignments[id];
+    const lastUser=lastAsgn?lastAsgn.assignedUser:null;
+
+    const subAssign={};
+    const subs=t.subtasks||[];
+    subs.forEach(s=>{
+      subAssign[s.id]=userIds[userIdx%userIds.length];
+      userIdx++;
+    });
+    let mainUser=userIds[userIdx%userIds.length];
+    // guarantee different from last
+    if(userIds.length>1&&mainUser===lastUser){userIdx++;mainUser=userIds[userIdx%userIds.length];}
+    if(subs.length>0){
+      const firstUndone=subs.find(s=>!s.done);
+      if(firstUndone)mainUser=subAssign[firstUndone.id];
+    } else {userIdx++;}
+    assignments[id]={assignedUser:mainUser,subtaskAssignments:subAssign};
+  });
+  return assignments;
+}
+
+// Apply pool assignments: mark tasks with isRandom flag so they appear under Random
+function applyPoolToMyTasks(){
+  // Clear old random flags
+  state.tasks.forEach(t=>{ if(t.isRandom)t.isRandom=false; });
+  // Set based on current assignments
+  Object.entries(state.poolAssignments||{}).forEach(([taskId,asgn])=>{
+    const t=state.tasks.find(t=>t.id===taskId);
+    if(!t||t.assignee!=='all')return;
+    // Mark all users that have subtasks assigned as random recipients
+    // The main task gets a random-assignee copy flag
+    t._randomAssignee=asgn.assignedUser;
+    // Create virtual: just tag the task as isRandom with effective assignee
+    // We'll handle rendering by checking poolAssignments
+  });
+}
+
+function renderPool(){
+  const bar=document.getElementById('poolFilterBar');
+  const filterOpts=[{id:'all',label:'Alle'},...state.users.map(u=>({id:u.id,label:u.name,color:u.color}))];
+  bar.innerHTML=filterOpts.map(f=>`<button class="filter-chip${state.poolFilter===f.id?' active':''}"
+    style="${state.poolFilter===f.id&&f.color?'background:'+f.color+';color:#fff':f.color&&state.poolFilter!==f.id?'color:'+f.color:''}"
+    onclick="setPoolFilter('${f.id}')">${f.label}</button>`).join('');
+
+  const poolable=state.tasks.filter(t=>t.inPool&&!t.done);
+  if(!state.poolTasks.length&&poolable.length)doShuffle(false);
+  if(!state.poolAssignments||!Object.keys(state.poolAssignments).length)
+    state.poolAssignments=buildPoolAssignments(state.poolTasks);
+
+  let toShow=state.poolTasks.map(id=>state.tasks.find(t=>t.id===id)).filter(Boolean).filter(t=>!t.done);
+  if(state.poolFilter!=='all'){
+    toShow=toShow.filter(t=>{
+      const a=state.poolAssignments[t.id];
+      return a&&a.assignedUser===state.poolFilter;
+    });
+  }
+
+  const c=document.getElementById('poolContainer');if(!c)return;
+  if(!toShow.length){
+    c.innerHTML=`<div class="empty"><div class="empty-icon">🎲</div><div class="empty-title">Keine Aufgaben</div><div class="empty-sub">Filter ändern oder neu mischen.</div></div>`;
+    return;
+  }
+
+  c.innerHTML=toShow.map(t=>{
+    const asgn=state.poolAssignments[t.id];
+    const userId=asgn?asgn.assignedUser:t.assignee;
+    const u=state.users.find(u=>u.id===userId);
+    const color=u?u.color:'#8E8E93';
+    const name=u?u.name:'Alle';
+    let subsHTML='';
+    if(t.subtasks&&t.subtasks.length){
+      const subAsgn=asgn?asgn.subtaskAssignments:{};
+      subsHTML=`<div style="margin-top:10px;border-top:.5px solid var(--sep);padding-top:8px">
+        ${t.subtasks.map(s=>{
+          const su=state.users.find(u=>u.id===subAsgn[s.id]);
+          return`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px">
+            <span style="color:${s.done?'var(--ios-green)':'var(--sep)'}">${s.done?'✓':'○'}</span>
+            <span style="${s.done?'text-decoration:line-through;color:var(--text3)':'color:var(--text2)'};flex:1">${s.title}</span>
+            ${su?`<span style="color:${su.color};font-weight:600;font-size:11px">${su.name}</span>`:''}
+          </div>`;
+        }).join('')}
+      </div>`;
+    }
+    return`<div class="pool-card" style="border-left:4px solid ${color}" onclick="openDetail('${t.id}')">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+        <div style="font-size:17px;font-weight:600;flex:1">${catIcon(t.cat)} ${t.title}</div>
+        <span style="color:${color};font-weight:700;font-size:13px;padding-left:8px">${name}</span>
+      </div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:8px">${recurPeriodStr(t)||''}</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span class="badge ${PRIO_BADGE[t.prio]}">${t.prio}</span>
+        <span class="badge badge-blue">${t.cat}</span>
+      </div>
+      ${progressHTML(t)}${subsHTML}
+    </div>`;
+  }).join('');
+}
+
+function setPoolFilter(id){state.poolFilter=id;renderPool();}
+
+function doShuffle(notify=true){
+  const poolable=state.tasks.filter(t=>t.inPool&&!t.done);
+  if(!poolable.length){if(notify)showToast('Keine Pool-Aufgaben vorhanden.');return;}
+  state.poolTasks=shuffleArr(poolable).slice(0,Math.min(4,poolable.length)).map(t=>t.id);
+  state.poolAssignments=buildPoolAssignments(state.poolTasks);
+  state.poolFilter='all';
+
+  // Tag tasks with isRandom for "Meine" view
+  state.tasks.forEach(t=>{ if(t.assignee==='all'||t.isRandom) t.isRandom=false; });
+  Object.entries(state.poolAssignments).forEach(([taskId,asgn])=>{
+    const t=state.tasks.find(t=>t.id===taskId);
+    if(!t||t.assignee!=='all')return;
+    // Temporarily set assignee to the random user and mark isRandom
+    // We keep original assignee = 'all' but add a randomAssignee field
+    t._randomAssignee=asgn.assignedUser;
+  });
+
+  save();
+  if(notify)showToast('🎲 Neu gemischt!');
+}
+
+function shufflePool(){doShuffle(true);renderPool();renderMyTasks();}
+
+// ===== USERS =====
+function renderUsers(){
+  const c=document.getElementById('usersContainer');if(!c)return;
+  if(!state.users.length){c.innerHTML='<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Keine Nutzer</div></div>';return;}
+  c.innerHTML=`<div class="card-group">${state.users.map(u=>{
+    const tasks=state.tasks.filter(t=>(t.assignee===u.id||t.assignee==='all')&&!t.done).length;
+    const active=u.id===state.currentUser;
+    return`<div class="card-row">
+      ${avatarHTML(u)}
+      <div style="flex:1" onclick="switchUser('${u.id}')">
+        <div style="font-size:16px;font-weight:500">${u.name} ${active?'<span style="color:var(--ios-green);font-size:13px">● Aktiv</span>':''}</div>
+        <div style="font-size:13px;color:var(--text3)">${tasks} offene Aufgabe${tasks!==1?'n':''}</div>
+      </div>
+      <button onclick="openEditUser('${u.id}')" style="background:var(--card2);border:none;border-radius:8px;padding:6px 10px;color:var(--text3);cursor:pointer;font-size:13px">✏️</button>
+    </div>`;
+  }).join('')}</div>`;
+}
+
+// ===== DETAIL =====
+function openDetail(id){
+  const t=state.tasks.find(t=>t.id===id);if(!t)return;
+  state.currentDetailTask=id;
+  const asgn=state.poolAssignments&&state.poolAssignments[t.id];
+  const effectiveAssignee=(t.assignee==='all'&&asgn)?asgn.assignedUser:t.assignee;
+  const u=effectiveAssignee==='all'?null:state.users.find(u=>u.id===effectiveAssignee);
+  const color=userColor(effectiveAssignee);
+  const assigneeName=effectiveAssignee==='all'?'👥 Alle':(u?u.name:'');
+  const isOverdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();
+
+  const subsHTML=(t.subtasks&&t.subtasks.length>0)?
+    `<div class="section-header">Unteraufgaben (${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})</div>
+     <div class="card-group" id="detailSubList">
+       ${t.subtasks.map(s=>`<div class="subtask-item" data-sid="${s.id}">
+         <span class="sub-drag-handle">⠿</span>
+         <div class="subtask-check ${s.done?'done':''}" onclick="toggleSubtask('${t.id}','${s.id}')">${s.done?'✓':''}</div>
+         <span style="font-size:15px;flex:1;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>
+       </div>`).join('')}
+       <div class="subtask-item" style="cursor:pointer" onclick="addSubtaskFromDetail('${t.id}')">
+         <span style="width:26px"></span>
+         <div style="width:20px;height:20px;display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:20px">+</div>
+         <span style="color:var(--accent);font-size:15px">Unteraufgabe hinzufügen</span>
+       </div>
+     </div>`:
+    `<div style="padding:0 16px 8px"><button class="btn btn-ghost" onclick="addSubtaskFromDetail('${t.id}')">+ Unteraufgabe hinzufügen</button></div>`;
+
+  const periodStr=t.repeat!=='Nie'?recurPeriodStr(t):'';
+
+  document.getElementById('taskDetailContent').innerHTML=`
+    <div style="padding:20px 16px 8px">
+      <div style="font-size:26px;font-weight:700;letter-spacing:-.5px;margin-bottom:10px">${t.title}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <span class="badge ${PRIO_BADGE[t.prio]}">${t.prio}</span>
+        <span class="badge badge-blue">${catIcon(t.cat)} ${t.cat}</span>
+        ${t.done?'<span class="badge badge-green">✓ Erledigt</span>':''}
+        ${t.repeat!=='Nie'?`<span class="recur-badge">🔁 ${t.repeat}</span>`:''}
+      </div>
+      ${t.desc?`<div style="font-size:15px;color:var(--text2);line-height:1.55;margin-top:12px">${t.desc}</div>`:''}
+    </div>
+    ${t.subtasks&&t.subtasks.length?`<div style="padding:0 16px 4px">${progressHTML(t)}</div>`:''}
+    <div class="section-header">Details</div>
+    <div class="card-group">
+      <div class="card-row"><span>👤</span><span style="flex:1;font-size:16px">Zuständig</span><span style="color:${color};font-weight:600">${assigneeName}</span></div>
+      ${periodStr?`<div class="card-row"><span>📅</span><span style="flex:1;font-size:16px">Zeitraum</span><span style="color:${isOverdue?'var(--ios-red)':'var(--text3)'};font-size:13px">${periodStr}</span></div>`:''}
+      ${t.inPool?`<div class="card-row"><span>🎲</span><span style="flex:1;font-size:16px">Im Pool</span><span style="color:var(--ios-green)">Ja</span></div>`:''}
+    </div>
+    ${subsHTML}
+    <div style="padding:8px 16px 4px"><button class="btn btn-primary" onclick="toggleTask('${t.id}',true);closeDetail()">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button></div>
+    <div style="padding:4px 16px 24px"><button class="btn btn-danger" onclick="deleteTaskFromDetail('${t.id}')">Aufgabe löschen</button></div>`;
+
+  document.getElementById('taskDetail').classList.add('open');
+  if(t.subtasks&&t.subtasks.length>0)setTimeout(()=>initSubDrag(t.id),50);
+}
+
+function closeDetail(){document.getElementById('taskDetail').classList.remove('open');}
+function editCurrentTask(){if(state.currentDetailTask){closeDetail();setTimeout(()=>showAddTask(state.currentDetailTask),220);}}
+
+function deleteTaskFromDetail(id){
+  const btn=document.getElementById('taskDetailContent').querySelector('.btn-danger');
+  if(!btn)return;
+  btn.outerHTML=`<div style="padding:4px 16px 24px;display:flex;gap:8px">
+    <button class="btn" style="flex:1;background:var(--card2);color:var(--text);font-size:15px" onclick="openDetail('${id}')">Abbrechen</button>
+    <button class="btn" style="flex:1;background:var(--ios-red);color:#fff;font-size:15px" onclick="confirmDeleteTask('${id}')">Löschen ✓</button>
+  </div>`;
+}
+function confirmDeleteTask(id){
+  state.tasks=state.tasks.filter(t=>t.id!==id);
+  state.poolTasks=state.poolTasks.filter(p=>p!==id);
+  if(state.poolAssignments)delete state.poolAssignments[id];
+  save();render();closeDetail();showToast('🗑️ Aufgabe gelöscht');
+}
+
+function toggleSubtask(taskId,subId){
+  const t=state.tasks.find(t=>t.id===taskId);if(!t)return;
+  const s=t.subtasks.find(s=>s.id===subId);if(s)s.done=!s.done;
+  save();render();openDetail(taskId);
+}
+
+function addSubtaskFromDetail(taskId){
+  const title=prompt('Unteraufgabe:');if(!title)return;
+  const t=state.tasks.find(t=>t.id===taskId);if(!t)return;
+  if(!t.subtasks)t.subtasks=[];
+  t.subtasks.push({id:uid(),title,done:false});
+  save();render();openDetail(taskId);
+}
+
+function initSubDrag(taskId){
+  const list=document.getElementById('detailSubList');if(!list)return;
+  let dragging=null;
+  function getItems(){return[...list.querySelectorAll('.subtask-item[data-sid]')]}
+  function start(e){
+    const h=e.target.closest('.sub-drag-handle');if(!h)return;
+    e.preventDefault();dragging=h.closest('.subtask-item');
+    if(dragging)dragging.classList.add('dragging-sub');
+  }
+  function move(e){
+    if(!dragging)return;e.preventDefault();
+    const y=e.touches?e.touches[0].clientY:e.clientY;
+    const items=getItems().filter(i=>i!==dragging);
+    let target=null;
+    for(const item of items){const r=item.getBoundingClientRect();if(y<r.top+r.height/2){target=item;break;}}
+    const addBtn=list.querySelector('.subtask-item:not([data-sid])');
+    if(target)list.insertBefore(dragging,target);else if(addBtn)list.insertBefore(dragging,addBtn);else list.appendChild(dragging);
+  }
+  function end(){
+    if(!dragging)return;dragging.classList.remove('dragging-sub');
+    const t=state.tasks.find(t=>t.id===taskId);
+    if(t){const o=getItems().map(el=>el.dataset.sid);t.subtasks.sort((a,b)=>o.indexOf(a.id)-o.indexOf(b.id));save();}
+    dragging=null;
+  }
+  list.addEventListener('touchstart',start,{passive:false});
+  list.addEventListener('touchmove',move,{passive:false});
+  list.addEventListener('touchend',end);
+  list.addEventListener('mousedown',start);
+  window.addEventListener('mousemove',move);
+  window.addEventListener('mouseup',end);
+}
+
+// ===== TOGGLE TASK (with celebration) =====
+function toggleTask(id,withCelebration=false){
+  const t=state.tasks.find(t=>t.id===id);
+  if(!t)return;
+  const wasDone=t.done;
+  t.done=!t.done;
+  save();render();
+  if(!wasDone&&withCelebration)celebrate(t.title);
+}
+
+function toggleFilter(){state.showDone=!state.showDone;renderMyTasks();}
+
+// ===== SETTINGS =====
+function openSettings(){
+  // Build theme buttons
+  const tb=document.getElementById('themeButtons');
+  tb.innerHTML=THEMES.map(th=>`
+    <button onclick="setTheme('${th.id}')" style="background:${th.color};border:2px solid ${state.theme===th.id?'var(--text)':'transparent'};border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;color:${th.id==='theme-night'?'#fff':'#333'};">${th.label}</button>
+  `).join('');
+
+  // Style (accent color)
+  const sb=document.getElementById('styleButtons');
+  const accents=['#007AFF','#34C759','#FF3B30','#FF9500','#AF52DE','#FF2D55','#5AC8FA','#FF6B35'];
+  sb.innerHTML=`<div style="display:flex;gap:10px;flex-wrap:wrap">
+    ${accents.map(a=>`<div onclick="setAccent('${a}')" class="color-dot${state.accentColor===a?' selected':''}" style="background:${a}"></div>`).join('')}
+  </div>`;
+
+  // Custom cats
+  renderCustomCats();
+  document.getElementById('settingsOverlay').classList.add('open');
+}
+
+function closeSettings(){document.getElementById('settingsOverlay').classList.remove('open');}
+
+function setTheme(t){state.theme=t;applyTheme();save();openSettings();}
+function setAccent(a){state.accentColor=a;applyTheme();save();openSettings();}
+
+function renderCustomCats(){
+  const list=document.getElementById('customCatList');
+  const customs=Object.entries(state.customCats||{});
+  if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:14px;padding-bottom:8px">Noch keine eigenen Kategorien.</div>`;return;}
+  list.innerHTML=customs.map(([name,icon])=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:.5px solid var(--sep)">
+      <span style="font-size:20px">${icon}</span>
+      <span style="flex:1;font-size:15px">${name}</span>
+      <button onclick="removeCustomCat('${name}')" style="background:none;border:none;color:var(--ios-red);font-size:18px;cursor:pointer">×</button>
+    </div>
+  `).join('');
+}
+
+function addCustomCat(){
+  const emoji=document.getElementById('newCatEmoji').value.trim()||'📌';
+  const name=document.getElementById('newCatName').value.trim();
+  if(!name){showToast('Name eingeben!');return;}
+  if(!state.customCats)state.customCats={};
+  state.customCats[name]=emoji;
+  document.getElementById('newCatEmoji').value='';
+  document.getElementById('newCatName').value='';
+  save();renderCustomCats();
+  // Update category dropdowns
+  populateCatDropdown();
+  showToast(`✅ Kategorie "${name}" hinzugefügt`);
+}
+
+function removeCustomCat(name){
+  if(state.customCats)delete state.customCats[name];
+  save();renderCustomCats();populateCatDropdown();
+}
+
+function resetAllTasks(){
+  if(!confirm('Alle Aufgaben wirklich löschen? Das kann nicht rückgängig gemacht werden.'))return;
+  state.tasks=[];state.poolTasks=[];state.poolAssignments={};state.catOrder=[];
+  save();render();closeSettings();showToast('🗑️ Alle Aufgaben gelöscht');
+}
+
+// ===== TASK MODAL =====
+function populateCatDropdown(){
+  const sel=document.getElementById('taskCatInput');if(!sel)return;
+  const cats=allCats();
+  sel.innerHTML=Object.entries(cats).map(([name,icon])=>`<option value="${name}">${icon} ${name}</option>`).join('');
+}
+
+function refreshNewSubtaskList(){
+  const el=document.getElementById('newSubtaskList');if(!el)return;
+  el.innerHTML=state.newSubtasks.map((s,i)=>`
+    <div class="new-subtask-tag" data-nidx="${i}">
+      <span class="new-sub-handle">⠿</span>
+      <span>${s.title}</span>
+      <button class="rm-btn" onclick="removeNewSubtask(${i})">×</button>
+    </div>`).join('');
+  initNewSubDrag();
+}
+
+function initNewSubDrag(){
+  const list=document.getElementById('newSubtaskList');if(!list)return;
+  let dragging=null;
+  function getItems(){return[...list.querySelectorAll('.new-subtask-tag')]}
+  function start(e){const h=e.target.closest('.new-sub-handle');if(!h)return;e.preventDefault();dragging=h.closest('.new-subtask-tag');if(dragging)dragging.classList.add('dragging-new');}
+  function move(e){if(!dragging)return;e.preventDefault();const y=e.touches?e.touches[0].clientY:e.clientY;const items=getItems().filter(i=>i!==dragging);let target=null;for(const item of items){const r=item.getBoundingClientRect();if(y<r.top+r.height/2){target=item;break;}}if(target)list.insertBefore(dragging,target);else list.appendChild(dragging);}
+  function end(){if(!dragging)return;dragging.classList.remove('dragging-new');const o=getItems().map(el=>parseInt(el.dataset.nidx));state.newSubtasks=o.map(i=>state.newSubtasks[i]);refreshNewSubtaskList();dragging=null;}
+  list.addEventListener('touchstart',start,{passive:false});list.addEventListener('touchmove',move,{passive:false});list.addEventListener('touchend',end);
+  list.addEventListener('mousedown',start);window.addEventListener('mousemove',move);window.addEventListener('mouseup',end);
+}
+
+function addNewSubtask(){
+  const inp=document.getElementById('newSubtaskInput');const title=inp.value.trim();if(!title)return;
+  state.newSubtasks.push({id:uid(),title,done:false});inp.value='';refreshNewSubtaskList();
+}
+function removeNewSubtask(i){state.newSubtasks.splice(i,1);refreshNewSubtaskList();}
+
+function onAssigneeChange(sel){if(sel.value==='all')document.getElementById('taskPoolToggle').classList.add('on');}
+
+function showAddTask(editId=null){
+  state.editingTaskId=editId;
+  const t=editId?state.tasks.find(t=>t.id===editId):null;
+  state.newSubtasks=t?[...(t.subtasks||[])].map(s=>({...s})):[];
+  populateCatDropdown();
+  document.getElementById('modalTaskTitle').textContent=editId?'Aufgabe bearbeiten':'Neue Aufgabe';
+  document.getElementById('taskTitleInput').value=t?t.title:'';
+  document.getElementById('taskDescInput').value=t?t.desc:'';
+  document.getElementById('taskCatInput').value=t?t.cat:'Arbeit';
+  document.getElementById('taskDeadline').value=t?t.deadline:'';
+  document.getElementById('taskRepeat').value=t?t.repeat:'Nie';
+  state.selectedPrio=t?t.prio:'Mittel';
+  document.querySelectorAll('#priorityControl .seg-btn').forEach(b=>b.classList.remove('active'));
+  const idx=['Hoch','Mittel','Niedrig'].indexOf(state.selectedPrio);
+  if(idx>=0)document.querySelectorAll('#priorityControl .seg-btn')[idx]?.classList.add('active');
+  const pt=document.getElementById('taskPoolToggle');
+  pt.className='toggle'+((t&&t.inPool)?' on':'');
+  const sel=document.getElementById('taskAssignee');
+  sel.innerHTML=`<option value="all">👥 Alle Nutzer</option>`+state.users.map(u=>`<option value="${u.id}">${u.name}</option>`).join('');
+  sel.value=t?t.assignee:(state.currentUser||'all');
+  if(sel.value==='all')pt.classList.add('on');
+  document.getElementById('deleteTaskRow').innerHTML=editId?`<button class="btn btn-danger" onclick="deleteTaskFromModal('${editId}')">Aufgabe löschen</button>`:'';
+  refreshNewSubtaskList();
+  document.getElementById('newSubtaskInput').value='';
+  document.getElementById('taskModal').classList.add('open');
+}
+
+function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
+function setPrio(p,el){state.selectedPrio=p;document.querySelectorAll('#priorityControl .seg-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');}
+
+function saveTask(){
+  const title=document.getElementById('taskTitleInput').value.trim();
+  if(!title){showToast('⚠️ Titel eingeben!');return;}
+  const inPool=document.getElementById('taskPoolToggle').classList.contains('on');
+  const assignee=document.getElementById('taskAssignee').value;
+  const todayStr=today();
+  if(state.editingTaskId){
+    const t=state.tasks.find(t=>t.id===state.editingTaskId);
+    if(t){
+      t.title=title;t.desc=document.getElementById('taskDescInput').value;
+      t.cat=document.getElementById('taskCatInput').value;t.prio=state.selectedPrio;
+      t.deadline=document.getElementById('taskDeadline').value;
+      t.assignee=assignee;t.repeat=document.getElementById('taskRepeat').value;
+      t.inPool=inPool||assignee==='all';t.subtasks=[...state.newSubtasks];
+      if(!t.repeatStart)t.repeatStart=todayStr;
+    }
+  } else {
+    state.tasks.push({id:uid(),title,desc:document.getElementById('taskDescInput').value,
+      cat:document.getElementById('taskCatInput').value,prio:state.selectedPrio,
+      deadline:document.getElementById('taskDeadline').value,assignee,
+      repeat:document.getElementById('taskRepeat').value,
+      repeatStart:todayStr,
+      inPool:inPool||assignee==='all',done:false,
+      subtasks:[...state.newSubtasks],isRandom:false});
+  }
+  state.newSubtasks=[];
+  state.poolTasks=state.poolTasks.filter(id=>state.tasks.find(t=>t.id===id&&t.inPool&&!t.done));
+  save();render();closeTaskModal();
+  showToast(state.editingTaskId?'✅ Gespeichert':'✅ Aufgabe erstellt');
+}
+
+function deleteTaskFromModal(id){
+  const row=document.getElementById('deleteTaskRow');
+  row.innerHTML=`<div style="display:flex;gap:8px">
+    <button class="btn" style="flex:1;background:var(--card2);color:var(--text);font-size:15px" onclick="showAddTask('${id}')">Abbrechen</button>
+    <button class="btn" style="flex:1;background:var(--ios-red);color:#fff;font-size:15px" onclick="confirmDeleteTaskModal('${id}')">Löschen ✓</button>
+  </div>`;
+}
+function confirmDeleteTaskModal(id){
+  state.tasks=state.tasks.filter(t=>t.id!==id);
+  state.poolTasks=state.poolTasks.filter(p=>p!==id);
+  if(state.poolAssignments)delete state.poolAssignments[id];
+  save();render();closeTaskModal();showToast('🗑️ Aufgabe gelöscht');
+}
+
+// ===== USER MODALS =====
+function buildColorGrid(gridId,selectedColor,onClickFn){
+  const el=document.getElementById(gridId);if(!el)return;
+  el.innerHTML=`<div class="color-grid">${ALL_COLORS.map(c=>`
+    <div class="color-dot${selectedColor===c?' selected':''}" style="background:${c}" onclick="${onClickFn}('${c}')"></div>
+  `).join('')}</div>`;
+}
+
+let newUserPhotoDataURL=null;
+function handleNewUserPhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    newUserPhotoDataURL=e.target.result;
+    const area=document.getElementById('newUserPhotoArea');
+    area.innerHTML=`<img src="${newUserPhotoDataURL}" style="width:100%;height:100%;object-fit:cover">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function showAddUser(){
+  document.getElementById('userNameInput').value='';
+  state.selectedColor='#007AFF';
+  newUserPhotoDataURL=null;
+  document.getElementById('newUserPhotoArea').innerHTML='<span style="font-size:26px">📷</span><span style="font-size:10px;color:var(--text3);margin-top:2px">Foto</span>';
+  buildColorGrid('colorGridNew','#007AFF','pickNewUserColor');
+  document.getElementById('selectUserModal').classList.remove('open');
+  document.getElementById('userModal').classList.add('open');
+}
+
+function pickNewUserColor(c){state.selectedColor=c;buildColorGrid('colorGridNew',c,'pickNewUserColor');}
+
+function closeUserModal(){
+  document.getElementById('userModal').classList.remove('open');
+  if(!state.currentUser)showSelectUser();
+}
+
+function saveUser(){
+  const name=document.getElementById('userNameInput').value.trim();if(!name)return;
+  const u={id:uid(),name,color:state.selectedColor,photo:newUserPhotoDataURL||null};
+  state.users.push(u);
+  if(!state.currentUser)state.currentUser=u.id;
+  save();render();
+  document.getElementById('userModal').classList.remove('open');
+  showToast(`👤 ${name} hinzugefügt`);
+}
+
+// EDIT USER
+let editUserPhotoDataURL=null;
+function openEditUser(userId){
+  const u=state.users.find(u=>u.id===userId);if(!u)return;
+  state.editingUserId=userId;
+  state.selectedColor=u.color;
+  editUserPhotoDataURL=u.photo||null;
+  document.getElementById('editUserNameInput').value=u.name;
+  const area=document.getElementById('editUserPhotoArea');
+  if(u.photo)area.innerHTML=`<img src="${u.photo}" style="width:100%;height:100%;object-fit:cover">`;
+  else area.innerHTML=`<div style="width:100%;height:100%;background:${u.color};display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:700;color:#fff">${u.name[0]}</div>`;
+  buildColorGrid('colorGridEdit',u.color,'pickEditUserColor');
+  document.getElementById('editUserOverlay').classList.add('open');
+}
+
+function pickEditUserColor(c){state.selectedColor=c;buildColorGrid('colorGridEdit',c,'pickEditUserColor');}
+
+function handleEditUserPhoto(input){
+  const file=input.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    editUserPhotoDataURL=e.target.result;
+    const area=document.getElementById('editUserPhotoArea');
+    area.innerHTML=`<img src="${editUserPhotoDataURL}" style="width:100%;height:100%;object-fit:cover">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function closeEditUser(){document.getElementById('editUserOverlay').classList.remove('open');}
+
+function saveEditUser(){
+  const u=state.users.find(u=>u.id===state.editingUserId);if(!u)return;
+  const name=document.getElementById('editUserNameInput').value.trim();
+  if(name)u.name=name;
+  u.color=state.selectedColor;
+  if(editUserPhotoDataURL!==null)u.photo=editUserPhotoDataURL;
+  save();render();closeEditUser();showToast(`✅ ${u.name} aktualisiert`);
+}
+
+function deleteUser(){
+  if(state.users.length<=1){showToast('⚠️ Mindestens ein Nutzer muss bleiben.');return;}
+  const u=state.users.find(u=>u.id===state.editingUserId);if(!u)return;
+  if(!confirm(`Nutzer "${u.name}" wirklich löschen?`))return;
+  // reassign their tasks to first other user
+  const other=state.users.find(u=>u.id!==state.editingUserId);
+  state.tasks.forEach(t=>{if(t.assignee===state.editingUserId)t.assignee=other?other.id:'all';});
+  state.users=state.users.filter(u=>u.id!==state.editingUserId);
+  if(state.currentUser===state.editingUserId)state.currentUser=state.users[0]?.id||null;
+  save();render();closeEditUser();showToast(`🗑️ Nutzer gelöscht`);
+}
+
+// ===== SELECT USER =====
+function showSelectUser(){
+  const list=document.getElementById('selectUserList');
+  list.innerHTML=state.users.length===0
+    ?'<div style="padding:20px 16px;color:var(--text3);font-size:15px">Noch keine Nutzer.</div>'
+    :`<div class="card-group" style="margin:0 16px 16px">${state.users.map(u=>`
+        <div class="card-row" onclick="selectUser('${u.id}')">
+          ${avatarHTML(u)}
+          <div style="flex:1;font-size:17px;font-weight:500">${u.name}</div>
+          <div class="chevron">›</div>
+        </div>`).join('')}</div>`;
+  document.getElementById('selectUserModal').classList.add('open');
+}
+
+function selectUser(id){
+  state.currentUser=id;save();
+  document.getElementById('selectUserModal').classList.remove('open');
+  render();
+}
+
+function switchUser(id){state.currentUser=id;save();render();switchTab(0);}
+
+// ===== TABS =====
+const pages=['pageMy','pageAll','pagePool','pageUsers'];
+const navTitles=['Meine Aufgaben','Alle Aufgaben','Aufgaben-Pool','Nutzer'];
+function switchTab(i){
+  pages.forEach((p,j)=>{document.getElementById(p).classList.toggle('active',j===i);document.getElementById('tab'+j).classList.toggle('active',j===i);});
+  document.getElementById('navTitle').textContent=navTitles[i];
+  document.getElementById('fabBtn').style.display=i===3?'none':'';
+}
+
+// ===== HELPERS =====
+function shuffleArr(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function formatDate(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'});}
+
+init();
+</script>
+</body>
+</html>
