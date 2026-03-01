@@ -61,13 +61,13 @@ html {
   overscroll-behavior: none;
   min-height: 100%;
   height: 100%;
-  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
-  background-attachment: fixed;
+  background: var(--bg-from);
 }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: transparent;
+  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
+  background-attachment: fixed;
   color: var(--text);
   overflow-x: hidden;
   min-height: 100dvh;
@@ -907,6 +907,8 @@ function applyTheme(){
   document.body.className=theme;
   // Update status bar / browser theme color to match app background
   const colors={'':'#e8eeff','th-dark':'#0a0a18','th-warm':'#fff8ec'};
+  // Also set html background to match status bar
+  document.documentElement.style.background=colors[theme]||'#e8eeff';
   const meta=document.getElementById('themeColorMeta');
   if(meta)meta.setAttribute('content',colors[theme]||'#e8eeff');
   // sync theme seg buttons
