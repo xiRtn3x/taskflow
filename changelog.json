@@ -1,0 +1,24 @@
+{
+  "version": "3.0",
+  "date": "2025-03-01",
+  "entries": [
+    {
+      "version": "3.0",
+      "date": "2025-03-01",
+      "title": "Großes Update",
+      "changes": [
+        "Liquid Glass Design (iOS 26)",
+        "Neuer Zeitfilter in Meine: Alle, Heute, Woche, Monat",
+        "Pool-Aufgaben von gemeinsamen Aufgaben getrennt",
+        "Jährliche Wiederholung hinzugefügt",
+        "Hauptmenü neu geordnet: Meine, Pool, Alle, Kalender",
+        "Gruppe in Profil integriert",
+        "Admin kann Nutzer und Gruppen löschen",
+        "Slot-Maschinen-Animation beim Pool mischen",
+        "App-Design, Kategorien und Einstellungen ins Profil integriert",
+        "Farben der anderen Nutzer wirken sich auf alle Menüs aus",
+        "Ungelesene Aufgaben werden beim Öffnen angezeigt"
+      ]
+    }
+  ]
+}
