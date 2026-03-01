@@ -59,14 +59,15 @@ body.th-warm {
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
 html {
   overscroll-behavior: none;
-  min-height: 100dvh;
-  background: var(--bg-from);
+  min-height: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
+  background-attachment: fixed;
 }
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
   -webkit-font-smoothing: antialiased;
-  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
-  background-attachment: fixed;
+  background: transparent;
   color: var(--text);
   overflow-x: hidden;
   min-height: 100dvh;
@@ -974,36 +975,74 @@ function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateStrin
 function uid(){return Math.random().toString(36).substr(2,9);}
 function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-// Task visibility
-function visibleToMe(t){
-  const myId=me._id?.toString();
-  if(t.assignee===myId)return true;
-  if(t.assignee==='all')return true;
-  if(t.type==='shared'&&t.sharedWith?.includes(myId))return true;
-  const asgn=appstate.poolAssigns?.[t._id?.toString()];
-  if(asgn?.assignedUser===myId)return true;
-  return false;
-}
+// ── TASK TYPE + VISIBILITY ────────────────
 function isPoolTask(t){return t.type==='pool'||t.inPool;}
 function isSharedTask(t){return t.type==='shared';}
-function isMyTask(t){return!isPoolTask(t)&&!isSharedTask(t)&&t.assignee===me._id?.toString();}
+function isMyTask(t){return t.type==='mine'||(!isPoolTask(t)&&!isSharedTask(t));}
+
+// MEINE:     Assignee sieht sie (Ersteller kann an anderen zuweisen → dann dessen Aufgabe)
+// GEMEINSAM: alle in sharedWith + Ersteller sehen sie
+// POOL:      im Pool-Tab immer; in "Meine" nur wenn zugewiesen
+function visibleToMe(t){
+  const myId=me._id?.toString();
+  if(isMyTask(t))return t.assignee===myId;
+  if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
+  if(isPoolTask(t))return true;
+  return false;
+}
+// Darf ich abschließen?
+// MEINE:     nur der Assignee (auch wenn jemand anderes sie erstellt hat)
+// GEMEINSAM: jeder Betroffene (sharedWith + Ersteller)
+// POOL:      nur der zugewiesene Nutzer
+function canComplete(t){
+  const myId=me._id?.toString();
+  if(isMyTask(t))return t.assignee===myId;
+  if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
+  if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===myId;}
+  return false;
+}
+// Zeige in "Meine"?
+// MEINE:     ja, wenn ich der Assignee bin
+// GEMEINSAM: ja, wenn ich betroffen bin
+// POOL:      nur wenn ich der zugewiesene bin
+function showInMy(t){
+  const myId=me._id?.toString();
+  if(isMyTask(t))return t.assignee===myId;
+  if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
+  if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===myId;}
+  return false;
+}
+// Zeige in "Alle"?
+// MEINE:     ja, wenn ich der Assignee bin (egal wer sie erstellt hat)
+// GEMEINSAM: ja, wenn ich betroffen bin
+// POOL:      ja, wenn ich der zugewiesene bin
+function showInAll(t){return showInMy(t);}
 
 // Task HTML
 function taskHTML(t,showBar=false){
-  const col=uColor(t.assignee);
-  const u=uById(t.assignee);
+  // Für Pool-Aufgaben: Farbe des zugewiesenen Nutzers; sonst Farbe des Assignees
+  const asgn=isPoolTask(t)?appstate.poolAssigns?.[t._id?.toString()]:null;
+  const effId=asgn?.assignedUser||t.assignee;
+  const col=uColor(effId);
+  const u=isPoolTask(t)?uById(effId):uById(t.assignee);
   const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();
-  const aname=t.assignee==='all'?'Alle':(u?u.name:'');
+  const aname=u?u.name:(t.assignee==='all'?'Alle':'');
+  // Zeige "von [Name]" wenn jemand anderes die Aufgabe erstellt hat
+  const creatorNote=isMyTask(t)&&t.creatorId&&t.creatorId!==t.assignee?uById(t.creatorId)?.name:'';
+  const canDo=canComplete(t);
+  const chkClick=canDo?`event.stopPropagation();toggleTask('${t._id}',true)`:`event.stopPropagation();showToast('Nicht deine Aufgabe')`;
   return`<div class="task-item" id="ti-${t._id}" onclick="openDetail('${t._id}')">
     ${showBar?`<div class="color-bar" style="background:${col}"></div>`:''}
-    <div class="chk${t.done?' done':''}" onclick="event.stopPropagation();toggleTask('${t._id}',true)">${t.done?I.check:''}</div>
+    <div class="chk${t.done?' done':''}${!canDo?' locked':''}" onclick="${chkClick}" style="${!canDo?'opacity:.45;cursor:not-allowed;':''}">${t.done?I.check:''}</div>
     <div class="task-body">
       <div class="task-title${t.done?' done':''}">${t.title}</div>
       <div class="task-meta">
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        ${isSharedTask(t)?`<span class="badge b-pur">gemeinsam</span>`:''}
         ${t.deadline?`<span style="display:inline-flex;align-items:center;gap:3px;color:${overdue?'var(--red)':'var(--text3)'}">${I.cal} ${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span>`:''}
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
         ${showBar&&aname?`<span style="color:${col};font-weight:600">${aname}</span>`:''}
+        ${creatorNote?`<span style="color:var(--text3);font-size:10px">von ${creatorNote}</span>`:''}
       </div>
       ${prog(t)}
     </div>
@@ -1029,27 +1068,29 @@ function passesTimeFilter(t){
 
 // ── MY PAGE ──────────────────────────────
 function renderMy(){
-  const mine=tasks.filter(t=>isMyTask(t)&&!t.done&&passesTimeFilter(t));
-  const pool=tasks.filter(t=>visibleToMe(t)&&(isPoolTask(t))&&!t.done);
-  const shared=tasks.filter(t=>visibleToMe(t)&&isSharedTask(t)&&!t.done&&passesTimeFilter(t));
+  // MEINE + GEMEINSAM (die mich betreffen), nicht erledigt, nach Zeitfilter
+  const personal=tasks.filter(t=>!isPoolTask(t)&&showInMy(t)&&!t.done&&passesTimeFilter(t));
+  // POOL: nur die mir zugewiesenen Pool-Aufgaben (nach Mischen)
+  const myPool=tasks.filter(t=>isPoolTask(t)&&showInMy(t)&&!t.done);
   const c=document.getElementById('myContainer');
-  if(!mine.length&&!pool.length&&!shared.length){c.innerHTML=`<div class="empty"><div>${I.chkCirc}</div><div class="empty-t">Alles erledigt!</div><div class="empty-s">Keine Aufgaben.</div></div>`;return;}
-
+  if(!personal.length&&!myPool.length){
+    c.innerHTML=`<div class="empty"><div>${I.chkCirc}</div><div class="empty-t">Alles erledigt!</div><div class="empty-s">Keine offenen Aufgaben für dich.</div></div>`;return;
+  }
   let html='';
-  // Own tasks by category
-  if(mine.length||shared.length){
-    html+=`<div class="super-sec">${I.user} Meine</div>`;
-    const allMine=[...mine,...shared];
-    const cats=[...new Set(allMine.map(t=>t.cat))];
+  // Persönliche Aufgaben nach Kategorie sortiert
+  if(personal.length){
+    const cats=[...new Set(personal.map(t=>t.cat))];
     const ord=(appstate.catOrder||[]).filter(c=>cats.includes(c));cats.forEach(c=>{if(!ord.includes(c))ord.push(c);});
     ord.forEach(cat=>{
-      const ct=allMine.filter(t=>t.cat===cat);if(!ct.length)return;
-      html+=`<div class="cat-blk" data-cat="${cat}"><div class="sec"><span class="drag-ch">${I.grip}</span>${cat}</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,false)).join('')}</div></div>`;
+      const ct=personal.filter(t=>t.cat===cat);if(!ct.length)return;
+      const hasShared=ct.some(t=>isSharedTask(t));
+      html+=`<div class="cat-blk" data-cat="${cat}"><div class="sec"><span class="drag-ch">${I.grip}</span>${cat}${hasShared?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">gemeinsam</span>`:''}`;
+      html+=`</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,isSharedTask(t))).join('')}</div></div>`;
     });
   }
-  // Pool tasks block
-  if(pool.length){
-    html+=`<div class="super-sec">${I.shuf} Pool</div><div class="glass-card cg">${pool.map(t=>taskHTML(t,true)).join('')}</div>`;
+  // Pool-Block: nur die mir zugewiesenen
+  if(myPool.length){
+    html+=`<div class="super-sec">${I.shuf} Pool</div><div class="glass-card cg">${myPool.map(t=>taskHTML(t,true)).join('')}</div>`;
   }
   c.innerHTML=html;initCatDrag();
 }
@@ -1071,19 +1112,27 @@ function setAllFilter(f,btn){
   renderAll();
 }
 function renderAll(){
-  // Only own tasks + pool tasks visible
+  // Alles was mich betrifft: eigene + gemeinsame + mir zugewiesene Pool
   let list=tasks.filter(t=>{
-    const myId=me._id?.toString();
-    const isOwn=t.assignee===myId&&!isSharedTask(t);
-    const isPool=isPoolTask(t);
-    if(!isOwn&&!isPool)return false;
+    if(!showInAll(t))return false;
     if(allFilter==='open')return!t.done;
     if(allFilter==='done')return t.done;
     return true;
   });
   const c=document.getElementById('allContainer');
-  if(!list.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div></div>`;return;}
-  c.innerHTML=`<div class="glass-card cg">${list.map(t=>taskHTML(t,true)).join('')}</div>`;
+  if(!list.length){
+    const msg=allFilter==='done'?'Noch nichts erledigt':'Keine offenen Aufgaben';
+    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${msg}</div></div>`;return;
+  }
+  // Gruppe nach Typ: erst eigene, dann gemeinsame, dann pool
+  const mine=list.filter(t=>isMyTask(t));
+  const shared=list.filter(t=>isSharedTask(t));
+  const pool=list.filter(t=>isPoolTask(t));
+  let html='';
+  if(mine.length) html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.user} Eigene</div><div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
+  if(shared.length) html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.users} Gemeinsam</div><div class="glass-card cg">${shared.map(t=>taskHTML(t,true)).join('')}</div>`;
+  if(pool.length) html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.shuf} Pool</div><div class="glass-card cg">${pool.map(t=>taskHTML(t,true)).join('')}</div>`;
+  c.innerHTML=html;
 }
 
 // ── POOL PAGE ─────────────────────────────
@@ -1099,23 +1148,55 @@ function buildAssigns(ids){
   return a;
 }
 function renderPool(){
+  // Alle Pool-Aufgaben anzeigen; Zuweisung erfolgt durch Mischen
   const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  if(!appstate.poolTasks?.length&&poolable.length)appstate.poolTasks=poolable.slice(0,4).map(t=>t._id?.toString());
-  if(!Object.keys(appstate.poolAssigns||{}).length)appstate.poolAssigns=buildAssigns(appstate.poolTasks||[]);
+  // Initialer Auto-Assign wenn noch keine Zuweisung vorhanden
+  if(!appstate.poolTasks?.length&&poolable.length){
+    appstate.poolTasks=poolable.map(t=>t._id?.toString());
+    appstate.poolAssigns=buildAssigns(appstate.poolTasks);
+    saveState();
+  }
   const pf=appstate.poolFilter||'all';
-  document.getElementById('poolFbar').innerHTML=`<button class="chip${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+users.map(u=>`<button class="chip${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
-  let toShow=(appstate.poolTasks||[]).map(id=>tasks.find(t=>t._id?.toString()===id)).filter(Boolean).filter(t=>!t.done);
+  // Filter bar nach Nutzer
+  document.getElementById('poolFbar').innerHTML=
+    `<button class="chip${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+
+    users.map(u=>`<button class="chip${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
+  // Zeige alle Pool-Aufgaben (nicht erledigt)
+  let toShow=poolable;
   if(pf!=='all')toShow=toShow.filter(t=>appstate.poolAssigns?.[t._id?.toString()]?.assignedUser===pf);
   const c=document.getElementById('poolContainer');
-  if(!toShow.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Pool leer</div><div class="empty-s">Aufgaben als Pool markieren</div></div>`;return;}
+  if(!toShow.length&&!poolable.length){
+    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;return;
+  }
+  if(!toShow.length){
+    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;return;
+  }
   c.innerHTML=toShow.map(t=>{
-    const id=t._id?.toString(),asgn=appstate.poolAssigns?.[id],u=uById(asgn?.assignedUser),col=uColor(asgn?.assignedUser);
+    const id=t._id?.toString();
+    const asgn=appstate.poolAssigns?.[id];
+    const u=uById(asgn?.assignedUser);
+    const col=uColor(asgn?.assignedUser);
+    const myId=me._id?.toString();
+    const isMineDot=asgn?.assignedUser===myId;
     return`<div class="pool-card" style="border-left:3px solid ${col}" onclick="openDetail('${id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div style="font-size:15px;font-weight:600;flex:1;color:var(--text)">${t.title}</div>
-        <div style="display:flex;align-items:center;gap:5px;padding-left:8px">${avHTML(u,24)}<span style="font-size:12px;font-weight:700;color:${col}">${u?.name||'?'}</span></div>
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">${t.title}</div>
+          ${t.desc?`<div style="font-size:12px;color:var(--text3);line-height:1.4">${t.desc.slice(0,60)}${t.desc.length>60?'…':''}</div>`:''}
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;padding-left:10px;flex-shrink:0">
+          ${avHTML(u,28)}
+          <div style="text-align:right">
+            <div style="font-size:12px;font-weight:700;color:${col}">${u?.name||'–'}</div>
+            ${isMineDot?`<div style="font-size:10px;color:var(--green);font-weight:600">● Du</div>`:''}
+          </div>
+        </div>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>${t.deadline?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        ${t.deadline?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}
+        ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}
+      </div>
       ${prog(t)}
     </div>`;
   }).join('');
@@ -1126,7 +1207,7 @@ function setPoolF(id){appstate.poolFilter=id;saveState();renderPool();}
 function shufflePool(){
   const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
   if(!poolable.length){showToast('Keine Pool-Aufgaben');return;}
-  appstate.poolTasks=shuffle(poolable).slice(0,Math.min(4,poolable.length)).map(t=>t._id?.toString());
+  appstate.poolTasks=poolable.map(t=>t._id?.toString()); // alle Pool-Aufgaben neu zuweisen
   const finalAssigns=buildAssigns(appstate.poolTasks);
   appstate.poolFilter='all';
 
@@ -1180,7 +1261,7 @@ function renderCalendar(){
   const today=new Date();today.setHours(0,0,0,0);
   const firstDay=new Date(calY,calM,1),startDow=firstDay.getDay()===0?6:firstDay.getDay()-1;
   const dim=new Date(calY,calM+1,0).getDate(),dip=new Date(calY,calM,0).getDate();
-  const dlMap={};tasks.filter(t=>t.deadline&&visibleToMe(t)).forEach(t=>{if(!dlMap[t.deadline])dlMap[t.deadline]=[];dlMap[t.deadline].push(t);});
+  const dlMap={};tasks.filter(t=>t.deadline&&showInMy(t)).forEach(t=>{if(!dlMap[t.deadline])dlMap[t.deadline]=[];dlMap[t.deadline].push(t);});
   const days=['Mo','Di','Mi','Do','Fr','Sa','So'];
   let html=days.map(d=>`<div class="cal-dn">${d}</div>`).join('');
   const total=Math.ceil((startDow+dim)/7)*7;
@@ -1205,11 +1286,11 @@ function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCalendar();}
 function renderCalList(){
   const c=document.getElementById('calList');
   if(calDay){
-    const dt=tasks.filter(t=>t.deadline===calDay&&visibleToMe(t));
+    const dt=tasks.filter(t=>t.deadline===calDay&&showInMy(t));
     if(!dt.length){c.innerHTML=`<div style="padding:12px 14px;color:var(--text3);font-size:14px">Keine Aufgaben.</div>`;return;}
     c.innerHTML=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(calDay)}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;
   } else {
-    const all=tasks.filter(t=>t.deadline&&visibleToMe(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));
+    const all=tasks.filter(t=>t.deadline&&showInMy(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));
     if(!all.length){c.innerHTML=`<div class="empty"><div>${I.calOff}</div><div class="empty-t">Keine Deadlines</div></div>`;return;}
     const byD={};all.forEach(t=>{if(!byD[t.deadline])byD[t.deadline]=[];byD[t.deadline].push(t);});
     let html='';
@@ -1256,7 +1337,7 @@ function openDetail(id){
       ${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">Gemeinsam</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
     </div>
     ${subsH}
-    <div style="padding:8px 14px 4px"><button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button></div>
+    <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">Nur ${isPoolTask(t)?'der zugewiesene Nutzer':'der Aufgaben-Ersteller'} kann diese Aufgabe abschließen</div>`}</div>
     <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} Löschen</button></div>`;
   document.getElementById('taskDetail').classList.add('open');
   if(t.subtasks?.length)setTimeout(()=>initSubDrag(id),60);
@@ -1281,9 +1362,14 @@ function initSubDrag(tid){
 // ══════════════════════════════════════════
 async function toggleTask(id,withCeleb=false){
   const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+  // Permission check
+  if(!canComplete(t)){showToast('Du kannst diese Aufgabe nicht abschließen');return;}
   const was=t.done;t.done=!t.done;
-  if(!was){const el=document.getElementById('ti-'+id);if(el){el.classList.add('completing');setTimeout(()=>{render();},430);}else render();if(withCeleb)celebrate();}
-  else render();
+  if(!was){
+    const el=document.getElementById('ti-'+id);
+    if(el){el.classList.add('completing');setTimeout(()=>{render();},430);}else render();
+    if(withCeleb)celebrate();
+  } else render();
   try{await api('PATCH','/tasks/'+id,{done:t.done});}catch(e){t.done=was;render();showToast('Fehler');}
 }
 
@@ -1349,6 +1435,8 @@ function closeTaskModal(){document.getElementById('taskModal').classList.remove(
 
 async function saveTask(){
   const title=document.getElementById('fTitle').value.trim();if(!title){showToast('Titel eingeben!');return;}
+  // MEINE: Assignee aus Dropdown (kann ich selbst oder jemand anderes sein)
+  // GEMEINSAM/POOL: Ersteller ist immer ich, Zuweisung läuft anders
   const assignee=selType==='mine'?document.getElementById('fAssignee').value:me._id?.toString();
   const data={
     title,desc:document.getElementById('fDesc').value,
