@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#e8eeff" id="themeColorMeta">
 <title>TaskFlow</title>
 <style>
 /* ═══════════════ LIQUID GLASS DESIGN SYSTEM ═══════════════ */
@@ -54,7 +57,11 @@ body.th-warm {
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
-html, body { overscroll-behavior: none; min-height: 100dvh; }
+html {
+  overscroll-behavior: none;
+  min-height: 100dvh;
+  background: var(--bg-from);
+}
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -62,6 +69,8 @@ body {
   background-attachment: fixed;
   color: var(--text);
   overflow-x: hidden;
+  min-height: 100dvh;
+  overscroll-behavior: none;
 }
 #app { max-width: 430px; margin: 0 auto; min-height: 100dvh; position: relative; overflow: hidden; }
 svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
@@ -893,10 +902,15 @@ function closeNotifOv(){document.getElementById('notifOv').classList.remove('sho
 // THEME
 // ══════════════════════════════════════════
 function applyTheme(){
-  document.body.className=me?.theme||'';
+  const theme=me?.theme||'';
+  document.body.className=theme;
+  // Update status bar / browser theme color to match app background
+  const colors={'':'#e8eeff','th-dark':'#0a0a18','th-warm':'#fff8ec'};
+  const meta=document.getElementById('themeColorMeta');
+  if(meta)meta.setAttribute('content',colors[theme]||'#e8eeff');
   // sync theme seg buttons
   const map={'':'0','th-dark':'1','th-warm':'2'};
-  const idx=parseInt(map[me?.theme||'']||0);
+  const idx=parseInt(map[theme]||0);
   document.querySelectorAll('#themeSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',i===idx));
 }
 function setTheme(cls,btn){
