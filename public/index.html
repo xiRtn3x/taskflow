@@ -805,7 +805,14 @@ async function loadAll(){
     api('GET','/groups/mine').catch(()=>null)
   ]);
   try{appstate=await api('GET','/appstate');}catch(e){appstate={};}
-  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},showDoneAll:false,...appstate};
+  appstate={
+    catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},showDoneAll:false,
+    poolHistory:[],      // [{week:'2025-W10', assigns:{tid:uid}, completions:{tid:bool}}]
+    poolLoadScores:{},   // {uid: totalAssigned - totalDone} — Fairness-Zähler
+    lastShuffleWeek:'',  // 'YYYY-Www' — wann zuletzt gemischt
+    pausedUsers:[],      // [userId] — diese Woche pausiert
+    ...appstate
+  };
   processRecurring();
 }
 async function saveState(){try{await api('POST','/appstate',appstate);}catch(e){}}
@@ -841,9 +848,30 @@ function closeChangelog(){document.getElementById('chlogOv').classList.remove('s
 async function checkNewTasks(){
   try{
     const lastVisit=me.lastVisit?new Date(me.lastVisit):null;
-    if(!lastVisit)return;
     const today=new Date(); today.setHours(0,0,0,0);
     const tomorrow=new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+    const msgs=[];
+
+    // ── Montags-Hinweis: Pool mischen ──
+    const curWeek=isoWeek();
+    if(isMonday()&&appstate.lastShuffleWeek!==curWeek){
+      const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done&&poolTaskActiveThisWeek(t));
+      if(poolable.length){
+        setTimeout(()=>showToast('🔀 Montag! Nicht vergessen: Pool mischen'),1000);
+        document.getElementById('ndot').style.display='block';
+      }
+    }
+
+    // ── Shuffle-Benachrichtigung für alle Gruppenmitglieder ──
+    if(appstate.poolShuffleNotify&&appstate.poolShuffleNotify.week===curWeek){
+      const seenKey='tf_shuffle_seen_'+curWeek;
+      if(!localStorage.getItem(seenKey)&&appstate.poolShuffleNotify.by!==me.name){
+        localStorage.setItem(seenKey,'1');
+        setTimeout(()=>showToast(`🔀 Pool wurde von ${appstate.poolShuffleNotify.by} neu gemischt`),600);
+      }
+    }
+
+    if(!lastVisit)return;
     const newTasks=tasks.filter(t=>{
       if(t.done)return false;
       const created=new Date(t.createdAt||0);
@@ -852,17 +880,11 @@ async function checkNewTasks(){
       const dueTomorrow=t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===tomorrow.getTime();
       return(isNew&&visibleToMe(t))||(dueToday&&visibleToMe(t))||(dueTomorrow&&visibleToMe(t));
     });
-    if(!newTasks.length)return;
-    const msgs=[];
     const created=newTasks.filter(t=>new Date(t.createdAt||0)>lastVisit&&visibleToMe(t));
     if(created.length)msgs.push(`${created.length} neue Aufgabe${created.length>1?'n':''}`);
-    const today2=new Date(); today2.setHours(0,0,0,0);
-    const dueToday2=newTasks.filter(t=>t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today2.getTime());
+    const dueToday2=newTasks.filter(t=>t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime());
     if(dueToday2.length)msgs.push(`${dueToday2.length} fällig heute`);
-    if(msgs.length){
-      showToast(msgs.join(' · '));
-    }
-    // Update badge
+    if(msgs.length) setTimeout(()=>showToast(msgs.join(' · ')),1600);
     const badge=document.getElementById('ndot');
     if(badge&&newTasks.length)badge.style.display='block';
   }catch(e){}
@@ -1135,51 +1157,168 @@ function renderAll(){
 }
 
 // ── POOL PAGE ─────────────────────────────
+// ── POOL HELPERS ─────────────────────────
+function isoWeek(d=new Date()){
+  // Returns 'YYYY-Www'
+  const tmp=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  tmp.setUTCDate(tmp.getUTCDate()+4-(tmp.getUTCDay()||7));
+  const y=tmp.getUTCFullYear();
+  const w=Math.ceil((((tmp-Date.UTC(y,0,1))/86400000)+1)/7);
+  return `${y}-W${String(w).padStart(2,'0')}`;
+}
+function isMonday(d=new Date()){return d.getDay()===1;}
+function weeksUntilDeadline(deadline){
+  if(!deadline)return 999;
+  const d=new Date(deadline+'T00:00:00');
+  const now=new Date(); now.setHours(0,0,0,0);
+  return Math.floor((d-now)/(7*86400000));
+}
+// Should this pool task be active this week?
+function poolTaskActiveThisWeek(t){
+  if(!t.repeat||t.repeat==='Ni e'||t.repeat==='Wöchentlich')return true;
+  if(t.repeat==='Monatlich'){
+    const w=weeksUntilDeadline(t.deadline);
+    // Appear if within 2 weeks of deadline, OR start of new month
+    const d=new Date();
+    if(d.getDate()<=7)return true; // first week of month
+    return w<=2&&w>=0;
+  }
+  if(t.repeat==='Jährlich'){
+    const w=weeksUntilDeadline(t.deadline);
+    const d=new Date();
+    if(d.getDate()<=7&&d.getMonth()===0)return true; // first week of year
+    return w<=6&&w>=0;
+  }
+  return true;
+}
+// Fair distribution: round-robin balanced, no same person twice in a row
+// Uses poolLoadScores to balance over time: lower score = assigned first
 function buildAssigns(ids){
-  const a={},uids=users.map(u=>u._id?.toString());if(!uids.length)return a;let idx=Math.floor(Math.random()*uids.length);
+  const activeUsers=users.filter(u=>!(appstate.pausedUsers||[]).includes(u._id?.toString()));
+  if(!activeUsers.length)return{};
+  // Sort users by load score ascending (least loaded first), shuffle ties
+  const scores={...appstate.poolLoadScores||{}};
+  const sorted=[...activeUsers].sort((a,b)=>{
+    const sa=scores[a._id?.toString()]||0, sb=scores[b._id?.toString()]||0;
+    if(sa!==sb)return sa-sb;
+    return Math.random()-.5; // shuffle ties
+  });
+  const a={};
+  let roundIdx=0;
   ids.forEach(id=>{
     const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
     const last=appstate.poolAssigns?.[id]?.assignedUser;
-    const subA={};(t.subtasks||[]).forEach(s=>{subA[s.id]=uids[idx%uids.length];idx++;});
-    let main=uids[idx%uids.length];if(uids.length>1&&main===last){idx++;main=uids[idx%uids.length];}idx++;
-    a[id]={assignedUser:main,subtaskAssignments:subA};
+    // Pick next user, skip if same as last and more than 1 user
+    let pick=sorted[roundIdx%sorted.length];
+    if(sorted.length>1&&pick._id?.toString()===last){
+      roundIdx++;
+      pick=sorted[roundIdx%sorted.length];
+    }
+    const uid=pick._id?.toString();
+    a[id]={assignedUser:uid,assignedWeek:isoWeek()};
+    roundIdx++;
   });
   return a;
 }
+// Update load scores after a shuffle
+function updateLoadScores(assigns){
+  const scores={...appstate.poolLoadScores||{}};
+  Object.values(assigns).forEach(({assignedUser})=>{
+    if(assignedUser)scores[assignedUser]=(scores[assignedUser]||0)+1;
+  });
+  appstate.poolLoadScores=scores;
+}
+// Called when task is completed — reduces score for the user
+function onPoolTaskDone(taskId){
+  const asgn=appstate.poolAssigns?.[taskId];
+  if(asgn?.assignedUser){
+    const scores={...appstate.poolLoadScores||{}};
+    scores[asgn.assignedUser]=Math.max(0,(scores[asgn.assignedUser]||1)-1);
+    appstate.poolLoadScores=scores;
+  }
+}
+// Check if long-term task should keep its assignee (monatlich/jährlich)
+function shouldKeepAssignee(t){
+  if(!t.repeat||t.repeat==='Wöchentlich'||t.repeat==='Täglich'||t.repeat==='Nie')return false;
+  const existing=appstate.poolAssigns?.[t._id?.toString()];
+  if(!existing)return false;
+  // Keep if deadline not passed and assignedWeek is this or recent week
+  if(t.deadline&&new Date(t.deadline+'T00:00:00')<new Date())return false;
+  return true; // keep assignee for monatlich/jährlich
+}
 function renderPool(){
-  // Alle Pool-Aufgaben anzeigen; Zuweisung erfolgt durch Mischen
-  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  // Initialer Auto-Assign wenn noch keine Zuweisung vorhanden
+  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done&&poolTaskActiveThisWeek(t));
+  const myId=me._id?.toString();
+  const isPaused=(appstate.pausedUsers||[]).includes(myId);
+  const curWeek=isoWeek();
+  const alreadyShuffledThisWeek=appstate.lastShuffleWeek===curWeek;
+
+  // Auto-init assigns on first load
   if(!appstate.poolTasks?.length&&poolable.length){
     appstate.poolTasks=poolable.map(t=>t._id?.toString());
     appstate.poolAssigns=buildAssigns(appstate.poolTasks);
+    appstate.lastShuffleWeek=curWeek;
+    updateLoadScores(appstate.poolAssigns);
     saveState();
   }
+
   const pf=appstate.poolFilter||'all';
-  // Filter bar nach Nutzer
-  // Pool-Filter als Segmented Control (wie Meine-Filter)
   const pfBar=document.getElementById('poolFbar');
   pfBar.className='seg';
   pfBar.innerHTML=
     `<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+
     users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
-  // Zeige alle Pool-Aufgaben (nicht erledigt)
+
   let toShow=poolable;
   if(pf!=='all')toShow=toShow.filter(t=>appstate.poolAssigns?.[t._id?.toString()]?.assignedUser===pf);
   const c=document.getElementById('poolContainer');
+
+  // Build HTML
+  let html='';
+
+  // ── Fairness stats (last 4 weeks) ──
+  const scores=appstate.poolLoadScores||{};
+  const scoreRows=users.map(u=>{
+    const uid=u._id?.toString();
+    const score=scores[uid]||0;
+    const maxScore=Math.max(1,...Object.values(scores));
+    const pct=Math.round(score/maxScore*100);
+    const col=uColor(uid);
+    return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      ${avHTML(u,22)}
+      <span style="font-size:12px;font-weight:600;width:60px;color:${col}">${u.name}</span>
+      <div style="flex:1;height:4px;background:var(--sep);border-radius:2px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${col};border-radius:2px;transition:width .4s"></div>
+      </div>
+      <span style="font-size:11px;color:var(--text3);width:24px;text-align:right">${score}</span>
+    </div>`;
+  }).join('');
+
+  html+=`<div class="glass-card cg" style="margin:0 14px 12px;padding:12px 14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:10px">Auslastung</div>
+    ${scoreRows}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--sep)">
+      <span style="font-size:12px;color:var(--text3)">Diese Woche ${isPaused?'pausiert':alreadyShuffledThisWeek?'gemischt':'noch nicht gemischt'}</span>
+      <button onclick="togglePause()" style="font-size:12px;font-weight:600;color:${isPaused?'var(--green)':'var(--text3)'};background:none;border:none;cursor:pointer;font-family:inherit">${isPaused?'● Wieder dabei':'Pause'}</button>
+    </div>
+  </div>`;
+
   if(!toShow.length&&!poolable.length){
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;return;
+    html+=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;
+    c.innerHTML=html;return;
   }
   if(!toShow.length){
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;return;
+    html+=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;
+    c.innerHTML=html;return;
   }
-  c.innerHTML=toShow.map(t=>{
+
+  html+=toShow.map(t=>{
     const id=t._id?.toString();
     const asgn=appstate.poolAssigns?.[id];
     const u=uById(asgn?.assignedUser);
     const col=uColor(asgn?.assignedUser);
-    const myId=me._id?.toString();
     const isMineDot=asgn?.assignedUser===myId;
+    const isLongTerm=t.repeat==='Monatlich'||t.repeat==='Jährlich';
     return`<div class="pool-card" style="border-left:3px solid ${col}" onclick="openDetail('${id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div style="flex:1">
@@ -1196,22 +1335,52 @@ function renderPool(){
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
         ${t.deadline?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}
-        ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}
+        ${isLongTerm?`<span style="font-size:10px;color:var(--text3)">fest zugewiesen</span>`:''}
       </div>
       ${prog(t)}
     </div>`;
   }).join('');
+
+  c.innerHTML=html;
 }
 function setPoolF(id){appstate.poolFilter=id;saveState();renderPool();}
+function togglePause(){
+  const myId=me._id?.toString();
+  const paused=appstate.pausedUsers||[];
+  if(paused.includes(myId)){
+    appstate.pausedUsers=paused.filter(id=>id!==myId);
+    showToast('Du bist wieder im Pool dabei');
+  } else {
+    appstate.pausedUsers=[...paused,myId];
+    showToast('Diese Woche pausiert – du bekommst keine Pool-Aufgaben');
+  }
+  saveState();renderPool();
+}
 
 // SLOT MACHINE SHUFFLE
 function shufflePool(){
-  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  if(!poolable.length){showToast('Keine Pool-Aufgaben');return;}
-  appstate.poolTasks=poolable.map(t=>t._id?.toString()); // alle Pool-Aufgaben neu zuweisen
-  const finalAssigns=buildAssigns(appstate.poolTasks);
+  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done&&poolTaskActiveThisWeek(t));
+  if(!poolable.length){showToast('Keine aktiven Pool-Aufgaben diese Woche');return;}
+
+  // Separate: long-term tasks keep assignee, weekly tasks get reshuffled
+  const toReshuffle=poolable.filter(t=>!shouldKeepAssignee(t)).map(t=>t._id?.toString());
+  const toKeep=poolable.filter(t=>shouldKeepAssignee(t)).map(t=>t._id?.toString());
+
+  appstate.poolTasks=poolable.map(t=>t._id?.toString());
+  const newAssigns=buildAssigns(toReshuffle);
+  // Keep existing assigns for long-term tasks
+  toKeep.forEach(id=>{newAssigns[id]=appstate.poolAssigns?.[id]||newAssigns[id];});
+  const finalAssigns=newAssigns;
+  appstate.lastShuffleWeek=isoWeek();
   appstate.poolFilter='all';
+  // Record history
+  if(!appstate.poolHistory)appstate.poolHistory=[];
+  appstate.poolHistory.unshift({week:isoWeek(),assigns:{...finalAssigns},shuffledBy:me._id?.toString()});
+  if(appstate.poolHistory.length>8)appstate.poolHistory=appstate.poolHistory.slice(0,8);
+  // Notify all group members via appstate flag
+  appstate.poolShuffleNotify={week:isoWeek(),by:me.name};
 
   // Build slot rows
   const rows=document.getElementById('slotRows');
@@ -1244,6 +1413,7 @@ function shufflePool(){
       clearInterval(interval);
       // Show final results
       appstate.poolAssigns=finalAssigns;
+      updateLoadScores(finalAssigns);
       saveState();renderPool();renderMy();
       appstate.poolTasks.forEach(id=>{
         const reel=document.getElementById('reel-'+id);if(!reel)return;
@@ -1371,8 +1541,12 @@ async function toggleTask(id,withCeleb=false){
     const el=document.getElementById('ti-'+id);
     if(el){el.classList.add('completing');setTimeout(()=>{render();},430);}else render();
     if(withCeleb)celebrate();
+    if(isPoolTask(t))onPoolTaskDone(id); // update fairness score
   } else render();
-  try{await api('PATCH','/tasks/'+id,{done:t.done});}catch(e){t.done=was;render();showToast('Fehler');}
+  try{
+    await api('PATCH','/tasks/'+id,{done:t.done});
+    if(isPoolTask(t))saveState(); // persist updated load scores
+  }catch(e){t.done=was;render();showToast('Fehler');}
 }
 
 // ══════════════════════════════════════════
