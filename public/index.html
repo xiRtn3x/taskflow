@@ -752,7 +752,7 @@ const DEFAULT_CATS = {Arbeit:'💼',Haushalt:'🏠',Einkauf:'🛒',Gesundheit:'�
 const ALL_COLORS = ['#5B5BD6','#7C3AED','#DB2777','#DC2626','#EA580C','#CA8A04','#16A34A','#0891B2','#2563EB','#9333EA','#EC4899','#EF4444','#F97316','#EAB308','#22C55E','#06B6D4','#3B82F6','#6366F1','#A855F7','#F43F5E','#FB923C','#FBBF24','#4ADE80','#22D3EE'];
 const PRIO_CLS = {Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn'};
 const CELEB = ['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
-const NAV_TITLES = ['Meine','Pool','Alle','Kalender'];
+const NAV_TITLES = ['Meine','Pool','Kalender'];
 
 // SVG ICONS
 const I = {
@@ -782,7 +782,7 @@ let selPrio='Mittel', selType='mine', newSubs=[], sharedUsers=new Set();
 let editingId=null, detailId=null;
 let calY=new Date().getFullYear(), calM=new Date().getMonth(), calDay=null;
 let profilePhoto=null, pollHash=null, pollTimer=null, curTab=0;
-let viewMode='flat', allFilter='open';
+let viewMode='flat';
 let adminPin=null;
 
 // ══════════════════════════════════════════
@@ -826,7 +826,7 @@ async function loadAll(){
   ]);
   try{appstate=await api('GET','/appstate');}catch(e){appstate={};}
   appstate={
-    catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},showDoneAll:false,
+    catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},
     poolHistory:[],
     poolLoadScores:{},
     poolShitBalance:{},
@@ -1069,7 +1069,7 @@ function applyLangToUI(){
   const tvl=document.getElementById('tl-vote');if(tvl)tvl.textContent=tr('voteTab');
   // Nav title
   const navTitles=[tr('myTab'),tr('poolTab'),tr('calTab')];
-  document.getElementById('navTitle').textContent=navTitles[curTab]||'';
+  const nt=document.getElementById('navTitle');if(nt)nt.textContent=navTitles[curTab]||'';
   // My filters
   const mf=document.getElementById('myFilterSeg');
   if(mf){const bs=mf.querySelectorAll('.seg-b');if(bs[0])bs[0].textContent=tr('open');if(bs[1])bs[1].textContent=tr('done');if(bs[2])bs[2].textContent=tr('all');if(bs[3])bs[3].textContent=tr('cats');}
@@ -1130,7 +1130,7 @@ function render(){
   ab.innerHTML=me.photo
     ?`<img src="${me.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover"><span class="notif-dot" id="ndot" style="display:none"></span>`
     :`<span style="font-size:12px;font-weight:700;color:${me.color}">${me.name[0]}</span><span class="notif-dot" id="ndot" style="display:none"></span>`;
-  renderMy();renderPool();renderAll();renderCalendar();
+  renderMy();renderPool();renderCalendar();
 }
 
 // ── HELPERS ──────────────────────────────
@@ -1306,35 +1306,6 @@ function initCatDrag(){
 }
 
 // ── ALL PAGE ─────────────────────────────
-function setAllFilter(f,btn){
-  allFilter=f;
-  document.querySelectorAll('#allSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
-  renderAll();
-}
-function renderAll(){
-  // Alles was mich betrifft: eigene + gemeinsame + mir zugewiesene Pool
-  let list=tasks.filter(t=>{
-    if(!showInAll(t))return false;
-    if(allFilter==='open')return!t.done;
-    if(allFilter==='done')return t.done;
-    return true;
-  });
-  const c=document.getElementById('allContainer');
-  if(!list.length){
-    const msg=allFilter==='done'?'Noch nichts erledigt':'Keine offenen Aufgaben';
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${msg}</div></div>`;return;
-  }
-  // Gruppe nach Typ: erst eigene, dann gemeinsame, dann pool
-  const mine=list.filter(t=>isMyTask(t));
-  const shared=list.filter(t=>isSharedTask(t));
-  const pool=list.filter(t=>isPoolTask(t));
-  let html='';
-  if(mine.length) html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.user} Eigene</div><div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
-  if(shared.length) html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.users} Gemeinsam</div><div class="glass-card cg">${shared.map(t=>taskHTML(t,true)).join('')}</div>`;
-  if(pool.length) html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.shuf} Pool</div><div class="glass-card cg">${pool.map(t=>taskHTML(t,true)).join('')}</div>`;
-  c.innerHTML=html;
-}
-
 // ── POOL PAGE ─────────────────────────────
 // ── POOL HELPERS ─────────────────────────
 function isoWeek(d=new Date()){
