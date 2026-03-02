@@ -157,7 +157,7 @@ svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
 .fab:active { transform: scale(.9); }
 
 /* PAGES / SWIPE */
-.pages-wrap { display: flex; width: 400%; transition: transform .32s cubic-bezier(.32,.72,0,1); }
+.pages-wrap { display: flex; width: 300%; transition: transform .32s cubic-bezier(.32,.72,0,1); }
 .pages-wrap.no-anim { transition: none; }
 .page { width: 25%; min-height: calc(100dvh - 53px - 58px - var(--sb)); padding-bottom: 84px; flex-shrink: 0; }
 
@@ -331,9 +331,15 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
 .cdot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2.5px solid transparent; transition: transform .12s, border-color .12s; }
 .cdot.sel { border-color: var(--text); transform: scale(1.18); }
 
+/* VOTE */
+.vote-card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(18px);border-radius:var(--r);margin:0 14px 10px;padding:16px;box-shadow:var(--glass-shadow);}
+.vote-scale{display:flex;gap:3px;margin:10px 0 4px;}
+.vote-btn{flex:1;height:36px;border:1px solid var(--sep);border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;background:var(--glass);color:var(--text3);transition:all .15s;backdrop-filter:blur(8px);}
+.vote-btn.sel{color:#fff;border-color:transparent;}
+.vote-btn:active{transform:scale(.9);}
 /* TOAST */
-.toast { position: fixed; bottom: calc(82px + var(--sb)); left: 50%; transform: translateX(-50%) translateY(10px); background: rgba(20,20,40,.9); color: #fff; padding: 11px 18px; border-radius: 14px; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; backdrop-filter: blur(16px); max-width: 92vw; text-align: center; border: 1px solid rgba(255,255,255,.15); }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(.85); background: rgba(20,20,40,.92); color: #fff; padding: 14px 22px; border-radius: 16px; font-size: 15px; font-weight: 600; z-index: 9999; opacity: 0; transition: opacity .22s, transform .22s; pointer-events: none; backdrop-filter: blur(20px); max-width: 82vw; text-align: center; border: 1px solid rgba(255,255,255,.18); box-shadow: 0 8px 32px rgba(0,0,0,.35); }
+.toast.show { opacity: 1; transform: translate(-50%,-50%) scale(1); }
 
 /* PHOTO */
 .photobox { width: 64px; height: 64px; border-radius: 50%; background: var(--glass); border: 2px dashed var(--glass-border); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; flex-shrink: 0; }
@@ -464,12 +470,14 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
   <!-- PAGES -->
   <div id="pgwrap" class="pages-wrap">
 
-    <!-- PAGE 0: MEINE -->
+    <!-- PAGE 0: MEINE (= alle meine Aufgaben) -->
     <div class="page" id="pgMy">
       <div style="padding:10px 14px 4px">
-        <div class="seg" id="timeFilter">
-          <button class="seg-b on" onclick="setViewMode('flat',this)">Aufgaben</button>
-          <button class="seg-b" onclick="setViewMode('cats',this)">Kategorien</button>
+        <div class="seg" id="myFilterSeg">
+          <button class="seg-b on" onclick="setMyFilter('open',this)">Offen</button>
+          <button class="seg-b" onclick="setMyFilter('done',this)">Erledigt</button>
+          <button class="seg-b" onclick="setMyFilter('all',this)">Alle</button>
+          <button class="seg-b" onclick="setMyFilter('cats',this)">Kat.</button>
         </div>
       </div>
       <div id="myContainer"></div>
@@ -489,17 +497,7 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
       <div id="poolContainer"></div>
     </div>
 
-    <!-- PAGE 2: ALLE -->
-    <div class="page" id="pgAll">
-      <div style="padding:10px 14px 4px">
-        <div class="seg" id="allSeg">
-          <button class="seg-b on" onclick="setAllFilter('open',this)">Offen</button>
-          <button class="seg-b" onclick="setAllFilter('done',this)">Erledigt</button>
-          <button class="seg-b" onclick="setAllFilter('all',this)">Alle</button>
-        </div>
-      </div>
-      <div id="allContainer"></div>
-    </div>
+
 
     <!-- PAGE 3: KALENDER -->
     <div class="page" id="pgCal">
@@ -518,19 +516,23 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
   <div class="tabs">
     <div class="tab active" onclick="switchTab(0)" id="t0">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-      <span class="tab-lbl">Meine</span>
+      <span class="tab-lbl" id="tl-0">Meine</span>
     </div>
     <div class="tab" onclick="switchTab(1)" id="t1">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg></div>
-      <span class="tab-lbl">Pool</span>
+      <span class="tab-lbl" id="tl-1">Pool</span>
     </div>
     <div class="tab" onclick="switchTab(2)" id="t2">
-      <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg></div>
-      <span class="tab-lbl">Alle</span>
-    </div>
-    <div class="tab" onclick="switchTab(3)" id="t3">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <span class="tab-lbl">Kalender</span>
+      <span class="tab-lbl" id="tl-2">Kalender</span>
+    </div>
+    <!-- Vote tab: only visible when pending votes exist -->
+    <div class="tab" onclick="openVotePage()" id="t-vote" style="display:none">
+      <div style="position:relative;display:inline-flex">
+        <div class="tab-iw" id="vote-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg></div>
+        <span id="voteBadge" style="display:none;position:absolute;top:-4px;right:-6px;min-width:16px;height:16px;background:var(--red);border-radius:8px;border:2px solid var(--glass-nav);font-size:9px;font-weight:800;color:#fff;align-items:center;justify-content:center;padding:0 3px"></span>
+      </div>
+      <span class="tab-lbl" id="tl-vote">Vote</span>
     </div>
   </div>
   <button class="fab" id="fabBtn" onclick="showAddTask()">
@@ -611,6 +613,14 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
       <label class="fl">Sichtbar für</label>
       <div id="sharedUsersList"></div>
     </div>
+    <!-- VOTING: only shown when type=pool -->
+    <div class="fg" id="votingWrap" style="display:none">
+      <label class="fl">💩 Scheißigkeits-Voting</label>
+      <div style="display:flex;align-items:center;gap:12px;padding:8px 0">
+        <button class="tog" id="votingTog" onclick="toggleVotingTog()"></button>
+        <span style="font-size:14px;color:var(--text2)">Nutzer können Scheißigkeit bewerten</span>
+      </div>
+    </div>
     <div class="fg">
       <label class="fl">Unteraufgaben</label>
       <div id="newSubList"></div>
@@ -630,13 +640,22 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
     <div class="handle"></div>
     <div class="mhdr"><div class="mtitle">Profil & Einstellungen</div><span class="mclose" onclick="closeProfile()">Fertig</span></div>
 
+    <!-- 0. SPRACHE -->
+    <div class="fg">
+      <label class="fl" id="langLabel">Sprache / Language</label>
+      <div class="seg" id="langSeg">
+        <button class="seg-b on" id="langDe" onclick="setLang('de',this)">🇩🇪 Deutsch</button>
+        <button class="seg-b" id="langEn" onclick="setLang('en',this)">🇬🇧 English</button>
+      </div>
+    </div>
+
     <!-- 1. APP-DESIGN -->
     <div class="fg">
-      <label class="fl">App-Design</label>
+      <label class="fl" id="designLabel">App-Design</label>
       <div class="seg" id="themeSeg">
-        <button class="seg-b on" onclick="setTheme('',this)">Hell</button>
-        <button class="seg-b" onclick="setTheme('th-dark',this)">Dunkel</button>
-        <button class="seg-b" onclick="setTheme('th-warm',this)">Warm</button>
+        <button class="seg-b on" onclick="setTheme('',this)" id="thLight">Hell</button>
+        <button class="seg-b" onclick="setTheme('th-dark',this)" id="thDark">Dunkel</button>
+        <button class="seg-b" onclick="setTheme('th-warm',this)" id="thWarm">Warm</button>
       </div>
     </div>
 
@@ -785,6 +804,7 @@ async function init(){
   if(myToken){
     try{
       me=await api('GET','/users/me');
+      if(me.lang)appLang=me.lang;
       await loadAll();
       showApp();
       startPolling();
@@ -797,7 +817,7 @@ async function init(){
 }
 
 function showOnboard(){document.getElementById('onboard').classList.remove('hidden');document.getElementById('app').style.display='none';}
-function showApp(){document.getElementById('onboard').classList.add('hidden');document.getElementById('app').style.display='block';applyTheme();render();}
+function showApp(){document.getElementById('onboard').classList.add('hidden');document.getElementById('app').style.display='block';applyTheme();applyLangToUI();render();}
 async function loadAll(){
   [users,tasks,group]=await Promise.all([
     api('GET','/users'),
@@ -805,7 +825,15 @@ async function loadAll(){
     api('GET','/groups/mine').catch(()=>null)
   ]);
   try{appstate=await api('GET','/appstate');}catch(e){appstate={};}
-  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},showDoneAll:false,...appstate};
+  appstate={
+    catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},showDoneAll:false,
+    poolHistory:[],
+    poolLoadScores:{},
+    poolShitBalance:{},
+    lastShuffleWeek:'',
+    pausedUsers:[],
+    ...appstate
+  };
   processRecurring();
 }
 async function saveState(){try{await api('POST','/appstate',appstate);}catch(e){}}
@@ -841,9 +869,30 @@ function closeChangelog(){document.getElementById('chlogOv').classList.remove('s
 async function checkNewTasks(){
   try{
     const lastVisit=me.lastVisit?new Date(me.lastVisit):null;
-    if(!lastVisit)return;
     const today=new Date(); today.setHours(0,0,0,0);
     const tomorrow=new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
+    const msgs=[];
+
+    // ── Montags-Hinweis: Pool mischen ──
+    const curWeek=isoWeek();
+    if(isMonday()&&appstate.lastShuffleWeek!==curWeek){
+      const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done&&poolTaskActiveThisWeek(t));
+      if(poolable.length){
+        setTimeout(()=>showToast('🔀 Montag! Nicht vergessen: Pool mischen'),1000);
+        document.getElementById('ndot').style.display='block';
+      }
+    }
+
+    // ── Shuffle-Benachrichtigung für alle Gruppenmitglieder ──
+    if(appstate.poolShuffleNotify&&appstate.poolShuffleNotify.week===curWeek){
+      const seenKey='tf_shuffle_seen_'+curWeek;
+      if(!localStorage.getItem(seenKey)&&appstate.poolShuffleNotify.by!==me.name){
+        localStorage.setItem(seenKey,'1');
+        setTimeout(()=>showToast(`🔀 Pool wurde von ${appstate.poolShuffleNotify.by} neu gemischt`),600);
+      }
+    }
+
+    if(!lastVisit)return;
     const newTasks=tasks.filter(t=>{
       if(t.done)return false;
       const created=new Date(t.createdAt||0);
@@ -852,17 +901,11 @@ async function checkNewTasks(){
       const dueTomorrow=t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===tomorrow.getTime();
       return(isNew&&visibleToMe(t))||(dueToday&&visibleToMe(t))||(dueTomorrow&&visibleToMe(t));
     });
-    if(!newTasks.length)return;
-    const msgs=[];
     const created=newTasks.filter(t=>new Date(t.createdAt||0)>lastVisit&&visibleToMe(t));
     if(created.length)msgs.push(`${created.length} neue Aufgabe${created.length>1?'n':''}`);
-    const today2=new Date(); today2.setHours(0,0,0,0);
-    const dueToday2=newTasks.filter(t=>t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today2.getTime());
+    const dueToday2=newTasks.filter(t=>t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime());
     if(dueToday2.length)msgs.push(`${dueToday2.length} fällig heute`);
-    if(msgs.length){
-      showToast(msgs.join(' · '));
-    }
-    // Update badge
+    if(msgs.length) setTimeout(()=>showToast(msgs.join(' · ')),1600);
     const badge=document.getElementById('ndot');
     if(badge&&newTasks.length)badge.style.display='block';
   }catch(e){}
@@ -916,6 +959,135 @@ function setTheme(cls,btn){
   document.querySelectorAll('#themeSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
 }
 
+// ══ LANGUAGE / i18n ════════════════════════════════════════
+let appLang='de';
+const T={
+  de:{
+    myTab:'Meine',poolTab:'Pool',calTab:'Kalender',voteTab:'Vote',
+    open:'Offen',done:'Erledigt',all:'Alle',cats:'Kat.',
+    newTask:'Neue Aufgabe',editTask:'Aufgabe bearbeiten',
+    save:'Speichern',cancel:'Abbrechen',close:'Schließen',back:'Zurück',edit:'Bearbeiten',
+    title:'Titel',desc:'Beschreibung',category:'Kategorie',priority:'Priorität',
+    deadline:'Deadline',repeat:'Wiederholt sich',type:'Typ',assignee:'Zuständig',
+    sharedWith:'Sichtbar für',subtasks:'Unteraufgaben',
+    prioH:'Hoch',prioM:'Mittel',prioN:'Niedrig',
+    typeOwn:'Eigene',typePool:'Pool',typeShared:'Gemeinsam',
+    repNever:'Nie',repDaily:'Täglich',repWeekly:'Wöchentlich',repMonthly:'Monatlich',repYearly:'Jährlich',
+    voteLabel:'💩 Scheißigkeits-Voting',voteDesc:'Nutzer können Scheißigkeit bewerten',
+    voteScale:'Wie scheißig ist diese Aufgabe?',voteMin:'1 = Easy',voteMax:'10 = Sehr scheißig',
+    voteScore:'Scheißigkeitsscore',voteWaiting:'Warte auf andere…',voteChanged:'Stimme geändert',
+    voteAll:'Alles bewertet!',voteVoted:'abgestimmt',
+    poolShuffle:'Neu mischen',poolPause:'Pause',poolResume:'Wieder dabei',
+    poolLoad:'Auslastung',poolFixed:'fest zugewiesen',poolPausedThis:'Diese Woche pausiert',
+    fairness:'Fairness',
+    mondayReminder:'🔀 Montag! Nicht vergessen: Pool mischen',
+    notYours:'Nicht deine Aufgabe',notYourSub:'Nicht deine Unteraufgabe',
+    markDone:'Als erledigt markieren',reopen:'Wieder öffnen',
+    nothingHere:'Keine Aufgaben',allDone:'Alles erledigt!',nothingDone:'Noch nichts erledigt',
+    noPool:'Kein Pool',noPoolSub:'Erstelle Aufgaben vom Typ "Pool"',
+    design:'App-Design',language:'Sprache / Language',
+    myProfile:'Mein Profil',myColor:'Meine Farbe',otherColors:'Farben anderer Mitglieder',
+    myCats:'Eigene Kategorien',data:'Daten',
+    hell:'Hell',dunkel:'Dunkel',warm:'Warm',
+    resetTasks:'Alle Aufgaben löschen',delAccount:'Account löschen',
+    profileTitle:'Profil & Einstellungen',saved:'Gespeichert!',
+    details:'Details',responsible:'Zuständig',collectively:'Gemeinsam',
+    deleteTask:'Löschen?',del:'Löschen',
+    slotRunning:'Zufällige Zuweisung läuft…',slotDone:'Fertig! Aufgaben wurden zugewiesen.',
+    slotTitle:'Aufgaben werden verteilt…',
+    yourTask:'Deine Aufgabe',yourVote:'Dein Vote',changeVote:'Ändern',
+    noDeadlines:'Keine Deadlines',
+    inviteCode:'Code',members:'Mitglieder',group:'Gruppe',
+    createGroup:'Neue Gruppe erstellen',joinGroup:'Gruppe beitreten',
+    leaveGroup:'Gruppe verlassen',deleteGroup:'Gruppe löschen',
+    changelogBtn:"Los geht's!",
+    catPlaceholder:'Name…',subPlaceholder:'Unteraufgabe…',addName:'Name eingeben',
+    nameLbl:'Dein Name',groupName:'Gruppenname',inviteCodeLbl:'Einladungscode',
+    justMe:'Nur für mich',justMeSub:'Aufgaben nur für dich',
+    createGroupCard:'Neue Gruppe erstellen',createGroupSub:'z.B. Haushalt, Familie',
+    joinGroupCard:'Gruppe beitreten',joinGroupSub:'Mit Einladungscode',
+  },
+  en:{
+    myTab:'Mine',poolTab:'Pool',calTab:'Calendar',voteTab:'Vote',
+    open:'Open',done:'Done',all:'All',cats:'Cat.',
+    newTask:'New Task',editTask:'Edit Task',
+    save:'Save',cancel:'Cancel',close:'Close',back:'Back',edit:'Edit',
+    title:'Title',desc:'Description',category:'Category',priority:'Priority',
+    deadline:'Deadline',repeat:'Repeats',type:'Type',assignee:'Assigned to',
+    sharedWith:'Visible to',subtasks:'Subtasks',
+    prioH:'High',prioM:'Medium',prioN:'Low',
+    typeOwn:'Mine',typePool:'Pool',typeShared:'Shared',
+    repNever:'Never',repDaily:'Daily',repWeekly:'Weekly',repMonthly:'Monthly',repYearly:'Yearly',
+    voteLabel:'💩 Crappiness Voting',voteDesc:'Users can rate task crappiness',
+    voteScale:'How crappy is this task?',voteMin:'1 = Easy',voteMax:'10 = Super crappy',
+    voteScore:'Crappiness Score',voteWaiting:'Waiting for others…',voteChanged:'Vote changed',
+    voteAll:'All voted!',voteVoted:'voted',
+    poolShuffle:'Shuffle',poolPause:'Pause',poolResume:'Rejoin',
+    poolLoad:'Workload',poolFixed:'fixed assignment',poolPausedThis:'Paused this week',
+    fairness:'Fairness',
+    mondayReminder:'🔀 Monday! Don't forget: shuffle the pool',
+    notYours:'Not your task',notYourSub:'Not your subtask',
+    markDone:'Mark as done',reopen:'Reopen',
+    nothingHere:'No tasks',allDone:'All done!',nothingDone:'Nothing done yet',
+    noPool:'No Pool',noPoolSub:'Create tasks of type "Pool"',
+    design:'App Design',language:'Language / Sprache',
+    myProfile:'My Profile',myColor:'My Color',otherColors:"Members' Colors",
+    myCats:'Custom Categories',data:'Data',
+    hell:'Light',dunkel:'Dark',warm:'Warm',
+    resetTasks:'Delete all tasks',delAccount:'Delete account',
+    profileTitle:'Profile & Settings',saved:'Saved!',
+    details:'Details',responsible:'Assigned to',collectively:'Shared',
+    deleteTask:'Delete?',del:'Delete',
+    slotRunning:'Random assignment running…',slotDone:'Done! Tasks have been assigned.',
+    slotTitle:'Assigning tasks…',
+    yourTask:'Your Task',yourVote:'Your vote',changeVote:'Change',
+    noDeadlines:'No deadlines',
+    inviteCode:'Code',members:'Members',group:'Group',
+    createGroup:'Create group',joinGroup:'Join group',
+    leaveGroup:'Leave group',deleteGroup:'Delete group',
+    changelogBtn:"Let's go!",
+    catPlaceholder:'Name…',subPlaceholder:'Subtask…',addName:'Enter name',
+    nameLbl:'Your name',groupName:'Group name',inviteCodeLbl:'Invite code',
+    justMe:'Just for me',justMeSub:'Tasks only for you',
+    createGroupCard:'Create new group',createGroupSub:'e.g. Household, Family',
+    joinGroupCard:'Join group',joinGroupSub:'With invite code',
+  }
+};
+function tr(key){return T[appLang]?.[key]??T.de[key]??key;}
+function setLang(l,btn){
+  appLang=l;
+  if(me)me.lang=l;
+  document.querySelectorAll('#langSeg .seg-b').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
+  applyLangToUI();
+  render();
+}
+function applyLangToUI(){
+  // Tabs
+  const tls=[[0,'myTab'],[1,'poolTab'],[2,'calTab']];
+  tls.forEach(([i,k])=>{const e=document.getElementById('tl-'+i);if(e)e.textContent=tr(k);});
+  const tvl=document.getElementById('tl-vote');if(tvl)tvl.textContent=tr('voteTab');
+  // Nav title
+  const navTitles=[tr('myTab'),tr('poolTab'),tr('calTab')];
+  document.getElementById('navTitle').textContent=navTitles[curTab]||'';
+  // My filters
+  const mf=document.getElementById('myFilterSeg');
+  if(mf){const bs=mf.querySelectorAll('.seg-b');if(bs[0])bs[0].textContent=tr('open');if(bs[1])bs[1].textContent=tr('done');if(bs[2])bs[2].textContent=tr('all');if(bs[3])bs[3].textContent=tr('cats');}
+  // Shuffle btn
+  const sb=document.getElementById('shuffleBtnLbl');if(sb)sb.textContent=tr('poolShuffle');
+  // Profile labels
+  const lm={'designLabel':'design','langLabel':'language'};
+  Object.entries(lm).forEach(([id,k])=>{const e=document.getElementById(id);if(e)e.textContent=tr(k);});
+  const thbs=document.querySelectorAll('#themeSeg .seg-b');
+  if(thbs[0])thbs[0].textContent=tr('hell');if(thbs[1])thbs[1].textContent=tr('dunkel');if(thbs[2])thbs[2].textContent=tr('warm');
+  // Task modal repeat options
+  const repMap=[['repNever'],['repDaily'],['repMonthly'],['repWeekly'],['repYearly']];
+  const repSel=document.getElementById('fRepeat');
+  if(repSel){const opts=repSel.querySelectorAll('option');opts[0].textContent=tr('repNever');opts[1].textContent=tr('repDaily');opts[2].textContent=tr('repWeekly');opts[3].textContent=tr('repMonthly');if(opts[4])opts[4].textContent=tr('repYearly');}
+  // Vote page title
+  const vtn=document.querySelector('#pgVote .nav-title');if(vtn)vtn.textContent=tr('voteTab');
+}
+
 // ══════════════════════════════════════════
 // RECURRING
 // ══════════════════════════════════════════
@@ -924,15 +1096,25 @@ function weekStart(d){const dt=new Date(d+'T00:00:00'),day=dt.getDay(),diff=day=
 function monthStr(d){return d.slice(0,7);}
 function yearStr(d){return d.slice(0,4);}
 function processRecurring(){
-  const today=todayStr();if(!appstate.recurringLast)appstate.recurringLast={};let changed=false;
+  // Recurring tasks stay visible as "erledigt" until next period,
+  // then automatically reopen (reset to done:false)
+  const today=todayStr();
+  if(!appstate.recurringLast)appstate.recurringLast={};
+  let changed=false;
   tasks.forEach(t=>{
     if(!t.repeat||t.repeat==='Nie'||!t.done)return;
-    const last=appstate.recurringLast[t._id]||today;let reset=false;
+    const last=appstate.recurringLast[t._id];
+    if(!last)return; // never recorded — skip
+    let reset=false;
     if(t.repeat==='Täglich'&&last<today)reset=true;
     if(t.repeat==='Wöchentlich'&&weekStart(last)<weekStart(today))reset=true;
     if(t.repeat==='Monatlich'&&monthStr(last)<monthStr(today))reset=true;
     if(t.repeat==='Jährlich'&&yearStr(last)<yearStr(today))reset=true;
-    if(reset){appstate.recurringLast[t._id]=today;api('PATCH','/tasks/'+t._id,{done:false,subtasks:(t.subtasks||[]).map(s=>({...s,done:false}))});t.done=false;if(t.subtasks)t.subtasks.forEach(s=>s.done=false);changed=true;}
+    if(reset){
+      delete appstate.recurringLast[t._id]; // clear so it can be re-recorded when done again
+      api('PATCH','/tasks/'+t._id,{done:false,subtasks:(t.subtasks||[]).map(s=>({...s,done:false}))});
+      t.done=false;if(t.subtasks)t.subtasks.forEach(s=>s.done=false);changed=true;
+    }
   });
   if(changed)saveState();
 }
@@ -942,6 +1124,7 @@ function processRecurring(){
 // ══════════════════════════════════════════
 function render(){
   if(!me)return;
+  updateVoteTabVisibility();
   document.getElementById('navUser').textContent=me.name;
   const ab=document.getElementById('avBtn');
   ab.innerHTML=me.photo
@@ -1006,7 +1189,13 @@ function showInMy(t){
   const myId=me._id?.toString();
   if(isMyTask(t))return t.assignee===myId;
   if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
-  if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===myId;}
+  if(isPoolTask(t)){
+    const a=appstate.poolAssigns?.[t._id?.toString()];
+    if(a?.assignedUser===myId)return true;
+    // Also show if user has a subtask assigned
+    if(a?.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(myId))return true;
+    return false;
+  }
   return false;
 }
 // Zeige in "Alle"?
@@ -1035,6 +1224,7 @@ function taskHTML(t,showBar=false){
       <div class="task-title${t.done?' done':''}">${t.title}</div>
       <div class="task-meta">
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        ${t.shitScore!=null?`<span class="badge" style="background:rgba(146,64,14,.12);color:#92400E;border:1px solid rgba(146,64,14,.2)">💩 ${t.shitScore}</span>`:''}
         ${isSharedTask(t)?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.users} ${[(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'';}).filter(Boolean),(t.creatorId&&t.creatorId!==me._id?.toString()?[uById(t.creatorId)?.name].filter(Boolean):[])].flat().filter((v,i,a)=>a.indexOf(v)===i).join(', ')||'gemeinsam'}</span>`:''}
         ${t.deadline?`<span style="display:inline-flex;align-items:center;gap:3px;color:${overdue?'var(--red)':'var(--text3)'}">${I.cal} ${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span>`:''}
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
@@ -1048,51 +1238,62 @@ function taskHTML(t,showBar=false){
 }
 
 // ── TIME FILTER ──────────────────────────
-function setViewMode(m,btn){
-  viewMode=m;
-  document.querySelectorAll('#timeFilter .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+let myFilter='open';
+function setMyFilter(f,btn){
+  myFilter=f;
+  document.querySelectorAll('#myFilterSeg .seg-b').forEach(b=>b.classList.remove('on'));
+  if(btn)btn.classList.add('on');
   renderMy();
 }
 
 // ── MY PAGE ──────────────────────────────
 function renderMy(){
-  const personal=tasks.filter(t=>!isPoolTask(t)&&showInMy(t)&&!t.done);
-  const myPool=tasks.filter(t=>isPoolTask(t)&&showInMy(t)&&!t.done);
   const c=document.getElementById('myContainer');
-  if(!personal.length&&!myPool.length){
-    c.innerHTML=`<div class="empty"><div>${I.chkCirc}</div><div class="empty-t">Alles erledigt!</div><div class="empty-s">Keine offenen Aufgaben für dich.</div></div>`;return;
-  }
-  let html='';
-  if(viewMode==='flat'){
-    // AUFGABEN: alle flach ohne Kategorietrennung
-    if(personal.length){
-      html+=`<div class="glass-card cg">${personal.map(t=>taskHTML(t,isSharedTask(t))).join('')}</div>`;
-    }
-    if(myPool.length){
-      html+=`<div class="super-sec">${I.shuf} Pool</div><div class="glass-card cg">${myPool.map(t=>taskHTML(t,true)).join('')}</div>`;
-    }
-  } else {
-    // KATEGORIEN: nach Kategorie gruppiert, ziehbar
+  const myId=me._id?.toString();
+
+  if(myFilter==='cats'){
+    // KATEGORIEN: persönliche + gemeinsame Aufgaben nach Kategorie, + Pool-Block
+    const personal=tasks.filter(t=>!isPoolTask(t)&&showInMy(t)&&!t.done);
+    const myPool=tasks.filter(t=>isPoolTask(t)&&showInMy(t)&&!t.done);
+    if(!personal.length&&!myPool.length){c.innerHTML=emptyHTML('Alles erledigt!','');return;}
+    let html='';
     if(personal.length){
       const cats=[...new Set(personal.map(t=>t.cat))];
-      const ord=(appstate.catOrder||[]).filter(c=>cats.includes(c));
-      cats.forEach(c=>{if(!ord.includes(c))ord.push(c);});
+      const ord=(appstate.catOrder||[]).filter(cc=>cats.includes(cc));
+      cats.forEach(cc=>{if(!ord.includes(cc))ord.push(cc);});
       ord.forEach(cat=>{
         const ct=personal.filter(t=>t.cat===cat);if(!ct.length)return;
-        const hasShared=ct.some(t=>isSharedTask(t));
-        html+=`<div class="cat-blk" data-cat="${cat}">`;
-        html+=`<div class="sec"><span class="drag-ch">${I.grip}</span>${cat}`;
-        if(hasShared)html+=` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">gemeinsam</span>`;
-        html+=`</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,isSharedTask(t))).join('')}</div></div>`;
+        html+=`<div class="cat-blk" data-cat="${cat}"><div class="sec"><span class="drag-ch">${I.grip}</span>${cat}</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,isSharedTask(t))).join('')}</div></div>`;
       });
     }
-    if(myPool.length){
-      html+=`<div class="super-sec">${I.shuf} Pool</div><div class="glass-card cg">${myPool.map(t=>taskHTML(t,true)).join('')}</div>`;
-    }
+    if(myPool.length)html+=`<div class="super-sec">${I.shuf} Pool</div><div class="glass-card cg">${myPool.map(t=>taskHTML(t,true)).join('')}</div>`;
+    c.innerHTML=html;initCatDrag();return;
   }
+
+  // FLAT VIEW: offen / erledigt / alle
+  let list=tasks.filter(t=>{
+    if(!showInMy(t))return false;
+    if(myFilter==='open')return!t.done;
+    if(myFilter==='done')return t.done;
+    return true; // 'all'
+  });
+
+  if(!list.length){
+    const msg=myFilter==='done'?'Noch nichts erledigt':'Alles erledigt!';
+    c.innerHTML=emptyHTML(msg,'');return;
+  }
+
+  // Group by type
+  const mine=list.filter(t=>isMyTask(t));
+  const shared=list.filter(t=>isSharedTask(t));
+  const pool=list.filter(t=>isPoolTask(t));
+  let html='';
+  if(mine.length)html+=`<div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
+  if(shared.length)html+=`<div class="super-sec">${I.users} Gemeinsam</div><div class="glass-card cg">${shared.map(t=>taskHTML(t,true)).join('')}</div>`;
+  if(pool.length)html+=`<div class="super-sec">${I.shuf} Pool</div><div class="glass-card cg">${pool.map(t=>taskHTML(t,true)).join('')}</div>`;
   c.innerHTML=html;
-  if(viewMode==='cats')initCatDrag();
 }
+
 
 function initCatDrag(){
   const wrap=document.getElementById('myContainer');if(!wrap)return;let dr=null;
@@ -1135,51 +1336,188 @@ function renderAll(){
 }
 
 // ── POOL PAGE ─────────────────────────────
+// ── POOL HELPERS ─────────────────────────
+function isoWeek(d=new Date()){
+  // Returns 'YYYY-Www'
+  const tmp=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  tmp.setUTCDate(tmp.getUTCDate()+4-(tmp.getUTCDay()||7));
+  const y=tmp.getUTCFullYear();
+  const w=Math.ceil((((tmp-Date.UTC(y,0,1))/86400000)+1)/7);
+  return `${y}-W${String(w).padStart(2,'0')}`;
+}
+function isMonday(d=new Date()){return d.getDay()===1;}
+function weeksUntilDeadline(deadline){
+  if(!deadline)return 999;
+  const d=new Date(deadline+'T00:00:00');
+  const now=new Date(); now.setHours(0,0,0,0);
+  return Math.floor((d-now)/(7*86400000));
+}
+// Should this pool task be active this week?
+function poolTaskActiveThisWeek(t){
+  if(!t.repeat||t.repeat==='Ni e'||t.repeat==='Wöchentlich')return true;
+  if(t.repeat==='Monatlich'){
+    const w=weeksUntilDeadline(t.deadline);
+    // Appear if within 2 weeks of deadline, OR start of new month
+    const d=new Date();
+    if(d.getDate()<=7)return true; // first week of month
+    return w<=2&&w>=0;
+  }
+  if(t.repeat==='Jährlich'){
+    const w=weeksUntilDeadline(t.deadline);
+    const d=new Date();
+    if(d.getDate()<=7&&d.getMonth()===0)return true; // first week of year
+    return w<=6&&w>=0;
+  }
+  return true;
+}
+// Fair distribution: round-robin balanced, no same person twice in a row
+// Uses poolLoadScores to balance over time: lower score = assigned first
 function buildAssigns(ids){
-  const a={},uids=users.map(u=>u._id?.toString());if(!uids.length)return a;let idx=Math.floor(Math.random()*uids.length);
-  ids.forEach(id=>{
-    const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+  const activeUsers=users.filter(u=>!(appstate.pausedUsers||[]).includes(u._id?.toString()));
+  if(!activeUsers.length)return{};
+  const scores={...appstate.poolLoadScores||{}};
+  const shitBal={...appstate.poolShitBalance||{}};
+  // Sort: least loaded first; ties broken by who got more crappy tasks (give them easy ones)
+  const sorted=[...activeUsers].sort((a,b)=>{
+    const la=scores[a._id?.toString()]||0,lb=scores[b._id?.toString()]||0;
+    if(la!==lb)return la-lb;
+    const ba=shitBal[a._id?.toString()]||0,bb=shitBal[b._id?.toString()]||0;
+    return bb-ba; // more shit → gets easier task (lower shitScore tasks assigned later)
+  });
+  // Sort tasks by shitScore desc so crappiest go to least-loaded users
+  const taskObjs=ids.map(id=>tasks.find(t=>t._id?.toString()===id)).filter(Boolean);
+  taskObjs.sort((a,b)=>(b.shitScore||0)-(a.shitScore||0));
+  const a={};
+  let roundIdx=0;
+  taskObjs.forEach(task=>{
+    const id=task._id?.toString();
     const last=appstate.poolAssigns?.[id]?.assignedUser;
-    const subA={};(t.subtasks||[]).forEach(s=>{subA[s.id]=uids[idx%uids.length];idx++;});
-    let main=uids[idx%uids.length];if(uids.length>1&&main===last){idx++;main=uids[idx%uids.length];}idx++;
-    a[id]={assignedUser:main,subtaskAssignments:subA};
+    let pick=sorted[roundIdx%sorted.length];
+    if(sorted.length>1&&pick._id?.toString()===last){roundIdx++;pick=sorted[roundIdx%sorted.length];}
+    const mainUid=pick._id?.toString();
+    roundIdx++;
+    // Distribute subtasks individually to different users
+    const subAssignments={};
+    if(task.subtasks?.length){
+      task.subtasks.forEach((s,si)=>{
+        const subPick=sorted[(roundIdx+si)%sorted.length];
+        subAssignments[s.id]=subPick._id?.toString();
+      });
+      roundIdx+=task.subtasks.length;
+    }
+    a[id]={assignedUser:mainUid,assignedWeek:isoWeek(),subtaskAssignments:subAssignments};
   });
   return a;
 }
+function updateShitBalance(assigns){
+  const bal=appstate.poolShitBalance||{};
+  Object.entries(assigns).forEach(([tid,asgn])=>{
+    const task=tasks.find(t=>t._id?.toString()===tid);
+    if(task?.shitScore&&asgn.assignedUser){
+      bal[asgn.assignedUser]=(bal[asgn.assignedUser]||0)+task.shitScore;
+    }
+  });
+  appstate.poolShitBalance=bal;
+}
+// Update load scores after a shuffle
+function updateLoadScores(assigns){
+  const scores={...appstate.poolLoadScores||{}};
+  Object.values(assigns).forEach(({assignedUser})=>{
+    if(assignedUser)scores[assignedUser]=(scores[assignedUser]||0)+1;
+  });
+  appstate.poolLoadScores=scores;
+}
+// Called when task is completed — reduces score for the user
+function onPoolTaskDone(taskId){
+  const asgn=appstate.poolAssigns?.[taskId];
+  if(asgn?.assignedUser){
+    const scores={...appstate.poolLoadScores||{}};
+    scores[asgn.assignedUser]=Math.max(0,(scores[asgn.assignedUser]||1)-1);
+    appstate.poolLoadScores=scores;
+  }
+}
+// Check if long-term task should keep its assignee (monatlich/jährlich)
+function shouldKeepAssignee(t){
+  if(!t.repeat||t.repeat==='Wöchentlich'||t.repeat==='Täglich'||t.repeat==='Nie')return false;
+  const existing=appstate.poolAssigns?.[t._id?.toString()];
+  if(!existing)return false;
+  // Keep if deadline not passed and assignedWeek is this or recent week
+  if(t.deadline&&new Date(t.deadline+'T00:00:00')<new Date())return false;
+  return true; // keep assignee for monatlich/jährlich
+}
 function renderPool(){
-  // Alle Pool-Aufgaben anzeigen; Zuweisung erfolgt durch Mischen
-  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  // Initialer Auto-Assign wenn noch keine Zuweisung vorhanden
+  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done&&poolTaskActiveThisWeek(t));
+  const myId=me._id?.toString();
+  const isPaused=(appstate.pausedUsers||[]).includes(myId);
+  const curWeek=isoWeek();
+  const alreadyShuffledThisWeek=appstate.lastShuffleWeek===curWeek;
+
+  // Auto-init assigns on first load
   if(!appstate.poolTasks?.length&&poolable.length){
     appstate.poolTasks=poolable.map(t=>t._id?.toString());
     appstate.poolAssigns=buildAssigns(appstate.poolTasks);
+    appstate.lastShuffleWeek=curWeek;
+    updateLoadScores(appstate.poolAssigns);
     saveState();
   }
+
   const pf=appstate.poolFilter||'all';
-  // Filter bar nach Nutzer
-  // Pool-Filter als Segmented Control (wie Meine-Filter)
   const pfBar=document.getElementById('poolFbar');
   pfBar.className='seg';
   pfBar.innerHTML=
     `<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+
     users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
-  // Zeige alle Pool-Aufgaben (nicht erledigt)
+
   let toShow=poolable;
   if(pf!=='all')toShow=toShow.filter(t=>appstate.poolAssigns?.[t._id?.toString()]?.assignedUser===pf);
   const c=document.getElementById('poolContainer');
+
+  // Build HTML
+  let html='';
+
+  // ── Fairness stats (last 4 weeks) ──
+  const scores=appstate.poolLoadScores||{};
+  const scoreRows=users.map(u=>{
+    const uid=u._id?.toString();
+    const score=scores[uid]||0;
+    const maxScore=Math.max(1,...Object.values(scores));
+    const pct=Math.round(score/maxScore*100);
+    const col=uColor(uid);
+    return`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+      ${avHTML(u,22)}
+      <span style="font-size:12px;font-weight:600;width:60px;color:${col}">${u.name}</span>
+      <div style="flex:1;height:4px;background:var(--sep);border-radius:2px;overflow:hidden">
+        <div style="width:${pct}%;height:100%;background:${col};border-radius:2px;transition:width .4s"></div>
+      </div>
+      <span style="font-size:11px;color:var(--text3);width:24px;text-align:right">${score}</span>
+    </div>`;
+  }).join('');
+
+  html+=`<div class="glass-card cg" style="margin:0 14px 12px;padding:12px 14px">
+    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:10px">Auslastung</div>
+    ${scoreRows}
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--sep)">
+      <span style="font-size:12px;color:var(--text3)">Diese Woche ${isPaused?'pausiert':alreadyShuffledThisWeek?'gemischt':'noch nicht gemischt'}</span>
+      <button onclick="togglePause()" style="font-size:12px;font-weight:600;color:${isPaused?'var(--green)':'var(--text3)'};background:none;border:none;cursor:pointer;font-family:inherit">${isPaused?'● Wieder dabei':'Pause'}</button>
+    </div>
+  </div>`;
+
   if(!toShow.length&&!poolable.length){
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;return;
+    html+=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;
+    c.innerHTML=html;return;
   }
   if(!toShow.length){
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;return;
+    html+=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;
+    c.innerHTML=html;return;
   }
-  c.innerHTML=toShow.map(t=>{
+
+  html+=toShow.map(t=>{
     const id=t._id?.toString();
     const asgn=appstate.poolAssigns?.[id];
     const u=uById(asgn?.assignedUser);
     const col=uColor(asgn?.assignedUser);
-    const myId=me._id?.toString();
     const isMineDot=asgn?.assignedUser===myId;
+    const isLongTerm=t.repeat==='Monatlich'||t.repeat==='Jährlich';
     return`<div class="pool-card" style="border-left:3px solid ${col}" onclick="openDetail('${id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div style="flex:1">
@@ -1196,27 +1534,91 @@ function renderPool(){
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        ${t.shitScore!=null?`<span class="badge" style="background:rgba(146,64,14,.12);color:#92400E;border:1px solid rgba(146,64,14,.2)">💩 ${t.shitScore}</span>`:''}
+        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
         ${t.deadline?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}
-        ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}
+        ${isLongTerm?`<span style="font-size:10px;color:var(--text3)">fest zugewiesen</span>`:''}
       </div>
       ${prog(t)}
+      ${(()=>{
+        if(!t.subtasks?.length)return'';
+        const subA=asgn?.subtaskAssignments||{};
+        return'<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--sep)">'+
+          t.subtasks.map(s=>{
+            const su=uById(subA[s.id]);const sc=uColor(subA[s.id]);
+            const isMySub=subA[s.id]===myId;
+            return`<div style="display:flex;align-items:center;gap:8px;padding:3px 0">
+              <div class="sub-chk${s.done?' done':''}" onclick="event.stopPropagation();toggleSubPool('${id}','${s.id}')" style="${isMySub?'':'opacity:.4;cursor:not-allowed'}">${s.done?I.check:''}</div>
+              <span style="flex:1;font-size:12px;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>
+              <span style="font-size:11px;font-weight:700;color:${sc}">${su?.name||'?'}${isMySub?' ●':''}</span>
+            </div>`;
+          }).join('')+'</div>';
+      })()}
     </div>`;
   }).join('');
+
+  c.innerHTML=html;
 }
 function setPoolF(id){appstate.poolFilter=id;saveState();renderPool();}
+async function toggleSubPool(taskId,subId){
+  const task=tasks.find(t=>t._id?.toString()===taskId);if(!task)return;
+  const asgn=appstate.poolAssigns?.[taskId];
+  const subA=asgn?.subtaskAssignments||{};
+  if(subA[subId]!==me._id?.toString()){showToast('Nicht deine Unteraufgabe');return;}
+  const s=task.subtasks?.find(s=>s.id===subId);if(s)s.done=!s.done;
+  try{await api('PATCH','/tasks/'+taskId,{subtasks:task.subtasks});render();}catch(e){showToast('Fehler');}
+}
+function togglePause(){
+  const myId=me._id?.toString();
+  const paused=appstate.pausedUsers||[];
+  if(paused.includes(myId)){
+    appstate.pausedUsers=paused.filter(id=>id!==myId);
+    showToast('Du bist wieder im Pool dabei');
+  } else {
+    appstate.pausedUsers=[...paused,myId];
+    showToast('Diese Woche pausiert – du bekommst keine Pool-Aufgaben');
+  }
+  saveState();renderPool();
+}
 
 // SLOT MACHINE SHUFFLE
 function shufflePool(){
-  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  if(!poolable.length){showToast('Keine Pool-Aufgaben');return;}
-  appstate.poolTasks=poolable.map(t=>t._id?.toString()); // alle Pool-Aufgaben neu zuweisen
-  const finalAssigns=buildAssigns(appstate.poolTasks);
-  appstate.poolFilter='all';
+  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done&&poolTaskActiveThisWeek(t));
+  if(!poolable.length){showToast('Keine aktiven Pool-Aufgaben diese Woche');return;}
 
-  // Build slot rows
+  // Separate: long-term tasks keep assignee, weekly tasks get reshuffled
+  const toReshuffle=poolable.filter(t=>!shouldKeepAssignee(t)).map(t=>t._id?.toString());
+  const toKeep=poolable.filter(t=>shouldKeepAssignee(t)).map(t=>t._id?.toString());
+
+  appstate.poolTasks=poolable.map(t=>t._id?.toString());
+  const newAssigns=buildAssigns(toReshuffle);
+  // Keep existing assigns for long-term tasks
+  toKeep.forEach(id=>{newAssigns[id]=appstate.poolAssigns?.[id]||newAssigns[id];});
+  const finalAssigns=newAssigns;
+  appstate.lastShuffleWeek=isoWeek();
+  appstate.poolFilter='all';
+  // Record history
+  if(!appstate.poolHistory)appstate.poolHistory=[];
+  appstate.poolHistory.unshift({week:isoWeek(),assigns:{...finalAssigns},shuffledBy:me._id?.toString()});
+  if(appstate.poolHistory.length>8)appstate.poolHistory=appstate.poolHistory.slice(0,8);
+  updateShitBalance(finalAssigns);
+  // Notify all group members via appstate flag
+  appstate.poolShuffleNotify={week:isoWeek(),by:me.name};
+
+  // Build slot rows — tasks + subtasks each get their own reel
   const rows=document.getElementById('slotRows');
   rows.innerHTML=appstate.poolTasks.map(id=>{
     const t=tasks.find(t=>t._id?.toString()===id);if(!t)return'';
+    const hasSubs=t.subtasks?.length>0;
+    if(hasSubs){
+      return`<div style="background:rgba(0,0,0,.06);border-radius:12px;padding:10px 14px;margin-bottom:8px;border:1px solid var(--sep)">
+        <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px">${t.title.slice(0,32)}${t.title.length>32?'…':''}</div>
+        ${t.subtasks.map(s=>`<div class="slot-row" style="margin-bottom:4px;padding:6px 10px">
+          <div class="slot-task" style="font-size:12px">${s.title.slice(0,22)}${s.title.length>22?'…':''}</div>
+          <div class="slot-name-wrap" id="slot-${id}-${s.id}"><div class="slot-reel" id="reel-${id}-${s.id}"></div></div>
+        </div>`).join('')}
+      </div>`;
+    }
     return`<div class="slot-row">
       <div class="slot-task">${t.title.slice(0,28)}${t.title.length>28?'…':''}</div>
       <div class="slot-name-wrap" id="slot-${id}">
@@ -1230,10 +1632,17 @@ function shufflePool(){
   // Animate reels
   const unames=users.map(u=>u.name);
   let ticker=0;
+  // Build list of all reel IDs
+  const reelList=[];
+  appstate.poolTasks.forEach(id=>{
+    const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+    if(t.subtasks?.length){t.subtasks.forEach(s=>reelList.push({id:`${id}-${s.id}`,taskId:id,subId:s.id}));}
+    else{reelList.push({id,taskId:id,subId:null});}
+  });
   const interval=setInterval(()=>{
     ticker++;
-    appstate.poolTasks.forEach(id=>{
-      const reel=document.getElementById('reel-'+id);if(!reel)return;
+    reelList.forEach(r=>{
+      const reel=document.getElementById('reel-'+r.id);if(!reel)return;
       const nm=unames[Math.floor(Math.random()*unames.length)];
       const span=document.createElement('div');span.className='slot-name-item';span.style.color=me?.color||'var(--acc)';span.textContent=nm;
       reel.insertBefore(span,reel.firstChild);
@@ -1242,13 +1651,18 @@ function shufflePool(){
     if(ticker===1)document.getElementById('slotSub').textContent='Zufällige Zuweisung läuft…';
     if(ticker===30){
       clearInterval(interval);
-      // Show final results
       appstate.poolAssigns=finalAssigns;
+      updateLoadScores(finalAssigns);
+      updateShitBalance(finalAssigns);
       saveState();renderPool();renderMy();
-      appstate.poolTasks.forEach(id=>{
-        const reel=document.getElementById('reel-'+id);if(!reel)return;
-        const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);
-        reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:14px;font-weight:800">${u?.name||'?'}</div>`;
+      reelList.forEach(r=>{
+        const reel=document.getElementById('reel-'+r.id);if(!reel)return;
+        const asgn=finalAssigns[r.taskId];
+        let uid,col;
+        if(r.subId){uid=asgn?.subtaskAssignments?.[r.subId];}
+        else{uid=asgn?.assignedUser;}
+        const u=uById(uid);col=uColor(uid);
+        reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:13px;font-weight:800">${u?.name||'?'}</div>`;
       });
       document.getElementById('slotSub').textContent='Fertig! Aufgaben wurden zugewiesen.';
       setTimeout(closeSlot,1800);
@@ -1326,6 +1740,7 @@ function openDetail(id){
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
         <span class="badge b-blu">${t.cat}</span>
         ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}
+        ${t.shitScore!=null?`<span class="badge" style="background:rgba(146,64,14,.12);color:#92400E;border:1px solid rgba(146,64,14,.2)">💩 Scheißigkeit: ${t.shitScore}/10</span>`:''}
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
       </div>
       ${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}
@@ -1339,6 +1754,25 @@ function openDetail(id){
       ${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">Gemeinsam</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
     </div>
     ${subsH}
+    ${t.votingEnabled?`
+    <div class="sec">💩 Scheißigkeit</div>
+    <div class="glass-card cg" style="padding:14px">
+      ${t.shitScore!=null
+        ?`<div style="text-align:center;padding:4px 0">
+            <div style="font-size:34px;font-weight:800;color:#92400E">${t.shitScore}<span style="font-size:14px;color:var(--text3)">/10</span></div>
+            <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Scheißigkeitsscore aller Votes</div>
+            <div style="border-top:1px solid var(--sep);padding-top:10px">
+              ${users.map(u=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:3px 0;font-size:13px"><span>${u.name}</span><span style="font-weight:700;color:#92400E">${(t.votes||{})[u._id?.toString()]!=null?(t.votes||{})[u._id?.toString()]+'/10':'–'}</span></div>`).join('')}
+            </div>
+          </div>`
+        :`<div>
+            <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:4px">Wie scheißig ist diese Aufgabe?</div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:6px"><span>1 = Easy</span><span>10 = Sehr scheißig</span></div>
+            <div class="vote-scale">${[1,2,3,4,5,6,7,8,9,10].map(n=>{const isSel=(t.votes||{})[myId]===n;const hue=120-((n-1)*12);return`<button class="vote-btn${isSel?' sel':''}" style="${isSel?`background:hsl(${hue},70%,45%);color:#fff;`:''}" onclick="castVoteDetail('${id}',${n})">${n}</button>`;}).join('')}</div>
+            <div style="text-align:center;font-size:12px;color:var(--text3);margin-top:8px">${(t.votes||{})[myId]!=null?`✓ Dein Vote: ${(t.votes||{})[myId]}/10 · <span style="color:var(--acc);cursor:pointer" onclick="castVoteDetail('${id}',null)">Ändern</span>`:`${Object.keys(t.votes||{}).length}/${users.length} abgestimmt`}</div>
+          </div>`
+      }
+    </div>`:''}
     <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">Nur ${isPoolTask(t)?'der zugewiesene Nutzer':'der Aufgaben-Ersteller'} kann diese Aufgabe abschließen</div>`}</div>
     <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} Löschen</button></div>`;
   document.getElementById('taskDetail').classList.add('open');
@@ -1368,11 +1802,26 @@ async function toggleTask(id,withCeleb=false){
   if(!canComplete(t)){showToast('Du kannst diese Aufgabe nicht abschließen');return;}
   const was=t.done;t.done=!t.done;
   if(!was){
+    // Record completion date for recurring tasks
+    if(t.repeat&&t.repeat!=='Nie'){
+      if(!appstate.recurringLast)appstate.recurringLast={};
+      appstate.recurringLast[id]=todayStr();
+    }
     const el=document.getElementById('ti-'+id);
     if(el){el.classList.add('completing');setTimeout(()=>{render();},430);}else render();
     if(withCeleb)celebrate();
-  } else render();
-  try{await api('PATCH','/tasks/'+id,{done:t.done});}catch(e){t.done=was;render();showToast('Fehler');}
+    if(isPoolTask(t))onPoolTaskDone(id);
+  } else {
+    // Un-completing: remove recurring record
+    if(t.repeat&&t.repeat!=='Nie'&&appstate.recurringLast){
+      delete appstate.recurringLast[id];
+    }
+    render();
+  }
+  try{
+    await api('PATCH','/tasks/'+id,{done:t.done});
+    saveState();
+  }catch(e){t.done=was;render();showToast('Fehler');}
 }
 
 // ══════════════════════════════════════════
@@ -1387,6 +1836,8 @@ function setType(tp,btn){
   document.querySelectorAll('#typeSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
   document.getElementById('assigneeWrap').style.display=tp==='mine'?'block':'none';
   document.getElementById('sharedUsersWrap').style.display=tp==='shared'?'block':'none';
+  document.getElementById('votingWrap').style.display=tp==='pool'?'block':'none';
+  if(tp!=='pool'){votingEnabled=false;const tog=document.getElementById('votingTog');if(tog)tog.classList.remove('on');}
   if(tp==='shared')renderSharedUserPicker();
 }
 function renderSharedUserPicker(){
@@ -1425,6 +1876,9 @@ function showAddTask(editId=null){
   document.querySelectorAll('#typeSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',['mine','pool','shared'][i]===tp));
   document.getElementById('assigneeWrap').style.display=tp==='mine'?'block':'none';
   document.getElementById('sharedUsersWrap').style.display=tp==='shared'?'block':'none';
+  document.getElementById('votingWrap').style.display=tp==='pool'?'block':'none';
+  votingEnabled=t?.votingEnabled||false;
+  const tog=document.getElementById('votingTog');if(tog)tog.classList.toggle('on',votingEnabled);
   const asel=document.getElementById('fAssignee');
   asel.innerHTML=users.map(u=>`<option value="${u._id}">${u.name}</option>`).join('');
   asel.value=t?.assignee||me._id?.toString()||'';
@@ -1449,6 +1903,7 @@ async function saveTask(){
     assignee:selType==='pool'?'all':assignee,
     inPool:selType==='pool',
     sharedWith:selType==='shared'?[...sharedUsers]:[],
+    votingEnabled:selType==='pool'?votingEnabled:false,
     done:false,subtasks:[...newSubs]
   };
   try{
@@ -1480,6 +1935,8 @@ function openProfile(){
     others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;
       return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;
     }).join(''):'';
+  // Lang selector state
+  document.querySelectorAll('#langSeg .seg-b').forEach((b,i)=>{b.classList.toggle('on',(i===0&&appLang==='de')||(i===1&&appLang==='en'));});
   // Group section
   renderGroupSection();
   // Categories
@@ -1522,10 +1979,11 @@ function pickOvr(uid,color,el){
 function handlePhoto(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{profilePhoto=e.target.result;document.getElementById('profPhotoWrap').innerHTML=`<img src="${profilePhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`};r.readAsDataURL(f);}
 async function saveProfile(){
   const name=document.getElementById('profName').value.trim();
+  me.lang=appLang;
   try{
-    me=await api('PATCH','/users/me',{name:name||me.name,color:me.color,photo:profilePhoto,colorOverrides:me.colorOverrides||{},theme:me.theme||''});
+    me=await api('PATCH','/users/me',{name:name||me.name,color:me.color,photo:profilePhoto,colorOverrides:me.colorOverrides||{},theme:me.theme||'',lang:appLang});
     const idx=users.findIndex(u=>u._id?.toString()===me._id?.toString());if(idx>=0)users[idx]={...users[idx],...me};
-    applyTheme();render();closeProfile();showToast('Gespeichert');
+    applyTheme();applyLangToUI();render();closeProfile();showToast(tr('saved'));
   }catch(e){showToast('Fehler: '+e.message);}
 }
 async function createGroup(){const name=prompt('Gruppenname:');if(!name)return;try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Erstellt! Code: '+group.inviteCode);}catch(e){showToast(e.message);}}
@@ -1602,17 +2060,109 @@ function closeceleb(){document.getElementById('celebOv').classList.remove('show'
 let toastT;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
 
+// ══ VOTING SYSTEM ═══════════════════════════════════════
+let votingEnabled=false;
+function toggleVotingTog(){
+  votingEnabled=!votingEnabled;
+  const tog=document.getElementById('votingTog');
+  if(tog)tog.classList.toggle('on',votingEnabled);
+}
+function updateVoteTabVisibility(){
+  const myId=me._id?.toString();
+  const pending=tasks.filter(t=>{
+    if(!t.votingEnabled||!isPoolTask(t))return false;
+    const myVote=(t.votes||{})[myId];
+    if(myVote!=null)return false; // already voted
+    const allVoted=users.every(u=>(t.votes||{})[u._id?.toString()]!=null);
+    return!allVoted;
+  });
+  const tab=document.getElementById('t-vote');
+  const badge=document.getElementById('voteBadge');
+  if(pending.length){
+    if(tab)tab.style.display='flex';
+    if(badge){badge.textContent=pending.length;badge.style.display='inline-flex';}
+  } else {
+    if(tab)tab.style.display='none';
+  }
+}
+function openVotePage(){
+  document.getElementById('pgVote').style.display='block';
+  renderVotePage();
+}
+function closeVotePage(){document.getElementById('pgVote').style.display='none';}
+function renderVotePage(){
+  const myId=me._id?.toString();
+  const pending=tasks.filter(t=>{
+    if(!t.votingEnabled||!isPoolTask(t))return false;
+    const allVoted=users.every(u=>(t.votes||{})[u._id?.toString()]!=null);
+    return!allVoted;
+  });
+  const c=document.getElementById('voteContainer');
+  if(!pending.length){
+    c.innerHTML=`<div class="empty"><div style="font-size:48px">✅</div><div class="empty-t">Alles bewertet!</div></div>`;
+    return;
+  }
+  c.innerHTML=pending.map(task=>{
+    const myVote=(task.votes||{})[myId];
+    const votersCount=Object.keys(task.votes||{}).length;
+    return`<div class="vote-card">
+      <div style="font-size:16px;font-weight:700;margin-bottom:3px">${task.title}</div>
+      <div style="font-size:12px;color:var(--text3);margin-bottom:10px">${task.cat||''} · ${votersCount}/${users.length} abgestimmt</div>
+      <div style="font-size:13px;font-weight:600;color:var(--text2);margin-bottom:2px">Wie scheißig ist diese Aufgabe?</div>
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:4px"><span>1 = Easy</span><span>10 = Sehr scheißig</span></div>
+      <div class="vote-scale">
+        ${[1,2,3,4,5,6,7,8,9,10].map(n=>{
+          const isSel=myVote===n;
+          const hue=120-((n-1)*12);
+          return`<button class="vote-btn${isSel?' sel':''}" style="${isSel?`background:hsl(${hue},70%,45%);`:''}${isSel?'color:#fff;':''}" onclick="castVote('${task._id}',${n})">${n}</button>`;
+        }).join('')}
+      </div>
+      ${myVote!=null
+        ?`<div style="text-align:center;font-size:12px;color:var(--green);margin-top:6px;font-weight:600">✓ Dein Vote: ${myVote}/10 · <span style="color:var(--acc);cursor:pointer" onclick="castVote('${task._id}',null)">Ändern</span></div>`
+        :`<div style="text-align:center;font-size:12px;color:var(--text3);margin-top:6px">Warte auf andere Nutzer…</div>`}
+    </div>`;
+  }).join('');
+}
+async function castVoteDetail(taskId,score){
+  await castVote(taskId,score);
+  if(detailId===taskId)openDetail(taskId);
+}
+async function castVote(taskId,score){
+  const task=tasks.find(t=>t._id?.toString()===taskId);if(!task)return;
+  const myId=me._id?.toString();
+  if(!task.votes)task.votes={};
+  if(score===null){delete task.votes[myId];}
+  else task.votes[myId]=score;
+  const allVoted=users.length>0&&users.every(u=>task.votes[u._id?.toString()]!=null);
+  if(allVoted&&score!==null){
+    const vals=Object.values(task.votes);
+    task.shitScore=Math.round((vals.reduce((a,b)=>a+b,0)/vals.length)*10)/10;
+    await api('PATCH','/tasks/'+taskId,{votes:task.votes,shitScore:task.shitScore});
+    showToast('💩 Scheißigkeitsscore: '+task.shitScore+'/10');
+    closeVotePage();
+  } else {
+    await api('PATCH','/tasks/'+taskId,{votes:task.votes});
+    if(score!==null)showToast('Bewertet: '+score+'/10');
+  }
+  render();renderVotePage();updateVoteTabVisibility();
+}
+
 // ══════════════════════════════════════════
 // TABS + SWIPE
 // ══════════════════════════════════════════
+const NAV_TITLES_DE=['Meine','Pool','Kalender'];
+const NAV_TITLES_EN=['Mine','Pool','Calendar'];
 function switchTab(i,anim=true){
   curTab=i;const wrap=document.getElementById('pgwrap');
   if(!anim)wrap.classList.add('no-anim');
-  wrap.style.transform=`translateX(-${i*25}%)`;
+  wrap.style.transform=`translateX(-${i*33.333}%)`;
   if(!anim)requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove('no-anim')));
-  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
-  document.getElementById('navTitle').textContent=NAV_TITLES[i];
-  if(i===3)renderCalendar();
+  // Only highlight non-vote tabs
+  for(let j=0;j<=2;j++){const el=document.getElementById('t'+j);if(el)el.classList.toggle('active',j===i);}
+  const titles=lang==='en'?NAV_TITLES_EN:NAV_TITLES_DE;
+  document.getElementById('navTitle').textContent=titles[i]||'';
+  if(i===2)renderCalendar();
+  if(i===0)renderMy();
 }
 let swX=null,swY=null;
 document.addEventListener('touchstart',e=>{swX=e.touches[0].clientX;swY=e.touches[0].clientY;},{passive:true});
