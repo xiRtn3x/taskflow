@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default" id="statusBarMeta">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#e8eeff" id="themeColorMeta">
 <title>TaskFlow</title>
 <style>
@@ -617,7 +617,6 @@ async function init(){
   myToken=localStorage.getItem('tf_token');
   if(myToken){
     try{
-      // Alle Daten parallel laden – dann erst App zeigen
       const [u,meData,t,g,as]=await Promise.all([
         api('GET','/users'),
         api('GET','/users/me'),
@@ -629,15 +628,7 @@ async function init(){
       appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',...(as||{})};
       processRecurring();
       showApp();startPolling();checkChangelog();checkNewTasks();return;
-    }catch(e){
-      // Nur bei echtem Auth-Fehler (401/403) ausloggen, sonst trotzdem App zeigen
-      if(e.message&&(e.message.includes('401')||e.message.includes('403')||e.message.includes('Unauthorized')||e.message.includes('Forbidden'))){
-        localStorage.removeItem('tf_token');myToken=null;
-      } else {
-        // Netzwerkfehler o.ä. – App trotzdem anzeigen falls me schon gesetzt
-        if(me){showApp();startPolling();return;}
-      }
-    }
+    }catch(e){localStorage.removeItem('tf_token');myToken=null;}
   }
   showOnboard();
 }
@@ -686,7 +677,7 @@ async function checkNewTasks(){
 function startPolling(){
   if(pollTimer)clearInterval(pollTimer);
   pollTimer=setInterval(async()=>{
-    try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}const nb=document.getElementById('notifDot');if(r.hasNotifications){checkNotifs();}document.getElementById('ndot').style.display='none';}catch(e){}
+    try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}document.getElementById('ndot').style.display=r.hasNotifications?'block':'none';}catch(e){}
   },5000);
 }
 async function checkNotifs(){
@@ -707,12 +698,8 @@ async function checkNotifs(){
 function applyTheme(){
   const theme=me?.theme||'';document.body.className=theme;
   const colors={'':'#e8eeff','th-dark':'#0a0a18','th-warm':'#fff8ec'};
-  const bg=colors[theme]||'#e8eeff';
-  document.documentElement.style.background=bg;
-  const meta=document.getElementById('themeColorMeta');if(meta)meta.setAttribute('content',bg);
-  // iOS status bar style: dark mode → black, others → default (light icons on dark, dark icons on light)
-  const sbMeta=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
-  if(sbMeta)sbMeta.setAttribute('content',theme==='th-dark'?'black':'default');
+  document.documentElement.style.background=colors[theme]||'#e8eeff';
+  const meta=document.getElementById('themeColorMeta');if(meta)meta.setAttribute('content',colors[theme]||'#e8eeff');
   const map={'':'0','th-dark':'1','th-warm':'2'};const idx=parseInt(map[theme]||0);
   document.querySelectorAll('#themeSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',i===idx));
 }
