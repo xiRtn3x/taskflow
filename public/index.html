@@ -8,438 +8,236 @@
 <meta name="theme-color" content="#e8eeff" id="themeColorMeta">
 <title>TaskFlow</title>
 <style>
-/* ═══════════════ LIQUID GLASS DESIGN SYSTEM ═══════════════ */
 :root {
-  --acc: #5B5BD6;
-  --acc2: #818CF8;
-  --green: #22C55E;
-  --red: #EF4444;
-  --orange: #F59E0B;
-  --text: #1a1a2e;
-  --text2: #374151;
-  --text3: #8B9FC0;
-  --bg-from: #e8eeff;
-  --bg-to: #f0e8ff;
-  --glass: rgba(255,255,255,0.55);
-  --glass-border: rgba(255,255,255,0.7);
-  --glass-shadow: 0 8px 32px rgba(91,91,214,0.12);
-  --glass-nav: rgba(255,255,255,0.72);
-  --sep: rgba(180,180,220,0.25);
-  --r: 18px;
-  --r-sm: 12px;
-  --sb: env(safe-area-inset-bottom, 0px);
+  --acc:#5B5BD6;--acc2:#818CF8;--green:#22C55E;--red:#EF4444;--orange:#F59E0B;
+  --text:#1a1a2e;--text2:#374151;--text3:#8B9FC0;
+  --bg-from:#e8eeff;--bg-to:#f0e8ff;
+  --glass:rgba(255,255,255,0.55);--glass-border:rgba(255,255,255,0.7);
+  --glass-shadow:0 8px 32px rgba(91,91,214,0.12);--glass-nav:rgba(255,255,255,0.72);
+  --sep:rgba(180,180,220,0.25);--r:18px;--r-sm:12px;
+  --sb:env(safe-area-inset-bottom,0px);
+  /* vote color */
+  --poop:#8B4513;
 }
-body.th-dark {
-  --acc: #818CF8;
-  --text: #e8eaff;
-  --text2: #b0b8d8;
-  --text3: #5a6080;
-  --bg-from: #0a0a18;
-  --bg-to: #12102a;
-  --glass: rgba(30,30,60,0.55);
-  --glass-border: rgba(100,100,180,0.3);
-  --glass-shadow: 0 8px 32px rgba(0,0,0,0.4);
-  --glass-nav: rgba(15,15,35,0.75);
-  --sep: rgba(80,80,140,0.3);
-}
-body.th-warm {
-  --acc: #D97706;
-  --text: #1c1510;
-  --text2: #44403c;
-  --text3: #a8926e;
-  --bg-from: #fff8ec;
-  --bg-to: #fef0e0;
-  --glass: rgba(255,252,245,0.6);
-  --glass-border: rgba(255,220,160,0.6);
-  --glass-shadow: 0 8px 32px rgba(180,120,0,0.1);
-  --glass-nav: rgba(255,250,240,0.78);
-  --sep: rgba(180,140,80,0.2);
-}
+body.th-dark{--acc:#818CF8;--text:#e8eaff;--text2:#b0b8d8;--text3:#5a6080;--bg-from:#0a0a18;--bg-to:#12102a;--glass:rgba(30,30,60,.55);--glass-border:rgba(100,100,180,.3);--glass-shadow:0 8px 32px rgba(0,0,0,.4);--glass-nav:rgba(15,15,35,.75);--sep:rgba(80,80,140,.3);}
+body.th-warm{--acc:#D97706;--text:#1c1510;--text2:#44403c;--text3:#a8926e;--bg-from:#fff8ec;--bg-to:#fef0e0;--glass:rgba(255,252,245,.6);--glass-border:rgba(255,220,160,.6);--glass-shadow:0 8px 32px rgba(180,120,0,.1);--glass-nav:rgba(255,250,240,.78);--sep:rgba(180,140,80,.2);}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:pan-y;}
+html{overscroll-behavior:none;min-height:100%;height:100%;background:var(--bg-from);}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',sans-serif;-webkit-font-smoothing:antialiased;background:linear-gradient(135deg,var(--bg-from) 0%,var(--bg-to) 100%);background-attachment:fixed;color:var(--text);overflow-x:hidden;min-height:100dvh;overscroll-behavior:none;}
+#app{max-width:430px;margin:0 auto;min-height:100dvh;position:relative;overflow:hidden;}
+svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
+.glass{background:var(--glass);backdrop-filter:blur(24px) saturate(1.8);-webkit-backdrop-filter:blur(24px) saturate(1.8);border:1px solid var(--glass-border);box-shadow:var(--glass-shadow),inset 0 1px 0 rgba(255,255,255,.6);}
+.glass-card{background:var(--glass);backdrop-filter:blur(20px) saturate(1.6);-webkit-backdrop-filter:blur(20px) saturate(1.6);border:1px solid var(--glass-border);box-shadow:var(--glass-shadow);border-radius:var(--r);overflow:hidden;}
+.nav{position:sticky;top:0;z-index:100;background:var(--glass-nav);backdrop-filter:blur(28px) saturate(2);-webkit-backdrop-filter:blur(28px) saturate(2);border-bottom:1px solid var(--glass-border);padding:env(safe-area-inset-top,0) 16px 0;box-shadow:0 2px 20px rgba(91,91,214,.08);}
+.nav-inner{display:flex;align-items:center;gap:8px;height:52px;}
+.nav-title{font-size:20px;font-weight:700;letter-spacing:-.5px;flex:1;color:var(--text);}
+.nav-right{display:flex;align-items:center;gap:7px;}
+.nav-username{font-size:13px;font-weight:600;color:var(--text2);}
+.nav-btn{width:33px;height:33px;border-radius:50%;background:var(--glass);border:1px solid var(--glass-border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text2);flex-shrink:0;position:relative;backdrop-filter:blur(12px);transition:all .15s;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.nav-btn:active{transform:scale(.92);}
+.notif-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--glass-nav);}
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; touch-action: pan-y; }
-html {
-  overscroll-behavior: none;
-  min-height: 100%;
-  height: 100%;
-  background: var(--bg-from);
-}
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  background: linear-gradient(135deg, var(--bg-from) 0%, var(--bg-to) 100%);
-  background-attachment: fixed;
-  color: var(--text);
-  overflow-x: hidden;
-  min-height: 100dvh;
-  overscroll-behavior: none;
-}
-#app { max-width: 430px; margin: 0 auto; min-height: 100dvh; position: relative; overflow: hidden; }
-svg { display: inline-block; vertical-align: middle; flex-shrink: 0; }
+/* TABS — 4 tabs */
+.tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:200;background:var(--glass-nav);backdrop-filter:blur(28px) saturate(2);-webkit-backdrop-filter:blur(28px) saturate(2);border-top:1px solid var(--glass-border);display:flex;padding:6px 4px calc(6px + var(--sb));box-shadow:0 -4px 24px rgba(91,91,214,.08);}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;padding:4px 2px;}
+.tab-iw{width:38px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;transition:all .2s;color:var(--text3);position:relative;}
+.tab.active .tab-iw{background:var(--glass);border:1px solid var(--glass-border);color:var(--acc);box-shadow:0 2px 10px rgba(91,91,214,.2);backdrop-filter:blur(10px);}
+.tab-lbl{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.1px;}
+.tab.active .tab-lbl{color:var(--acc);font-weight:700;}
+/* vote tab badge */
+.vote-badge{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--orange);border-radius:50%;border:2px solid var(--glass-nav);display:none;}
+#t3.has-votes .vote-badge{display:block;}
 
-/* LIQUID GLASS BASE */
-.glass {
-  background: var(--glass);
-  backdrop-filter: blur(24px) saturate(1.8);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow), inset 0 1px 0 rgba(255,255,255,0.6);
-}
-.glass-card {
-  background: var(--glass);
-  backdrop-filter: blur(20px) saturate(1.6);
-  -webkit-backdrop-filter: blur(20px) saturate(1.6);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  border-radius: var(--r);
-  overflow: hidden;
-}
+.fab{position:fixed;bottom:calc(76px + var(--sb));right:16px;width:52px;height:52px;border-radius:50%;background:var(--acc);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 24px rgba(91,91,214,.45),0 0 0 1px rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;z-index:150;transition:transform .18s,box-shadow .18s;}
+.fab:active{transform:scale(.9);}
 
-/* NAV */
-.nav {
-  position: sticky; top: 0; z-index: 100;
-  background: var(--glass-nav);
-  backdrop-filter: blur(28px) saturate(2);
-  -webkit-backdrop-filter: blur(28px) saturate(2);
-  border-bottom: 1px solid var(--glass-border);
-  padding: env(safe-area-inset-top, 0) 16px 0;
-  box-shadow: 0 2px 20px rgba(91,91,214,0.08);
-}
-.nav-inner { display: flex; align-items: center; gap: 8px; height: 52px; }
-.nav-title { font-size: 20px; font-weight: 700; letter-spacing: -.5px; flex: 1; color: var(--text); }
-.nav-right { display: flex; align-items: center; gap: 7px; }
-.nav-username { font-size: 13px; font-weight: 600; color: var(--text2); }
-.nav-btn {
-  width: 33px; height: 33px; border-radius: 50%;
-  background: var(--glass); border: 1px solid var(--glass-border);
-  cursor: pointer; display: flex; align-items: center; justify-content: center;
-  color: var(--text2); flex-shrink: 0; position: relative;
-  backdrop-filter: blur(12px); transition: all .15s;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-.nav-btn:active { transform: scale(.92); }
-.notif-dot { position: absolute; top: 1px; right: 1px; width: 8px; height: 8px; background: var(--red); border-radius: 50%; border: 2px solid var(--glass-nav); }
+/* PAGES — 4 tabs → 25% each */
+.pages-wrap{display:flex;width:400%;transition:transform .32s cubic-bezier(.32,.72,0,1);}
+.pages-wrap.no-anim{transition:none;}
+.page{width:25%;min-height:calc(100dvh - 53px - 58px - var(--sb));padding-bottom:84px;flex-shrink:0;}
 
-/* TABS */
-.tabs {
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 430px; z-index: 200;
-  background: var(--glass-nav);
-  backdrop-filter: blur(28px) saturate(2);
-  -webkit-backdrop-filter: blur(28px) saturate(2);
-  border-top: 1px solid var(--glass-border);
-  display: flex; padding: 6px 4px calc(6px + var(--sb));
-  box-shadow: 0 -4px 24px rgba(91,91,214,0.08);
-}
-.tab { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 1; cursor: pointer; padding: 4px 2px; }
-.tab-iw {
-  width: 38px; height: 28px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  transition: all .2s; color: var(--text3);
-}
-.tab.active .tab-iw {
-  background: var(--glass);
-  border: 1px solid var(--glass-border);
-  color: var(--acc);
-  box-shadow: 0 2px 10px rgba(91,91,214,.2);
-  backdrop-filter: blur(10px);
-}
-.tab-lbl { font-size: 10px; font-weight: 500; color: var(--text3); letter-spacing: .1px; }
-.tab.active .tab-lbl { color: var(--acc); font-weight: 700; }
-
-.fab {
-  position: fixed; bottom: calc(76px + var(--sb)); right: 16px;
-  width: 52px; height: 52px; border-radius: 50%;
-  background: var(--acc); color: #fff; border: none; cursor: pointer;
-  box-shadow: 0 4px 24px rgba(91,91,214,.45), 0 0 0 1px rgba(255,255,255,.2);
-  display: flex; align-items: center; justify-content: center; z-index: 150;
-  transition: transform .18s, box-shadow .18s;
-}
-.fab:active { transform: scale(.9); }
-
-/* PAGES / SWIPE */
-.pages-wrap { display: flex; width: 300%; transition: transform .32s cubic-bezier(.32,.72,0,1); }
-.pages-wrap.no-anim { transition: none; }
-.page { width: 33.333%; min-height: calc(100dvh - 53px - 58px - var(--sb)); padding-bottom: 84px; flex-shrink: 0; }
-
-/* GLASS CARDS */
-.cg { margin: 0 14px 12px; }
-.sec { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--text3); padding: 16px 14px 6px; display: flex; align-items: center; gap: 6px; }
-.super-sec { font-size: 15px; font-weight: 700; color: var(--text2); padding: 14px 14px 6px; display: flex; align-items: center; gap: 7px; }
-
-/* TASK ITEM */
-.task-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  padding: 12px 14px; cursor: pointer;
-  border-bottom: 1px solid var(--sep);
-  transition: background .12s; position: relative; overflow: hidden;
-}
-.task-item:last-child { border-bottom: none; }
-.task-item:active { background: rgba(255,255,255,0.3); }
-.task-item.completing { animation: crumple .42s cubic-bezier(.36,.07,.19,.97) forwards; }
-@keyframes crumple {
-  0%   { transform:scale(1) rotateZ(0); opacity:1; max-height:200px; padding-top:12px; padding-bottom:12px; }
-  35%  { transform:scale(.95) rotateZ(-2deg); filter:brightness(.85); }
-  65%  { transform:scale(.88,.6) rotateZ(2.5deg); opacity:.6; }
-  85%  { transform:scale(.7,.25) rotateZ(-2deg); opacity:.2; max-height:200px; }
-  100% { transform:scale(.5,.04); opacity:0; max-height:0; padding-top:0; padding-bottom:0; }
-}
-.color-bar { position: absolute; left: 0; top: 8px; bottom: 8px; width: 3px; border-radius: 2px; }
-.task-body { flex: 1; min-width: 0; padding-left: 3px; }
-.task-title { font-size: 15px; font-weight: 500; line-height: 1.35; color: var(--text); }
-.task-title.done { text-decoration: line-through; color: var(--text3); font-weight: 400; }
-.task-meta { font-size: 11px; color: var(--text3); margin-top: 4px; display: flex; gap: 5px; flex-wrap: wrap; align-items: center; }
-.chk {
-  width: 22px; height: 22px; border-radius: 50%;
-  border: 2px solid rgba(150,150,200,.4); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: center;
-  margin-top: 1px; transition: all .2s; cursor: pointer; color: #fff;
-  background: rgba(255,255,255,.3);
-}
-.chk.done { background: var(--green); border-color: var(--green); }
-.chk:active { transform: scale(.82); }
-.prog-wrap { margin-top: 5px; display: flex; align-items: center; gap: 6px; }
-.prog-bg { flex: 1; height: 3px; background: var(--sep); border-radius: 2px; overflow: hidden; }
-.prog-fill { height: 100%; background: var(--green); border-radius: 2px; transition: width .3s; }
-.prog-lbl { font-size: 10px; color: var(--text3); font-weight: 600; }
+.cg{margin:0 14px 12px;}
+.sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);padding:16px 14px 6px;display:flex;align-items:center;gap:6px;}
+.super-sec{font-size:15px;font-weight:700;color:var(--text2);padding:14px 14px 6px;display:flex;align-items:center;gap:7px;}
+.task-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;cursor:pointer;border-bottom:1px solid var(--sep);transition:background .12s;position:relative;overflow:hidden;}
+.task-item:last-child{border-bottom:none;}
+.task-item:active{background:rgba(255,255,255,.3);}
+.task-item.completing{animation:crumple .42s cubic-bezier(.36,.07,.19,.97) forwards;}
+@keyframes crumple{0%{transform:scale(1) rotateZ(0);opacity:1;max-height:200px;padding-top:12px;padding-bottom:12px;}35%{transform:scale(.95) rotateZ(-2deg);filter:brightness(.85);}65%{transform:scale(.88,.6) rotateZ(2.5deg);opacity:.6;}85%{transform:scale(.7,.25) rotateZ(-2deg);opacity:.2;max-height:200px;}100%{transform:scale(.5,.04);opacity:0;max-height:0;padding-top:0;padding-bottom:0;}}
+.color-bar{position:absolute;left:0;top:8px;bottom:8px;width:3px;border-radius:2px;}
+.task-body{flex:1;min-width:0;padding-left:3px;}
+.task-title{font-size:15px;font-weight:500;line-height:1.35;color:var(--text);}
+.task-title.done{text-decoration:line-through;color:var(--text3);font-weight:400;}
+.task-meta{font-size:11px;color:var(--text3);margin-top:4px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
+.chk{width:22px;height:22px;border-radius:50%;border:2px solid rgba(150,150,200,.4);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .2s;cursor:pointer;color:#fff;background:rgba(255,255,255,.3);}
+.chk.done{background:var(--green);border-color:var(--green);}
+.chk:active{transform:scale(.82);}
+.prog-wrap{margin-top:5px;display:flex;align-items:center;gap:6px;}
+.prog-bg{flex:1;height:3px;background:var(--sep);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
+.prog-lbl{font-size:10px;color:var(--text3);font-weight:600;}
 
 /* BADGES */
-.badge { display: inline-flex; align-items: center; gap: 3px; padding: 2px 7px; border-radius: 20px; font-size: 10px; font-weight: 700; backdrop-filter: blur(8px); }
-.b-red { background: rgba(239,68,68,.12); color: #DC2626; border: 1px solid rgba(239,68,68,.2); }
-.b-ora { background: rgba(245,158,11,.12); color: #D97706; border: 1px solid rgba(245,158,11,.2); }
-.b-grn { background: rgba(34,197,94,.12); color: #16A34A; border: 1px solid rgba(34,197,94,.2); }
-.b-blu { background: rgba(37,99,235,.10); color: #2563EB; border: 1px solid rgba(37,99,235,.18); }
-.b-pur { background: rgba(124,58,237,.10); color: #7C3AED; border: 1px solid rgba(124,58,237,.18); }
-.b-rec { background: rgba(2,132,199,.10); color: #0284C7; border: 1px solid rgba(2,132,199,.18); }
-body.th-dark .b-red  { background:rgba(239,68,68,.18);  color:#FCA5A5; }
-body.th-dark .b-ora  { background:rgba(245,158,11,.18); color:#FCD34D; }
-body.th-dark .b-grn  { background:rgba(34,197,94,.18);  color:#86EFAC; }
-body.th-dark .b-blu  { background:rgba(37,99,235,.18);  color:#93C5FD; }
-body.th-dark .b-pur  { background:rgba(124,58,237,.18); color:#C4B5FD; }
-body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;backdrop-filter:blur(8px);}
+.b-red{background:rgba(239,68,68,.12);color:#DC2626;border:1px solid rgba(239,68,68,.2);}
+.b-ora{background:rgba(245,158,11,.12);color:#D97706;border:1px solid rgba(245,158,11,.2);}
+.b-grn{background:rgba(34,197,94,.12);color:#16A34A;border:1px solid rgba(34,197,94,.2);}
+.b-blu{background:rgba(37,99,235,.10);color:#2563EB;border:1px solid rgba(37,99,235,.18);}
+.b-pur{background:rgba(124,58,237,.10);color:#7C3AED;border:1px solid rgba(124,58,237,.18);}
+.b-rec{background:rgba(2,132,199,.10);color:#0284C7;border:1px solid rgba(2,132,199,.18);}
+.b-poop{background:rgba(139,69,19,.12);color:#92400e;border:1px solid rgba(139,69,19,.25);}
+body.th-dark .b-red{background:rgba(239,68,68,.18);color:#FCA5A5;}
+body.th-dark .b-ora{background:rgba(245,158,11,.18);color:#FCD34D;}
+body.th-dark .b-grn{background:rgba(34,197,94,.18);color:#86EFAC;}
+body.th-dark .b-blu{background:rgba(37,99,235,.18);color:#93C5FD;}
+body.th-dark .b-pur{background:rgba(124,58,237,.18);color:#C4B5FD;}
+body.th-dark .b-rec{background:rgba(2,132,199,.18);color:#7DD3FC;}
+body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 
-/* BUTTONS */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: none; cursor: pointer; font-family: inherit; font-size: 16px; font-weight: 600; border-radius: 14px; transition: opacity .15s, transform .12s; }
-.btn:active { opacity: .8; transform: scale(.98); }
-.btn-p { background: var(--acc); color: #fff; padding: 14px 20px; width: 100%; box-shadow: 0 4px 20px rgba(91,91,214,.35); }
-.btn-d { background: rgba(239,68,68,.12); color: var(--red); padding: 14px 20px; width: 100%; border: 1px solid rgba(239,68,68,.2); }
-.btn-g { background: transparent; color: var(--acc); padding: 8px 0; font-weight: 500; font-size: 15px; }
-.btn-out { background: var(--glass); color: var(--text2); padding: 12px 20px; width: 100%; border: 1px solid var(--glass-border); backdrop-filter: blur(10px); }
-.ibtn { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 10px; padding: 6px 10px; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text2); font-family: inherit; backdrop-filter: blur(10px); transition: all .12s; }
-.ibtn:active { opacity: .75; }
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:600;border-radius:14px;transition:opacity .15s,transform .12s;}
+.btn:active{opacity:.8;transform:scale(.98);}
+.btn-p{background:var(--acc);color:#fff;padding:14px 20px;width:100%;box-shadow:0 4px 20px rgba(91,91,214,.35);}
+.btn-d{background:rgba(239,68,68,.12);color:var(--red);padding:14px 20px;width:100%;border:1px solid rgba(239,68,68,.2);}
+.btn-g{background:transparent;color:var(--acc);padding:8px 0;font-weight:500;font-size:15px;}
+.btn-out{background:var(--glass);color:var(--text2);padding:12px 20px;width:100%;border:1px solid var(--glass-border);backdrop-filter:blur(10px);}
+.ibtn{background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:6px 10px;display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);font-family:inherit;backdrop-filter:blur(10px);transition:all .12s;}
+.ibtn:active{opacity:.75;}
 
-/* MODAL / SHEET */
-.ov { position: fixed; inset: 0; background: rgba(0,0,0,.3); z-index: 300; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity .22s; backdrop-filter: blur(6px); }
-.ov.open { opacity: 1; pointer-events: all; }
-.sheet {
-  background: var(--glass);
-  backdrop-filter: blur(32px) saturate(2);
-  -webkit-backdrop-filter: blur(32px) saturate(2);
-  border: 1px solid var(--glass-border);
-  border-radius: 22px 22px 0 0; width: 100%; max-height: 92dvh; overflow-y: auto;
-  padding-bottom: calc(20px + var(--sb));
-  transform: translateY(100%); transition: transform .28s cubic-bezier(.32,.72,0,1);
-  box-shadow: 0 -8px 40px rgba(91,91,214,.15);
-}
-.ov.open .sheet { transform: translateY(0); }
-.handle { width: 36px; height: 4px; background: var(--sep); border-radius: 2px; margin: 12px auto 4px; }
-.mhdr { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px 10px; }
-.mtitle { font-size: 18px; font-weight: 700; }
-.mclose { color: var(--acc); font-size: 15px; font-weight: 600; cursor: pointer; padding: 4px 2px; }
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:300;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(6px);}
+.ov.open{opacity:1;pointer-events:all;}
+.sheet{background:var(--glass);backdrop-filter:blur(32px) saturate(2);-webkit-backdrop-filter:blur(32px) saturate(2);border:1px solid var(--glass-border);border-radius:22px 22px 0 0;width:100%;max-height:92dvh;overflow-y:auto;padding-bottom:calc(20px + var(--sb));transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);box-shadow:0 -8px 40px rgba(91,91,214,.15);}
+.ov.open .sheet{transform:translateY(0);}
+.handle{width:36px;height:4px;background:var(--sep);border-radius:2px;margin:12px auto 4px;}
+.mhdr{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 10px;}
+.mtitle{font-size:18px;font-weight:700;}
+.mclose{color:var(--acc);font-size:15px;font-weight:600;cursor:pointer;padding:4px 2px;}
 
-/* FORM */
-.fg { padding: 0 16px 14px; }
-.fl { display: block; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: var(--text3); margin-bottom: 7px; }
-.fi {
-  width: 100%; background: var(--glass); border: 1px solid var(--glass-border);
-  border-radius: 12px; padding: 12px 14px; font-size: 15px; color: var(--text);
-  font-family: inherit; outline: none; transition: border-color .15s;
-  backdrop-filter: blur(12px);
-}
-.fi:focus { border-color: var(--acc); }
-.fi::placeholder { color: var(--text3); }
-.fsel { width: 100%; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 12px; padding: 12px 14px; font-size: 15px; color: var(--text); font-family: inherit; outline: none; -webkit-appearance: none; backdrop-filter: blur(12px); }
+.fg{padding:0 16px 14px;}
+.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin-bottom:7px;}
+.fi{width:100%;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px 14px;font-size:15px;color:var(--text);font-family:inherit;outline:none;transition:border-color .15s;backdrop-filter:blur(12px);}
+.fi:focus{border-color:var(--acc);}
+.fi::placeholder{color:var(--text3);}
+.fsel{width:100%;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px 14px;font-size:15px;color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none;backdrop-filter:blur(12px);}
+.seg{display:flex;background:rgba(150,150,200,.12);border:1px solid var(--sep);border-radius:12px;padding:3px;gap:2px;}
+.seg-b{flex:1;padding:8px 4px;border:none;background:transparent;border-radius:9px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .18s;font-family:inherit;}
+.seg-b.on{background:var(--glass);color:var(--text);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.5);border:1px solid var(--glass-border);}
+.tog{width:48px;height:28px;border-radius:14px;background:rgba(150,150,200,.25);position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;border:none;outline:none;}
+.tog.on{background:var(--green);}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:left .2s;}
+.tog.on::after{left:23px;}
+.av{border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;}
+.av img{width:100%;height:100%;object-fit:cover;}
+.dov{position:fixed;inset:0;background:linear-gradient(135deg,var(--bg-from),var(--bg-to));z-index:400;transform:translateX(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);overflow-y:auto;}
+.dov.open{transform:translateX(0);}
+.dnav{position:sticky;top:0;background:var(--glass-nav);backdrop-filter:blur(24px);border-bottom:1px solid var(--glass-border);padding:14px 16px;display:flex;align-items:center;gap:8px;z-index:10;}
+.back{color:var(--acc);font-size:15px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:4px;}
+.sub-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--sep);}
+.sub-item:last-child{border-bottom:none;}
+.sub-chk{width:19px;height:19px;border-radius:50%;border:2px solid rgba(150,150,200,.4);flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;color:#fff;}
+.sub-chk.done{background:var(--green);border-color:var(--green);}
+.dragh{color:var(--text3);cursor:grab;touch-action:none;flex-shrink:0;opacity:.45;display:flex;align-items:center;}
+.pool-card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(18px);border-radius:var(--r);margin:0 14px 10px;padding:14px;cursor:pointer;transition:transform .15s;box-shadow:var(--glass-shadow);}
+.pool-card:active{transform:scale(.99);}
+.pool-sub-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-top:1px solid var(--sep);font-size:12px;color:var(--text2);}
+.pool-sub-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.crow{display:flex;align-items:center;padding:13px 14px;gap:12px;border-bottom:1px solid var(--sep);cursor:pointer;transition:background .12s;}
+.crow:last-child{border-bottom:none;}
+.crow:active{background:rgba(255,255,255,.2);}
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:14px 14px 10px;}
+.cal-month{font-size:18px;font-weight:700;}
+.cal-btn{background:var(--glass);border:1px solid var(--glass-border);border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);backdrop-filter:blur(10px);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:0 14px 10px;}
+.cal-dn{text-align:center;font-size:10px;font-weight:700;color:var(--text3);padding:4px 0;text-transform:uppercase;letter-spacing:.4px;}
+.cal-cell{min-height:40px;border-radius:9px;display:flex;flex-direction:column;align-items:center;padding:3px 2px;cursor:pointer;transition:background .12s;}
+.cal-num{font-size:13px;font-weight:500;width:26px;height:26px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+.cal-num.today{background:var(--acc);color:#fff;font-weight:700;}
+.cal-num.other-month{color:var(--text3);font-weight:400;}
+.cal-num.sel{background:rgba(91,91,214,.2);color:var(--acc);font-weight:700;border:1px solid rgba(91,91,214,.3);}
+.cal-dots{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:1px;}
+.cal-dot{width:4px;height:4px;border-radius:50%;}
+.cgrid{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;padding:4px 0;}
+.cdot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2.5px solid transparent;transition:transform .12s,border-color .12s;}
+.cdot.sel{border-color:var(--text);transform:scale(1.18);}
+.toast{position:fixed;bottom:calc(82px + var(--sb));left:50%;transform:translateX(-50%) translateY(10px);background:rgba(20,20,40,.9);color:#fff;padding:11px 18px;border-radius:14px;font-size:14px;font-weight:500;z-index:9999;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;backdrop-filter:blur(16px);max-width:92vw;text-align:center;border:1px solid rgba(255,255,255,.15);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.empty{text-align:center;padding:48px 20px;color:var(--text3);}
+.empty svg{margin-bottom:12px;opacity:.4;}
+.empty-t{font-size:19px;font-weight:700;color:var(--text);margin-bottom:5px;}
+.empty-s{font-size:14px;}
+.celeb-ov{position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(0,0,0,.55);backdrop-filter:blur(14px);opacity:0;pointer-events:none;transition:opacity .28s;}
+.celeb-ov.show{opacity:1;pointer-events:all;}
+.celeb-face{color:#fff;animation:bounce .55s ease infinite alternate;}
+.celeb-txt{color:#fff;font-size:19px;font-weight:700;margin-top:16px;text-align:center;padding:0 28px;line-height:1.4;}
+.celeb-sub{color:rgba(255,255,255,.5);font-size:13px;margin-top:8px;}
+.conf{position:absolute;border-radius:2px;animation:fall linear forwards;}
+@keyframes bounce{from{transform:translateY(0) rotate(-6deg);}to{transform:translateY(-16px) rotate(6deg);}}
+@keyframes fall{0%{transform:translateY(-30px) rotate(0);opacity:1;}100%{transform:translateY(100vh) rotate(800deg);opacity:0;}}
+.slot-ov{position:fixed;inset:0;z-index:8500;background:rgba(0,0,0,.65);backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.slot-ov.show{opacity:1;pointer-events:all;}
+.slot-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:22px;padding:28px 24px;width:88%;max-width:340px;backdrop-filter:blur(24px);box-shadow:0 20px 60px rgba(0,0,0,.4);}
+.slot-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:20px;color:var(--text);}
+.slot-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;background:rgba(0,0,0,.06);border-radius:12px;padding:10px 14px;border:1px solid var(--sep);overflow:hidden;}
+.slot-task{font-size:14px;font-weight:600;flex:1;color:var(--text);}
+.slot-name-wrap{width:80px;overflow:hidden;height:22px;position:relative;}
+.slot-reel{display:flex;flex-direction:column;position:absolute;top:0;width:100%;}
+.slot-name-item{height:22px;font-size:13px;font-weight:700;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:22px;}
+.slot-sub{font-size:13px;color:var(--text3);text-align:center;margin-top:16px;}
+.chlog-ov{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity .3s;}
+.chlog-ov.show{opacity:1;pointer-events:all;}
+.chlog-card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(28px);border-radius:22px;padding:28px 22px 22px;max-width:340px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:80dvh;overflow-y:auto;}
+.admin-row{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s;}
+.admin-row:active{background:rgba(239,68,68,.14);}
+.onboard{position:fixed;inset:0;z-index:10000;background:linear-gradient(135deg,var(--bg-from),var(--bg-to));display:flex;flex-direction:column;padding:env(safe-area-inset-top,24px) 20px 20px;overflow-y:auto;}
+.onboard.hidden{display:none;}
+.ob-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:all .15s;backdrop-filter:blur(16px);display:flex;align-items:center;gap:14px;box-shadow:var(--glass-shadow);}
+.ob-card:active{transform:scale(.99);}
+.ob-icon{width:44px;height:44px;border-radius:14px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--acc);border:1px solid rgba(91,91,214,.2);}
+.subrow{display:flex;gap:7px;margin-top:8px;}
+.subrow input{flex:1;background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:10px 12px;font-size:14px;color:var(--text);font-family:inherit;outline:none;backdrop-filter:blur(10px);}
+.subrow button{background:var(--acc);color:#fff;border:none;border-radius:10px;padding:10px 14px;display:flex;align-items:center;cursor:pointer;}
+.sub-tag{display:flex;align-items:center;gap:7px;background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:8px 10px;margin-top:6px;backdrop-filter:blur(10px);}
+.drag-ch{color:var(--text3);cursor:grab;touch-action:none;opacity:.45;display:flex;align-items:center;}
+.cat-blk{transition:opacity .12s;}
+.cat-blk.dragging{opacity:.35;}
+.profile-photo-ring{width:72px;height:72px;border-radius:50%;border:2px solid var(--glass-border);padding:2px;cursor:pointer;overflow:hidden;flex-shrink:0;background:var(--glass);backdrop-filter:blur(10px);}
+.profile-photo-ring img,.profile-photo-ring div{width:100%;height:100%;border-radius:50%;}
 
-/* SEGMENTED CONTROL */
-.seg { display: flex; background: rgba(150,150,200,.12); border: 1px solid var(--sep); border-radius: 12px; padding: 3px; gap: 2px; }
-.seg-b { flex: 1; padding: 8px 4px; border: none; background: transparent; border-radius: 9px; font-size: 12px; font-weight: 500; color: var(--text3); cursor: pointer; transition: all .18s; font-family: inherit; }
-.seg-b.on { background: var(--glass); color: var(--text); font-weight: 700; box-shadow: 0 1px 4px rgba(0,0,0,.10), inset 0 1px 0 rgba(255,255,255,.5); border: 1px solid var(--glass-border); }
+/* ── VOTE PAGE STYLES ── */
+.vote-card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(18px);border-radius:var(--r);margin:0 14px 14px;padding:16px;box-shadow:var(--glass-shadow);}
+.vote-title{font-size:16px;font-weight:700;margin-bottom:6px;line-height:1.3;}
+.vote-meta{font-size:12px;color:var(--text3);margin-bottom:14px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.vote-scale{display:flex;gap:5px;justify-content:space-between;margin-bottom:10px;}
+.vote-btn{flex:1;height:42px;border:1.5px solid var(--sep);border-radius:10px;background:var(--glass);font-size:13px;font-weight:700;cursor:pointer;transition:all .15s;color:var(--text3);font-family:inherit;display:flex;align-items:center;justify-content:center;}
+.vote-btn:active{transform:scale(.93);}
+.vote-btn.sel{color:#fff;border-color:transparent;box-shadow:0 3px 12px rgba(0,0,0,.2);}
+.vote-pending{font-size:12px;color:var(--text3);margin-top:8px;text-align:center;}
+.vote-done-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--sep);}
+/* poop score colors 1-3=green, 4-6=orange, 7-10=red */
+.poop-1,.poop-2,.poop-3{color:#16A34A;}
+.poop-4,.poop-5,.poop-6{color:#D97706;}
+.poop-7,.poop-8,.poop-9,.poop-10{color:#DC2626;}
 
-/* TOGGLE */
-.tog { width: 48px; height: 28px; border-radius: 14px; background: rgba(150,150,200,.25); position: relative; cursor: pointer; transition: background .2s; flex-shrink: 0; border: none; outline: none; }
-.tog.on { background: var(--green); }
-.tog::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,.25); transition: left .2s; }
-.tog.on::after { left: 23px; }
-
-/* AVATAR */
-.av { border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; flex-shrink: 0; overflow: hidden; }
-.av img { width: 100%; height: 100%; object-fit: cover; }
-
-/* DETAIL */
-.dov { position: fixed; inset: 0; background: linear-gradient(135deg, var(--bg-from), var(--bg-to)); z-index: 400; transform: translateX(100%); transition: transform .28s cubic-bezier(.32,.72,0,1); overflow-y: auto; }
-.dov.open { transform: translateX(0); }
-.dnav { position: sticky; top: 0; background: var(--glass-nav); backdrop-filter: blur(24px); border-bottom: 1px solid var(--glass-border); padding: 14px 16px; display: flex; align-items: center; gap: 8px; z-index: 10; }
-.back { color: var(--acc); font-size: 15px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 4px; }
-
-/* SUBTASK */
-.sub-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--sep); }
-.sub-item:last-child { border-bottom: none; }
-.sub-chk { width: 19px; height: 19px; border-radius: 50%; border: 2px solid rgba(150,150,200,.4); flex-shrink: 0; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; color: #fff; }
-.sub-chk.done { background: var(--green); border-color: var(--green); }
-.dragh { color: var(--text3); cursor: grab; touch-action: none; flex-shrink: 0; opacity: .45; display: flex; align-items: center; }
-
-/* POOL CARD */
-.pool-card {
-  background: var(--glass); border: 1px solid var(--glass-border);
-  backdrop-filter: blur(18px); border-radius: var(--r);
-  margin: 0 14px 10px; padding: 14px; cursor: pointer;
-  transition: transform .15s; box-shadow: var(--glass-shadow);
-}
-.pool-card:active { transform: scale(.99); }
-
-/* Pool subtask row */
-.pool-sub-row {
-  display: flex; align-items: center; gap: 8px;
-  padding: 6px 0; border-top: 1px solid var(--sep);
-  font-size: 12px; color: var(--text2);
-}
-.pool-sub-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
-
-/* FILTER BAR */
-.fbar { display: flex; gap: 7px; padding: 8px 14px; overflow-x: auto; scrollbar-width: none; }
-.fbar::-webkit-scrollbar { display: none; }
-.chip {
-  flex-shrink: 0; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
-  border: 1px solid var(--sep); cursor: pointer; font-family: inherit;
-  background: var(--glass); color: var(--text3);
-  backdrop-filter: blur(10px); transition: all .15s;
-}
-.chip.on { background: var(--acc); color: #fff; border-color: transparent; box-shadow: 0 2px 12px rgba(91,91,214,.3); }
-
-/* CARD ROW */
-.crow { display: flex; align-items: center; padding: 13px 14px; gap: 12px; border-bottom: 1px solid var(--sep); cursor: pointer; transition: background .12s; }
-.crow:last-child { border-bottom: none; }
-.crow:active { background: rgba(255,255,255,.2); }
-
-/* CALENDAR */
-.cal-nav { display: flex; align-items: center; justify-content: space-between; padding: 14px 14px 10px; }
-.cal-month { font-size: 18px; font-weight: 700; }
-.cal-btn { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text2); backdrop-filter: blur(10px); }
-.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; padding: 0 14px 10px; }
-.cal-dn { text-align: center; font-size: 10px; font-weight: 700; color: var(--text3); padding: 4px 0; text-transform: uppercase; letter-spacing: .4px; }
-.cal-cell { min-height: 40px; border-radius: 9px; display: flex; flex-direction: column; align-items: center; padding: 3px 2px; cursor: pointer; transition: background .12s; }
-.cal-num { font-size: 13px; font-weight: 500; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
-.cal-num.today { background: var(--acc); color: #fff; font-weight: 700; }
-.cal-num.other-month { color: var(--text3); font-weight: 400; }
-.cal-num.sel { background: rgba(91,91,214,.2); color: var(--acc); font-weight: 700; border: 1px solid rgba(91,91,214,.3); }
-.cal-dots { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; margin-top: 1px; }
-.cal-dot { width: 4px; height: 4px; border-radius: 50%; }
-
-/* COLOR GRID */
-.cgrid { display: grid; grid-template-columns: repeat(8,1fr); gap: 8px; padding: 4px 0; }
-.cdot { width: 26px; height: 26px; border-radius: 50%; cursor: pointer; border: 2.5px solid transparent; transition: transform .12s, border-color .12s; }
-.cdot.sel { border-color: var(--text); transform: scale(1.18); }
-
-/* TOAST */
-.toast { position: fixed; bottom: calc(82px + var(--sb)); left: 50%; transform: translateX(-50%) translateY(10px); background: rgba(20,20,40,.9); color: #fff; padding: 11px 18px; border-radius: 14px; font-size: 14px; font-weight: 500; z-index: 9999; opacity: 0; transition: opacity .25s, transform .25s; pointer-events: none; backdrop-filter: blur(16px); max-width: 92vw; text-align: center; border: 1px solid rgba(255,255,255,.15); }
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* PHOTO */
-.photobox { width: 64px; height: 64px; border-radius: 50%; background: var(--glass); border: 2px dashed var(--glass-border); display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; overflow: hidden; flex-shrink: 0; }
-.photobox img { width: 100%; height: 100%; object-fit: cover; }
-
-/* EMPTY STATE */
-.empty { text-align: center; padding: 48px 20px; color: var(--text3); }
-.empty svg { margin-bottom: 12px; opacity: .4; }
-.empty-t { font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
-.empty-s { font-size: 14px; }
-
-/* CELEBRATION */
-.celeb-ov { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(0,0,0,.55); backdrop-filter: blur(14px); opacity: 0; pointer-events: none; transition: opacity .28s; }
-.celeb-ov.show { opacity: 1; pointer-events: all; }
-.celeb-face { color: #fff; animation: bounce .55s ease infinite alternate; }
-.celeb-txt { color: #fff; font-size: 19px; font-weight: 700; margin-top: 16px; text-align: center; padding: 0 28px; line-height: 1.4; }
-.celeb-sub { color: rgba(255,255,255,.5); font-size: 13px; margin-top: 8px; }
-.conf { position: absolute; border-radius: 2px; animation: fall linear forwards; }
-@keyframes bounce { from { transform: translateY(0) rotate(-6deg); } to { transform: translateY(-16px) rotate(6deg); } }
-@keyframes fall { 0% { transform: translateY(-30px) rotate(0); opacity: 1; } 100% { transform: translateY(100vh) rotate(800deg); opacity: 0; } }
-
-/* SLOT MACHINE OVERLAY */
-.slot-ov { position: fixed; inset: 0; z-index: 8500; background: rgba(0,0,0,.65); backdrop-filter: blur(16px); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .3s; }
-.slot-ov.show { opacity: 1; pointer-events: all; }
-.slot-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 22px; padding: 28px 24px; width: 88%; max-width: 340px; backdrop-filter: blur(24px); box-shadow: 0 20px 60px rgba(0,0,0,.4); }
-.slot-title { font-size: 18px; font-weight: 700; text-align: center; margin-bottom: 20px; color: var(--text); }
-.slot-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; background: rgba(0,0,0,.06); border-radius: 12px; padding: 10px 14px; border: 1px solid var(--sep); overflow: hidden; }
-.slot-task { font-size: 14px; font-weight: 600; flex: 1; color: var(--text); }
-.slot-name-wrap { width: 80px; overflow: hidden; height: 22px; position: relative; }
-.slot-reel { display: flex; flex-direction: column; position: absolute; top: 0; width: 100%; transition: top .05s linear; }
-.slot-name-item { height: 22px; font-size: 13px; font-weight: 700; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 22px; }
-.slot-sub { font-size: 13px; color: var(--text3); text-align: center; margin-top: 16px; }
-
-/* NOTIF OVERLAY */
-.notif-ov { position: fixed; inset: 0; z-index: 8000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.4); backdrop-filter: blur(10px); opacity: 0; pointer-events: none; transition: opacity .25s; }
-.notif-ov.show { opacity: 1; pointer-events: all; }
-.notif-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(28px); border-radius: 22px; padding: 28px 22px 22px; max-width: 320px; width: 88%; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
-
-/* CHANGELOG OVERLAY */
-.chlog-ov { position: fixed; inset: 0; z-index: 9000; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,.5); backdrop-filter: blur(12px); opacity: 0; pointer-events: none; transition: opacity .3s; }
-.chlog-ov.show { opacity: 1; pointer-events: all; }
-.chlog-card { background: var(--glass); border: 1px solid var(--glass-border); backdrop-filter: blur(28px); border-radius: 22px; padding: 28px 22px 22px; max-width: 340px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.3); max-height: 80dvh; overflow-y: auto; }
-
-/* ADMIN ROW */
-.admin-row { background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.18); border-radius: 14px; padding: 12px 14px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: background .15s; }
-.admin-row:active { background: rgba(239,68,68,.14); }
-
-/* ONBOARDING */
-.onboard { position: fixed; inset: 0; z-index: 10000; background: linear-gradient(135deg, var(--bg-from), var(--bg-to)); display: flex; flex-direction: column; padding: env(safe-area-inset-top,24px) 20px 20px; overflow-y: auto; }
-.onboard.hidden { display: none; }
-.ob-card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 16px; margin-bottom: 10px; cursor: pointer; transition: all .15s; backdrop-filter: blur(16px); display: flex; align-items: center; gap: 14px; box-shadow: var(--glass-shadow); }
-.ob-card:active { transform: scale(.99); }
-.ob-icon { width: 44px; height: 44px; border-radius: 14px; background: rgba(91,91,214,.15); display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: var(--acc); border: 1px solid rgba(91,91,214,.2); }
-
-/* SUB INPUT */
-.subrow { display: flex; gap: 7px; margin-top: 8px; }
-.subrow input { flex: 1; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 10px; padding: 10px 12px; font-size: 14px; color: var(--text); font-family: inherit; outline: none; backdrop-filter: blur(10px); }
-.subrow button { background: var(--acc); color: #fff; border: none; border-radius: 10px; padding: 10px 14px; display: flex; align-items: center; cursor: pointer; }
-.sub-tag { display: flex; align-items: center; gap: 7px; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 10px; padding: 8px 10px; margin-top: 6px; backdrop-filter: blur(10px); }
-
-/* DRAG CAT */
-.drag-ch { color: var(--text3); cursor: grab; touch-action: none; opacity: .45; display: flex; align-items: center; }
-.cat-blk { transition: opacity .12s; }
-.cat-blk.dragging { opacity: .35; }
-
-/* PROFILE PHOTO */
-.profile-photo-ring { width: 72px; height: 72px; border-radius: 50%; border: 2px solid var(--glass-border); padding: 2px; cursor: pointer; overflow: hidden; flex-shrink: 0; background: var(--glass); backdrop-filter: blur(10px); }
-.profile-photo-ring img, .profile-photo-ring div { width: 100%; height: 100%; border-radius: 50%; }
+/* Score bar */
+.score-bar{height:4px;border-radius:2px;margin-top:6px;overflow:hidden;background:var(--sep);}
+.score-fill{height:100%;border-radius:2px;transition:width .4s;}
 </style>
 </head>
 <body>
 
 <!-- ONBOARDING -->
 <div class="onboard" id="onboard">
-  <div style="margin: 20px 0 12px; color: var(--acc)">
-    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-  </div>
+  <div style="margin:20px 0 12px;color:var(--acc)"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
   <div style="font-size:28px;font-weight:800;letter-spacing:-.6px;margin-bottom:6px">TaskFlow</div>
   <div style="font-size:15px;color:var(--text3);line-height:1.55;margin-bottom:28px">Gemeinsam mehr erledigen.</div>
-
   <div id="ob1">
     <label class="fl" style="margin-bottom:8px">Dein Name</label>
     <input class="fi" id="ob-name" placeholder="Name eingeben…" style="margin-bottom:14px;font-size:17px" onkeydown="if(event.key==='Enter')obNext()">
     <button class="btn btn-p" onclick="obNext()">Weiter</button>
   </div>
   <div id="ob2" style="display:none">
-    <div class="ob-card" onclick="obChoose('solo')">
-      <div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-      <div><div style="font-size:15px;font-weight:700;margin-bottom:3px">Nur für mich</div><div style="font-size:13px;color:var(--text3)">Aufgaben nur für dich</div></div>
-    </div>
-    <div class="ob-card" onclick="obChoose('create')">
-      <div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>
-      <div><div style="font-size:15px;font-weight:700;margin-bottom:3px">Neue Gruppe erstellen</div><div style="font-size:13px;color:var(--text3)">z.B. Haushalt, Familie oder Team</div></div>
-    </div>
-    <div class="ob-card" onclick="obChoose('join')">
-      <div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
-      <div><div style="font-size:15px;font-weight:700;margin-bottom:3px">Gruppe beitreten</div><div style="font-size:13px;color:var(--text3)">Mit Einladungscode</div></div>
-    </div>
+    <div class="ob-card" onclick="obChoose('solo')"><div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div style="font-size:15px;font-weight:700;margin-bottom:3px">Nur für mich</div><div style="font-size:13px;color:var(--text3)">Aufgaben nur für dich</div></div></div>
+    <div class="ob-card" onclick="obChoose('create')"><div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div><div style="font-size:15px;font-weight:700;margin-bottom:3px">Neue Gruppe erstellen</div><div style="font-size:13px;color:var(--text3)">z.B. Haushalt, Familie oder Team</div></div></div>
+    <div class="ob-card" onclick="obChoose('join')"><div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><div><div style="font-size:15px;font-weight:700;margin-bottom:3px">Gruppe beitreten</div><div style="font-size:13px;color:var(--text3)">Mit Einladungscode</div></div></div>
     <button class="btn btn-g" style="display:block;margin-top:8px" onclick="showOb(1)">← Zurück</button>
   </div>
   <div id="ob3c" style="display:none">
@@ -469,10 +267,10 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
     </div>
   </div>
 
-  <!-- PAGES: 3 Tabs → width 300%, each page 33.333% -->
+  <!-- PAGES: 4 tabs, 25% each -->
   <div id="pgwrap" class="pages-wrap">
 
-    <!-- PAGE 0: MEINE (ersetzt "Alle" + alte "Meine") -->
+    <!-- PAGE 0: MEINE -->
     <div class="page" id="pgMy">
       <div style="padding:10px 14px 4px">
         <div class="seg" id="myFilterSeg">
@@ -487,9 +285,7 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
 
     <!-- PAGE 1: POOL -->
     <div class="page" id="pgPool">
-      <div style="padding:10px 14px 4px">
-        <div class="seg" id="poolFbar"></div>
-      </div>
+      <div style="padding:10px 14px 4px"><div class="seg" id="poolFbar"></div></div>
       <div style="padding:4px 14px 8px">
         <button class="btn btn-p" onclick="shufflePool()" style="gap:8px;font-size:14px">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
@@ -510,9 +306,17 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
       <div id="calList"></div>
     </div>
 
+    <!-- PAGE 3: VOTE -->
+    <div class="page" id="pgVote">
+      <div style="padding:14px 14px 6px">
+        <div style="font-size:13px;color:var(--text3);line-height:1.55">Bewerte wie unangenehm du jede Aufgabe findest.<br>Skala: <b>1</b> = easy 😎 → <b>10</b> = absolute Qual 💩</div>
+      </div>
+      <div id="voteContainer"></div>
+    </div>
+
   </div><!-- end pages-wrap -->
 
-  <!-- TABS: 3 Tabs -->
+  <!-- TABS: 4 tabs -->
   <div class="tabs">
     <div class="tab active" onclick="switchTab(0)" id="t0">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
@@ -526,34 +330,28 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
       <span class="tab-lbl">Kalender</span>
     </div>
+    <div class="tab" onclick="switchTab(3)" id="t3" style="display:none">
+      <div class="tab-iw">
+        <span class="vote-badge"></span>
+        <!-- poop emoji icon -->
+        <span style="font-size:18px;line-height:1">💩</span>
+      </div>
+      <span class="tab-lbl">Vote</span>
+    </div>
   </div>
   <button class="fab" id="fabBtn" onclick="showAddTask()">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
-</div><!-- end app -->
+</div>
 
 <!-- OVERLAYS -->
 <div class="toast" id="toast"></div>
-
-<!-- CELEBRATION -->
 <div class="celeb-ov" id="celebOv" onclick="closeceleb()">
   <div id="confWrap" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
   <div class="celeb-face" id="celebFace"></div>
   <div class="celeb-txt" id="celebTxt"></div>
   <div class="celeb-sub">Tippe um fortzufahren</div>
 </div>
-
-<!-- NOTIF OVERLAY -->
-<div class="notif-ov" id="notifOv" onclick="closeNotifOv()">
-  <div class="notif-card" onclick="e=>e.stopPropagation()">
-    <div id="notifIcon" style="margin-bottom:10px;color:var(--acc)"></div>
-    <div id="notifTitle" style="font-size:17px;font-weight:700;margin-bottom:7px"></div>
-    <div id="notifMsg" style="font-size:14px;color:var(--text2);line-height:1.55;margin-bottom:18px"></div>
-    <button class="btn btn-p" onclick="closeNotifOv()">OK!</button>
-  </div>
-</div>
-
-<!-- SLOT MACHINE -->
 <div class="slot-ov" id="slotOv" onclick="closeSlot()">
   <div class="slot-card" onclick="event.stopPropagation()">
     <div class="slot-title">Aufgaben werden verteilt…</div>
@@ -561,8 +359,6 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
     <div class="slot-sub" id="slotSub">Die Würfel fallen…</div>
   </div>
 </div>
-
-<!-- CHANGELOG -->
 <div class="chlog-ov" id="chlogOv">
   <div class="chlog-card">
     <div style="font-size:20px;font-weight:800;margin-bottom:4px">Neu in TaskFlow</div>
@@ -601,9 +397,17 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
       </div>
     </div>
     <div class="fg" id="assigneeWrap" style="display:none"><label class="fl">Zuständig</label><select class="fsel" id="fAssignee"></select></div>
-    <div class="fg" id="sharedUsersWrap" style="display:none">
-      <label class="fl">Sichtbar für</label>
-      <div id="sharedUsersList"></div>
+    <div class="fg" id="sharedUsersWrap" style="display:none"><label class="fl">Sichtbar für</label><div id="sharedUsersList"></div></div>
+    <!-- VOTING TOGGLE — only shown for pool tasks -->
+    <div class="fg" id="votingWrap" style="display:none">
+      <label class="fl">Scheißigkeits-Voting</label>
+      <div style="display:flex;align-items:center;gap:14px;padding:10px 0">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px">Voting aktivieren 💩</div>
+          <div style="font-size:12px;color:var(--text3)">Alle Nutzer bewerten diese Aufgabe 1–10</div>
+        </div>
+        <button class="tog" id="fVotingTog" onclick="toggleVoting(this)"></button>
+      </div>
     </div>
     <div class="fg">
       <label class="fl">Unteraufgaben</label>
@@ -623,55 +427,18 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
   <div class="sheet">
     <div class="handle"></div>
     <div class="mhdr"><div class="mtitle">Profil & Einstellungen</div><span class="mclose" onclick="closeProfile()">Fertig</span></div>
-
-    <div class="fg">
-      <label class="fl">App-Design</label>
-      <div class="seg" id="themeSeg">
-        <button class="seg-b on" onclick="setTheme('',this)">Hell</button>
-        <button class="seg-b" onclick="setTheme('th-dark',this)">Dunkel</button>
-        <button class="seg-b" onclick="setTheme('th-warm',this)">Warm</button>
-      </div>
-    </div>
-
-    <div class="fg">
-      <label class="fl">Mein Profil</label>
-      <div style="display:flex;align-items:center;gap:14px">
-        <div class="profile-photo-ring" id="profPhotoWrap" onclick="document.getElementById('profPhotoInp').click()"></div>
-        <input type="file" id="profPhotoInp" accept="image/*" style="display:none" onchange="handlePhoto(this)">
-        <div style="flex:1"><input class="fi" id="profName" placeholder="Name…"></div>
-      </div>
-    </div>
-
+    <div class="fg"><label class="fl">App-Design</label><div class="seg" id="themeSeg"><button class="seg-b on" onclick="setTheme('',this)">Hell</button><button class="seg-b" onclick="setTheme('th-dark',this)">Dunkel</button><button class="seg-b" onclick="setTheme('th-warm',this)">Warm</button></div></div>
+    <div class="fg"><label class="fl">Mein Profil</label><div style="display:flex;align-items:center;gap:14px"><div class="profile-photo-ring" id="profPhotoWrap" onclick="document.getElementById('profPhotoInp').click()"></div><input type="file" id="profPhotoInp" accept="image/*" style="display:none" onchange="handlePhoto(this)"><div style="flex:1"><input class="fi" id="profName" placeholder="Name…"></div></div></div>
     <div class="fg"><label class="fl">Meine Farbe</label><div class="cgrid" id="myColorGrid"></div></div>
     <div class="fg" id="otherColorsSection"></div>
     <div class="fg" id="groupSection"></div>
-
     <div class="fg">
       <label class="fl">Eigene Kategorien</label>
       <div id="catList" style="margin-bottom:8px"></div>
-      <div style="display:flex;gap:7px">
-        <input class="fi" id="newCatEmoji" placeholder="😀" style="width:50px;text-align:center;padding:10px 6px">
-        <input class="fi" id="newCatName" placeholder="Name…" style="flex:1">
-        <button class="btn" style="background:var(--acc);color:#fff;padding:10px 12px;font-size:18px;border-radius:12px;display:flex;align-items:center" onclick="addCat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-      </div>
+      <div style="display:flex;gap:7px"><input class="fi" id="newCatEmoji" placeholder="😀" style="width:50px;text-align:center;padding:10px 6px"><input class="fi" id="newCatName" placeholder="Name…" style="flex:1"><button class="btn" style="background:var(--acc);color:#fff;padding:10px 12px;font-size:18px;border-radius:12px;display:flex;align-items:center" onclick="addCat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button></div>
     </div>
-
-    <div class="fg">
-      <label class="fl">Daten</label>
-      <button class="btn btn-d" style="font-size:14px;gap:6px;margin-bottom:8px" onclick="resetTasks()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-        Alle Aufgaben zurücksetzen
-      </button>
-    </div>
-
-    <div class="fg">
-      <div class="admin-row" onclick="openAdmin()">
-        <div style="color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-        <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--red)">Admin-Bereich</div><div style="font-size:12px;color:var(--text3)">Nur mit PIN</div></div>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><polyline points="9 18 15 12 9 6"/></svg>
-      </div>
-    </div>
-
+    <div class="fg"><label class="fl">Daten</label><button class="btn btn-d" style="font-size:14px;gap:6px;margin-bottom:8px" onclick="resetTasks()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>Alle Aufgaben zurücksetzen</button></div>
+    <div class="fg"><div class="admin-row" onclick="openAdmin()"><div style="color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--red)">Admin-Bereich</div><div style="font-size:12px;color:var(--text3)">Nur mit PIN</div></div><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><polyline points="9 18 15 12 9 6"/></svg></div></div>
     <div style="padding:0 16px 8px"><button class="btn btn-p" onclick="saveProfile()">Speichern</button></div>
     <div style="padding:0 16px 8px" id="leaveGroupWrap"></div>
     <div style="padding:0 16px 16px"><button class="btn btn-d" onclick="deleteAccount()">Account löschen</button></div>
@@ -682,16 +449,9 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
 <div class="ov" id="adminModal">
   <div class="sheet">
     <div class="handle"></div>
-    <div class="mhdr">
-      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Admin</div>
-      <span class="mclose" onclick="closeAdmin()">Schließen</span>
-    </div>
+    <div class="mhdr"><div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin</div><span class="mclose" onclick="closeAdmin()">Schließen</span></div>
     <div id="adminContent">
-      <div class="fg">
-        <label class="fl">PIN</label>
-        <input class="fi" id="adminPin" type="password" placeholder="PIN eingeben…" inputmode="numeric" maxlength="12">
-        <div style="margin-top:10px"><button class="btn btn-p" onclick="verifyAdmin()">Bestätigen</button></div>
-      </div>
+      <div class="fg"><label class="fl">PIN</label><input class="fi" id="adminPin" type="password" placeholder="PIN eingeben…" inputmode="numeric" maxlength="12"><div style="margin-top:10px"><button class="btn btn-p" onclick="verifyAdmin()">Bestätigen</button></div></div>
     </div>
   </div>
 </div>
@@ -699,10 +459,7 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
 <!-- TASK DETAIL -->
 <div class="dov" id="taskDetail">
   <div class="dnav">
-    <span class="back" onclick="closeDetail()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
-      Zurück
-    </span>
+    <span class="back" onclick="closeDetail()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Zurück</span>
     <span style="flex:1"></span>
     <span style="color:var(--acc);cursor:pointer;font-size:15px;font-weight:600" onclick="editCurrent()">Bearbeiten</span>
   </div>
@@ -713,44 +470,46 @@ body.th-dark .b-rec  { background:rgba(2,132,199,.18);  color:#7DD3FC; }
 // ══════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════
-const DEFAULT_CATS = {Arbeit:'💼',Haushalt:'🏠',Einkauf:'🛒',Gesundheit:'❤️',Freizeit:'🎯',Schule:'📚',Sonstiges:'📌'};
-const ALL_COLORS = ['#5B5BD6','#7C3AED','#DB2777','#DC2626','#EA580C','#CA8A04','#16A34A','#0891B2','#2563EB','#9333EA','#EC4899','#EF4444','#F97316','#EAB308','#22C55E','#06B6D4','#3B82F6','#6366F1','#A855F7','#F43F5E','#FB923C','#FBBF24','#4ADE80','#22D3EE'];
-const PRIO_CLS = {Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn'};
-const CELEB = ['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
-// 3 Tabs now
-const NAV_TITLES = ['Meine','Pool','Kalender'];
+const DEFAULT_CATS={Arbeit:'💼',Haushalt:'🏠',Einkauf:'🛒',Gesundheit:'❤️',Freizeit:'🎯',Schule:'📚',Sonstiges:'📌'};
+const ALL_COLORS=['#5B5BD6','#7C3AED','#DB2777','#DC2626','#EA580C','#CA8A04','#16A34A','#0891B2','#2563EB','#9333EA','#EC4899','#EF4444','#F97316','#EAB308','#22C55E','#06B6D4','#3B82F6','#6366F1','#A855F7','#F43F5E','#FB923C','#FBBF24','#4ADE80','#22D3EE'];
+const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn'};
+const CELEB=['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
+const NAV_TITLES=['Meine','Pool','Kalender','Vote 💩'];
+// poop colors by score range
+function poopCls(s){if(!s)return'';const n=Math.round(s);if(n<=3)return'poop-'+n;if(n<=6)return'poop-'+n;return'poop-'+Math.min(n,10);}
+function poopColor(s){if(!s)return'#9CA3AF';if(s<=3)return'#16A34A';if(s<=6)return'#D97706';return'#DC2626';}
 
-// SVG ICONS
-const I = {
-  check: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
-  chevR: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
-  grip: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>`,
-  cal: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
-  rep: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
-  alert: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
-  user: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-  shuf: `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>`,
-  trash: `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`,
-  edit: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
-  bell: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>`,
-  chkCirc: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
-  inbox: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`,
-  calOff: `<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
-  smile: `<svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
-  users: `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+const I={
+  check:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+  chevR:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>`,
+  grip:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>`,
+  cal:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  rep:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
+  alert:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
+  user:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  shuf:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>`,
+  trash:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`,
+  edit:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
+  chkCirc:`<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`,
+  inbox:`<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`,
+  calOff:`<svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`,
+  smile:`<svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
+  users:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
 };
 
 // ══════════════════════════════════════════
 // STATE
 // ══════════════════════════════════════════
-let me=null, myToken=null, users=[], tasks=[], group=null, appstate={};
-let selPrio='Mittel', selType='mine', newSubs=[], sharedUsers=new Set();
-let editingId=null, detailId=null;
-let calY=new Date().getFullYear(), calM=new Date().getMonth(), calDay=null;
-let profilePhoto=null, pollHash=null, pollTimer=null, curTab=0;
-// myFilter now drives "Meine" tab: open|done|all|cats
+let me=null,myToken=null,users=[],tasks=[],group=null,appstate={};
+let selPrio='Mittel',selType='mine',newSubs=[],sharedUsers=new Set();
+let selVoting=false; // new: voting toggle state
+let editingId=null,detailId=null;
+let calY=new Date().getFullYear(),calM=new Date().getMonth(),calDay=null;
+let profilePhoto=null,pollHash=null,pollTimer=null,curTab=0;
 let myFilter='open';
 let adminPin=null;
+// pendingVotes: { taskId: score } — temp before save
+let pendingVotes={};
 
 // ══════════════════════════════════════════
 // API
@@ -769,85 +528,47 @@ async function api(method,path,body){
 async function init(){
   myToken=localStorage.getItem('tf_token');
   if(myToken){
-    try{
-      me=await api('GET','/users/me');
-      await loadAll();
-      showApp();
-      startPolling();
-      await checkChangelog();
-      await checkNewTasks();
-      return;
-    }catch(e){localStorage.removeItem('tf_token');myToken=null;}
+    try{me=await api('GET','/users/me');await loadAll();showApp();startPolling();await checkChangelog();await checkNewTasks();return;}
+    catch(e){localStorage.removeItem('tf_token');myToken=null;}
   }
   showOnboard();
 }
-
 function showOnboard(){document.getElementById('onboard').classList.remove('hidden');document.getElementById('app').style.display='none';}
 function showApp(){document.getElementById('onboard').classList.add('hidden');document.getElementById('app').style.display='block';applyTheme();render();}
 async function loadAll(){
-  [users,tasks,group]=await Promise.all([
-    api('GET','/users'),
-    api('GET','/tasks'),
-    api('GET','/groups/mine').catch(()=>null)
-  ]);
+  [users,tasks,group]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null)]);
   try{appstate=await api('GET','/appstate');}catch(e){appstate={};}
-  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},showDoneAll:false,...appstate};
+  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',...appstate};
   processRecurring();
 }
 async function saveState(){try{await api('POST','/appstate',appstate);}catch(e){}}
 
 // ══════════════════════════════════════════
-// CHANGELOG CHECK
+// CHANGELOG
 // ══════════════════════════════════════════
 async function checkChangelog(){
-  try{
-    const cl=await api('GET','/changelog');
-    const seen=localStorage.getItem('tf_changelog_seen');
-    if(!cl.entries?.length)return;
-    const latest=cl.entries[0];
-    if(seen===latest.version)return;
-    showChangelog(latest);
-    localStorage.setItem('tf_changelog_seen',latest.version);
-  }catch(e){}
+  try{const cl=await api('GET','/changelog');const seen=localStorage.getItem('tf_changelog_seen');if(!cl.entries?.length)return;const latest=cl.entries[0];if(seen===latest.version)return;showChangelog(latest);localStorage.setItem('tf_changelog_seen',latest.version);}catch(e){}
 }
 function showChangelog(entry){
   document.getElementById('chlogVersion').textContent=`Version ${entry.version} · ${entry.date}`;
-  document.getElementById('chlogList').innerHTML=entry.changes.map(c=>`
-    <div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--sep)">
-      <div style="color:var(--acc);margin-top:1px">${I.check}</div>
-      <span style="font-size:14px;line-height:1.4">${c}</span>
-    </div>`).join('');
+  document.getElementById('chlogList').innerHTML=entry.changes.map(c=>`<div style="display:flex;align-items:flex-start;gap:10px;padding:7px 0;border-bottom:1px solid var(--sep)"><div style="color:var(--acc);margin-top:1px">${I.check}</div><span style="font-size:14px;line-height:1.4">${c}</span></div>`).join('');
   document.getElementById('chlogOv').classList.add('show');
 }
 function closeChangelog(){document.getElementById('chlogOv').classList.remove('show');}
 
-// ══════════════════════════════════════════
-// NEW TASKS CHECK
-// ══════════════════════════════════════════
 async function checkNewTasks(){
   try{
-    const lastVisit=me.lastVisit?new Date(me.lastVisit):null;
-    if(!lastVisit)return;
-    const today=new Date(); today.setHours(0,0,0,0);
-    const tomorrow=new Date(today); tomorrow.setDate(tomorrow.getDate()+1);
-    const newTasks=tasks.filter(t=>{
-      if(t.done)return false;
-      const created=new Date(t.createdAt||0);
-      const isNew=created>lastVisit;
-      const dueToday=t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime();
-      const dueTomorrow=t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===tomorrow.getTime();
-      return(isNew&&visibleToMe(t))||(dueToday&&visibleToMe(t))||(dueTomorrow&&visibleToMe(t));
-    });
-    if(!newTasks.length)return;
-    const msgs=[];
-    const created=newTasks.filter(t=>new Date(t.createdAt||0)>lastVisit&&visibleToMe(t));
-    if(created.length)msgs.push(`${created.length} neue Aufgabe${created.length>1?'n':''}`);
-    const today2=new Date(); today2.setHours(0,0,0,0);
-    const dueToday2=newTasks.filter(t=>t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today2.getTime());
-    if(dueToday2.length)msgs.push(`${dueToday2.length} fällig heute`);
+    const lastVisit=me.lastVisit?new Date(me.lastVisit):null;if(!lastVisit)return;
+    const today=new Date();today.setHours(0,0,0,0);
+    const tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);
+    const newT=tasks.filter(t=>{if(t.done)return false;const cr=new Date(t.createdAt||0);const isNew=cr>lastVisit;const dueToday=t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime();return(isNew&&visibleToMe(t))||(dueToday&&visibleToMe(t));});
+    if(!newT.length)return;
+    const msgs=[];const cr2=newT.filter(t=>new Date(t.createdAt||0)>lastVisit&&visibleToMe(t));
+    if(cr2.length)msgs.push(`${cr2.length} neue Aufgabe${cr2.length>1?'n':''}`);
+    const dT=newT.filter(t=>t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime());
+    if(dT.length)msgs.push(`${dT.length} fällig heute`);
     if(msgs.length)showToast(msgs.join(' · '));
-    const badge=document.getElementById('ndot');
-    if(badge&&newTasks.length)badge.style.display='block';
+    const badge=document.getElementById('ndot');if(badge&&newT.length)badge.style.display='block';
   }catch(e){}
 }
 
@@ -857,72 +578,44 @@ async function checkNewTasks(){
 function startPolling(){
   if(pollTimer)clearInterval(pollTimer);
   pollTimer=setInterval(async()=>{
-    try{
-      const r=await api('GET','/poll');
-      if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}
-      document.getElementById('ndot').style.display=r.hasNotifications?'block':'none';
-      if(r.hasNotifications)checkNotifs();
-    }catch(e){}
+    try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}document.getElementById('ndot').style.display=r.hasNotifications?'block':'none';if(r.hasNotifications)checkNotifs();}catch(e){}
   },5000);
 }
 async function checkNotifs(){
-  try{
-    const ns=await api('GET','/users/notifications');
-    if(ns?.length){showToast(ns[0].text||ns[0].message||'');await api('DELETE','/users/notifications');document.getElementById('ndot').style.display='none';}
-  }catch(e){}
+  try{const ns=await api('GET','/users/notifications');if(ns?.length){showToast(ns[0].text||ns[0].message||'');await api('DELETE','/users/notifications');document.getElementById('ndot').style.display='none';}}catch(e){}
 }
-function closeNotifOv(){document.getElementById('notifOv').classList.remove('show');}
 
 // ══════════════════════════════════════════
 // THEME
 // ══════════════════════════════════════════
 function applyTheme(){
-  const theme=me?.theme||'';
-  document.body.className=theme;
+  const theme=me?.theme||'';document.body.className=theme;
   const colors={'':'#e8eeff','th-dark':'#0a0a18','th-warm':'#fff8ec'};
   document.documentElement.style.background=colors[theme]||'#e8eeff';
-  const meta=document.getElementById('themeColorMeta');
-  if(meta)meta.setAttribute('content',colors[theme]||'#e8eeff');
-  const map={'':'0','th-dark':'1','th-warm':'2'};
-  const idx=parseInt(map[theme]||0);
+  const meta=document.getElementById('themeColorMeta');if(meta)meta.setAttribute('content',colors[theme]||'#e8eeff');
+  const map={'':'0','th-dark':'1','th-warm':'2'};const idx=parseInt(map[theme]||0);
   document.querySelectorAll('#themeSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',i===idx));
 }
-function setTheme(cls,btn){
-  me.theme=cls;applyTheme();
-  document.querySelectorAll('#themeSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
-}
+function setTheme(cls,btn){me.theme=cls;applyTheme();document.querySelectorAll('#themeSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
 
 // ══════════════════════════════════════════
-// RECURRING — FIX: tasks stay visible, reset only when period changes
+// RECURRING
 // ══════════════════════════════════════════
 function todayStr(){return new Date().toISOString().split('T')[0];}
 function weekStart(d){const dt=new Date(d+'T00:00:00'),day=dt.getDay(),diff=day===0?-6:1-day;dt.setDate(dt.getDate()+diff);return dt.toISOString().split('T')[0];}
 function monthStr(d){return d.slice(0,7);}
 function yearStr(d){return d.slice(0,4);}
-
 function processRecurring(){
-  const today=todayStr();
-  if(!appstate.recurringLast)appstate.recurringLast={};
-  let changed=false;
+  const today=todayStr();if(!appstate.recurringLast)appstate.recurringLast={};let changed=false;
   tasks.forEach(t=>{
-    if(!t.repeat||t.repeat==='Nie')return;
-    if(!t.done)return; // only reset tasks that ARE done
-    const last=appstate.recurringLast[t._id?.toString()];
-    if(!last)return; // never been completed → don't reset
-    let shouldReset=false;
-    if(t.repeat==='Täglich'&&last<today)shouldReset=true;
-    if(t.repeat==='Wöchentlich'&&weekStart(last)<weekStart(today))shouldReset=true;
-    if(t.repeat==='Monatlich'&&monthStr(last)<monthStr(today))shouldReset=true;
-    if(t.repeat==='Jährlich'&&yearStr(last)<yearStr(today))shouldReset=true;
-    if(shouldReset){
-      // Reset: mark as open again, reset subtasks
-      api('PATCH','/tasks/'+t._id,{done:false,subtasks:(t.subtasks||[]).map(s=>({...s,done:false}))});
-      t.done=false;
-      if(t.subtasks)t.subtasks.forEach(s=>s.done=false);
-      // Remove from recurringLast so it won't reset again until re-completed
-      delete appstate.recurringLast[t._id?.toString()];
-      changed=true;
-    }
+    if(!t.repeat||t.repeat==='Nie'||!t.done)return;
+    const last=appstate.recurringLast[t._id?.toString()];if(!last)return;
+    let reset=false;
+    if(t.repeat==='Täglich'&&last<today)reset=true;
+    if(t.repeat==='Wöchentlich'&&weekStart(last)<weekStart(today))reset=true;
+    if(t.repeat==='Monatlich'&&monthStr(last)<monthStr(today))reset=true;
+    if(t.repeat==='Jährlich'&&yearStr(last)<yearStr(today))reset=true;
+    if(reset){api('PATCH','/tasks/'+t._id,{done:false,subtasks:(t.subtasks||[]).map(s=>({...s,done:false}))});t.done=false;if(t.subtasks)t.subtasks.forEach(s=>s.done=false);delete appstate.recurringLast[t._id?.toString()];changed=true;}
   });
   if(changed)saveState();
 }
@@ -934,97 +627,164 @@ function render(){
   if(!me)return;
   document.getElementById('navUser').textContent=me.name;
   const ab=document.getElementById('avBtn');
-  ab.innerHTML=me.photo
-    ?`<img src="${me.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover"><span class="notif-dot" id="ndot" style="display:none"></span>`
-    :`<span style="font-size:12px;font-weight:700;color:${me.color}">${me.name[0]}</span><span class="notif-dot" id="ndot" style="display:none"></span>`;
-  renderMy();renderPool();renderCalendar();
+  ab.innerHTML=me.photo?`<img src="${me.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover"><span class="notif-dot" id="ndot" style="display:none"></span>`:`<span style="font-size:12px;font-weight:700;color:${me.color}">${me.name[0]}</span><span class="notif-dot" id="ndot" style="display:none"></span>`;
+  renderMy();renderPool();renderCalendar();renderVote();updateVoteTab();
 }
 
-// ── HELPERS ──────────────────────────────
+// ══════════════════════════════════════════
+// VOTE SYSTEM
+// ══════════════════════════════════════════
+
+// A task needs voting if: pool type + votingEnabled=true + not everyone has voted
+function needsMyVote(t){
+  if(!t.votingEnabled||!isPoolTask(t))return false;
+  const myId=me._id?.toString();
+  const votes=t.votes||{};
+  return!votes[myId]; // I haven't voted yet
+}
+function hasFullScore(t){
+  if(!t.votingEnabled||!isPoolTask(t))return false;
+  if(!users.length)return false;
+  const votes=t.votes||{};
+  return users.every(u=>votes[u._id?.toString()]);
+}
+function getScore(t){
+  if(!hasFullScore(t))return null;
+  const votes=Object.values(t.votes||{});
+  if(!votes.length)return null;
+  return Math.round((votes.reduce((a,b)=>a+b,0)/votes.length)*10)/10;
+}
+function scoreBadge(t){
+  const s=getScore(t);if(!s)return'';
+  const col=poopColor(s);
+  return`<span class="badge b-poop" style="color:${col};border-color:${col}30">💩 ${s}</span>`;
+}
+
+function updateVoteTab(){
+  // Show vote tab only if there are tasks pending my vote
+  const pending=tasks.filter(t=>needsMyVote(t));
+  const t3=document.getElementById('t3');
+  if(!t3)return;
+  if(pending.length){
+    t3.style.display='flex';
+    t3.classList.add('has-votes');
+  } else {
+    t3.style.display='none';
+    t3.classList.remove('has-votes');
+    // If we're on the vote tab and nothing to vote on, go back to tab 0
+    if(curTab===3){switchTab(0);}
+  }
+}
+
+function renderVote(){
+  const c=document.getElementById('voteContainer');if(!c)return;
+  const myId=me._id?.toString();
+  const toVote=tasks.filter(t=>needsMyVote(t));
+  if(!toVote.length){
+    c.innerHTML=`<div class="empty"><div style="font-size:48px;margin-bottom:12px">💩</div><div class="empty-t">Alles bewertet!</div><div class="empty-s">Keine offenen Votings für dich.</div></div>`;
+    return;
+  }
+  c.innerHTML=toVote.map(t=>{
+    const tid=t._id?.toString();
+    const myVote=pendingVotes[tid]||0;
+    const allVotes=t.votes||{};
+    const votedCount=Object.keys(allVotes).length;
+    const totalUsers=users.length;
+    // Scale 1-10 buttons
+    const scale=Array.from({length:10},(_,i)=>i+1);
+    const scaleHTML=scale.map(n=>{
+      const pct=n/10;
+      const bg=n<=3?`rgba(34,197,94,${0.15+pct*.4})`:n<=6?`rgba(245,158,11,${0.15+pct*.4})`:`rgba(239,68,68,${0.15+pct*.4})`;
+      const col=n<=3?'#16A34A':n<=6?'#D97706':'#DC2626';
+      const isSel=myVote===n;
+      return`<button class="vote-btn${isSel?' sel':''}" onclick="setVote('${tid}',${n})" style="${isSel?`background:${col};`:`border-color:${col}40;`}${isSel?'':'color:'+col}">${n}</button>`;
+    }).join('');
+    return`<div class="vote-card">
+      <div class="vote-title">${t.title}</div>
+      <div class="vote-meta">
+        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        <span class="badge b-blu">${t.cat}</span>
+        ${t.deadline?`<span style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}
+        <span style="color:var(--text3)">${votedCount}/${totalUsers} bewertet</span>
+      </div>
+      ${t.desc?`<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:10px">${t.desc}</div>`:''}
+      <div class="vote-scale">${scaleHTML}</div>
+      ${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitVote('${tid}')">Abstimmen 💩</button>`:`<div class="vote-pending">Wähle eine Zahl um abzustimmen</div>`}
+    </div>`;
+  }).join('');
+}
+
+function setVote(tid,score){
+  pendingVotes[tid]=score;
+  renderVote();
+}
+
+async function submitVote(tid){
+  const score=pendingVotes[tid];if(!score){showToast('Bitte erst bewerten!');return;}
+  const myId=me._id?.toString();
+  const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;
+  if(!t.votes)t.votes={};
+  t.votes[myId]=score;
+  delete pendingVotes[tid];
+  try{
+    await api('PATCH','/tasks/'+tid,{votes:t.votes});
+    // Check if all votes are in → compute final score
+    if(hasFullScore(t)){
+      const finalScore=getScore(t);
+      t.poopScore=finalScore;
+      await api('PATCH','/tasks/'+tid,{poopScore:finalScore});
+      showToast(`Voting abgeschlossen! Score: 💩 ${finalScore}`);
+    } else {
+      showToast('Stimme abgegeben! 💩');
+    }
+    render();
+  }catch(e){showToast('Fehler: '+e.message);}
+}
+
+// ══════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════
 function allCats(){return{...DEFAULT_CATS,...(appstate.customCats||{})};}
 function uById(id){return users.find(u=>u._id?.toString()===id?.toString());}
-function uColor(assignee){
-  if(!assignee||assignee==='all')return'#9CA3AF';
-  const ovr=me?.colorOverrides?.[assignee];if(ovr)return ovr;
-  return uById(assignee)?.color||'#9CA3AF';
-}
-function avHTML(u,sz=38){
-  if(!u)return`<div class="av" style="width:${sz}px;height:${sz}px;background:#9CA3AF;font-size:${Math.round(sz*.38)}px">?</div>`;
-  if(u.photo)return`<div class="av" style="width:${sz}px;height:${sz}px"><img src="${u.photo}"></div>`;
-  return`<div class="av" style="width:${sz}px;height:${sz}px;background:${uColor(u._id?.toString())};font-size:${Math.round(sz*.38)}px">${u.name?.[0]||'?'}</div>`;
-}
-function prog(t){
-  if(!t.subtasks?.length)return'';
-  const done=t.subtasks.filter(s=>s.done).length,total=t.subtasks.length;
-  return`<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${Math.round(done/total*100)}%"></div></div><span class="prog-lbl">${done}/${total}</span></div>`;
-}
+function uColor(assignee){if(!assignee||assignee==='all')return'#9CA3AF';const ovr=me?.colorOverrides?.[assignee];if(ovr)return ovr;return uById(assignee)?.color||'#9CA3AF';}
+function avHTML(u,sz=38){if(!u)return`<div class="av" style="width:${sz}px;height:${sz}px;background:#9CA3AF;font-size:${Math.round(sz*.38)}px">?</div>`;if(u.photo)return`<div class="av" style="width:${sz}px;height:${sz}px"><img src="${u.photo}"></div>`;return`<div class="av" style="width:${sz}px;height:${sz}px;background:${uColor(u._id?.toString())};font-size:${Math.round(sz*.38)}px">${u.name?.[0]||'?'}</div>`;}
+function prog(t){if(!t.subtasks?.length)return'';const done=t.subtasks.filter(s=>s.done).length,total=t.subtasks.length;return`<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${Math.round(done/total*100)}%"></div></div><span class="prog-lbl">${done}/${total}</span></div>`;}
 function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'});}
 function uid(){return Math.random().toString(36).substr(2,9);}
-function shuffle(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
-// ── TASK TYPE + VISIBILITY ────────────────
+// TASK TYPE + VISIBILITY
 function isPoolTask(t){return t.type==='pool'||t.inPool;}
 function isSharedTask(t){return t.type==='shared';}
 function isMyTask(t){return t.type==='mine'||(!isPoolTask(t)&&!isSharedTask(t));}
-
-function visibleToMe(t){
-  const myId=me._id?.toString();
-  if(isMyTask(t))return t.assignee===myId;
-  if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
-  if(isPoolTask(t))return true;
-  return false;
-}
-function canComplete(t){
-  const myId=me._id?.toString();
-  if(isMyTask(t))return t.assignee===myId;
-  if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
-  if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===myId;}
-  return false;
-}
-
-// showInMy: everything that concerns me (mine + shared + pool assigned to me)
+function visibleToMe(t){const myId=me._id?.toString();if(isMyTask(t))return t.assignee===myId;if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;if(isPoolTask(t))return true;return false;}
+function canComplete(t){const myId=me._id?.toString();if(isMyTask(t))return t.assignee===myId;if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===myId;}return false;}
 function showInMy(t){
   const myId=me._id?.toString();
   if(isMyTask(t))return t.assignee===myId;
   if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
-  if(isPoolTask(t)){
-    // Show pool task in "Meine" if I am the main assignee OR if any subtask is assigned to me
-    const a=appstate.poolAssigns?.[t._id?.toString()];
-    if(a?.assignedUser===myId)return true;
-    if(a?.subtaskAssignments){
-      return Object.values(a.subtaskAssignments).some(uid=>uid===myId);
-    }
-    return false;
-  }
+  if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];if(a?.assignedUser===myId)return true;if(a?.subtaskAssignments)return Object.values(a.subtaskAssignments).some(uid=>uid===myId);return false;}
   return false;
 }
 
-// Task HTML
+// TASK HTML
 function taskHTML(t,showBar=false){
   const asgn=isPoolTask(t)?appstate.poolAssigns?.[t._id?.toString()]:null;
   const effId=asgn?.assignedUser||t.assignee;
-  const col=uColor(effId);
-  const u=isPoolTask(t)?uById(effId):uById(t.assignee);
+  const col=uColor(effId);const u=isPoolTask(t)?uById(effId):uById(t.assignee);
   const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();
   const aname=u?u.name:(t.assignee==='all'?'Alle':'');
   const creatorNote=isMyTask(t)&&t.creatorId&&t.creatorId!==t.assignee?uById(t.creatorId)?.name:'';
   const canDo=canComplete(t);
   const chkClick=canDo?`event.stopPropagation();toggleTask('${t._id}',true)`:`event.stopPropagation();showToast('Nicht deine Aufgabe')`;
-
-  // For pool tasks in "Meine": show only my subtasks
+  // My subtasks in pool
   let mySubsHtml='';
   if(isPoolTask(t)&&asgn?.subtaskAssignments&&t.subtasks?.length){
     const myId=me._id?.toString();
     const mySubs=t.subtasks.filter(s=>asgn.subtaskAssignments[s.id]===myId);
     if(mySubs.length){
-      mySubsHtml=`<div style="margin-top:4px">`+
-        mySubs.map(s=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:${s.done?'var(--text3)':'var(--text2)'};${s.done?'text-decoration:line-through;':''}padding:1px 0">
-          <div class="sub-chk${s.done?' done':''}" onclick="event.stopPropagation();toggleSubInline('${t._id}','${s.id}')" style="width:14px;height:14px">${s.done?I.check:''}</div>
-          ${s.title}
-        </div>`).join('')+`</div>`;
+      mySubsHtml=`<div style="margin-top:4px">`+mySubs.map(s=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:${s.done?'var(--text3)':'var(--text2)'};${s.done?'text-decoration:line-through;':''}padding:1px 0"><div class="sub-chk${s.done?' done':''}" onclick="event.stopPropagation();toggleSubInline('${t._id}','${s.id}')" style="width:14px;height:14px">${s.done?I.check:''}</div>${s.title}</div>`).join('')+`</div>`;
     }
   }
-
   return`<div class="task-item" id="ti-${t._id}" onclick="openDetail('${t._id}')">
     ${showBar?`<div class="color-bar" style="background:${col}"></div>`:''}
     <div class="chk${t.done?' done':''}${!canDo?' locked':''}" onclick="${chkClick}" style="${!canDo?'opacity:.45;cursor:not-allowed;':''}">${t.done?I.check:''}</div>
@@ -1035,84 +795,45 @@ function taskHTML(t,showBar=false){
         ${isSharedTask(t)?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.users} ${[(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'';}).filter(Boolean),(t.creatorId&&t.creatorId!==me._id?.toString()?[uById(t.creatorId)?.name].filter(Boolean):[])].flat().filter((v,i,a)=>a.indexOf(v)===i).join(', ')||'gemeinsam'}</span>`:''}
         ${t.deadline?`<span style="display:inline-flex;align-items:center;gap:3px;color:${overdue?'var(--red)':'var(--text3)'}">${I.cal} ${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span>`:''}
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
+        ${scoreBadge(t)}
         ${showBar&&aname?`<span style="color:${col};font-weight:600">${aname}</span>`:''}
         ${creatorNote?`<span style="color:var(--text3);font-size:10px">von ${creatorNote}</span>`:''}
+        ${t.votingEnabled&&!hasFullScore(t)?`<span class="badge b-ora" style="display:inline-flex;align-items:center;gap:3px">💩 Voting läuft…</span>`:''}
       </div>
-      ${mySubsHtml}
-      ${prog(t)}
+      ${mySubsHtml}${prog(t)}
     </div>
     <span style="color:var(--text3)">${I.chevR}</span>
   </div>`;
 }
 
-// Inline subtask toggle from task list
-async function toggleSubInline(tid,sid){
-  const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;
-  const s=t.subtasks?.find(s=>s.id===sid);if(!s)return;
-  s.done=!s.done;
-  try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();}catch(e){s.done=!s.done;showToast('Fehler');}
-}
+async function toggleSubInline(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(!s)return;s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();}catch(e){s.done=!s.done;showToast('Fehler');}}
 
-// ── MY PAGE — now shows everything (mine+shared+pool) with filter ──
-function setMyFilter(f,btn){
-  myFilter=f;
-  document.querySelectorAll('#myFilterSeg .seg-b').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  renderMy();
-}
-
+// ── MY PAGE ──
+function setMyFilter(f,btn){myFilter=f;document.querySelectorAll('#myFilterSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderMy();}
 function renderMy(){
   const c=document.getElementById('myContainer');
-
   if(myFilter==='cats'){
-    // Kategorie-Ansicht: alle offenen Aufgaben die mich betreffen, gruppiert nach Kategorie
     const myTasks=tasks.filter(t=>showInMy(t)&&!t.done);
-    if(!myTasks.length){
-      c.innerHTML=`<div class="empty"><div>${I.chkCirc}</div><div class="empty-t">Alles erledigt!</div><div class="empty-s">Keine offenen Aufgaben für dich.</div></div>`;return;
-    }
+    if(!myTasks.length){c.innerHTML=`<div class="empty"><div>${I.chkCirc}</div><div class="empty-t">Alles erledigt!</div><div class="empty-s">Keine offenen Aufgaben für dich.</div></div>`;return;}
     const catSet=[...new Set(myTasks.map(t=>isPoolTask(t)?'Pool':t.cat))];
-    const ord=(appstate.catOrder||[]).filter(c=>catSet.includes(c));
-    catSet.forEach(c=>{if(!ord.includes(c))ord.push(c);});
+    const ord=(appstate.catOrder||[]).filter(c=>catSet.includes(c));catSet.forEach(c=>{if(!ord.includes(c))ord.push(c);});
     let html='';
     ord.forEach(cat=>{
-      const ct=cat==='Pool'?myTasks.filter(t=>isPoolTask(t)):myTasks.filter(t=>!isPoolTask(t)&&t.cat===cat);
-      if(!ct.length)return;
+      const ct=cat==='Pool'?myTasks.filter(t=>isPoolTask(t)):myTasks.filter(t=>!isPoolTask(t)&&t.cat===cat);if(!ct.length)return;
       const hasShared=ct.some(t=>isSharedTask(t));
-      html+=`<div class="cat-blk" data-cat="${cat}">`;
-      html+=`<div class="sec"><span class="drag-ch">${I.grip}</span>${cat}`;
-      if(cat==='Pool')html+=` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">Pool</span>`;
-      else if(hasShared)html+=` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">gemeinsam</span>`;
-      html+=`</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,isSharedTask(t)||isPoolTask(t))).join('')}</div></div>`;
+      html+=`<div class="cat-blk" data-cat="${cat}"><div class="sec"><span class="drag-ch">${I.grip}</span>${cat}${cat==='Pool'?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">Pool</span>`:hasShared?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">gemeinsam</span>`:''}</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,isSharedTask(t)||isPoolTask(t))).join('')}</div></div>`;
     });
-    c.innerHTML=html;
-    initCatDrag();
-    return;
+    c.innerHTML=html;initCatDrag();return;
   }
-
-  // open / done / all filter
-  let list=tasks.filter(t=>{
-    if(!showInMy(t))return false;
-    if(myFilter==='open')return!t.done;
-    if(myFilter==='done')return t.done;
-    return true; // 'all'
-  });
-
-  if(!list.length){
-    const msg=myFilter==='done'?'Noch nichts erledigt':myFilter==='open'?'Keine offenen Aufgaben':'Keine Aufgaben';
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${msg}</div></div>`;return;
-  }
-
-  // Group by type: eigene, gemeinsam, pool
-  const mine=list.filter(t=>isMyTask(t));
-  const shared=list.filter(t=>isSharedTask(t));
-  const pool=list.filter(t=>isPoolTask(t));
+  let list=tasks.filter(t=>{if(!showInMy(t))return false;if(myFilter==='open')return!t.done;if(myFilter==='done')return t.done;return true;});
+  if(!list.length){const msg=myFilter==='done'?'Noch nichts erledigt':myFilter==='open'?'Keine offenen Aufgaben':'Keine Aufgaben';c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${msg}</div></div>`;return;}
+  const mine=list.filter(t=>isMyTask(t)),shared=list.filter(t=>isSharedTask(t)),pool=list.filter(t=>isPoolTask(t));
   let html='';
-  if(mine.length) html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.user} Eigene</div><div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
-  if(shared.length) html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.users} Gemeinsam</div><div class="glass-card cg">${shared.map(t=>taskHTML(t,true)).join('')}</div>`;
-  if(pool.length) html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.shuf} Pool</div><div class="glass-card cg">${pool.map(t=>taskHTML(t,true)).join('')}</div>`;
+  if(mine.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.user} Eigene</div><div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
+  if(shared.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.users} Gemeinsam</div><div class="glass-card cg">${shared.map(t=>taskHTML(t,true)).join('')}</div>`;
+  if(pool.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.shuf} Pool</div><div class="glass-card cg">${pool.map(t=>taskHTML(t,true)).join('')}</div>`;
   c.innerHTML=html;
 }
-
 function initCatDrag(){
   const wrap=document.getElementById('myContainer');if(!wrap)return;let dr=null;
   function blocks(){return[...wrap.querySelectorAll('.cat-blk')];}
@@ -1123,276 +844,210 @@ function initCatDrag(){
   wrap.addEventListener('mousedown',start);wrap.addEventListener('mousemove',move);wrap.addEventListener('mouseup',end);
 }
 
-// ── POOL PAGE ─────────────────────────────
-// buildAssigns: assigns BOTH the main task AND each subtask to users
+// ══════════════════════════════════════════
+// POOL — fair shuffle with poop score balancing
+// ══════════════════════════════════════════
+
 function buildAssigns(ids){
-  const a={};
-  const uids=users.map(u=>u._id?.toString());
-  if(!uids.length)return a;
+  const a={};const uids=users.map(u=>u._id?.toString());if(!uids.length)return a;
   let idx=Math.floor(Math.random()*uids.length);
   ids.forEach(id=>{
     const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
     const last=appstate.poolAssigns?.[id]?.assignedUser;
-    // Assign subtasks round-robin across all users
     const subA={};
-    (t.subtasks||[]).forEach(s=>{
-      subA[s.id]=uids[idx%uids.length];
-      idx++;
-    });
-    // Assign main task — avoid same person as last time if possible
-    let main=uids[idx%uids.length];
-    if(uids.length>1&&main===last){idx++;main=uids[idx%uids.length];}
-    idx++;
+    (t.subtasks||[]).forEach(s=>{subA[s.id]=uids[idx%uids.length];idx++;});
+    let main=uids[idx%uids.length];if(uids.length>1&&main===last){idx++;main=uids[idx%uids.length];}idx++;
     a[id]={assignedUser:main,subtaskAssignments:subA};
   });
   return a;
 }
 
-function renderPool(){
-  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  if(!appstate.poolTasks?.length&&poolable.length){
-    appstate.poolTasks=poolable.map(t=>t._id?.toString());
-    appstate.poolAssigns=buildAssigns(appstate.poolTasks);
-    saveState();
-  }
-  const pf=appstate.poolFilter||'all';
-  const pfBar=document.getElementById('poolFbar');
-  pfBar.className='seg';
-  pfBar.innerHTML=
-    `<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+
-    users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
+// ── FAIR SHUFFLE: balance poop scores across users ──
+// debtScore[userId] = cumulative poop score assigned to them (carries over weeks)
+function fairShuffleAssigns(ids){
+  if(!users.length)return buildAssigns(ids);
+  const uids=users.map(u=>u._id?.toString());
+  if(uids.length===1)return buildAssigns(ids);
 
-  let toShow=poolable;
-  if(pf!=='all')toShow=toShow.filter(t=>{
-    const a=appstate.poolAssigns?.[t._id?.toString()];
-    if(!a)return false;
-    // Show if main assignee matches OR any subtask belongs to filtered user
-    if(a.assignedUser===pf)return true;
-    if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;
-    return false;
+  // Get current debt scores (carry-over from previous weeks)
+  if(!appstate.shuffleDebtScore)appstate.shuffleDebtScore={};
+  const debt={};uids.forEach(u=>{debt[u]=appstate.shuffleDebtScore[u]||0;});
+
+  const a={};
+  // Separate tasks with known poop score vs without
+  const scoredIds=ids.filter(id=>{const t=tasks.find(t=>t._id?.toString()===id);return t&&t.poopScore!=null;});
+  const unscoredIds=ids.filter(id=>!scoredIds.includes(id));
+
+  // Sort scored tasks by score descending (worst first)
+  const scored=scoredIds.map(id=>({id,score:tasks.find(t=>t._id?.toString()===id)?.poopScore||0})).sort((x,y)=>y.score-x.score);
+
+  // Assign unscored randomly (round-robin, avoid repeating last assignee)
+  let idx=Math.floor(Math.random()*uids.length);
+  unscoredIds.forEach(id=>{
+    const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+    const last=appstate.poolAssigns?.[id]?.assignedUser;
+    const subA={};(t.subtasks||[]).forEach(s=>{subA[s.id]=uids[idx%uids.length];idx++;});
+    let main=uids[idx%uids.length];if(uids.length>1&&main===last){idx++;main=uids[idx%uids.length];}idx++;
+    a[id]={assignedUser:main,subtaskAssignments:subA};
+    // Add average score (5) as placeholder debt for unscored
+    debt[main]=(debt[main]||0)+5;
   });
 
+  // Assign scored tasks to the user with lowest current debt
+  scored.forEach(({id,score})=>{
+    const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+    const last=appstate.poolAssigns?.[id]?.assignedUser;
+    // Pick user with lowest debt (skip last assignee if possible)
+    const sorted=[...uids].sort((x,y)=>(debt[x]||0)-(debt[y]||0));
+    let pick=sorted[0];
+    if(uids.length>1&&pick===last&&sorted[1])pick=sorted[1];
+    const subA={};(t.subtasks||[]).forEach(s=>{
+      // Distribute subtasks to lowest-debt user
+      const srt=[...uids].sort((x,y)=>(debt[x]||0)-(debt[y]||0));
+      subA[s.id]=srt[0];
+      debt[srt[0]]=(debt[srt[0]]||0)+(score/2); // half score per subtask
+    });
+    a[id]={assignedUser:pick,subtaskAssignments:subA};
+    debt[pick]=(debt[pick]||0)+score;
+  });
+
+  // Save updated debt scores for next week
+  // Reduce debt over time (multiply by 0.5 each week for decay)
+  const thisWeek=weekStart(todayStr());
+  if(appstate.lastShuffleWeek!==thisWeek){
+    // New week: apply decay to old debt, then add new
+    uids.forEach(u=>{appstate.shuffleDebtScore[u]=Math.round((appstate.shuffleDebtScore[u]||0)*0.5+debt[u]*0.5);});
+    appstate.lastShuffleWeek=thisWeek;
+  } else {
+    // Same week: just update
+    uids.forEach(u=>{appstate.shuffleDebtScore[u]=debt[u];});
+  }
+
+  return a;
+}
+
+function renderPool(){
+  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
+  if(!appstate.poolTasks?.length&&poolable.length){appstate.poolTasks=poolable.map(t=>t._id?.toString());appstate.poolAssigns=buildAssigns(appstate.poolTasks);saveState();}
+  const pf=appstate.poolFilter||'all';
+  const pfBar=document.getElementById('poolFbar');pfBar.className='seg';
+  pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
+  let toShow=poolable;
+  if(pf!=='all')toShow=toShow.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});
   const c=document.getElementById('poolContainer');
-  if(!toShow.length&&!poolable.length){
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;return;
-  }
-  if(!toShow.length){
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;return;
-  }
-
+  if(!toShow.length&&!poolable.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;return;}
+  if(!toShow.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;return;}
   c.innerHTML=toShow.map(t=>{
-    const id=t._id?.toString();
-    const asgn=appstate.poolAssigns?.[id];
-    const u=uById(asgn?.assignedUser);
-    const col=uColor(asgn?.assignedUser);
-    const myId=me._id?.toString();
-    const isMineDot=asgn?.assignedUser===myId;
-
-    // Build subtask rows with assigned names
+    const id=t._id?.toString();const asgn=appstate.poolAssigns?.[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);const myId=me._id?.toString();const isMineDot=asgn?.assignedUser===myId;
     let subsHtml='';
     if(t.subtasks?.length&&asgn?.subtaskAssignments){
       subsHtml=`<div style="margin-top:10px;border-top:1px solid var(--sep);padding-top:8px">`;
-      subsHtml+=t.subtasks.map(s=>{
-        const subUid=asgn.subtaskAssignments[s.id];
-        const subU=uById(subUid);
-        const subCol=uColor(subUid);
-        const isMe=subUid===myId;
-        return`<div class="pool-sub-row">
-          <div class="pool-sub-dot" style="background:${subCol}"></div>
-          <span style="flex:1;font-size:12px;color:${s.done?'var(--text3)':'var(--text2)'};${s.done?'text-decoration:line-through;':''}">${s.title}</span>
-          <span style="font-size:11px;font-weight:700;color:${subCol}">${subU?.name||'?'}${isMe?' ●':''}</span>
-        </div>`;
-      }).join('');
+      subsHtml+=t.subtasks.map(s=>{const subUid=asgn.subtaskAssignments[s.id];const subU=uById(subUid);const subCol=uColor(subUid);const isMe=subUid===myId;return`<div class="pool-sub-row"><div class="pool-sub-dot" style="background:${subCol}"></div><span style="flex:1;font-size:12px;color:${s.done?'var(--text3)':'var(--text2)'};${s.done?'text-decoration:line-through;':''}">${s.title}</span><span style="font-size:11px;font-weight:700;color:${subCol}">${subU?.name||'?'}${isMe?' ●':''}</span></div>`;}).join('');
       subsHtml+=`</div>`;
     } else if(t.subtasks?.length){
-      // No assignments yet — show subtasks without names
       subsHtml=`<div style="margin-top:10px;border-top:1px solid var(--sep);padding-top:8px">`;
       subsHtml+=t.subtasks.map(s=>`<div class="pool-sub-row"><div class="pool-sub-dot" style="background:var(--sep)"></div><span style="flex:1;font-size:12px;color:var(--text2)">${s.title}</span></div>`).join('');
       subsHtml+=`</div>`;
     }
-
+    const sc=getScore(t);
     return`<div class="pool-card" style="border-left:3px solid ${col}" onclick="openDetail('${id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
-        <div style="flex:1">
-          <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">${t.title}</div>
-          ${t.desc?`<div style="font-size:12px;color:var(--text3);line-height:1.4">${t.desc.slice(0,60)}${t.desc.length>60?'…':''}</div>`:''}
-        </div>
-        <div style="display:flex;align-items:center;gap:5px;padding-left:10px;flex-shrink:0">
-          ${avHTML(u,28)}
-          <div style="text-align:right">
-            <div style="font-size:12px;font-weight:700;color:${col}">${u?.name||'–'}</div>
-            ${isMineDot?`<div style="font-size:10px;color:var(--green);font-weight:600">● Du</div>`:''}
-          </div>
-        </div>
+        <div style="flex:1"><div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">${t.title}</div>${t.desc?`<div style="font-size:12px;color:var(--text3);line-height:1.4">${t.desc.slice(0,60)}${t.desc.length>60?'…':''}</div>`:''}</div>
+        <div style="display:flex;align-items:center;gap:5px;padding-left:10px;flex-shrink:0">${avHTML(u,28)}<div style="text-align:right"><div style="font-size:12px;font-weight:700;color:${col}">${u?.name||'–'}</div>${isMineDot?`<div style="font-size:10px;color:var(--green);font-weight:600">● Du</div>`:''}</div></div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
         ${t.deadline?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}
+        ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 Voting läuft…</span>`:''}
         ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}
       </div>
-      ${subsHtml}
-      ${prog(t)}
+      ${subsHtml}${prog(t)}
     </div>`;
   }).join('');
 }
 function setPoolF(id){appstate.poolFilter=id;saveState();renderPool();}
 
-// SLOT MACHINE SHUFFLE — now assigns subtasks too
 function shufflePool(){
   const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
   if(!poolable.length){showToast('Keine Pool-Aufgaben');return;}
   appstate.poolTasks=poolable.map(t=>t._id?.toString());
-  const finalAssigns=buildAssigns(appstate.poolTasks);
+  const finalAssigns=fairShuffleAssigns(appstate.poolTasks);
   appstate.poolFilter='all';
-
-  // Build slot rows — show task + subtask count
   const rows=document.getElementById('slotRows');
   rows.innerHTML=appstate.poolTasks.map(id=>{
     const t=tasks.find(t=>t._id?.toString()===id);if(!t)return'';
-    const subCount=t.subtasks?.length||0;
-    return`<div class="slot-row">
-      <div class="slot-task">${t.title.slice(0,22)}${t.title.length>22?'…':''}${subCount?` <span style="font-size:10px;color:var(--text3)">(+${subCount} Unteraufg.)</span>`:''}</div>
-      <div class="slot-name-wrap" id="slot-${id}">
-        <div class="slot-reel" id="reel-${id}"></div>
-      </div>
-    </div>`;
+    const sc=getScore(t);const subCount=t.subtasks?.length||0;
+    return`<div class="slot-row"><div class="slot-task">${t.title.slice(0,20)}${t.title.length>20?'…':''}${sc!=null?` 💩${sc}`:''}${subCount?` <span style="font-size:10px;color:var(--text3)">(+${subCount})</span>`:''}</div><div class="slot-name-wrap" id="slot-${id}"><div class="slot-reel" id="reel-${id}"></div></div></div>`;
   }).join('');
   document.getElementById('slotSub').textContent='Die Würfel fallen…';
   document.getElementById('slotOv').classList.add('show');
-
-  const unames=users.map(u=>u.name);
-  let ticker=0;
+  const unames=users.map(u=>u.name);let ticker=0;
   const interval=setInterval(()=>{
     ticker++;
-    appstate.poolTasks.forEach(id=>{
-      const reel=document.getElementById('reel-'+id);if(!reel)return;
-      const nm=unames[Math.floor(Math.random()*unames.length)];
-      const span=document.createElement('div');span.className='slot-name-item';span.style.color=me?.color||'var(--acc)';span.textContent=nm;
-      reel.insertBefore(span,reel.firstChild);
-      if(reel.children.length>6)reel.removeChild(reel.lastChild);
-    });
-    if(ticker===1)document.getElementById('slotSub').textContent='Zufällige Zuweisung läuft…';
+    appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const nm=unames[Math.floor(Math.random()*unames.length)];const span=document.createElement('div');span.className='slot-name-item';span.style.color=me?.color||'var(--acc)';span.textContent=nm;reel.insertBefore(span,reel.firstChild);if(reel.children.length>6)reel.removeChild(reel.lastChild);});
+    if(ticker===1)document.getElementById('slotSub').textContent='Scheißigkeits-Ausgleich läuft…';
     if(ticker===30){
-      clearInterval(interval);
-      appstate.poolAssigns=finalAssigns;
-      saveState();renderPool();renderMy();
-      appstate.poolTasks.forEach(id=>{
-        const reel=document.getElementById('reel-'+id);if(!reel)return;
-        const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);
-        reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:14px;font-weight:800">${u?.name||'?'}</div>`;
-      });
-      document.getElementById('slotSub').textContent='Fertig! Aufgaben & Unteraufgaben wurden verteilt.';
-      setTimeout(closeSlot,1800);
+      clearInterval(interval);appstate.poolAssigns=finalAssigns;saveState();renderPool();renderMy();
+      appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:14px;font-weight:800">${u?.name||'?'}</div>`;});
+      // Show balance info
+      const uids=users.map(u=>u._id?.toString());
+      const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=appstate.poolTasks.filter(id=>finalAssigns[id]?.assignedUser===uid);const totalScore=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: 💩${totalScore.toFixed(1)}`;}).join(' · ');
+      document.getElementById('slotSub').textContent=scoreInfo||'Fertig! Ausgeglichen verteilt.';
+      setTimeout(closeSlot,2500);
     }
   },80);
 }
 function closeSlot(){document.getElementById('slotOv').classList.remove('show');}
 
-// ── CALENDAR ─────────────────────────────
+// ── CALENDAR ──
 function renderCalendar(){
   document.getElementById('calMonth').textContent=new Date(calY,calM).toLocaleDateString('de-DE',{month:'long',year:'numeric'});
-  const today=new Date();today.setHours(0,0,0,0);
-  const firstDay=new Date(calY,calM,1),startDow=firstDay.getDay()===0?6:firstDay.getDay()-1;
-  const dim=new Date(calY,calM+1,0).getDate(),dip=new Date(calY,calM,0).getDate();
+  const today=new Date();today.setHours(0,0,0,0);const firstDay=new Date(calY,calM,1),startDow=firstDay.getDay()===0?6:firstDay.getDay()-1;const dim=new Date(calY,calM+1,0).getDate(),dip=new Date(calY,calM,0).getDate();
   const dlMap={};tasks.filter(t=>t.deadline&&showInMy(t)).forEach(t=>{if(!dlMap[t.deadline])dlMap[t.deadline]=[];dlMap[t.deadline].push(t);});
-  const days=['Mo','Di','Mi','Do','Fr','Sa','So'];
-  let html=days.map(d=>`<div class="cal-dn">${d}</div>`).join('');
+  const days=['Mo','Di','Mi','Do','Fr','Sa','So'];let html=days.map(d=>`<div class="cal-dn">${d}</div>`).join('');
   const total=Math.ceil((startDow+dim)/7)*7;
   for(let i=0;i<total;i++){
-    let day,mo=calM,yr=calY,other=false;
-    if(i<startDow){day=dip-startDow+i+1;mo=calM-1;other=true;if(mo<0){mo=11;yr--;}}
-    else if(i>=startDow+dim){day=i-startDow-dim+1;mo=calM+1;other=true;if(mo>11){mo=0;yr++;}}
-    else day=i-startDow+1;
-    const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
-    const isToday=new Date(ds+'T00:00:00').getTime()===today.getTime();
-    const isSel=ds===calDay;
-    const dt=dlMap[ds]||[];
-    const dots=dt.slice(0,3).map(t=>`<div class="cal-dot" style="background:${uColor(t.assignee)}"></div>`).join('');
+    let day,mo=calM,yr=calY,other=false;if(i<startDow){day=dip-startDow+i+1;mo=calM-1;other=true;if(mo<0){mo=11;yr--;}}else if(i>=startDow+dim){day=i-startDow-dim+1;mo=calM+1;other=true;if(mo>11){mo=0;yr++;}}else day=i-startDow+1;
+    const ds=`${yr}-${String(mo+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;const isToday=new Date(ds+'T00:00:00').getTime()===today.getTime();const isSel=ds===calDay;const dt=dlMap[ds]||[];const dots=dt.slice(0,3).map(t=>`<div class="cal-dot" style="background:${uColor(t.assignee)}"></div>`).join('');
     html+=`<div class="cal-cell" onclick="calSel('${ds}')"><div class="cal-num${isToday?' today':isSel?' sel':other?' other-month':''}">${day}</div><div class="cal-dots">${dots}</div></div>`;
   }
-  document.getElementById('calGrid').innerHTML=html;
-  renderCalList();
+  document.getElementById('calGrid').innerHTML=html;renderCalList();
 }
 function calSel(d){calDay=calDay===d?null:d;renderCalendar();}
 function calPrev(){calM--;if(calM<0){calM=11;calY--;}renderCalendar();}
 function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCalendar();}
 function renderCalList(){
   const c=document.getElementById('calList');
-  if(calDay){
-    const dt=tasks.filter(t=>t.deadline===calDay&&showInMy(t));
-    if(!dt.length){c.innerHTML=`<div style="padding:12px 14px;color:var(--text3);font-size:14px">Keine Aufgaben.</div>`;return;}
-    c.innerHTML=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(calDay)}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;
-  } else {
-    const all=tasks.filter(t=>t.deadline&&showInMy(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));
-    if(!all.length){c.innerHTML=`<div class="empty"><div>${I.calOff}</div><div class="empty-t">Keine Deadlines</div></div>`;return;}
-    const byD={};all.forEach(t=>{if(!byD[t.deadline])byD[t.deadline]=[];byD[t.deadline].push(t);});
-    let html='';
-    Object.entries(byD).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,dt])=>{
-      const od=new Date(date+'T00:00:00')<new Date()&&date!==todayStr();
-      html+=`<div class="sec" style="${od?'color:var(--red)':''}display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(date)}${od?` ${I.alert}`:''}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;
-    });
-    c.innerHTML=html;
-  }
+  if(calDay){const dt=tasks.filter(t=>t.deadline===calDay&&showInMy(t));if(!dt.length){c.innerHTML=`<div style="padding:12px 14px;color:var(--text3);font-size:14px">Keine Aufgaben.</div>`;return;}c.innerHTML=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(calDay)}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;}
+  else{const all=tasks.filter(t=>t.deadline&&showInMy(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));if(!all.length){c.innerHTML=`<div class="empty"><div>${I.calOff}</div><div class="empty-t">Keine Deadlines</div></div>`;return;}const byD={};all.forEach(t=>{if(!byD[t.deadline])byD[t.deadline]=[];byD[t.deadline].push(t);});let html='';Object.entries(byD).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,dt])=>{const od=new Date(date+'T00:00:00')<new Date()&&date!==todayStr();html+=`<div class="sec" style="${od?'color:var(--red)':''}display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(date)}${od?` ${I.alert}`:''}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;});c.innerHTML=html;}
 }
 
-// ══════════════════════════════════════════
-// DETAIL
-// ══════════════════════════════════════════
+// ── DETAIL ──
 function openDetail(id){
   const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;detailId=id;
-  const asgn=isPoolTask(t)?appstate.poolAssigns?.[id]:null;
-  const effId=asgn?.assignedUser||t.assignee;
-  const col=uColor(effId);
-  const u=uById(effId);
-  const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();
-  const aname=t.assignee==='all'?'Alle':(u?u.name:'');
-  const myId=me._id?.toString();
-
-  // Subtask HTML — pool tasks show who is assigned to each
+  const asgn=isPoolTask(t)?appstate.poolAssigns?.[id]:null;const effId=asgn?.assignedUser||t.assignee;const col=uColor(effId);const u=uById(effId);const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();const aname=t.assignee==='all'?'Alle':(u?u.name:'');const myId=me._id?.toString();
+  // subtask HTML
   let subsH='';
   if(t.subtasks?.length){
-    subsH=`<div class="sec">Unteraufgaben (${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})</div>
-    <div class="glass-card cg" id="dSubList">
-      ${t.subtasks.map(s=>{
-        const subUid=asgn?.subtaskAssignments?.[s.id];
-        const subU=subUid?uById(subUid):null;
-        const subCol=subUid?uColor(subUid):'var(--text3)';
-        const canToggleSub=!isPoolTask(t)||(subUid===myId);
-        return`<div class="sub-item" data-sid="${s.id}">
-          <span class="dragh">${I.grip}</span>
-          <div class="sub-chk${s.done?' done':''}" onclick="${canToggleSub?`toggleSub('${id}','${s.id}')`:`showToast('Nicht deine Unteraufgabe')`}" style="${!canToggleSub?'opacity:.45;cursor:not-allowed;':''}">${s.done?I.check:''}</div>
-          <span style="flex:1;font-size:14px;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>
-          ${subU?`<span style="font-size:11px;font-weight:700;color:${subCol}">${subU.name}</span>`:''}
-        </div>`;
-      }).join('')}
-      <div class="crow" onclick="addSubDetail('${id}')"><span style="color:var(--acc)">${I.chevR}</span><span style="color:var(--acc);font-size:14px">Unteraufgabe hinzufügen</span></div>
-    </div>`;
-  } else {
-    subsH=`<div style="padding:0 14px 8px"><button class="btn btn-g" onclick="addSubDetail('${id}')">+ Unteraufgabe</button></div>`;
+    subsH=`<div class="sec">Unteraufgaben (${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})</div><div class="glass-card cg" id="dSubList">${t.subtasks.map(s=>{const subUid=asgn?.subtaskAssignments?.[s.id];const subU=subUid?uById(subUid):null;const subCol=subUid?uColor(subUid):'var(--text3)';const canToggleSub=!isPoolTask(t)||(subUid===myId);return`<div class="sub-item" data-sid="${s.id}"><span class="dragh">${I.grip}</span><div class="sub-chk${s.done?' done':''}" onclick="${canToggleSub?`toggleSub('${id}','${s.id}')`:`showToast('Nicht deine Unteraufgabe')`}" style="${!canToggleSub?'opacity:.45;cursor:not-allowed;':''}">${s.done?I.check:''}</div><span style="flex:1;font-size:14px;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>${subU?`<span style="font-size:11px;font-weight:700;color:${subCol}">${subU.name}</span>`:''}</div>`;}).join('')}<div class="crow" onclick="addSubDetail('${id}')"><span style="color:var(--acc)">${I.chevR}</span><span style="color:var(--acc);font-size:14px">Unteraufgabe hinzufügen</span></div></div>`;
+  } else {subsH=`<div style="padding:0 14px 8px"><button class="btn btn-g" onclick="addSubDetail('${id}')">+ Unteraufgabe</button></div>`;}
+  // Vote section in detail
+  const sc=getScore(t);
+  let voteSection='';
+  if(t.votingEnabled&&isPoolTask(t)){
+    if(sc!=null){
+      const barW=Math.round(sc/10*100);
+      voteSection=`<div class="sec">💩 Scheißigkeitsscore</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — Mittelwert aller Stimmen</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">Stimmen: ${Object.entries(t.votes||{}).map(([uid,v])=>{const u=uById(uid);return`${u?.name||'?'}: ${v}`;}).join(' · ')}</div></div></div>`;
+    } else {
+      const vCnt=Object.keys(t.votes||{}).length;
+      voteSection=`<div class="sec">💩 Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${users.length} haben abgestimmt${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen 💩</button>`:''}</div></div>`;
+    }
   }
-
-  document.getElementById('detailContent').innerHTML=`
-    <div style="padding:18px 14px 10px">
-      <div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
-        <span class="badge b-blu">${t.cat}</span>
-        ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}
-        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
-      </div>
-      ${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}
-    </div>
-    ${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
-    <div class="sec">Details</div>
-    <div class="glass-card cg">
-      <div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">Zuständig</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>
-      ${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">Deadline</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}
-      ${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">Pool</span><span style="color:var(--green);font-size:14px">${I.check} Ja</span></div>`:''}
-      ${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">Gemeinsam</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
-    </div>
-    ${subsH}
-    <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">Nur ${isPoolTask(t)?'der zugewiesene Nutzer':'der Aufgaben-Ersteller'} kann diese Aufgabe abschließen</div>`}</div>
-    <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} Löschen</button></div>`;
+  document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
+  <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">Zuständig</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">Deadline</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">Pool</span><span style="color:var(--green);font-size:14px">${I.check} Ja</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">Gemeinsam</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
+  </div>${subsH}${voteSection}
+  <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">Nur ${isPoolTask(t)?'der zugewiesene Nutzer':'der Aufgaben-Ersteller'} kann diese Aufgabe abschließen</div>`}</div>
+  <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} Löschen</button></div>`;
   document.getElementById('taskDetail').classList.add('open');
   if(t.subtasks?.length)setTimeout(()=>initSubDrag(id),60);
 }
@@ -1400,7 +1055,7 @@ function closeDetail(){document.getElementById('taskDetail').classList.remove('o
 function editCurrent(){if(detailId){closeDetail();setTimeout(()=>showAddTask(detailId),250);}}
 function delDetail(id){if(!confirm('Aufgabe löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeDetail();showToast('Gelöscht');}).catch(e=>showToast('Fehler: '+e.message));}
 async function toggleSub(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(s)s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}catch(e){showToast('Fehler');}}
-async function addSubDetail(tid){const title=prompt('Unteraufgabe:');if(!title)return;const t=tasks.find(t=>t._id?.toString()===tid);if(!t){return;}if(!t.subtasks)t.subtasks=[];t.subtasks.push({id:uid(),title,done:false});await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}
+async function addSubDetail(tid){const title=prompt('Unteraufgabe:');if(!title)return;const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;if(!t.subtasks)t.subtasks=[];t.subtasks.push({id:uid(),title,done:false});await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}
 function initSubDrag(tid){
   const list=document.getElementById('dSubList');if(!list)return;let dr=null;
   function items(){return[...list.querySelectorAll('.sub-item[data-sid]')];}
@@ -1411,73 +1066,40 @@ function initSubDrag(tid){
   list.addEventListener('mousedown',start);window.addEventListener('mousemove',move);window.addEventListener('mouseup',end);
 }
 
-// ══════════════════════════════════════════
-// TASK TOGGLE — FIX: record completion date for recurring tasks
-// ══════════════════════════════════════════
+// ── TASK TOGGLE ──
 async function toggleTask(id,withCeleb=false){
   const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
   if(!canComplete(t)){showToast('Du kannst diese Aufgabe nicht abschließen');return;}
   const was=t.done;t.done=!t.done;
-
-  // For recurring tasks: record when completed so reset logic works correctly
-  if(!was&&t.repeat&&t.repeat!=='Nie'){
-    if(!appstate.recurringLast)appstate.recurringLast={};
-    appstate.recurringLast[id]=todayStr();
-    saveState();
-  }
-
-  if(!was){
-    const el=document.getElementById('ti-'+id);
-    if(el){el.classList.add('completing');setTimeout(()=>{render();},430);}else render();
-    if(withCeleb)celebrate();
-  } else {
-    // Reopening a recurring task — remove from recurringLast
-    if(t.repeat&&t.repeat!=='Nie'&&appstate.recurringLast){
-      delete appstate.recurringLast[id];
-      saveState();
-    }
-    render();
-  }
+  if(!was&&t.repeat&&t.repeat!=='Nie'){if(!appstate.recurringLast)appstate.recurringLast={};appstate.recurringLast[id]=todayStr();saveState();}
+  if(was&&t.repeat&&t.repeat!=='Nie'&&appstate.recurringLast){delete appstate.recurringLast[id];saveState();}
+  if(!was){const el=document.getElementById('ti-'+id);if(el){el.classList.add('completing');setTimeout(()=>{render();},430);}else render();if(withCeleb)celebrate();}else render();
   try{await api('PATCH','/tasks/'+id,{done:t.done});}catch(e){t.done=was;render();showToast('Fehler');}
 }
 
-// ══════════════════════════════════════════
-// TASK MODAL
-// ══════════════════════════════════════════
-function populateCatSel(){
-  const sel=document.getElementById('fCat');if(!sel)return;
-  sel.innerHTML=Object.entries(allCats()).map(([n])=>`<option value="${n}">${n}</option>`).join('');
-}
+// ── TASK MODAL ──
+function populateCatSel(){const sel=document.getElementById('fCat');if(!sel)return;sel.innerHTML=Object.entries(allCats()).map(([n])=>`<option value="${n}">${n}</option>`).join('');}
 function setType(tp,btn){
   selType=tp;
   document.querySelectorAll('#typeSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
   document.getElementById('assigneeWrap').style.display=tp==='mine'?'block':'none';
   document.getElementById('sharedUsersWrap').style.display=tp==='shared'?'block':'none';
+  document.getElementById('votingWrap').style.display=tp==='pool'?'block':'none';
   if(tp==='shared')renderSharedUserPicker();
+  if(tp!=='pool'){selVoting=false;const tog=document.getElementById('fVotingTog');if(tog)tog.classList.remove('on');}
 }
-function renderSharedUserPicker(){
-  const others=users.filter(u=>u._id?.toString()!==me._id?.toString());
-  document.getElementById('sharedUsersList').innerHTML=others.map(u=>`
-    <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)">
-      ${avHTML(u,32)}<span style="flex:1;font-size:14px">${u.name}</span>
-      <div class="tog${sharedUsers.has(u._id?.toString())?' on':''}" onclick="toggleSharedUser('${u._id}',this)"></div>
-    </div>`).join('');
-}
-function toggleSharedUser(id,el){
-  if(sharedUsers.has(id))sharedUsers.delete(id);else sharedUsers.add(id);
-  el.classList.toggle('on',sharedUsers.has(id));
-}
+function toggleVoting(el){selVoting=!selVoting;el.classList.toggle('on',selVoting);}
+function renderSharedUserPicker(){const others=users.filter(u=>u._id?.toString()!==me._id?.toString());document.getElementById('sharedUsersList').innerHTML=others.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)">${avHTML(u,32)}<span style="flex:1;font-size:14px">${u.name}</span><div class="tog${sharedUsers.has(u._id?.toString())?' on':''}" onclick="toggleSharedUser('${u._id}',this)"></div></div>`).join('');}
+function toggleSharedUser(id,el){if(sharedUsers.has(id))sharedUsers.delete(id);else sharedUsers.add(id);el.classList.toggle('on',sharedUsers.has(id));}
 function setPrio(p,btn){selPrio=p;document.querySelectorAll('#prioSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
-function refreshSubList(){
-  const el=document.getElementById('newSubList');if(!el)return;
-  el.innerHTML=newSubs.map((s,i)=>`<div class="sub-tag"><span class="dragh">${I.grip}</span><span style="flex:1;font-size:13px">${s.title}</span><button onclick="rmSub(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');
-}
+function refreshSubList(){const el=document.getElementById('newSubList');if(!el)return;el.innerHTML=newSubs.map((s,i)=>`<div class="sub-tag"><span class="dragh">${I.grip}</span><span style="flex:1;font-size:13px">${s.title}</span><button onclick="rmSub(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
 function addNewSub(){const inp=document.getElementById('newSubInp');const v=inp.value.trim();if(!v)return;newSubs.push({id:uid(),title:v,done:false});inp.value='';refreshSubList();}
 function rmSub(i){newSubs.splice(i,1);refreshSubList();}
 
 function showAddTask(editId=null){
   editingId=editId;const t=editId?tasks.find(t=>t._id?.toString()===editId):null;
   newSubs=t?[...(t.subtasks||[])].map(s=>({...s})):[];sharedUsers=new Set(t?.sharedWith||[]);
+  selVoting=t?.votingEnabled||false;
   populateCatSel();
   document.getElementById('modalTitle').textContent=editId?'Aufgabe bearbeiten':'Neue Aufgabe';
   document.getElementById('fTitle').value=t?.title||'';
@@ -1491,100 +1113,48 @@ function showAddTask(editId=null){
   document.querySelectorAll('#typeSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',['mine','pool','shared'][i]===tp));
   document.getElementById('assigneeWrap').style.display=tp==='mine'?'block':'none';
   document.getElementById('sharedUsersWrap').style.display=tp==='shared'?'block':'none';
-  const asel=document.getElementById('fAssignee');
-  asel.innerHTML=users.map(u=>`<option value="${u._id}">${u.name}</option>`).join('');
-  asel.value=t?.assignee||me._id?.toString()||'';
+  document.getElementById('votingWrap').style.display=tp==='pool'?'block':'none';
+  const vtog=document.getElementById('fVotingTog');if(vtog)vtog.classList.toggle('on',selVoting);
+  const asel=document.getElementById('fAssignee');asel.innerHTML=users.map(u=>`<option value="${u._id}">${u.name}</option>`).join('');asel.value=t?.assignee||me._id?.toString()||'';
   if(tp==='shared')renderSharedUserPicker();
   document.getElementById('delTaskWrap').innerHTML=editId?`<button class="btn btn-d" style="gap:6px" onclick="delFromModal('${editId}')">${I.trash} Löschen</button>`:'';
   refreshSubList();document.getElementById('newSubInp').value='';
   document.getElementById('taskModal').classList.add('open');
 }
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
-
 async function saveTask(){
   const title=document.getElementById('fTitle').value.trim();if(!title){showToast('Titel eingeben!');return;}
   const assignee=selType==='mine'?document.getElementById('fAssignee').value:me._id?.toString();
-  const data={
-    title,desc:document.getElementById('fDesc').value,
-    cat:document.getElementById('fCat').value,
-    prio:selPrio,deadline:document.getElementById('fDeadline').value,
-    repeat:document.getElementById('fRepeat').value,
-    type:selType,
-    assignee:selType==='pool'?'all':assignee,
-    inPool:selType==='pool',
-    sharedWith:selType==='shared'?[...sharedUsers]:[],
-    done:false,subtasks:[...newSubs]
-  };
+  const data={title,desc:document.getElementById('fDesc').value,cat:document.getElementById('fCat').value,prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:document.getElementById('fRepeat').value,type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
   try{
-    if(editingId){
-      await api('PATCH','/tasks/'+editingId,data);
-      const idx=tasks.findIndex(t=>t._id?.toString()===editingId);if(idx>=0)tasks[idx]={...tasks[idx],...data};
-    }else{
-      const created=await api('POST','/tasks',data);tasks.push(created);
-    }
+    if(editingId){await api('PATCH','/tasks/'+editingId,data);const idx=tasks.findIndex(t=>t._id?.toString()===editingId);if(idx>=0)tasks[idx]={...tasks[idx],...data};}
+    else{const created=await api('POST','/tasks',data);tasks.push(created);}
     newSubs=[];saveState();render();closeTaskModal();showToast(editingId?'Gespeichert':'Erstellt');
   }catch(e){showToast('Fehler: '+e.message);}
 }
 function delFromModal(id){if(!confirm('Löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeTaskModal();showToast('Gelöscht');}).catch(e=>showToast(e.message));}
 
-// ══════════════════════════════════════════
-// PROFILE
-// ══════════════════════════════════════════
+// ── PROFILE ──
 function openProfile(){
-  profilePhoto=me.photo||null;
-  document.getElementById('profName').value=me.name;
-  const pw=document.getElementById('profPhotoWrap');
-  pw.innerHTML=me.photo?`<img src="${me.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<div style="width:100%;height:100%;background:${me.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff">${me.name[0]}</div>`;
+  profilePhoto=me.photo||null;document.getElementById('profName').value=me.name;
+  const pw=document.getElementById('profPhotoWrap');pw.innerHTML=me.photo?`<img src="${me.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<div style="width:100%;height:100%;background:${me.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff">${me.name[0]}</div>`;
   document.getElementById('myColorGrid').innerHTML=ALL_COLORS.map(c=>`<div class="cdot${me.color===c?' sel':''}" style="background:${c}" onclick="pickMyColor('${c}',this)"></div>`).join('');
   const others=users.filter(u=>u._id?.toString()!==me._id?.toString());
-  document.getElementById('otherColorsSection').innerHTML=others.length?`<label class="fl">Farben anderer Mitglieder</label>`+
-    others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;
-      return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;
-    }).join(''):'';
-  renderGroupSection();
-  renderCatList();
-  document.getElementById('profileModal').classList.add('open');
+  document.getElementById('otherColorsSection').innerHTML=others.length?`<label class="fl">Farben anderer Mitglieder</label>`+others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;}).join(''):'';
+  renderGroupSection();renderCatList();document.getElementById('profileModal').classList.add('open');
 }
 function closeProfile(){document.getElementById('profileModal').classList.remove('open');}
 function renderGroupSection(){
   const gs=document.getElementById('groupSection');
-  if(group){
-    gs.innerHTML=`<label class="fl">Gruppe</label>
-      <div class="glass-card" style="margin:0;border-radius:14px">
-        <div class="crow"><div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div>
-          <div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>
-          ${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroup()">${I.edit}</button>`:''}
-        </div>
-        <div class="sec">Mitglieder</div>
-        ${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}
-      </div>
-      <div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">
-        ${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}
-        <button class="btn btn-out" onclick="leaveGroup()">Gruppe verlassen</button>
-      </div>`;
-    document.getElementById('leaveGroupWrap').innerHTML='';
-  }else{
-    gs.innerHTML=`<label class="fl">Gruppe</label>
-      <div style="display:flex;flex-direction:column;gap:8px">
-        <button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button>
-        <button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button>
-      </div>`;
-    document.getElementById('leaveGroupWrap').innerHTML='';
-  }
+  if(group){gs.innerHTML=`<label class="fl">Gruppe</label><div class="glass-card" style="margin:0;border-radius:14px"><div class="crow"><div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div><div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroup()">${I.edit}</button>`:''}</div><div class="sec">Mitglieder</div>${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}<button class="btn btn-out" onclick="leaveGroup()">Gruppe verlassen</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
+  else{gs.innerHTML=`<label class="fl">Gruppe</label><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button><button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
 }
 function pickMyColor(c,el){me.color=c;document.querySelectorAll('#myColorGrid .cdot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');}
-function pickOvr(uid,color,el){
-  if(!me.colorOverrides)me.colorOverrides={};me.colorOverrides[uid]=color;
-  const par=el.parentElement;if(par)par.querySelectorAll('.cdot').forEach(d=>d.classList.toggle('sel',d.style.background===color));
-}
+function pickOvr(uid,color,el){if(!me.colorOverrides)me.colorOverrides={};me.colorOverrides[uid]=color;const par=el.parentElement;if(par)par.querySelectorAll('.cdot').forEach(d=>d.classList.toggle('sel',d.style.background===color));}
 function handlePhoto(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{profilePhoto=e.target.result;document.getElementById('profPhotoWrap').innerHTML=`<img src="${profilePhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`};r.readAsDataURL(f);}
 async function saveProfile(){
   const name=document.getElementById('profName').value.trim();
-  try{
-    me=await api('PATCH','/users/me',{name:name||me.name,color:me.color,photo:profilePhoto,colorOverrides:me.colorOverrides||{},theme:me.theme||''});
-    const idx=users.findIndex(u=>u._id?.toString()===me._id?.toString());if(idx>=0)users[idx]={...users[idx],...me};
-    applyTheme();render();closeProfile();showToast('Gespeichert');
-  }catch(e){showToast('Fehler: '+e.message);}
+  try{me=await api('PATCH','/users/me',{name:name||me.name,color:me.color,photo:profilePhoto,colorOverrides:me.colorOverrides||{},theme:me.theme||''});const idx=users.findIndex(u=>u._id?.toString()===me._id?.toString());if(idx>=0)users[idx]={...users[idx],...me};applyTheme();render();closeProfile();showToast('Gespeichert');}catch(e){showToast('Fehler: '+e.message);}
 }
 async function createGroup(){const name=prompt('Gruppenname:');if(!name)return;try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Erstellt! Code: '+group.inviteCode);}catch(e){showToast(e.message);}}
 async function joinGroup(){const code=prompt('Einladungscode:');if(!code)return;try{group=await api('POST','/groups/join',{inviteCode:code.trim().toUpperCase()});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Beigetreten!');}catch(e){showToast(e.message);}}
@@ -1592,114 +1162,58 @@ async function leaveGroup(){if(!confirm('Gruppe verlassen?'))return;try{await ap
 async function delGroup(){if(!confirm('Gruppe löschen? Alle Aufgaben werden gelöscht.'))return;try{await api('DELETE','/groups/mine');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
 function editGroup(){const name=prompt('Neuer Name:',group.name);if(!name)return;api('PATCH','/groups/mine',{name}).then(()=>{group.name=name;renderGroupSection();showToast('Aktualisiert');}).catch(e=>showToast(e.message));}
 async function deleteAccount(){if(!confirm('Account löschen?'))return;try{await api('DELETE','/users/me');localStorage.removeItem('tf_token');location.reload();}catch(e){showToast(e.message);}}
-function renderCatList(){
-  const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});
-  if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Noch keine eigenen Kategorien.</div>`;return;}
-  list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="font-size:16px">${icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');
-}
+function renderCatList(){const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Noch keine eigenen Kategorien.</div>`;return;}list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="font-size:16px">${icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
 function addCat(){const e=document.getElementById('newCatEmoji').value.trim()||'📌';const n=document.getElementById('newCatName').value.trim();if(!n){showToast('Name eingeben');return;}if(!appstate.customCats)appstate.customCats={};appstate.customCats[n]=e;document.getElementById('newCatEmoji').value='';document.getElementById('newCatName').value='';saveState();renderCatList();populateCatSel();showToast(`"${n}" hinzugefügt`);}
 function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();showToast('Gelöscht');}
-async function resetTasks(){if(!confirm('Alle Aufgaben löschen?'))return;for(const t of[...tasks]){try{await api('DELETE','/tasks/'+t._id);}catch(e){}}tasks=[];appstate.poolTasks=[];appstate.poolAssigns={};saveState();render();showToast('Alle Aufgaben gelöscht');}
+async function resetTasks(){if(!confirm('Alle Aufgaben löschen?'))return;for(const t of[...tasks]){try{await api('DELETE','/tasks/'+t._id);}catch(e){}}tasks=[];appstate.poolTasks=[];appstate.poolAssigns={};appstate.shuffleDebtScore={};saveState();render();showToast('Alle Aufgaben gelöscht');}
 
-// ══════════════════════════════════════════
-// ADMIN
-// ══════════════════════════════════════════
+// ── ADMIN ──
 function openAdmin(){document.getElementById('adminPin').value='';document.getElementById('adminModal').classList.add('open');}
 function closeAdmin(){document.getElementById('adminModal').classList.remove('open');adminPin=null;}
-async function verifyAdmin(){
-  const pin=document.getElementById('adminPin').value.trim();if(!pin){showToast('PIN eingeben');return;}
-  try{await api('POST','/admin/verify',{pin});adminPin=pin;const d=await api('GET',`/admin/data?pin=${encodeURIComponent(pin)}`);renderAdminDash(d);}catch(e){showToast('Falscher PIN');}
-}
-function renderAdminDash(d){
-  document.getElementById('adminContent').innerHTML=`<div style="padding:0 16px 8px">
-    <div style="display:flex;gap:8px;margin-bottom:18px">
-      <div style="flex:1;background:rgba(91,91,214,.1);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(91,91,214,.15)"><div style="font-size:22px;font-weight:700;color:var(--acc)">${d.users.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Nutzer</div></div>
-      <div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.groups.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Gruppen</div></div>
-      <div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.totalTasks}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Aufgaben</div></div>
-    </div>
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px">Gruppen</div>
-    ${d.groups.map(g=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px">
-      <div style="flex:1"><div style="font-size:14px;font-weight:600">${g.name}</div><div style="font-size:11px;color:var(--text3)">${g.memberCount} Mitglieder · ${g.taskCount} Aufgaben · Code: ${g.inviteCode}</div></div>
-      <button onclick="adminDelGroup('${g._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button>
-    </div>`).join('')}
-    <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:14px 0 8px">Nutzer</div>
-    ${d.users.map(u=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px">
-      <div style="display:flex;align-items:center;gap:10px">
-        <div class="av" style="width:34px;height:34px;background:${u.color||'#9CA3AF'};font-size:13px">${u.name?.[0]||'?'}</div>
-        <div style="flex:1"><div style="font-size:14px;font-weight:600">${u.name}</div><div style="font-size:11px;color:var(--text3)">${u.groupName} · ${u.taskCount} Aufgaben</div></div>
-        <button onclick="adminDelUser('${u._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button>
-      </div>
-    </div>`).join('')}
-  </div>`;
-}
-async function adminDelUser(uid){
-  if(!confirm('Nutzer löschen?'))return;
-  try{await api('DELETE',`/admin/user/${uid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast('Nutzer gelöscht');}catch(e){showToast(e.message);}
-}
-async function adminDelGroup(gid){
-  if(!confirm('Gruppe löschen? Alle zugehörigen Aufgaben werden entfernt.'))return;
-  try{await api('DELETE',`/admin/group/${gid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast('Gruppe gelöscht');}catch(e){showToast(e.message);}
-}
+async function verifyAdmin(){const pin=document.getElementById('adminPin').value.trim();if(!pin){showToast('PIN eingeben');return;}try{await api('POST','/admin/verify',{pin});adminPin=pin;const d=await api('GET',`/admin/data?pin=${encodeURIComponent(pin)}`);renderAdminDash(d);}catch(e){showToast('Falscher PIN');}}
+function renderAdminDash(d){document.getElementById('adminContent').innerHTML=`<div style="padding:0 16px 8px"><div style="display:flex;gap:8px;margin-bottom:18px"><div style="flex:1;background:rgba(91,91,214,.1);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(91,91,214,.15)"><div style="font-size:22px;font-weight:700;color:var(--acc)">${d.users.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Nutzer</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.groups.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Gruppen</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.totalTasks}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Aufgaben</div></div></div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px">Gruppen</div>${d.groups.map(g=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:600">${g.name}</div><div style="font-size:11px;color:var(--text3)">${g.memberCount} Mitglieder · ${g.taskCount} Aufgaben · Code: ${g.inviteCode}</div></div><button onclick="adminDelGroup('${g._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button></div>`).join('')}<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:14px 0 8px">Nutzer</div>${d.users.map(u=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px"><div class="av" style="width:34px;height:34px;background:${u.color||'#9CA3AF'};font-size:13px">${u.name?.[0]||'?'}</div><div style="flex:1"><div style="font-size:14px;font-weight:600">${u.name}</div><div style="font-size:11px;color:var(--text3)">${u.groupName} · ${u.taskCount} Aufgaben</div></div><button onclick="adminDelUser('${u._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button></div></div>`).join('')}</div>`;}
+async function adminDelUser(uid){if(!confirm('Nutzer löschen?'))return;try{await api('DELETE',`/admin/user/${uid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast('Nutzer gelöscht');}catch(e){showToast(e.message);}}
+async function adminDelGroup(gid){if(!confirm('Gruppe löschen?'))return;try{await api('DELETE',`/admin/group/${gid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast('Gruppe gelöscht');}catch(e){showToast(e.message);}}
 
-// ══════════════════════════════════════════
-// CELEBRATION
-// ══════════════════════════════════════════
-function celebrate(){
-  document.getElementById('celebFace').innerHTML=`<div style="color:#fff">${I.smile}</div>`;
-  document.getElementById('celebTxt').textContent=CELEB[Math.floor(Math.random()*CELEB.length)];
-  const cc=document.getElementById('confWrap');cc.innerHTML='';
-  const cols=['#5B5BD6','#22C55E','#EF4444','#F59E0B','#8B5CF6','#FBBF24'];
-  for(let i=0;i<50;i++){const p=document.createElement('div');p.className='conf';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;cc.appendChild(p);}
-  document.getElementById('celebOv').classList.add('show');setTimeout(closeceleb,4000);
-}
+// ── CELEBRATION ──
+function celebrate(){document.getElementById('celebFace').innerHTML=`<div style="color:#fff"><svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>`;document.getElementById('celebTxt').textContent=CELEB[Math.floor(Math.random()*CELEB.length)];const cc=document.getElementById('confWrap');cc.innerHTML='';const cols=['#5B5BD6','#22C55E','#EF4444','#F59E0B','#8B5CF6','#FBBF24'];for(let i=0;i<50;i++){const p=document.createElement('div');p.className='conf';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;cc.appendChild(p);}document.getElementById('celebOv').classList.add('show');setTimeout(closeceleb,4000);}
 function closeceleb(){document.getElementById('celebOv').classList.remove('show');}
 
-// ══════════════════════════════════════════
-// TOAST
-// ══════════════════════════════════════════
+// ── TOAST ──
 let toastT;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
 
-// ══════════════════════════════════════════
-// TABS + SWIPE (3 tabs)
-// ══════════════════════════════════════════
+// ── TABS + SWIPE (4 tabs, but vote tab may be hidden) ──
 function switchTab(i,anim=true){
+  // If vote tab is hidden and we try to go to 3, skip
+  const t3=document.getElementById('t3');if(i===3&&t3?.style.display==='none')return;
   curTab=i;const wrap=document.getElementById('pgwrap');
   if(!anim)wrap.classList.add('no-anim');
-  // 3 tabs: each page is 33.333% → offset = i * 33.333%
-  wrap.style.transform=`translateX(-${i*33.333}%)`;
+  wrap.style.transform=`translateX(-${i*25}%)`;
   if(!anim)requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove('no-anim')));
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
-  document.getElementById('navTitle').textContent=NAV_TITLES[i];
-  if(i===2)renderCalendar();
+  document.getElementById('navTitle').textContent=NAV_TITLES[i]||'';
+  if(i===2)renderCalendar();if(i===3)renderVote();
 }
 let swX=null,swY=null;
 document.addEventListener('touchstart',e=>{swX=e.touches[0].clientX;swY=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchend',e=>{
-  if(swX===null)return;
-  const dx=e.changedTouches[0].clientX-swX,dy=e.changedTouches[0].clientY-swY;
-  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){
-    if([...document.querySelectorAll('.ov.open,.dov.open')].length)return;
-    if(dx<0&&curTab<2)switchTab(curTab+1);else if(dx>0&&curTab>0)switchTab(curTab-1);
-  }
+  if(swX===null)return;const dx=e.changedTouches[0].clientX-swX,dy=e.changedTouches[0].clientY-swY;
+  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){if([...document.querySelectorAll('.ov.open,.dov.open')].length)return;
+    const maxTab=document.getElementById('t3')?.style.display!=='none'?3:2;
+    if(dx<0&&curTab<maxTab)switchTab(curTab+1);else if(dx>0&&curTab>0)switchTab(curTab-1);}
   swX=null;swY=null;
 },{passive:true});
 
-// ══════════════════════════════════════════
-// ONBOARDING
-// ══════════════════════════════════════════
+// ── ONBOARDING ──
 function showOb(n){const steps=['ob1','ob2','ob3c','ob3j'];steps.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});if(n===1)document.getElementById('ob1').style.display='block';if(n===2)document.getElementById('ob2').style.display='block';if(n==='c')document.getElementById('ob3c').style.display='block';if(n==='j')document.getElementById('ob3j').style.display='block';}
 function obNext(){const name=document.getElementById('ob-name').value.trim();if(!name){showToast('Name eingeben');return;}showOb(2);}
-async function obChoose(c){
-  const name=document.getElementById('ob-name').value.trim();
-  await doLogin(name);
-  if(c==='solo'){await api('PATCH','/users/me',{solo:true});me.solo=true;await loadAll();showApp();startPolling();}
-  else showOb(c==='create'?'c':'j');
-}
+async function obChoose(c){const name=document.getElementById('ob-name').value.trim();await doLogin(name);if(c==='solo'){await api('PATCH','/users/me',{solo:true});me.solo=true;await loadAll();showApp();startPolling();}else showOb(c==='create'?'c':'j');}
 async function doLogin(name){const d=await api('POST','/users/login',{username:name});myToken=d.token;localStorage.setItem('tf_token',myToken);me=await api('GET','/users/me');}
 async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast('Name eingeben');return;}group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Code: '+group.inviteCode);}
 async function obJoin(){const code=document.getElementById('ob-code').value.trim().toUpperCase();if(!code){showToast('Code eingeben');return;}try{group=await api('POST','/groups/join',{inviteCode:code});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Beigetreten!');}catch(e){showToast('Fehler: '+e.message);}}
 
-// START
 init();
-</script></document_content>
+</script>
+</body>
+</html>
