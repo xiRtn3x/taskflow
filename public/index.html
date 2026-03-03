@@ -68,14 +68,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .task-body{flex:1;min-width:0;padding-left:3px;}
 .task-title{font-size:15px;font-weight:500;line-height:1.35;color:var(--text);}
 .task-title.done{text-decoration:line-through;color:var(--text3);font-weight:400;}
-.task-meta{margin-top:5px;display:flex;gap:4px;flex-wrap:wrap;align-items:center;}
-/* date badge */
-.b-date{background:var(--glass);color:var(--text3);border:1px solid var(--sep);}
-.b-date.overdue{background:rgba(239,68,68,.10);color:#DC2626;border:1px solid rgba(239,68,68,.2);}
-/* creator badge — single person, same visual language as shared */
-.b-creator{background:rgba(124,58,237,.08);color:#7C3AED;border:1px solid rgba(124,58,237,.15);}
-body.th-dark .b-date{background:rgba(255,255,255,.06);color:var(--text3);border-color:var(--sep);}
-body.th-dark .b-creator{background:rgba(124,58,237,.15);color:#C4B5FD;}
+.task-meta{font-size:11px;color:var(--text3);margin-top:4px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;}
 .chk{width:22px;height:22px;border-radius:50%;border:2px solid rgba(150,150,200,.4);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .2s;cursor:pointer;color:#fff;background:rgba(255,255,255,.3);}
 .chk.done{background:var(--green);border-color:var(--green);}
 .chk:active{transform:scale(.82);}
@@ -235,7 +228,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 <div class="onboard" id="onboard">
   <div style="margin:20px 0 12px;color:var(--acc)"><svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
   <div style="font-size:28px;font-weight:800;letter-spacing:-.6px;margin-bottom:6px">TaskFlow</div>
-  <div style="font-size:15px;color:var(--text3);line-height:1.55;margin-bottom:28px" id="ob-tagline">Gemeinsam mehr erledigen.</div>
+  <div style="font-size:15px;color:var(--text3);line-height:1.55;margin-bottom:28px">Gemeinsam mehr erledigen.</div>
   <div id="ob1">
     <label class="fl" style="margin-bottom:8px">Dein Name</label>
     <input class="fi" id="ob-name" placeholder="Name eingeben…" style="margin-bottom:14px;font-size:17px" onkeydown="if(event.key==='Enter')obNext()">
@@ -294,7 +287,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="page" id="pgPool">
       <div style="padding:10px 14px 4px"><div class="seg" id="poolFbar"></div></div>
       <div style="padding:4px 14px 8px">
-        <button class="btn btn-p" id="shuffle-btn" onclick="shufflePool()" style="gap:8px;font-size:14px">
+        <button class="btn btn-p" onclick="shufflePool()" style="gap:8px;font-size:14px">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
           Neu mischen
         </button>
@@ -316,7 +309,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <!-- PAGE 3: VOTE -->
     <div class="page" id="pgVote">
       <div style="padding:14px 14px 6px">
-        <div id="vote-intro" style="font-size:13px;color:var(--text3);line-height:1.55">Bewerte wie unangenehm du jede Aufgabe findest.<br>Skala: <b>1</b> = easy 😎 → <b>10</b> = absolute Qual 💩</div>
+        <div style="font-size:13px;color:var(--text3);line-height:1.55">Bewerte wie unangenehm du jede Aufgabe findest.<br>Skala: <b>1</b> = easy 😎 → <b>10</b> = absolute Qual 💩</div>
       </div>
       <div id="voteContainer"></div>
     </div>
@@ -327,15 +320,15 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div class="tabs">
     <div class="tab active" onclick="switchTab(0)" id="t0">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-      <span class="tab-lbl" id="t0lbl">Meine</span>
+      <span class="tab-lbl">Meine</span>
     </div>
     <div class="tab" onclick="switchTab(1)" id="t1">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg></div>
-      <span class="tab-lbl" id="t1lbl">Pool</span>
+      <span class="tab-lbl">Pool</span>
     </div>
     <div class="tab" onclick="switchTab(2)" id="t2">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <span class="tab-lbl" id="t2lbl">Kalender</span>
+      <span class="tab-lbl">Kalender</span>
     </div>
     <div class="tab" onclick="switchTab(3)" id="t3" style="display:none">
       <div class="tab-iw">
@@ -343,7 +336,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         <!-- poop emoji icon -->
         <span style="font-size:18px;line-height:1">💩</span>
       </div>
-      <span class="tab-lbl" id="t3lbl">Vote</span>
+      <span class="tab-lbl">Vote</span>
     </div>
   </div>
   <button class="fab" id="fabBtn" onclick="showAddTask()">
@@ -357,11 +350,11 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div id="confWrap" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
   <div class="celeb-face" id="celebFace"></div>
   <div class="celeb-txt" id="celebTxt"></div>
-  <div class="celeb-sub" id="celeb-sub">Tippe um fortzufahren</div>
+  <div class="celeb-sub">Tippe um fortzufahren</div>
 </div>
 <div class="slot-ov" id="slotOv" onclick="closeSlot()">
   <div class="slot-card" onclick="event.stopPropagation()">
-    <div class="slot-title" id="slot-title">Aufgaben werden verteilt…</div>
+    <div class="slot-title">Aufgaben werden verteilt…</div>
     <div id="slotRows"></div>
     <div class="slot-sub" id="slotSub">Die Würfel fallen…</div>
   </div>
@@ -385,9 +378,9 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="fg"><label class="fl">Kategorie</label><select class="fsel" id="fCat"></select></div>
     <div class="fg"><label class="fl">Priorität</label>
       <div class="seg" id="prioSeg">
-        <button class="seg-b" id="prio-h" onclick="setPrio('Hoch',this)">Hoch</button>
-        <button class="seg-b on" id="prio-m" onclick="setPrio('Mittel',this)">Mittel</button>
-        <button class="seg-b" id="prio-l" onclick="setPrio('Niedrig',this)">Niedrig</button>
+        <button class="seg-b" onclick="setPrio('Hoch',this)">Hoch</button>
+        <button class="seg-b on" onclick="setPrio('Mittel',this)">Mittel</button>
+        <button class="seg-b" onclick="setPrio('Niedrig',this)">Niedrig</button>
       </div>
     </div>
     <div class="fg"><label class="fl">Deadline</label><input class="fi" id="fDeadline" type="date"></div>
@@ -398,9 +391,9 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     </div>
     <div class="fg"><label class="fl">Typ</label>
       <div class="seg" id="typeSeg">
-        <button class="seg-b on" id="type-mine" onclick="setType('mine',this)">Eigene</button>
-        <button class="seg-b" id="type-pool" onclick="setType('pool',this)">Pool</button>
-        <button class="seg-b" id="type-shared" onclick="setType('shared',this)">Gemeinsam</button>
+        <button class="seg-b on" onclick="setType('mine',this)">Eigene</button>
+        <button class="seg-b" onclick="setType('pool',this)">Pool</button>
+        <button class="seg-b" onclick="setType('shared',this)">Gemeinsam</button>
       </div>
     </div>
     <div class="fg" id="assigneeWrap" style="display:none"><label class="fl">Zuständig</label><select class="fsel" id="fAssignee"></select></div>
@@ -410,8 +403,8 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <label class="fl">Scheißigkeits-Voting</label>
       <div style="display:flex;align-items:center;gap:14px;padding:10px 0">
         <div style="flex:1">
-          <div style="font-size:14px;font-weight:600;margin-bottom:2px" id="vtogTitle">Voting aktivieren 💩</div>
-          <div style="font-size:12px;color:var(--text3)" id="vtogSub">Alle Nutzer bewerten diese Aufgabe 1–10</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px">Voting aktivieren 💩</div>
+          <div style="font-size:12px;color:var(--text3)">Alle Nutzer bewerten diese Aufgabe 1–10</div>
         </div>
         <button class="tog" id="fVotingTog" onclick="toggleVoting(this)"></button>
       </div>
@@ -434,14 +427,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div class="sheet">
     <div class="handle"></div>
     <div class="mhdr"><div class="mtitle">Profil & Einstellungen</div><span class="mclose" onclick="closeProfile()">Fertig</span></div>
-    <div class="fg"><label class="fl" id="lbl-theme-txt">App-Design</label><div class="seg" id="themeSeg"><button class="seg-b on" onclick="setTheme('',this)" id="theme-l">Hell</button><button class="seg-b" onclick="setTheme('th-dark',this)" id="theme-d">Dunkel</button><button class="seg-b" onclick="setTheme('th-warm',this)" id="theme-w">Warm</button></div></div>
-    <div class="fg">
-      <label class="fl">Sprache / Language</label>
-      <div class="seg" id="langSeg">
-        <button class="seg-b on" onclick="setLang('de',this)">🇩🇪 Deutsch</button>
-        <button class="seg-b" onclick="setLang('en',this)">🇬🇧 English</button>
-      </div>
-    </div>
+    <div class="fg"><label class="fl">App-Design</label><div class="seg" id="themeSeg"><button class="seg-b on" onclick="setTheme('',this)">Hell</button><button class="seg-b" onclick="setTheme('th-dark',this)">Dunkel</button><button class="seg-b" onclick="setTheme('th-warm',this)">Warm</button></div></div>
     <div class="fg"><label class="fl">Mein Profil</label><div style="display:flex;align-items:center;gap:14px"><div class="profile-photo-ring" id="profPhotoWrap" onclick="document.getElementById('profPhotoInp').click()"></div><input type="file" id="profPhotoInp" accept="image/*" style="display:none" onchange="handlePhoto(this)"><div style="flex:1"><input class="fi" id="profName" placeholder="Name…"></div></div></div>
     <div class="fg"><label class="fl">Meine Farbe</label><div class="cgrid" id="myColorGrid"></div></div>
     <div class="fg" id="otherColorsSection"></div>
@@ -473,194 +459,22 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 <!-- TASK DETAIL -->
 <div class="dov" id="taskDetail">
   <div class="dnav">
-    <span class="back" onclick="closeDetail()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg><span id="back-lbl">Zurück</span></span>
+    <span class="back" onclick="closeDetail()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Zurück</span>
     <span style="flex:1"></span>
-    <span style="color:var(--acc);cursor:pointer;font-size:15px;font-weight:600" onclick="editCurrent()" id="edit-lbl">Bearbeiten</span>
+    <span style="color:var(--acc);cursor:pointer;font-size:15px;font-weight:600" onclick="editCurrent()">Bearbeiten</span>
   </div>
   <div id="detailContent"></div>
 </div>
 
 <script>
 // ══════════════════════════════════════════
-// ══════════════════════════════════════════
-// i18n
-// ══════════════════════════════════════════
-const STRINGS={
-de:{
-  tab0:'Meine',tab1:'Pool',tab2:'Kalender',tab3:'Vote',
-  flt_open:'Offen',flt_done:'Erledigt',flt_all:'Alle',flt_cats:'Kategorien',
-  prio_high:'Hoch',prio_mid:'Mittel',prio_low:'Niedrig',
-  rep_never:'Nie',rep_daily:'Täglich',rep_weekly:'Wöchentlich',rep_monthly:'Monatlich',rep_yearly:'Jährlich',
-  type_mine:'Eigene',type_pool:'Pool',type_shared:'Gemeinsam',
-  lbl_voting:'Scheißigkeits-Voting',voting_title:'Voting aktivieren 💩',voting_sub:'Alle Nutzer bewerten diese Aufgabe 1–10',
-  subtask_ph:'Unteraufgabe…',
-  new_task:'Neue Aufgabe',edit_task:'Aufgabe bearbeiten',save_btn:'Speichern',delete_btn:'Löschen',
-  theme_light:'Hell',theme_dark:'Dunkel',theme_warm:'Warm',
-  lbl_lang:'Sprache / Language',
-  lbl_other_colors:'Farben anderer Mitglieder',you_dot:'● Du',
-  group_members:'Mitglieder',group_del:'Gruppe löschen',group_leave:'Gruppe verlassen',
-  group_create:'+ Gruppe erstellen',group_join:'Gruppe beitreten',
-  group_joined:'Beigetreten!',group_created:'Erstellt! Code: ',
-  group_updated:'Aktualisiert',
-  confirm_leave:'Gruppe verlassen?',confirm_del_grp:'Gruppe löschen? Alle Aufgaben werden gelöscht.',
-  confirm_del_task:'Aufgabe löschen?',confirm_del:'Löschen?',confirm_reset:'Alle Aufgaben löschen?',confirm_del_account:'Account löschen?',
-  confirm_del_user:'Nutzer löschen?',confirm_del_group:'Gruppe löschen?',
-  wrong_pin:'Falscher PIN',
-  admin_del:'Löschen',
-  saved:'Gespeichert',created:'Erstellt',deleted:'Gelöscht',
-  not_your_task:'Nicht deine Aufgabe',not_your_sub:'Nicht deine Unteraufgabe',
-  no_pool_tasks:'Keine Pool-Aufgaben',enter_title:'Titel eingeben!',
-  all_lbl:'Alle',von_lbl:'von',
-  add_subtask:'+ Unteraufgabe',add_subtask_ph:'Unteraufgabe:',
-  mark_done:'Als erledigt markieren',reopen:'Wieder öffnen',
-  only_assignee:'Nur der zugewiesene Nutzer kann diese Aufgabe abschließen',
-  only_creator:'Nur der Aufgaben-Ersteller kann diese Aufgabe abschließen',
-  lbl_details:'Details',lbl_assigned:'Zuständig',lbl_deadline:'Deadline',
-  pool_yes:'Ja',shared_lbl:'Gemeinsam',subtasks_lbl:'Unteraufgaben',back_lbl:'Zurück',edit_lbl:'Bearbeiten',
-  vote_intro:'Bewerte wie unangenehm du jede Aufgabe findest.\nSkala: 1 = easy 😎 → 10 = absolute Qual 💩',
-  all_voted:'Alles bewertet!',no_more_votes:'Keine offenen Votings für dich.',
-  voted_of:'bewertet',vote_choose:'Wähle eine Zahl um abzustimmen',
-  vote_submit:'Abstimmen 💩',vote_err:'Bitte erst bewerten!',
-  vote_done_toast:'Voting abgeschlossen! Score: 💩 ',vote_cast:'Stimme abgegeben! 💩',
-  vote_running:'💩 Voting läuft…',vote_section:'💩 Scheißigkeitsscore',
-  vote_of_users:'Mittelwert aller Stimmen',votes_lbl:'Stimmen',
-  vote_pending_n:'haben abgestimmt',vote_now:'Jetzt abstimmen 💩',vote_lbl_hdr:'💩 Voting',
-  no_pool:'Kein Pool',no_pool_sub:'Erstelle Aufgaben vom Typ "Pool"',
-  no_tasks:'Keine Aufgaben',switch_filter:'Wechsle den Filter',
-  shuffle_balancing:'Scheißigkeits-Ausgleich läuft…',shuffle_done:'Fertig! Ausgeglichen verteilt.',
-  reshuffle_btn:'Neu mischen',slot_title:'Aufgaben werden verteilt…',dice_falling:'Die Würfel fallen…',
-  all_done:'Alles erledigt!',no_open_you:'Keine offenen Aufgaben für dich.',
-  nothing_done:'Noch nichts erledigt',no_open:'Keine offenen Aufgaben',no_tasks2:'Keine Aufgaben',
-  own_lbl:'Eigene',shared_sec:'Gemeinsam',pool_sec:'Pool',
-  no_deadlines:'Keine Deadlines',
-  badge_done:'Erledigt',pool_badge:'Pool',shared_badge:'gemeinsam',
-  celeb_sub:'Tippe um fortzufahren',
-  celeb_msgs:['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'],
-  changelog_btn:"Los geht's!",cat_empty:'Noch keine eigenen Kategorien.',
-  reset_tasks_btn:'Alle Aufgaben zurücksetzen',
-  ob_tagline:'Gemeinsam mehr erledigen.',
-},
-en:{
-  tab0:'Mine',tab1:'Pool',tab2:'Calendar',tab3:'Vote',
-  flt_open:'Open',flt_done:'Done',flt_all:'All',flt_cats:'Categories',
-  prio_high:'High',prio_mid:'Medium',prio_low:'Low',
-  rep_never:'Never',rep_daily:'Daily',rep_weekly:'Weekly',rep_monthly:'Monthly',rep_yearly:'Yearly',
-  type_mine:'Mine',type_pool:'Pool',type_shared:'Shared',
-  lbl_voting:'Crappiness Voting',voting_title:'Enable Voting 💩',voting_sub:'All users rate this task 1–10',
-  subtask_ph:'Subtask…',
-  new_task:'New Task',edit_task:'Edit Task',save_btn:'Save',delete_btn:'Delete',
-  theme_light:'Light',theme_dark:'Dark',theme_warm:'Warm',
-  lbl_lang:'Language / Sprache',
-  lbl_other_colors:"Others' Colors",you_dot:'● You',
-  group_members:'Members',group_del:'Delete Group',group_leave:'Leave Group',
-  group_create:'+ Create Group',group_join:'Join Group',
-  group_joined:'Joined!',group_created:'Created! Code: ',
-  group_updated:'Updated',
-  confirm_leave:'Leave group?',confirm_del_grp:'Delete group? All tasks will be deleted.',
-  confirm_del_task:'Delete task?',confirm_del:'Delete?',confirm_reset:'Delete all tasks?',confirm_del_account:'Delete account?',
-  confirm_del_user:'Delete user?',confirm_del_group:'Delete group?',
-  wrong_pin:'Wrong PIN',
-  admin_del:'Delete',
-  saved:'Saved',created:'Created',deleted:'Deleted',
-  not_your_task:'Not your task',not_your_sub:'Not your subtask',
-  no_pool_tasks:'No pool tasks',enter_title:'Please enter a title!',
-  all_lbl:'All',von_lbl:'by',
-  add_subtask:'+ Subtask',add_subtask_ph:'Subtask:',
-  mark_done:'Mark as done',reopen:'Reopen',
-  only_assignee:'Only the assigned user can complete this task',
-  only_creator:'Only the task creator can complete this task',
-  lbl_details:'Details',lbl_assigned:'Assigned to',lbl_deadline:'Deadline',
-  pool_yes:'Yes',shared_lbl:'Shared',subtasks_lbl:'Subtasks',back_lbl:'Back',edit_lbl:'Edit',
-  vote_intro:'Rate how unpleasant each task is.\nScale: 1 = easy 😎 → 10 = absolute hell 💩',
-  all_voted:'All rated!',no_more_votes:'No pending votes for you.',
-  voted_of:'rated',vote_choose:'Pick a number to vote',
-  vote_submit:'Vote 💩',vote_err:'Please select a rating first!',
-  vote_done_toast:'Voting complete! Score: 💩 ',vote_cast:'Vote cast! 💩',
-  vote_running:'💩 Voting in progress…',vote_section:'💩 Crappiness Score',
-  vote_of_users:'Average of all votes',votes_lbl:'Votes',
-  vote_pending_n:'have voted',vote_now:'Vote now 💩',vote_lbl_hdr:'💩 Voting',
-  no_pool:'No Pool',no_pool_sub:'Create tasks of type "Pool"',
-  no_tasks:'No Tasks',switch_filter:'Change the filter',
-  shuffle_balancing:'Balancing crappiness scores…',shuffle_done:'Done! Balanced assignment.',
-  reshuffle_btn:'Reshuffle',slot_title:'Assigning tasks…',dice_falling:'Rolling the dice…',
-  all_done:'All done!',no_open_you:'No open tasks for you.',
-  nothing_done:'Nothing done yet',no_open:'No open tasks',no_tasks2:'No tasks',
-  own_lbl:'Mine',shared_sec:'Shared',pool_sec:'Pool',
-  no_deadlines:'No deadlines',
-  badge_done:'Done',pool_badge:'Pool',shared_badge:'shared',
-  celeb_sub:'Tap to continue',
-  celeb_msgs:['Hell yeah! Great job!','Done! You are a star!','Absolutely crushed it!','Champion move!','That task never stood a chance!'],
-  changelog_btn:"Let's go!",cat_empty:'No custom categories yet.',
-  reset_tasks_btn:'Reset all tasks',
-  ob_tagline:'Get more done together.',
-}};
-let lang=localStorage.getItem('tf_lang')||'de';
-function T(k){return(STRINGS[lang]||STRINGS.de)[k]||STRINGS.de[k]||k;}
-function setLang(l,btn){
-  lang=l;localStorage.setItem('tf_lang',l);
-  document.querySelectorAll('#langSeg .seg-b').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  applyStrings();
-  if(me)render();
-}
-function applyStrings(){
-  // filters
-  const fmap={open:'flt_open',done:'flt_done',all:'flt_all',cats:'flt_cats'};
-  document.querySelectorAll('#myFilterSeg .seg-b').forEach(b=>{
-    const f=b.getAttribute('onclick').match(/setMyFilter\('(\w+)'/)?.[1];
-    if(f&&fmap[f])b.textContent=T(fmap[f]);
-  });
-  // voting wrap label & toggle
-  const vl=document.getElementById('votingWrap');
-  if(vl){const fl=vl.querySelector('.fl');if(fl)fl.textContent=T('lbl_voting');
-    const tt=document.getElementById('vtogTitle');if(tt)tt.textContent=T('voting_title');
-    const ts=document.getElementById('vtogSub');if(ts)ts.textContent=T('voting_sub');}
-  // subtask placeholder
-  const si=document.getElementById('newSubInp');if(si)si.placeholder=T('subtask_ph');
-  // shuffle btn text (keep icon, replace text node)
-  const sb=document.getElementById('shuffle-btn');
-  if(sb){const tn=[...sb.childNodes].find(n=>n.nodeType===3);if(tn)tn.textContent=' '+T('reshuffle_btn');}
-  // vote intro
-  const vi=document.getElementById('vote-intro');
-  if(vi)vi.innerHTML=T('vote_intro').replace('\n','<br>');
-  // back/edit in detail
-  const bl=document.getElementById('back-lbl');if(bl)bl.textContent=T('back_lbl');
-  const el=document.getElementById('edit-lbl');if(el)el.textContent=T('edit_lbl');
-  // prio buttons in modal
-  const ph=document.getElementById('prio-h');if(ph)ph.textContent=T('prio_high');
-  const pm=document.getElementById('prio-m');if(pm)pm.textContent=T('prio_mid');
-  const pl=document.getElementById('prio-l');if(pl)pl.textContent=T('prio_low');
-  // type buttons
-  const tmine=document.getElementById('type-mine');if(tmine)tmine.textContent=T('type_mine');
-  const tpool=document.getElementById('type-pool');if(tpool)tpool.textContent=T('type_pool');
-  const tsh=document.getElementById('type-shared');if(tsh)tsh.textContent=T('type_shared');
-  // repeat options
-  const rsel=document.getElementById('fRepeat');
-  if(rsel)[...rsel.options].forEach(o=>{
-    const map={'Nie':'rep_never','Never':'rep_never','Täglich':'rep_daily','Daily':'rep_daily','Wöchentlich':'rep_weekly','Weekly':'rep_weekly','Monatlich':'rep_monthly','Monthly':'rep_monthly','Jährlich':'rep_yearly','Yearly':'rep_yearly'};
-    const k=map[o.value]||map[o.textContent];if(k)o.textContent=T(k);
-  });
-  // theme buttons
-  const tl=document.getElementById('theme-l');if(tl)tl.textContent=T('theme_light');
-  const td=document.getElementById('theme-d');if(td)td.textContent=T('theme_dark');
-  const tw=document.getElementById('theme-w');if(tw)tw.textContent=T('theme_warm');
-  // nav title (current tab)
-  const titles=[T('tab0'),T('tab1'),T('tab2'),T('tab3')];
-  const nt=document.getElementById('navTitle');if(nt)nt.textContent=titles[curTab]||titles[0];
-  // tab labels
-  ['tab0','tab1','tab2','tab3'].forEach((k,i)=>{const el=document.getElementById('t'+i+'lbl');if(el)el.textContent=T(k);});
-  // ob tagline
-  const ob=document.getElementById('ob-tagline');if(ob)ob.textContent=T('ob_tagline');
-}
-
-// ══════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════
 const DEFAULT_CATS={Arbeit:'💼',Haushalt:'🏠',Einkauf:'🛒',Gesundheit:'❤️',Freizeit:'🎯',Schule:'📚',Sonstiges:'📌'};
 const ALL_COLORS=['#5B5BD6','#7C3AED','#DB2777','#DC2626','#EA580C','#CA8A04','#16A34A','#0891B2','#2563EB','#9333EA','#EC4899','#EF4444','#F97316','#EAB308','#22C55E','#06B6D4','#3B82F6','#6366F1','#A855F7','#F43F5E','#FB923C','#FBBF24','#4ADE80','#22D3EE'];
 const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn'};
-// CELEB messages now in STRINGS
-// NAV_TITLES now via T()
+const CELEB=['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
+const NAV_TITLES=['Meine','Pool','Kalender','Vote 💩'];
 // poop colors by score range
 function poopCls(s){if(!s)return'';const n=Math.round(s);if(n<=3)return'poop-'+n;if(n<=6)return'poop-'+n;return'poop-'+Math.min(n,10);}
 function poopColor(s){if(!s)return'#9CA3AF';if(s<=3)return'#16A34A';if(s<=6)return'#D97706';return'#DC2626';}
@@ -673,8 +487,6 @@ const I={
   rep:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
   alert:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,
   user:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
-  // single-person icon for creator badge (same shape, badge-sized)
-  person:`<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
   shuf:`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>`,
   trash:`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>`,
   edit:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>`,
@@ -684,24 +496,6 @@ const I={
   smile:`<svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>`,
   users:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
 };
-
-// Prio helpers — language-aware
-const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn',High:'b-red',Medium:'b-ora',Low:'b-grn'};
-function prioCls(t){return PRIO_CLS[t.prio]||'b-ora';}
-function prioLabel(t){
-  const p=t.prio||'Mittel';
-  if(p==='Hoch'||p==='High')return T('prio_high');
-  if(p==='Niedrig'||p==='Low')return T('prio_low');
-  return T('prio_mid');
-}
-function repLabel(t){
-  if(!t.repeat||t.repeat==='Nie'||t.repeat==='Never')return null;
-  if(t.repeat==='Täglich'||t.repeat==='Daily')return T('rep_daily');
-  if(t.repeat==='Wöchentlich'||t.repeat==='Weekly')return T('rep_weekly');
-  if(t.repeat==='Monatlich'||t.repeat==='Monthly')return T('rep_monthly');
-  if(t.repeat==='Jährlich'||t.repeat==='Yearly')return T('rep_yearly');
-  return null;
-}
 
 // ══════════════════════════════════════════
 // STATE
@@ -732,9 +526,6 @@ async function api(method,path,body){
 // INIT
 // ══════════════════════════════════════════
 async function init(){
-  applyStrings();
-  // Restore language selector UI
-  document.querySelectorAll('#langSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',(i===0&&lang==='de')||(i===1&&lang==='en')));
   myToken=localStorage.getItem('tf_token');
   if(myToken){
     try{me=await api('GET','/users/me');await loadAll();showApp();startPolling();await checkChangelog();await checkNewTasks();return;}
@@ -890,7 +681,7 @@ function renderVote(){
   const myId=me._id?.toString();
   const toVote=tasks.filter(t=>needsMyVote(t));
   if(!toVote.length){
-    c.innerHTML=`<div class="empty"><div style="font-size:48px;margin-bottom:12px">💩</div><div class="empty-t">${T('all_voted')}</div><div class="empty-s">${T('no_more_votes')}</div></div>`;
+    c.innerHTML=`<div class="empty"><div style="font-size:48px;margin-bottom:12px">💩</div><div class="empty-t">Alles bewertet!</div><div class="empty-s">Keine offenen Votings für dich.</div></div>`;
     return;
   }
   c.innerHTML=toVote.map(t=>{
@@ -911,14 +702,14 @@ function renderVote(){
     return`<div class="vote-card">
       <div class="vote-title">${t.title}</div>
       <div class="vote-meta">
-        <span class="badge ${prioCls(t)}">${prioLabel(t)}</span>
+        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
         <span class="badge b-blu">${t.cat}</span>
         ${t.deadline?`<span style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}
-        <span style="color:var(--text3)">${votedCount}/${totalUsers} ${T('voted_of')}</span>
+        <span style="color:var(--text3)">${votedCount}/${totalUsers} bewertet</span>
       </div>
       ${t.desc?`<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:10px">${t.desc}</div>`:''}
       <div class="vote-scale">${scaleHTML}</div>
-      ${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitVote('${tid}')">${T('vote_submit')}</button>`:`<div class="vote-pending">${T('vote_choose')}</div>`}
+      ${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitVote('${tid}')">Abstimmen 💩</button>`:`<div class="vote-pending">Wähle eine Zahl um abzustimmen</div>`}
     </div>`;
   }).join('');
 }
@@ -929,7 +720,7 @@ function setVote(tid,score){
 }
 
 async function submitVote(tid){
-  const score=pendingVotes[tid];if(!score){showToast(T('vote_err'));return;}
+  const score=pendingVotes[tid];if(!score){showToast('Bitte erst bewerten!');return;}
   const myId=me._id?.toString();
   const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;
   if(!t.votes)t.votes={};
@@ -942,12 +733,12 @@ async function submitVote(tid){
       const finalScore=getScore(t);
       t.poopScore=finalScore;
       await api('PATCH','/tasks/'+tid,{poopScore:finalScore});
-      showToast(T('vote_done_toast')+finalScore);
+      showToast(`Voting abgeschlossen! Score: 💩 ${finalScore}`);
     } else {
-      showToast(T('vote_cast'));
+      showToast('Stimme abgegeben! 💩');
     }
     render();
-  }catch(e){showToast(e.message);}
+  }catch(e){showToast('Fehler: '+e.message);}
 }
 
 // ══════════════════════════════════════════
@@ -958,7 +749,7 @@ function uById(id){return users.find(u=>u._id?.toString()===id?.toString());}
 function uColor(assignee){if(!assignee||assignee==='all')return'#9CA3AF';const ovr=me?.colorOverrides?.[assignee];if(ovr)return ovr;return uById(assignee)?.color||'#9CA3AF';}
 function avHTML(u,sz=38){if(!u)return`<div class="av" style="width:${sz}px;height:${sz}px;background:#9CA3AF;font-size:${Math.round(sz*.38)}px">?</div>`;if(u.photo)return`<div class="av" style="width:${sz}px;height:${sz}px"><img src="${u.photo}"></div>`;return`<div class="av" style="width:${sz}px;height:${sz}px;background:${uColor(u._id?.toString())};font-size:${Math.round(sz*.38)}px">${u.name?.[0]||'?'}</div>`;}
 function prog(t){if(!t.subtasks?.length)return'';const done=t.subtasks.filter(s=>s.done).length,total=t.subtasks.length;return`<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${Math.round(done/total*100)}%"></div></div><span class="prog-lbl">${done}/${total}</span></div>`;}
-function fmtD(d){if(!d)return'';const locale=lang==='en'?'en-GB':'de-DE';return new Date(d+'T00:00:00').toLocaleDateString(locale,{day:'numeric',month:'short'});}
+function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'});}
 function uid(){return Math.random().toString(36).substr(2,9);}
 
 // TASK TYPE + VISIBILITY
@@ -979,21 +770,12 @@ function showInMy(t){
 function taskHTML(t,showBar=false){
   const asgn=isPoolTask(t)?appstate.poolAssigns?.[t._id?.toString()]:null;
   const effId=asgn?.assignedUser||t.assignee;
-  const col=uColor(effId);
+  const col=uColor(effId);const u=isPoolTask(t)?uById(effId):uById(t.assignee);
   const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();
+  const aname=u?u.name:(t.assignee==='all'?'Alle':'');
+  const creatorNote=isMyTask(t)&&t.creatorId&&t.creatorId!==t.assignee?uById(t.creatorId)?.name:'';
   const canDo=canComplete(t);
-  const chkClick=canDo?`event.stopPropagation();toggleTask('${t._id}',true)`:`event.stopPropagation();showToast('${T('not_your_task')}')`;
-  // Creator badge: only for "mine" tasks created by someone else
-  const creatorU=isMyTask(t)&&t.creatorId&&t.creatorId!==t.assignee?uById(t.creatorId):null;
-  const creatorCol=creatorU?uColor(creatorU._id?.toString()):'';
-  // Shared names
-  const sharedNames=isSharedTask(t)?
-    [(t.sharedWith||[]).map(id=>{const uu=uById(id);return uu?uu.name:'';}).filter(Boolean),
-     (t.creatorId&&t.creatorId!==me._id?.toString()?[uById(t.creatorId)?.name].filter(Boolean):[])
-    ].flat().filter((v,i,a)=>a.indexOf(v)===i).join(', ')||T('shared_badge')
-    :'';
-  // Poop / voting badge
-  const sc=getScore(t);
+  const chkClick=canDo?`event.stopPropagation();toggleTask('${t._id}',true)`:`event.stopPropagation();showToast('Nicht deine Aufgabe')`;
   // My subtasks in pool
   let mySubsHtml='';
   if(isPoolTask(t)&&asgn?.subtaskAssignments&&t.subtasks?.length){
@@ -1003,19 +785,20 @@ function taskHTML(t,showBar=false){
       mySubsHtml=`<div style="margin-top:4px">`+mySubs.map(s=>`<div style="display:flex;align-items:center;gap:5px;font-size:11px;color:${s.done?'var(--text3)':'var(--text2)'};${s.done?'text-decoration:line-through;':''}padding:1px 0"><div class="sub-chk${s.done?' done':''}" onclick="event.stopPropagation();toggleSubInline('${t._id}','${s.id}')" style="width:14px;height:14px">${s.done?I.check:''}</div>${s.title}</div>`).join('')+`</div>`;
     }
   }
-  const rl=repLabel(t);
   return`<div class="task-item" id="ti-${t._id}" onclick="openDetail('${t._id}')">
     ${showBar?`<div class="color-bar" style="background:${col}"></div>`:''}
     <div class="chk${t.done?' done':''}${!canDo?' locked':''}" onclick="${chkClick}" style="${!canDo?'opacity:.45;cursor:not-allowed;':''}">${t.done?I.check:''}</div>
     <div class="task-body">
       <div class="task-title${t.done?' done':''}">${t.title}</div>
       <div class="task-meta">
-        <span class="badge ${prioCls(t)}">${prioLabel(t)}</span>
-        ${isSharedTask(t)?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.users} ${sharedNames}</span>`:''}
-        ${creatorU?`<span class="badge b-creator" style="display:inline-flex;align-items:center;gap:3px;color:${creatorCol};background:${creatorCol}15;border-color:${creatorCol}30">${I.person} ${creatorU.name}</span>`:''}
-        ${t.deadline?`<span class="badge b-date${overdue?' overdue':''}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span>`:''}
-        ${rl?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${rl}</span>`:''}
-        ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:t.votingEnabled&&!hasFullScore(t)?`<span class="badge b-ora" style="display:inline-flex;align-items:center;gap:3px">${T('vote_running')}</span>`:''}
+        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        ${isSharedTask(t)?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.users} ${[(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'';}).filter(Boolean),(t.creatorId&&t.creatorId!==me._id?.toString()?[uById(t.creatorId)?.name].filter(Boolean):[])].flat().filter((v,i,a)=>a.indexOf(v)===i).join(', ')||'gemeinsam'}</span>`:''}
+        ${t.deadline?`<span style="display:inline-flex;align-items:center;gap:3px;color:${overdue?'var(--red)':'var(--text3)'}">${I.cal} ${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span>`:''}
+        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
+        ${scoreBadge(t)}
+        ${showBar&&aname?`<span style="color:${col};font-weight:600">${aname}</span>`:''}
+        ${creatorNote?`<span style="color:var(--text3);font-size:10px">von ${creatorNote}</span>`:''}
+        ${t.votingEnabled&&!hasFullScore(t)?`<span class="badge b-ora" style="display:inline-flex;align-items:center;gap:3px">💩 Voting läuft…</span>`:''}
       </div>
       ${mySubsHtml}${prog(t)}
     </div>
@@ -1023,7 +806,7 @@ function taskHTML(t,showBar=false){
   </div>`;
 }
 
-async function toggleSubInline(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(!s)return;s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();}catch(e){s.done=!s.done;showToast('Error');}}
+async function toggleSubInline(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(!s)return;s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();}catch(e){s.done=!s.done;showToast('Fehler');}}
 
 // ── MY PAGE ──
 function setMyFilter(f,btn){myFilter=f;document.querySelectorAll('#myFilterSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderMy();}
@@ -1031,24 +814,24 @@ function renderMy(){
   const c=document.getElementById('myContainer');
   if(myFilter==='cats'){
     const myTasks=tasks.filter(t=>showInMy(t)&&!t.done);
-    if(!myTasks.length){c.innerHTML=`<div class="empty"><div>${I.chkCirc}</div><div class="empty-t">${T('all_done')}</div><div class="empty-s">${T('no_open_you')}</div></div>`;return;}
+    if(!myTasks.length){c.innerHTML=`<div class="empty"><div>${I.chkCirc}</div><div class="empty-t">Alles erledigt!</div><div class="empty-s">Keine offenen Aufgaben für dich.</div></div>`;return;}
     const catSet=[...new Set(myTasks.map(t=>isPoolTask(t)?'Pool':t.cat))];
     const ord=(appstate.catOrder||[]).filter(c=>catSet.includes(c));catSet.forEach(c=>{if(!ord.includes(c))ord.push(c);});
     let html='';
     ord.forEach(cat=>{
       const ct=cat==='Pool'?myTasks.filter(t=>isPoolTask(t)):myTasks.filter(t=>!isPoolTask(t)&&t.cat===cat);if(!ct.length)return;
       const hasShared=ct.some(t=>isSharedTask(t));
-      html+=`<div class="cat-blk" data-cat="${cat}"><div class="sec"><span class="drag-ch">${I.grip}</span>${cat}${cat==='Pool'?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">${T('pool_badge')}</span>`:hasShared?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">${T('shared_badge')}</span>`:''}</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,isSharedTask(t)||isPoolTask(t))).join('')}</div></div>`;
+      html+=`<div class="cat-blk" data-cat="${cat}"><div class="sec"><span class="drag-ch">${I.grip}</span>${cat}${cat==='Pool'?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">Pool</span>`:hasShared?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">gemeinsam</span>`:''}</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,isSharedTask(t)||isPoolTask(t))).join('')}</div></div>`;
     });
     c.innerHTML=html;initCatDrag();return;
   }
   let list=tasks.filter(t=>{if(!showInMy(t))return false;if(myFilter==='open')return!t.done;if(myFilter==='done')return t.done;return true;});
-  if(!list.length){const msg=myFilter==='done'?T('nothing_done'):myFilter==='open'?T('no_open'):T('no_tasks2');c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${msg}</div></div>`;return;}
+  if(!list.length){const msg=myFilter==='done'?'Noch nichts erledigt':myFilter==='open'?'Keine offenen Aufgaben':'Keine Aufgaben';c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${msg}</div></div>`;return;}
   const mine=list.filter(t=>isMyTask(t)),shared=list.filter(t=>isSharedTask(t)),pool=list.filter(t=>isPoolTask(t));
   let html='';
-  if(mine.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.user} ${T('own_lbl')}</div><div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
-  if(shared.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.users} ${T('shared_sec')}</div><div class="glass-card cg">${shared.map(t=>taskHTML(t,true)).join('')}</div>`;
-  if(pool.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.shuf} ${T('pool_sec')}</div><div class="glass-card cg">${pool.map(t=>taskHTML(t,true)).join('')}</div>`;
+  if(mine.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.user} Eigene</div><div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
+  if(shared.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.users} Gemeinsam</div><div class="glass-card cg">${shared.map(t=>taskHTML(t,true)).join('')}</div>`;
+  if(pool.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.shuf} Pool</div><div class="glass-card cg">${pool.map(t=>taskHTML(t,true)).join('')}</div>`;
   c.innerHTML=html;
 }
 function initCatDrag(){
@@ -1152,7 +935,7 @@ function renderPool(){
   let toShow=poolable;
   if(pf!=='all')toShow=toShow.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});
   const c=document.getElementById('poolContainer');
-  if(!toShow.length&&!poolable.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${T('no_pool')}</div><div class="empty-s">${T('no_pool_sub')}</div></div>`;return;}
+  if(!toShow.length&&!poolable.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;return;}
   if(!toShow.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;return;}
   c.innerHTML=toShow.map(t=>{
     const id=t._id?.toString();const asgn=appstate.poolAssigns?.[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);const myId=me._id?.toString();const isMineDot=asgn?.assignedUser===myId;
@@ -1173,9 +956,9 @@ function renderPool(){
         <div style="display:flex;align-items:center;gap:5px;padding-left:10px;flex-shrink:0">${avHTML(u,28)}<div style="text-align:right"><div style="font-size:12px;font-weight:700;color:${col}">${u?.name||'–'}</div>${isMineDot?`<div style="font-size:10px;color:var(--green);font-weight:600">● Du</div>`:''}</div></div>
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <span class="badge ${prioCls(t)}">${prioLabel(t)}</span>
+        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
         ${t.deadline?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}
-        ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">${T('vote_running')}</span>`:''}
+        ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 Voting läuft…</span>`:''}
         ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}
       </div>
       ${subsHtml}${prog(t)}
@@ -1186,7 +969,7 @@ function setPoolF(id){appstate.poolFilter=id;saveState();renderPool();}
 
 function shufflePool(){
   const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  if(!poolable.length){showToast(T('no_pool_tasks'));return;}
+  if(!poolable.length){showToast('Keine Pool-Aufgaben');return;}
   appstate.poolTasks=poolable.map(t=>t._id?.toString());
   const finalAssigns=fairShuffleAssigns(appstate.poolTasks);
   appstate.poolFilter='all';
@@ -1196,20 +979,20 @@ function shufflePool(){
     const sc=getScore(t);const subCount=t.subtasks?.length||0;
     return`<div class="slot-row"><div class="slot-task">${t.title.slice(0,20)}${t.title.length>20?'…':''}${sc!=null?` 💩${sc}`:''}${subCount?` <span style="font-size:10px;color:var(--text3)">(+${subCount})</span>`:''}</div><div class="slot-name-wrap" id="slot-${id}"><div class="slot-reel" id="reel-${id}"></div></div></div>`;
   }).join('');
-  document.getElementById('slotSub').textContent=T('dice_falling');
-  const stitle=document.getElementById('slot-title');if(stitle)stitle.textContent=T('slot_title');document.getElementById('slotOv').classList.add('show');
+  document.getElementById('slotSub').textContent='Die Würfel fallen…';
+  document.getElementById('slotOv').classList.add('show');
   const unames=users.map(u=>u.name);let ticker=0;
   const interval=setInterval(()=>{
     ticker++;
     appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const nm=unames[Math.floor(Math.random()*unames.length)];const span=document.createElement('div');span.className='slot-name-item';span.style.color=me?.color||'var(--acc)';span.textContent=nm;reel.insertBefore(span,reel.firstChild);if(reel.children.length>6)reel.removeChild(reel.lastChild);});
-    if(ticker===1)document.getElementById('slotSub').textContent=T('shuffle_balancing');
+    if(ticker===1)document.getElementById('slotSub').textContent='Scheißigkeits-Ausgleich läuft…';
     if(ticker===30){
       clearInterval(interval);appstate.poolAssigns=finalAssigns;saveState();renderPool();renderMy();
       appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:14px;font-weight:800">${u?.name||'?'}</div>`;});
       // Show balance info
       const uids=users.map(u=>u._id?.toString());
       const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=appstate.poolTasks.filter(id=>finalAssigns[id]?.assignedUser===uid);const totalScore=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: 💩${totalScore.toFixed(1)}`;}).join(' · ');
-      document.getElementById('slotSub').textContent=scoreInfo||T('shuffle_done');
+      document.getElementById('slotSub').textContent=scoreInfo||'Fertig! Ausgeglichen verteilt.';
       setTimeout(closeSlot,2500);
     }
   },80);
@@ -1236,7 +1019,7 @@ function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCalendar();}
 function renderCalList(){
   const c=document.getElementById('calList');
   if(calDay){const dt=tasks.filter(t=>t.deadline===calDay&&showInMy(t));if(!dt.length){c.innerHTML=`<div style="padding:12px 14px;color:var(--text3);font-size:14px">Keine Aufgaben.</div>`;return;}c.innerHTML=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(calDay)}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;}
-  else{const all=tasks.filter(t=>t.deadline&&showInMy(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));if(!all.length){c.innerHTML=`<div class="empty"><div>${I.calOff}</div><div class="empty-t">${T('no_deadlines')}</div></div>`;return;}const byD={};all.forEach(t=>{if(!byD[t.deadline])byD[t.deadline]=[];byD[t.deadline].push(t);});let html='';Object.entries(byD).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,dt])=>{const od=new Date(date+'T00:00:00')<new Date()&&date!==todayStr();html+=`<div class="sec" style="${od?'color:var(--red)':''}display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(date)}${od?` ${I.alert}`:''}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;});c.innerHTML=html;}
+  else{const all=tasks.filter(t=>t.deadline&&showInMy(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));if(!all.length){c.innerHTML=`<div class="empty"><div>${I.calOff}</div><div class="empty-t">Keine Deadlines</div></div>`;return;}const byD={};all.forEach(t=>{if(!byD[t.deadline])byD[t.deadline]=[];byD[t.deadline].push(t);});let html='';Object.entries(byD).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,dt])=>{const od=new Date(date+'T00:00:00')<new Date()&&date!==todayStr();html+=`<div class="sec" style="${od?'color:var(--red)':''}display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(date)}${od?` ${I.alert}`:''}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;});c.innerHTML=html;}
 }
 
 // ── DETAIL ──
@@ -1246,33 +1029,33 @@ function openDetail(id){
   // subtask HTML
   let subsH='';
   if(t.subtasks?.length){
-    subsH=`<div class="sec">${T('subtasks_lbl')} (${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})</div><div class="glass-card cg" id="dSubList">${t.subtasks.map(s=>{const subUid=asgn?.subtaskAssignments?.[s.id];const subU=subUid?uById(subUid):null;const subCol=subUid?uColor(subUid):'var(--text3)';const canToggleSub=!isPoolTask(t)||(subUid===myId);return`<div class="sub-item" data-sid="${s.id}"><span class="dragh">${I.grip}</span><div class="sub-chk${s.done?' done':''}" onclick="${canToggleSub?`toggleSub('${id}','${s.id}')`:`showToast('${T('not_your_sub')}')`}" style="${!canToggleSub?'opacity:.45;cursor:not-allowed;':''}">${s.done?I.check:''}</div><span style="flex:1;font-size:14px;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>${subU?`<span style="font-size:11px;font-weight:700;color:${subCol}">${subU.name}</span>`:''}</div>`;}).join('')}<div class="crow" onclick="addSubDetail('${id}')"><span style="color:var(--acc)">${I.chevR}</span><span style="color:var(--acc);font-size:14px">${T('add_subtask')}</span></div></div>`;
-  } else {subsH=`<div style="padding:0 14px 8px"><button class="btn btn-g" onclick="addSubDetail('${id}')">${T('add_subtask')}</button></div>`;}
+    subsH=`<div class="sec">Unteraufgaben (${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})</div><div class="glass-card cg" id="dSubList">${t.subtasks.map(s=>{const subUid=asgn?.subtaskAssignments?.[s.id];const subU=subUid?uById(subUid):null;const subCol=subUid?uColor(subUid):'var(--text3)';const canToggleSub=!isPoolTask(t)||(subUid===myId);return`<div class="sub-item" data-sid="${s.id}"><span class="dragh">${I.grip}</span><div class="sub-chk${s.done?' done':''}" onclick="${canToggleSub?`toggleSub('${id}','${s.id}')`:`showToast('Nicht deine Unteraufgabe')`}" style="${!canToggleSub?'opacity:.45;cursor:not-allowed;':''}">${s.done?I.check:''}</div><span style="flex:1;font-size:14px;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>${subU?`<span style="font-size:11px;font-weight:700;color:${subCol}">${subU.name}</span>`:''}</div>`;}).join('')}<div class="crow" onclick="addSubDetail('${id}')"><span style="color:var(--acc)">${I.chevR}</span><span style="color:var(--acc);font-size:14px">Unteraufgabe hinzufügen</span></div></div>`;
+  } else {subsH=`<div style="padding:0 14px 8px"><button class="btn btn-g" onclick="addSubDetail('${id}')">+ Unteraufgabe</button></div>`;}
   // Vote section in detail
   const sc=getScore(t);
   let voteSection='';
   if(t.votingEnabled&&isPoolTask(t)){
     if(sc!=null){
       const barW=Math.round(sc/10*100);
-      voteSection=`<div class="sec">${T('vote_section')}</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — ${T('vote_of_users')}</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">${T('votes_lbl')}: ${Object.entries(t.votes||{}).map(([uid,v])=>{const u=uById(uid);return`${u?.name||'?'}: ${v}`;}).join(' · ')}</div></div></div>`;
+      voteSection=`<div class="sec">💩 Scheißigkeitsscore</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — Mittelwert aller Stimmen</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">Stimmen: ${Object.entries(t.votes||{}).map(([uid,v])=>{const u=uById(uid);return`${u?.name||'?'}: ${v}`;}).join(' · ')}</div></div></div>`;
     } else {
       const vCnt=Object.keys(t.votes||{}).length;
-      voteSection=`<div class="sec">${T('vote_lbl_hdr')}</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${users.length} ${T('vote_pending_n')}${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">${T('vote_now')}</button>`:''}</div></div>`;
+      voteSection=`<div class="sec">💩 Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${users.length} haben abgestimmt${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen 💩</button>`:''}</div></div>`;
     }
   }
-  document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${prioCls(t)}">${prioLabel(t)}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${T('badge_done')}</span>`:''}${repLabel(t)?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${repLabel(t)}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
-  <div class="sec">${T('lbl_details')}</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">${T('lbl_assigned')}</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">${T('lbl_deadline')}</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">Pool</span><span style="color:var(--green);font-size:14px">${I.check} ${T('pool_yes')}</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">${T('shared_lbl')}</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
+  document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
+  <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">Zuständig</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">Deadline</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">Pool</span><span style="color:var(--green);font-size:14px">${I.check} Ja</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">Gemeinsam</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
   </div>${subsH}${voteSection}
-  <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?T('reopen'):T('mark_done')}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">${isPoolTask(t)?T('only_assignee'):T('only_creator')}</div>`}</div>
+  <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">Nur ${isPoolTask(t)?'der zugewiesene Nutzer':'der Aufgaben-Ersteller'} kann diese Aufgabe abschließen</div>`}</div>
   <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} Löschen</button></div>`;
   document.getElementById('taskDetail').classList.add('open');
   if(t.subtasks?.length)setTimeout(()=>initSubDrag(id),60);
 }
 function closeDetail(){document.getElementById('taskDetail').classList.remove('open');}
 function editCurrent(){if(detailId){closeDetail();setTimeout(()=>showAddTask(detailId),250);}}
-function delDetail(id){if(!confirm(T('confirm_del_task')))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeDetail();showToast(T('deleted'));}).catch(e=>showToast(e.message));}
-async function toggleSub(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(s)s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}catch(e){showToast('Error');}}
-async function addSubDetail(tid){const title=prompt(T('add_subtask_ph'));if(!title)return;const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;if(!t.subtasks)t.subtasks=[];t.subtasks.push({id:uid(),title,done:false});await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}
+function delDetail(id){if(!confirm('Aufgabe löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeDetail();showToast('Gelöscht');}).catch(e=>showToast('Fehler: '+e.message));}
+async function toggleSub(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(s)s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}catch(e){showToast('Fehler');}}
+async function addSubDetail(tid){const title=prompt('Unteraufgabe:');if(!title)return;const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;if(!t.subtasks)t.subtasks=[];t.subtasks.push({id:uid(),title,done:false});await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}
 function initSubDrag(tid){
   const list=document.getElementById('dSubList');if(!list)return;let dr=null;
   function items(){return[...list.querySelectorAll('.sub-item[data-sid]')];}
@@ -1286,12 +1069,12 @@ function initSubDrag(tid){
 // ── TASK TOGGLE ──
 async function toggleTask(id,withCeleb=false){
   const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
-  if(!canComplete(t)){showToast(T('not_your_task'));return;}
+  if(!canComplete(t)){showToast('Du kannst diese Aufgabe nicht abschließen');return;}
   const was=t.done;t.done=!t.done;
   if(!was&&t.repeat&&t.repeat!=='Nie'){if(!appstate.recurringLast)appstate.recurringLast={};appstate.recurringLast[id]=todayStr();saveState();}
   if(was&&t.repeat&&t.repeat!=='Nie'&&appstate.recurringLast){delete appstate.recurringLast[id];saveState();}
   if(!was){const el=document.getElementById('ti-'+id);if(el){el.classList.add('completing');setTimeout(()=>{render();},430);}else render();if(withCeleb)celebrate();}else render();
-  try{await api('PATCH','/tasks/'+id,{done:t.done});}catch(e){t.done=was;render();showToast('Error');}
+  try{await api('PATCH','/tasks/'+id,{done:t.done});}catch(e){t.done=was;render();showToast('Fehler');}
 }
 
 // ── TASK MODAL ──
@@ -1340,16 +1123,16 @@ function showAddTask(editId=null){
 }
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
 async function saveTask(){
-  const title=document.getElementById('fTitle').value.trim();if(!title){showToast(T('enter_title'));return;}
+  const title=document.getElementById('fTitle').value.trim();if(!title){showToast('Titel eingeben!');return;}
   const assignee=selType==='mine'?document.getElementById('fAssignee').value:me._id?.toString();
   const data={title,desc:document.getElementById('fDesc').value,cat:document.getElementById('fCat').value,prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:document.getElementById('fRepeat').value,type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
   try{
     if(editingId){await api('PATCH','/tasks/'+editingId,data);const idx=tasks.findIndex(t=>t._id?.toString()===editingId);if(idx>=0)tasks[idx]={...tasks[idx],...data};}
     else{const created=await api('POST','/tasks',data);tasks.push(created);}
-    newSubs=[];saveState();render();closeTaskModal();showToast(editingId?T('saved'):T('created'));
-  }catch(e){showToast(e.message);}
+    newSubs=[];saveState();render();closeTaskModal();showToast(editingId?'Gespeichert':'Erstellt');
+  }catch(e){showToast('Fehler: '+e.message);}
 }
-function delFromModal(id){if(!confirm(T('confirm_del')))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeTaskModal();showToast(T('deleted'));}).catch(e=>showToast(e.message));}
+function delFromModal(id){if(!confirm('Löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeTaskModal();showToast('Gelöscht');}).catch(e=>showToast(e.message));}
 
 // ── PROFILE ──
 function openProfile(){
@@ -1357,45 +1140,43 @@ function openProfile(){
   const pw=document.getElementById('profPhotoWrap');pw.innerHTML=me.photo?`<img src="${me.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<div style="width:100%;height:100%;background:${me.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff">${me.name[0]}</div>`;
   document.getElementById('myColorGrid').innerHTML=ALL_COLORS.map(c=>`<div class="cdot${me.color===c?' sel':''}" style="background:${c}" onclick="pickMyColor('${c}',this)"></div>`).join('');
   const others=users.filter(u=>u._id?.toString()!==me._id?.toString());
-  document.getElementById('otherColorsSection').innerHTML=others.length?`<label class="fl">${T('lbl_other_colors')}</label>`+others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;}).join(''):'';
-  // Restore lang selector state
-  document.querySelectorAll('#langSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',(i===0&&lang==='de')||(i===1&&lang==='en')));
+  document.getElementById('otherColorsSection').innerHTML=others.length?`<label class="fl">Farben anderer Mitglieder</label>`+others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;}).join(''):'';
   renderGroupSection();renderCatList();document.getElementById('profileModal').classList.add('open');
 }
 function closeProfile(){document.getElementById('profileModal').classList.remove('open');}
 function renderGroupSection(){
   const gs=document.getElementById('groupSection');
-  if(group){gs.innerHTML=`<label class="fl">${T('tab1')}</label><div class="glass-card" style="margin:0;border-radius:14px"><div class="crow"><div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div><div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroup()">${I.edit}</button>`:''}</div><div class="sec">${T('group_members')}</div>${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?` <span style="color:var(--green);font-size:11px">${T('you_dot')}</span>`:''}</div></div>`).join('')}</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} ${T('group_del')}</button>`:''}<button class="btn btn-out" onclick="leaveGroup()">${T('group_leave')}</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
-  else{gs.innerHTML=`<label class="fl">${T('tab1')}</label><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="createGroup()">${T('group_create')}</button><button class="btn btn-out" onclick="joinGroup()">${T('group_join')}</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
+  if(group){gs.innerHTML=`<label class="fl">Gruppe</label><div class="glass-card" style="margin:0;border-radius:14px"><div class="crow"><div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div><div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroup()">${I.edit}</button>`:''}</div><div class="sec">Mitglieder</div>${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}<button class="btn btn-out" onclick="leaveGroup()">Gruppe verlassen</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
+  else{gs.innerHTML=`<label class="fl">Gruppe</label><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button><button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
 }
 function pickMyColor(c,el){me.color=c;document.querySelectorAll('#myColorGrid .cdot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');}
 function pickOvr(uid,color,el){if(!me.colorOverrides)me.colorOverrides={};me.colorOverrides[uid]=color;const par=el.parentElement;if(par)par.querySelectorAll('.cdot').forEach(d=>d.classList.toggle('sel',d.style.background===color));}
 function handlePhoto(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{profilePhoto=e.target.result;document.getElementById('profPhotoWrap').innerHTML=`<img src="${profilePhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`};r.readAsDataURL(f);}
 async function saveProfile(){
   const name=document.getElementById('profName').value.trim();
-  try{me=await api('PATCH','/users/me',{name:name||me.name,color:me.color,photo:profilePhoto,colorOverrides:me.colorOverrides||{},theme:me.theme||''});const idx=users.findIndex(u=>u._id?.toString()===me._id?.toString());if(idx>=0)users[idx]={...users[idx],...me};applyTheme();render();closeProfile();showToast(T('saved'));}catch(e){showToast(e.message);}
+  try{me=await api('PATCH','/users/me',{name:name||me.name,color:me.color,photo:profilePhoto,colorOverrides:me.colorOverrides||{},theme:me.theme||''});const idx=users.findIndex(u=>u._id?.toString()===me._id?.toString());if(idx>=0)users[idx]={...users[idx],...me};applyTheme();render();closeProfile();showToast('Gespeichert');}catch(e){showToast('Fehler: '+e.message);}
 }
-async function createGroup(){const name=prompt(T('group_create')+':');if(!name)return;try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast(T('group_created')+group.inviteCode);}catch(e){showToast(e.message);}}
-async function joinGroup(){const code=prompt(T('group_join')+':');if(!code)return;try{group=await api('POST','/groups/join',{inviteCode:code.trim().toUpperCase()});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast(T('group_joined'));}catch(e){showToast(e.message);}}
-async function leaveGroup(){if(!confirm(T('confirm_leave')))return;try{await api('POST','/groups/leave');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
-async function delGroup(){if(!confirm(T('confirm_del_grp')))return;try{await api('DELETE','/groups/mine');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
-function editGroup(){const name=prompt(T('group_updated')+' – '+T('group_create')+':',group.name);if(!name)return;api('PATCH','/groups/mine',{name}).then(()=>{group.name=name;renderGroupSection();showToast(T('group_updated'));}).catch(e=>showToast(e.message));}
-async function deleteAccount(){if(!confirm(T('confirm_del_account')))return;try{await api('DELETE','/users/me');localStorage.removeItem('tf_token');location.reload();}catch(e){showToast(e.message);}}
-function renderCatList(){const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">${T('cat_empty')}</div>`;return;}list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="font-size:16px">${icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
-function addCat(){const e=document.getElementById('newCatEmoji').value.trim()||'📌';const n=document.getElementById('newCatName').value.trim();if(!n){showToast(T('enter_title'));return;}if(!appstate.customCats)appstate.customCats={};appstate.customCats[n]=e;document.getElementById('newCatEmoji').value='';document.getElementById('newCatName').value='';saveState();renderCatList();populateCatSel();showToast(`"${n}" ${T('saved')}`);}
-function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(`"${name}" ${T('no_tasks2')}`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();showToast(T('deleted'));}
-async function resetTasks(){if(!confirm(T('confirm_reset')))return;for(const t of[...tasks]){try{await api('DELETE','/tasks/'+t._id);}catch(e){}}tasks=[];appstate.poolTasks=[];appstate.poolAssigns={};appstate.shuffleDebtScore={};saveState();render();showToast(T('deleted'));}
+async function createGroup(){const name=prompt('Gruppenname:');if(!name)return;try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Erstellt! Code: '+group.inviteCode);}catch(e){showToast(e.message);}}
+async function joinGroup(){const code=prompt('Einladungscode:');if(!code)return;try{group=await api('POST','/groups/join',{inviteCode:code.trim().toUpperCase()});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Beigetreten!');}catch(e){showToast(e.message);}}
+async function leaveGroup(){if(!confirm('Gruppe verlassen?'))return;try{await api('POST','/groups/leave');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
+async function delGroup(){if(!confirm('Gruppe löschen? Alle Aufgaben werden gelöscht.'))return;try{await api('DELETE','/groups/mine');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
+function editGroup(){const name=prompt('Neuer Name:',group.name);if(!name)return;api('PATCH','/groups/mine',{name}).then(()=>{group.name=name;renderGroupSection();showToast('Aktualisiert');}).catch(e=>showToast(e.message));}
+async function deleteAccount(){if(!confirm('Account löschen?'))return;try{await api('DELETE','/users/me');localStorage.removeItem('tf_token');location.reload();}catch(e){showToast(e.message);}}
+function renderCatList(){const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Noch keine eigenen Kategorien.</div>`;return;}list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="font-size:16px">${icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
+function addCat(){const e=document.getElementById('newCatEmoji').value.trim()||'📌';const n=document.getElementById('newCatName').value.trim();if(!n){showToast('Name eingeben');return;}if(!appstate.customCats)appstate.customCats={};appstate.customCats[n]=e;document.getElementById('newCatEmoji').value='';document.getElementById('newCatName').value='';saveState();renderCatList();populateCatSel();showToast(`"${n}" hinzugefügt`);}
+function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();showToast('Gelöscht');}
+async function resetTasks(){if(!confirm('Alle Aufgaben löschen?'))return;for(const t of[...tasks]){try{await api('DELETE','/tasks/'+t._id);}catch(e){}}tasks=[];appstate.poolTasks=[];appstate.poolAssigns={};appstate.shuffleDebtScore={};saveState();render();showToast('Alle Aufgaben gelöscht');}
 
 // ── ADMIN ──
 function openAdmin(){document.getElementById('adminPin').value='';document.getElementById('adminModal').classList.add('open');}
 function closeAdmin(){document.getElementById('adminModal').classList.remove('open');adminPin=null;}
-async function verifyAdmin(){const pin=document.getElementById('adminPin').value.trim();if(!pin){showToast(T('lbl_pin'));return;}try{await api('POST','/admin/verify',{pin});adminPin=pin;const d=await api('GET',`/admin/data?pin=${encodeURIComponent(pin)}`);renderAdminDash(d);}catch(e){showToast(T('wrong_pin'));}}
-function renderAdminDash(d){document.getElementById('adminContent').innerHTML=`<div style="padding:0 16px 8px"><div style="display:flex;gap:8px;margin-bottom:18px"><div style="flex:1;background:rgba(91,91,214,.1);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(91,91,214,.15)"><div style="font-size:22px;font-weight:700;color:var(--acc)">${d.users.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Users</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.groups.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Groups</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.totalTasks}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Tasks</div></div></div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px">Groups</div>${d.groups.map(g=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:600">${g.name}</div><div style="font-size:11px;color:var(--text3)">${g.memberCount} Members · ${g.taskCount} Tasks · Code: ${g.inviteCode}</div></div><button onclick="adminDelGroup('${g._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">${T('admin_del')}</button></div>`).join('')}<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:14px 0 8px">Users</div>${d.users.map(u=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px"><div class="av" style="width:34px;height:34px;background:${u.color||'#9CA3AF'};font-size:13px">${u.name?.[0]||'?'}</div><div style="flex:1"><div style="font-size:14px;font-weight:600">${u.name}</div><div style="font-size:11px;color:var(--text3)">${u.groupName} · ${u.taskCount} Tasks</div></div><button onclick="adminDelUser('${u._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">${T('admin_del')}</button></div></div>`).join('')}</div>`;}
-async function adminDelUser(uid){if(!confirm(T('confirm_del_user')))return;try{await api('DELETE',`/admin/user/${uid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast(T('deleted'));}catch(e){showToast(e.message);}}
-async function adminDelGroup(gid){if(!confirm(T('confirm_del_group')))return;try{await api('DELETE',`/admin/group/${gid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast(T('deleted'));}catch(e){showToast(e.message);}}
+async function verifyAdmin(){const pin=document.getElementById('adminPin').value.trim();if(!pin){showToast('PIN eingeben');return;}try{await api('POST','/admin/verify',{pin});adminPin=pin;const d=await api('GET',`/admin/data?pin=${encodeURIComponent(pin)}`);renderAdminDash(d);}catch(e){showToast('Falscher PIN');}}
+function renderAdminDash(d){document.getElementById('adminContent').innerHTML=`<div style="padding:0 16px 8px"><div style="display:flex;gap:8px;margin-bottom:18px"><div style="flex:1;background:rgba(91,91,214,.1);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(91,91,214,.15)"><div style="font-size:22px;font-weight:700;color:var(--acc)">${d.users.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Nutzer</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.groups.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Gruppen</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.totalTasks}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Aufgaben</div></div></div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px">Gruppen</div>${d.groups.map(g=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:600">${g.name}</div><div style="font-size:11px;color:var(--text3)">${g.memberCount} Mitglieder · ${g.taskCount} Aufgaben · Code: ${g.inviteCode}</div></div><button onclick="adminDelGroup('${g._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button></div>`).join('')}<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:14px 0 8px">Nutzer</div>${d.users.map(u=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px"><div class="av" style="width:34px;height:34px;background:${u.color||'#9CA3AF'};font-size:13px">${u.name?.[0]||'?'}</div><div style="flex:1"><div style="font-size:14px;font-weight:600">${u.name}</div><div style="font-size:11px;color:var(--text3)">${u.groupName} · ${u.taskCount} Aufgaben</div></div><button onclick="adminDelUser('${u._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button></div></div>`).join('')}</div>`;}
+async function adminDelUser(uid){if(!confirm('Nutzer löschen?'))return;try{await api('DELETE',`/admin/user/${uid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast('Nutzer gelöscht');}catch(e){showToast(e.message);}}
+async function adminDelGroup(gid){if(!confirm('Gruppe löschen?'))return;try{await api('DELETE',`/admin/group/${gid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast('Gruppe gelöscht');}catch(e){showToast(e.message);}}
 
 // ── CELEBRATION ──
-function celebrate(){const csub=document.getElementById('celeb-sub');if(csub)csub.textContent=T('celeb_sub');document.getElementById('celebFace').innerHTML=`<div style="color:#fff"><svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>`;document.getElementById('celebTxt').textContent=T('celeb_msgs')[Math.floor(Math.random()*T('celeb_msgs').length)];const cc=document.getElementById('confWrap');cc.innerHTML='';const cols=['#5B5BD6','#22C55E','#EF4444','#F59E0B','#8B5CF6','#FBBF24'];for(let i=0;i<50;i++){const p=document.createElement('div');p.className='conf';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;cc.appendChild(p);}document.getElementById('celebOv').classList.add('show');setTimeout(closeceleb,4000);}
+function celebrate(){document.getElementById('celebFace').innerHTML=`<div style="color:#fff"><svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>`;document.getElementById('celebTxt').textContent=CELEB[Math.floor(Math.random()*CELEB.length)];const cc=document.getElementById('confWrap');cc.innerHTML='';const cols=['#5B5BD6','#22C55E','#EF4444','#F59E0B','#8B5CF6','#FBBF24'];for(let i=0;i<50;i++){const p=document.createElement('div');p.className='conf';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;cc.appendChild(p);}document.getElementById('celebOv').classList.add('show');setTimeout(closeceleb,4000);}
 function closeceleb(){document.getElementById('celebOv').classList.remove('show');}
 
 // ── TOAST ──
@@ -1411,7 +1192,7 @@ function switchTab(i,anim=true){
   wrap.style.transform=`translateX(-${i*25}%)`;
   if(!anim)requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove('no-anim')));
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
-  const _titles=[T('tab0'),T('tab1'),T('tab2'),T('tab3')];document.getElementById('navTitle').textContent=_titles[i]||'';
+  document.getElementById('navTitle').textContent=NAV_TITLES[i]||'';
   if(i===2)renderCalendar();if(i===3)renderVote();
 }
 let swX=null,swY=null;
@@ -1426,11 +1207,11 @@ document.addEventListener('touchend',e=>{
 
 // ── ONBOARDING ──
 function showOb(n){const steps=['ob1','ob2','ob3c','ob3j'];steps.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});if(n===1)document.getElementById('ob1').style.display='block';if(n===2)document.getElementById('ob2').style.display='block';if(n==='c')document.getElementById('ob3c').style.display='block';if(n==='j')document.getElementById('ob3j').style.display='block';}
-function obNext(){const name=document.getElementById('ob-name').value.trim();if(!name){showToast(T('enter_title'));return;}showOb(2);}
+function obNext(){const name=document.getElementById('ob-name').value.trim();if(!name){showToast('Name eingeben');return;}showOb(2);}
 async function obChoose(c){const name=document.getElementById('ob-name').value.trim();await doLogin(name);if(c==='solo'){await api('PATCH','/users/me',{solo:true});me.solo=true;await loadAll();showApp();startPolling();}else showOb(c==='create'?'c':'j');}
 async function doLogin(name){const d=await api('POST','/users/login',{username:name});myToken=d.token;localStorage.setItem('tf_token',myToken);me=await api('GET','/users/me');}
-async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast(T('enter_title'));return;}group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast(T('group_created')+group.inviteCode);}
-async function obJoin(){const code=document.getElementById('ob-code').value.trim().toUpperCase();if(!code){showToast(T('enter_title'));return;}try{group=await api('POST','/groups/join',{inviteCode:code});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast(T('group_joined'));}catch(e){showToast(e.message);}}
+async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast('Name eingeben');return;}group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Code: '+group.inviteCode);}
+async function obJoin(){const code=document.getElementById('ob-code').value.trim().toUpperCase();if(!code){showToast('Code eingeben');return;}try{group=await api('POST','/groups/join',{inviteCode:code});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Beigetreten!');}catch(e){showToast('Fehler: '+e.message);}}
 
 init();
 </script>
