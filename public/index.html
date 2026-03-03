@@ -616,9 +616,8 @@ async function api(method,path,body){
 async function init(){
   myToken=localStorage.getItem('tf_token');
   if(myToken){
-    showApp(); // Sofort anzeigen, Daten kommen nach
     try{
-      // Alle API-Calls parallel in einem Schritt
+      // Alle Daten parallel laden – dann erst App zeigen
       const [u,meData,t,g,as]=await Promise.all([
         api('GET','/users'),
         api('GET','/users/me'),
@@ -629,8 +628,16 @@ async function init(){
       me=meData;users=u;tasks=t;group=g;
       appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',...(as||{})};
       processRecurring();
-      render();startPolling();checkChangelog();checkNewTasks();return;
-    }catch(e){localStorage.removeItem('tf_token');myToken=null;document.getElementById('app').style.display='none';}
+      showApp();startPolling();checkChangelog();checkNewTasks();return;
+    }catch(e){
+      // Nur bei echtem Auth-Fehler (401/403) ausloggen, sonst trotzdem App zeigen
+      if(e.message&&(e.message.includes('401')||e.message.includes('403')||e.message.includes('Unauthorized')||e.message.includes('Forbidden'))){
+        localStorage.removeItem('tf_token');myToken=null;
+      } else {
+        // Netzwerkfehler o.ä. – App trotzdem anzeigen falls me schon gesetzt
+        if(me){showApp();startPolling();return;}
+      }
+    }
   }
   showOnboard();
 }
