@@ -334,7 +334,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <div class="tab-iw">
         <span class="vote-badge"></span>
         <!-- poop emoji icon -->
-        <span style="font-size:18px;line-height:1">💩</span>
+        <svg width="18" height="18" viewBox="0 0 100 100" fill="currentColor"><ellipse cx="50" cy="86" rx="40" ry="14"/><ellipse cx="50" cy="70" rx="30" ry="13"/><ellipse cx="50" cy="56" rx="22" ry="12"/><path d="M50 44 Q60 32 50 22 Q40 12 50 3" stroke="currentColor" stroke-width="7" fill="none" stroke-linecap="round"/></svg>
       </div>
       <span class="tab-lbl">Vote</span>
     </div>
@@ -474,7 +474,7 @@ const DEFAULT_CATS={Arbeit:'💼',Haushalt:'🏠',Einkauf:'🛒',Gesundheit:'❤
 const ALL_COLORS=['#5B5BD6','#7C3AED','#DB2777','#DC2626','#EA580C','#CA8A04','#16A34A','#0891B2','#2563EB','#9333EA','#EC4899','#EF4444','#F97316','#EAB308','#22C55E','#06B6D4','#3B82F6','#6366F1','#A855F7','#F43F5E','#FB923C','#FBBF24','#4ADE80','#22D3EE'];
 const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn'};
 const CELEB=['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
-const NAV_TITLES=['Meine','Pool','Kalender','Vote 💩'];
+const NAV_TITLES=['Meine','Pool','Kalender','Vote'];
 // poop colors by score range
 function poopCls(s){if(!s)return'';const n=Math.round(s);if(n<=3)return'poop-'+n;if(n<=6)return'poop-'+n;return'poop-'+Math.min(n,10);}
 function poopColor(s){if(!s)return'#9CA3AF';if(s<=3)return'#16A34A';if(s<=6)return'#D97706';return'#DC2626';}
@@ -639,16 +639,27 @@ function render(){
 function needsMyVote(t){
   if(!t.votingEnabled||!isPoolTask(t))return false;
   const myId=me._id?.toString();
+  if(t.subtasks?.length){
+    return t.subtasks.some(s=>{const sv=(t.subtaskVotes||{})[s.id]||{};return!sv[myId];});
+  }
   const votes=t.votes||{};
-  return!votes[myId]; // I haven't voted yet
+  return!votes[myId];
 }
 function hasFullScore(t){
   if(!t.votingEnabled||!isPoolTask(t))return false;
   if(!users.length)return false;
+  if(t.subtasks?.length){return t.subtasks.every(s=>t.subtaskPoopScores?.[s.id]!=null);}
   const votes=t.votes||{};
   return users.every(u=>votes[u._id?.toString()]);
 }
 function getScore(t){
+  if(!t.votingEnabled||!isPoolTask(t))return null;
+  if(t.subtasks?.length){
+    if(!t.subtaskPoopScores)return null;
+    const scores=t.subtasks.map(s=>t.subtaskPoopScores[s.id]).filter(s=>s!=null);
+    if(!scores.length||scores.length<t.subtasks.length)return null;
+    return Math.round((scores.reduce((a,b)=>a+b,0)/scores.length)*10)/10;
+  }
   if(!hasFullScore(t))return null;
   const votes=Object.values(t.votes||{});
   if(!votes.length)return null;
@@ -686,15 +697,25 @@ function renderVote(){
   }
   c.innerHTML=toVote.map(t=>{
     const tid=t._id?.toString();
+    if(t.subtasks?.length){
+      return t.subtasks.map(s=>{
+        const svotes=(t.subtaskVotes||{})[s.id]||{};
+        if(svotes[myId])return'';
+        const vKey=`${tid}-${s.id}`;
+        const myVote=pendingVotes[vKey]||0;
+        const votedCount=Object.keys(svotes).length;
+        const scale=Array.from({length:10},(_,i)=>i+1);
+        const scaleHTML=scale.map(n=>{const col=n<=3?'#16A34A':n<=6?'#D97706':'#DC2626';const isSel=myVote===n;return`<button class="vote-btn${isSel?' sel':''}" onclick="setVote('${vKey}',${n})" style="${isSel?`background:${col};`:`border-color:${col}40;`}${isSel?'':'color:'+col}">${n}</button>`;}).join('');
+        return`<div class="vote-card"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${t.title}</div><div class="vote-title">${s.title}</div><div class="vote-meta"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span><span style="color:var(--text3)">${votedCount}/${users.length} bewertet</span></div><div class="vote-scale">${scaleHTML}</div>${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitSubVote('${tid}','${s.id}')">Abstimmen 💩</button>`:`<div class="vote-pending">Wähle eine Zahl um abzustimmen</div>`}</div>`;
+      }).filter(Boolean).join('');
+    }
     const myVote=pendingVotes[tid]||0;
     const allVotes=t.votes||{};
     const votedCount=Object.keys(allVotes).length;
     const totalUsers=users.length;
-    // Scale 1-10 buttons
     const scale=Array.from({length:10},(_,i)=>i+1);
     const scaleHTML=scale.map(n=>{
       const pct=n/10;
-      const bg=n<=3?`rgba(34,197,94,${0.15+pct*.4})`:n<=6?`rgba(245,158,11,${0.15+pct*.4})`:`rgba(239,68,68,${0.15+pct*.4})`;
       const col=n<=3?'#16A34A':n<=6?'#D97706':'#DC2626';
       const isSel=myVote===n;
       return`<button class="vote-btn${isSel?' sel':''}" onclick="setVote('${tid}',${n})" style="${isSel?`background:${col};`:`border-color:${col}40;`}${isSel?'':'color:'+col}">${n}</button>`;
@@ -714,6 +735,29 @@ function renderVote(){
   }).join('');
 }
 
+async function submitSubVote(tid,sid){
+  const vKey=`${tid}-${sid}`;
+  const score=pendingVotes[vKey];if(!score){showToast('Bitte erst bewerten!');return;}
+  const myId=me._id?.toString();
+  const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;
+  if(!t.subtaskVotes)t.subtaskVotes={};
+  if(!t.subtaskVotes[sid])t.subtaskVotes[sid]={};
+  t.subtaskVotes[sid][myId]=score;
+  delete pendingVotes[vKey];
+  const svotes=t.subtaskVotes[sid];
+  const allVoted=users.every(u=>svotes[u._id?.toString()]);
+  if(allVoted){
+    const finalScore=Math.round((Object.values(svotes).reduce((a,b)=>a+b,0)/Object.values(svotes).length)*10)/10;
+    if(!t.subtaskPoopScores)t.subtaskPoopScores={};
+    t.subtaskPoopScores[sid]=finalScore;
+    await api('PATCH','/tasks/'+tid,{subtaskVotes:t.subtaskVotes,subtaskPoopScores:t.subtaskPoopScores});
+    showToast(`Voting fertig! 💩 ${finalScore}`);
+  } else {
+    await api('PATCH','/tasks/'+tid,{subtaskVotes:t.subtaskVotes});
+    showToast('Stimme abgegeben! 💩');
+  }
+  render();
+}
 function setVote(tid,score){
   pendingVotes[tid]=score;
   renderVote();
@@ -749,7 +793,7 @@ function uById(id){return users.find(u=>u._id?.toString()===id?.toString());}
 function uColor(assignee){if(!assignee||assignee==='all')return'#9CA3AF';const ovr=me?.colorOverrides?.[assignee];if(ovr)return ovr;return uById(assignee)?.color||'#9CA3AF';}
 function avHTML(u,sz=38){if(!u)return`<div class="av" style="width:${sz}px;height:${sz}px;background:#9CA3AF;font-size:${Math.round(sz*.38)}px">?</div>`;if(u.photo)return`<div class="av" style="width:${sz}px;height:${sz}px"><img src="${u.photo}"></div>`;return`<div class="av" style="width:${sz}px;height:${sz}px;background:${uColor(u._id?.toString())};font-size:${Math.round(sz*.38)}px">${u.name?.[0]||'?'}</div>`;}
 function prog(t){if(!t.subtasks?.length)return'';const done=t.subtasks.filter(s=>s.done).length,total=t.subtasks.length;return`<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${Math.round(done/total*100)}%"></div></div><span class="prog-lbl">${done}/${total}</span></div>`;}
-function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'short',year:'numeric'});}
+function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'short'});}
 function uid(){return Math.random().toString(36).substr(2,9);}
 
 // TASK TYPE + VISIBILITY
@@ -793,11 +837,11 @@ function taskHTML(t,showBar=false){
       <div class="task-meta">
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
         ${isSharedTask(t)?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.users} ${[(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'';}).filter(Boolean),(t.creatorId&&t.creatorId!==me._id?.toString()?[uById(t.creatorId)?.name].filter(Boolean):[])].flat().filter((v,i,a)=>a.indexOf(v)===i).join(', ')||'gemeinsam'}</span>`:''}
-        ${t.deadline?`<span style="display:inline-flex;align-items:center;gap:3px;color:${overdue?'var(--red)':'var(--text3)'}">${I.cal} ${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span>`:''}
+        ${t.deadline?`<span class="badge ${overdue?'b-red':'b-blu'}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span>`:''}
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
         ${scoreBadge(t)}
-        ${showBar&&aname?`<span style="color:${col};font-weight:600">${aname}</span>`:''}
-        ${creatorNote?`<span style="color:var(--text3);font-size:10px">von ${creatorNote}</span>`:''}
+        ${showBar&&aname?`<span class="badge" style="background:${col}22;color:${col};border:1px solid ${col}44;display:inline-flex;align-items:center;gap:3px">${I.user} ${aname}</span>`:''}
+        ${creatorNote?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.user} ${creatorNote}</span>`:''}
         ${t.votingEnabled&&!hasFullScore(t)?`<span class="badge b-ora" style="display:inline-flex;align-items:center;gap:3px">💩 Voting läuft…</span>`:''}
       </div>
       ${mySubsHtml}${prog(t)}
@@ -806,7 +850,7 @@ function taskHTML(t,showBar=false){
   </div>`;
 }
 
-async function toggleSubInline(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(!s)return;s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();}catch(e){s.done=!s.done;showToast('Fehler');}}
+async function toggleSubInline(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(!s)return;s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});if(isPoolTask(t)&&t.subtasks?.length&&t.subtasks.every(s=>s.done)&&!t.done){t.done=true;await api('PATCH','/tasks/'+tid,{done:true});celebrate();}render();}catch(e){s.done=!s.done;showToast('Fehler');}}
 
 // ── MY PAGE ──
 function setMyFilter(f,btn){myFilter=f;document.querySelectorAll('#myFilterSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderMy();}
@@ -938,11 +982,23 @@ function renderPool(){
   if(!toShow.length&&!poolable.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;return;}
   if(!toShow.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;return;}
   c.innerHTML=toShow.map(t=>{
-    const id=t._id?.toString();const asgn=appstate.poolAssigns?.[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);const myId=me._id?.toString();const isMineDot=asgn?.assignedUser===myId;
+    const id=t._id?.toString();const asgn=appstate.poolAssigns?.[id];const myId=me._id?.toString();
+    const hasSubAssigns=t.subtasks?.length&&asgn?.subtaskAssignments;
+    let cardColor,userHeaderHtml;
+    if(hasSubAssigns){
+      const subUids=[...new Set(Object.values(asgn.subtaskAssignments))];
+      const subUsers=subUids.map(uid=>uById(uid)).filter(Boolean);
+      cardColor=subUsers[0]?uColor(subUsers[0]._id?.toString()):'#9CA3AF';
+      userHeaderHtml=`<div style="display:flex;flex-wrap:wrap;gap:4px;padding-left:10px;flex-shrink:0;max-width:110px;justify-content:flex-end">${subUsers.map(u=>`<div style="display:flex;flex-direction:column;align-items:center;gap:1px">${avHTML(u,22)}<span style="font-size:9px;font-weight:700;color:${uColor(u._id?.toString())};max-width:32px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${u.name}</span></div>`).join('')}</div>`;
+    } else {
+      const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);
+      cardColor=col;
+      userHeaderHtml=`<div style="display:flex;align-items:center;gap:5px;padding-left:10px;flex-shrink:0">${avHTML(u,28)}<div style="text-align:right"><div style="font-size:12px;font-weight:700;color:${col}">${u?.name||'–'}</div></div></div>`;
+    }
     let subsHtml='';
     if(t.subtasks?.length&&asgn?.subtaskAssignments){
       subsHtml=`<div style="margin-top:10px;border-top:1px solid var(--sep);padding-top:8px">`;
-      subsHtml+=t.subtasks.map(s=>{const subUid=asgn.subtaskAssignments[s.id];const subU=uById(subUid);const subCol=uColor(subUid);const isMe=subUid===myId;return`<div class="pool-sub-row"><div class="pool-sub-dot" style="background:${subCol}"></div><span style="flex:1;font-size:12px;color:${s.done?'var(--text3)':'var(--text2)'};${s.done?'text-decoration:line-through;':''}">${s.title}</span><span style="font-size:11px;font-weight:700;color:${subCol}">${subU?.name||'?'}${isMe?' ●':''}</span></div>`;}).join('');
+      subsHtml+=t.subtasks.map(s=>{const subUid=asgn.subtaskAssignments[s.id];const subU=uById(subUid);const subCol=uColor(subUid);const sScore=t.subtaskPoopScores?.[s.id];return`<div class="pool-sub-row"><div class="pool-sub-dot" style="background:${subCol}"></div><span style="flex:1;font-size:12px;color:${s.done?'var(--text3)':'var(--text2)'};${s.done?'text-decoration:line-through;':''}padding:1px 0">${s.title}</span>${sScore!=null?`<span style="font-size:10px;color:${poopColor(sScore)};font-weight:700;margin-right:4px">💩${sScore}</span>`:''}<span style="font-size:11px;font-weight:700;color:${subCol}">${subU?.name||'?'}</span></div>`;}).join('');
       subsHtml+=`</div>`;
     } else if(t.subtasks?.length){
       subsHtml=`<div style="margin-top:10px;border-top:1px solid var(--sep);padding-top:8px">`;
@@ -950,10 +1006,10 @@ function renderPool(){
       subsHtml+=`</div>`;
     }
     const sc=getScore(t);
-    return`<div class="pool-card" style="border-left:3px solid ${col}" onclick="openDetail('${id}')">
+    return`<div class="pool-card" style="border-left:3px solid ${cardColor}" onclick="openDetail('${id}')">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
         <div style="flex:1"><div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">${t.title}</div>${t.desc?`<div style="font-size:12px;color:var(--text3);line-height:1.4">${t.desc.slice(0,60)}${t.desc.length>60?'…':''}</div>`:''}</div>
-        <div style="display:flex;align-items:center;gap:5px;padding-left:10px;flex-shrink:0">${avHTML(u,28)}<div style="text-align:right"><div style="font-size:12px;font-weight:700;color:${col}">${u?.name||'–'}</div>${isMineDot?`<div style="font-size:10px;color:var(--green);font-weight:600">● Du</div>`:''}</div></div>
+        ${userHeaderHtml}
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
@@ -1037,10 +1093,12 @@ function openDetail(id){
   if(t.votingEnabled&&isPoolTask(t)){
     if(sc!=null){
       const barW=Math.round(sc/10*100);
-      voteSection=`<div class="sec">💩 Scheißigkeitsscore</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — Mittelwert aller Stimmen</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">Stimmen: ${Object.entries(t.votes||{}).map(([uid,v])=>{const u=uById(uid);return`${u?.name||'?'}: ${v}`;}).join(' · ')}</div></div></div>`;
+      const scoreDetails=t.subtasks?.length&&t.subtaskPoopScores?t.subtasks.map(s=>{const ss=t.subtaskPoopScores[s.id];return ss!=null?`${s.title}: 💩${ss}`:null;}).filter(Boolean).join(' · '):Object.entries(t.votes||{}).map(([uid,v])=>{const u=uById(uid);return`${u?.name||'?'}: ${v}`;}).join(' · ');
+      voteSection=`<div class="sec">💩 Scheißigkeitsscore</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — Ø Bewertung</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">${scoreDetails}</div></div></div>`;
     } else {
-      const vCnt=Object.keys(t.votes||{}).length;
-      voteSection=`<div class="sec">💩 Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${users.length} haben abgestimmt${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen 💩</button>`:''}</div></div>`;
+      const vCnt=t.subtasks?.length?t.subtasks.reduce((sum,s)=>{const sv=t.subtaskVotes?.[s.id]||{};return sum+Object.keys(sv).length;},0):Object.keys(t.votes||{}).length;
+      const vTotal=t.subtasks?.length?t.subtasks.length*users.length:users.length;
+      voteSection=`<div class="sec">💩 Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} Stimmen${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen 💩</button>`:''}</div></div>`;
     }
   }
   document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
@@ -1054,7 +1112,7 @@ function openDetail(id){
 function closeDetail(){document.getElementById('taskDetail').classList.remove('open');}
 function editCurrent(){if(detailId){closeDetail();setTimeout(()=>showAddTask(detailId),250);}}
 function delDetail(id){if(!confirm('Aufgabe löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeDetail();showToast('Gelöscht');}).catch(e=>showToast('Fehler: '+e.message));}
-async function toggleSub(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(s)s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}catch(e){showToast('Fehler');}}
+async function toggleSub(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(s)s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});if(isPoolTask(t)&&t.subtasks?.length&&t.subtasks.every(s=>s.done)&&!t.done){t.done=true;await api('PATCH','/tasks/'+tid,{done:true});render();celebrate();}else{render();openDetail(tid);}}catch(e){showToast('Fehler');}}
 async function addSubDetail(tid){const title=prompt('Unteraufgabe:');if(!title)return;const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;if(!t.subtasks)t.subtasks=[];t.subtasks.push({id:uid(),title,done:false});await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}
 function initSubDrag(tid){
   const list=document.getElementById('dSubList');if(!list)return;let dr=null;
@@ -1086,7 +1144,8 @@ function setType(tp,btn){
   document.getElementById('sharedUsersWrap').style.display=tp==='shared'?'block':'none';
   document.getElementById('votingWrap').style.display=tp==='pool'?'block':'none';
   if(tp==='shared')renderSharedUserPicker();
-  if(tp!=='pool'){selVoting=false;const tog=document.getElementById('fVotingTog');if(tog)tog.classList.remove('on');}
+  if(tp==='pool'&&!editingId){selVoting=true;const vtog=document.getElementById('fVotingTog');if(vtog)vtog.classList.add('on');}
+  else if(tp!=='pool'){selVoting=false;const tog=document.getElementById('fVotingTog');if(tog)tog.classList.remove('on');}
 }
 function toggleVoting(el){selVoting=!selVoting;el.classList.toggle('on',selVoting);}
 function renderSharedUserPicker(){const others=users.filter(u=>u._id?.toString()!==me._id?.toString());document.getElementById('sharedUsersList').innerHTML=others.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)">${avHTML(u,32)}<span style="flex:1;font-size:14px">${u.name}</span><div class="tog${sharedUsers.has(u._id?.toString())?' on':''}" onclick="toggleSharedUser('${u._id}',this)"></div></div>`).join('');}
@@ -1187,7 +1246,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 function switchTab(i,anim=true){
   // If vote tab is hidden and we try to go to 3, skip
   const t3=document.getElementById('t3');if(i===3&&t3?.style.display==='none')return;
-  curTab=i;const wrap=document.getElementById('pgwrap');
+  curTab=i;window.scrollTo(0,0);const wrap=document.getElementById('pgwrap');
   if(!anim)wrap.classList.add('no-anim');
   wrap.style.transform=`translateX(-${i*25}%)`;
   if(!anim)requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove('no-anim')));
