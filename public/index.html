@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default" id="statusBarMeta">
 <meta name="theme-color" content="#e8eeff" id="themeColorMeta">
 <title>TaskFlow</title>
 <style>
@@ -261,6 +261,10 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <div class="nav-title" id="navTitle">Meine</div>
       <div class="nav-right">
         <span class="nav-username" id="navUser"></span>
+        <button class="nav-btn" onclick="openNotifLog()" id="notifBtn" style="display:none">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <span class="notif-dot" id="notifDot" style="display:none"></span>
+        </button>
         <button class="nav-btn" onclick="openProfile()" id="avBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span class="notif-dot" id="ndot" style="display:none"></span>
@@ -310,9 +314,6 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 
     <!-- PAGE 3: VOTE -->
     <div class="page" id="pgVote">
-      <div style="padding:14px 14px 6px">
-        <div style="font-size:13px;color:var(--text3);line-height:1.55">Bewerte wie unangenehm du jede Aufgabe findest.<br>Skala: <b>1</b> = easy 😎 → <b>10</b> = absolute Qual 💩</div>
-      </div>
       <div id="voteContainer"></div>
     </div>
 
@@ -477,6 +478,21 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   </div>
 </div>
 
+<!-- NOTIF LOG -->
+<div class="ov" id="notifLogOv">
+  <div class="sheet" style="max-height:70dvh">
+    <div class="handle"></div>
+    <div class="mhdr">
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        Meldungen
+      </div>
+      <span class="mclose" onclick="closeNotifLog()">Schließen</span>
+    </div>
+    <div id="notifLogList" style="padding:0 16px 16px"></div>
+  </div>
+</div>
+
 <!-- ADMIN MODAL -->
 <div class="ov" id="adminModal">
   <div class="sheet">
@@ -552,6 +568,36 @@ let myFilter='open';
 let adminPin=null;
 // pendingVotes: { taskId: score } — temp before save
 let pendingVotes={};
+// notif log
+let notifLog=[];
+let notifUnread=0;
+
+function addNotif(text){
+  notifLog.unshift({text,time:new Date()});
+  if(notifLog.length>50)notifLog.pop();
+  notifUnread++;
+  const btn=document.getElementById('notifBtn');
+  const dot=document.getElementById('notifDot');
+  if(btn){btn.style.display='flex';}
+  if(dot){dot.style.display='block';}
+}
+function openNotifLog(){
+  notifUnread=0;
+  const dot=document.getElementById('notifDot');if(dot)dot.style.display='none';
+  const list=document.getElementById('notifLogList');
+  if(!list)return;
+  if(!notifLog.length){list.innerHTML='<div style="color:var(--text3);font-size:14px;text-align:center;padding:20px 0">Keine Meldungen</div>';document.getElementById('notifLogOv').classList.add('open');return;}
+  list.innerHTML=notifLog.map(n=>{
+    const t=n.time;
+    const ts=t.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+', '+t.toLocaleDateString('de-DE',{day:'numeric',month:'short'});
+    return`<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--sep)">
+      <div style="width:6px;height:6px;border-radius:50%;background:var(--acc);margin-top:6px;flex-shrink:0"></div>
+      <div style="flex:1"><div style="font-size:14px;line-height:1.4">${n.text}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${ts}</div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('notifLogOv').classList.add('open');
+}
+function closeNotifLog(){document.getElementById('notifLogOv').classList.remove('open');}
 
 // ══════════════════════════════════════════
 // API
@@ -622,7 +668,7 @@ async function checkNewTasks(){
     if(cr2.length)msgs.push(`${cr2.length} neue Aufgabe${cr2.length>1?'n':''}`);
     const dT=newT.filter(t=>t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime());
     if(dT.length)msgs.push(`${dT.length} fällig heute`);
-    if(msgs.length)showToast(msgs.join(' · '));
+    if(msgs.length){showToast(msgs.join(' · '));msgs.forEach(m=>addNotif(m));}
     const badge=document.getElementById('ndot');if(badge&&newT.length)badge.style.display='block';
   }catch(e){}
 }
@@ -633,11 +679,19 @@ async function checkNewTasks(){
 function startPolling(){
   if(pollTimer)clearInterval(pollTimer);
   pollTimer=setInterval(async()=>{
-    try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}document.getElementById('ndot').style.display=r.hasNotifications?'block':'none';if(r.hasNotifications)checkNotifs();}catch(e){}
+    try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}const nb=document.getElementById('notifDot');if(r.hasNotifications){checkNotifs();}document.getElementById('ndot').style.display='none';}catch(e){}
   },5000);
 }
 async function checkNotifs(){
-  try{const ns=await api('GET','/users/notifications');if(ns?.length){showToast(ns[0].text||ns[0].message||'');await api('DELETE','/users/notifications');document.getElementById('ndot').style.display='none';}}catch(e){}
+  try{
+    const ns=await api('GET','/users/notifications');
+    if(ns?.length){
+      ns.forEach(n=>{const txt=n.text||n.message||'';if(txt)addNotif(txt);});
+      showToast(ns[0].text||ns[0].message||'');
+      await api('DELETE','/users/notifications');
+      document.getElementById('ndot').style.display='none';
+    }
+  }catch(e){}
 }
 
 // ══════════════════════════════════════════
@@ -646,8 +700,12 @@ async function checkNotifs(){
 function applyTheme(){
   const theme=me?.theme||'';document.body.className=theme;
   const colors={'':'#e8eeff','th-dark':'#0a0a18','th-warm':'#fff8ec'};
-  document.documentElement.style.background=colors[theme]||'#e8eeff';
-  const meta=document.getElementById('themeColorMeta');if(meta)meta.setAttribute('content',colors[theme]||'#e8eeff');
+  const bg=colors[theme]||'#e8eeff';
+  document.documentElement.style.background=bg;
+  const meta=document.getElementById('themeColorMeta');if(meta)meta.setAttribute('content',bg);
+  // iOS status bar style: dark mode → black, others → default (light icons on dark, dark icons on light)
+  const sbMeta=document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]');
+  if(sbMeta)sbMeta.setAttribute('content',theme==='th-dark'?'black':'default');
   const map={'':'0','th-dark':'1','th-warm':'2'};const idx=parseInt(map[theme]||0);
   document.querySelectorAll('#themeSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',i===idx));
 }
@@ -720,10 +778,12 @@ function getScore(t){
   if(!votes.length)return null;
   return Math.round((votes.reduce((a,b)=>a+b,0)/votes.length)*10)/10;
 }
+const POOP_SVG_SM=`<svg width="13" height="13" viewBox="0 0 52 56" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 18 Q14 14 16 10 Q14 7 16 4" stroke-width="1.7" opacity=".5"/><path d="M26 14 Q24 10 26 7 Q24 4 26 1" stroke-width="1.7" opacity=".5"/><path d="M36 18 Q38 14 36 10 Q38 7 36 4" stroke-width="1.7" opacity=".5"/><path d="M9 53 Q8 46 14 44 Q10 40 11 34 Q12 28 19 27 Q15 23 17 19 Q19 15 24 16 L26 20 L28 16 Q33 15 35 19 Q37 23 33 27 Q40 28 41 34 Q42 40 38 44 Q44 46 43 53 Z"/><path d="M24 16 C22 13 22 10 25 10 C28 10 28 13 26 16"/><circle cx="21" cy="32" r="1.5" fill="currentColor" stroke="none"/><circle cx="31" cy="32" r="1.5" fill="currentColor" stroke="none"/><path d="M20 39 Q26 43.5 32 39"/></svg>`;
+function poopSVG(size=13){return POOP_SVG_SM.replace(/width="13"/g,`width="${size}"`).replace(/height="13"/g,`height="${size}"`)}
 function scoreBadge(t){
   const s=getScore(t);if(!s)return'';
   const col=poopColor(s);
-  return`<span class="badge b-poop" style="color:${col};border-color:${col}30">💩 ${s}</span>`;
+  return`<span class="badge b-poop" style="color:${col};border-color:${col}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(12)} ${s}</span>`;
 }
 
 function updateVoteTab(){
@@ -747,7 +807,7 @@ function renderVote(){
   const myId=me._id?.toString();
   const toVote=tasks.filter(t=>needsMyVote(t));
   if(!toVote.length){
-    c.innerHTML=`<div class="empty"><div style="font-size:48px;margin-bottom:12px">💩</div><div class="empty-t">Alles bewertet!</div><div class="empty-s">Keine offenen Votings für dich.</div></div>`;
+    c.innerHTML=`<div class="empty"><div style="color:var(--text3);margin-bottom:12px">${poopSVG(52)}</div><div class="empty-t">Alles bewertet!</div><div class="empty-s">Keine offenen Votings für dich.</div></div>`;
     return;
   }
   c.innerHTML=toVote.map(t=>{
