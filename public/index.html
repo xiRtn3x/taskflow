@@ -785,6 +785,7 @@ async function api(method,path,body){
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
+function hideLoader(){const ls=document.getElementById('loadingScreen');if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),300);}}
 async function init(){
   myToken=localStorage.getItem('tf_token');
   if(myToken){
@@ -792,6 +793,7 @@ async function init(){
     const savedName=localStorage.getItem('tf_pin_name')||'';
     if(savedPin){
       // Show PIN screen before granting access
+      hideLoader();
       document.getElementById('ob5Name').textContent=savedName||'Willkommen zurück';
       document.getElementById('onboard').classList.remove('hidden');
       document.getElementById('app').style.display='none';
@@ -810,19 +812,8 @@ async function init(){
   }
   showOnboard();
 }
-function showOnboard(){
-  document.getElementById('onboard').classList.remove('hidden');
-  document.getElementById('app').style.display='none';
-  const ls=document.getElementById('loadingScreen');
-  if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),300);}
-}
-function showApp(){
-  document.getElementById('onboard').classList.add('hidden');
-  document.getElementById('app').style.display='block';
-  applyTheme();render();setTimeout(initSheetDismiss,100);
-  const ls=document.getElementById('loadingScreen');
-  if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),300);}
-}
+function showOnboard(){hideLoader();document.getElementById('onboard').classList.remove('hidden');document.getElementById('app').style.display='none';}
+function showApp(){hideLoader();document.getElementById('onboard').classList.add('hidden');document.getElementById('app').style.display='block';applyTheme();render();setTimeout(initSheetDismiss,100);}
 async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
@@ -1769,13 +1760,7 @@ function loginPinKey(k){
     loginPinBuf='';
     if(entered===localStorage.getItem('tf_pin')){
       updatePinDots('lpd',0);
-      document.getElementById('onboard').classList.add('hidden');
-      document.getElementById('app').style.display='block';
-      // Token already loaded in init, just render
-      const ls=document.getElementById('loadingScreen');if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),300);}
-      document.getElementById('onboard').classList.add('hidden');
-      document.getElementById('app').style.display='block';
-      applyTheme();render();startPolling();checkChangelog();checkNewTasks();
+      showApp();startPolling();checkChangelog();checkNewTasks();
     } else {
       updatePinDots('lpd',0);
       showToast('Falscher PIN');
