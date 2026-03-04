@@ -187,20 +187,8 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 .chlog-card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(28px);border-radius:22px;padding:28px 22px 22px;max-width:340px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:80dvh;overflow-y:auto;}
 .admin-row{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.18);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px;cursor:pointer;transition:background .15s;}
 .admin-row:active{background:rgba(239,68,68,.14);}
-.onboard{position:fixed;inset:0;z-index:10000;background:linear-gradient(135deg,var(--bg-from),var(--bg-to));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:env(safe-area-inset-top,24px) 20px 20px;overflow-y:auto;}
+.onboard{position:fixed;inset:0;z-index:10000;background:linear-gradient(135deg,var(--bg-from),var(--bg-to));display:flex;flex-direction:column;align-items:center;justify-content:center;padding:env(safe-area-inset-top,24px) 20px 20px;overflow-y:auto;gap:14px;}
 .onboard.hidden{display:none;}
-.ob-glass{background:var(--glass);backdrop-filter:blur(28px) saturate(1.8);-webkit-backdrop-filter:blur(28px) saturate(1.8);border:1px solid var(--glass-border);border-radius:24px;padding:24px 20px;width:100%;max-width:380px;box-shadow:var(--glass-shadow);}
-.ob-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:24px;}
-.ob-card{display:flex;align-items:center;gap:14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:all .15s;backdrop-filter:blur(10px);}
-.ob-card:active{transform:scale(.98);opacity:.85;}
-.ob-icon{width:44px;height:44px;border-radius:12px;background:rgba(91,91,214,.12);display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0;}
-.pin-dots{display:flex;gap:14px;justify-content:center;margin:20px 0 8px;}
-.pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--sep);transition:all .2s;}
-.pin-dot.filled{background:var(--acc);border-color:var(--acc);}
-.pin-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:8px;}
-.pin-key{height:60px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;font-size:22px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text);transition:all .15s;font-family:inherit;}
-.pin-key:active{transform:scale(.92);background:rgba(91,91,214,.12);}
-.ob-lock{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:8px;}
 .ob-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:all .15s;backdrop-filter:blur(16px);display:flex;align-items:center;gap:14px;box-shadow:var(--glass-shadow);}
 .ob-card:active{transform:scale(.99);}
 .ob-icon{width:44px;height:44px;border-radius:14px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--acc);border:1px solid rgba(91,91,214,.2);}
@@ -213,13 +201,6 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 .cat-blk.dragging{opacity:.35;}
 .profile-photo-ring{width:72px;height:72px;border-radius:50%;border:2px solid var(--glass-border);padding:2px;cursor:pointer;overflow:hidden;flex-shrink:0;background:var(--glass);backdrop-filter:blur(10px);}
 .prof-sec-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);display:flex;align-items:center;gap:6px;padding:12px 0 6px;border-top:1px solid var(--sep);margin-top:4px;}
-.icon-picker{position:relative;display:inline-block;}
-.icon-picker-btn{width:46px;height:46px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);flex-shrink:0;}
-.icon-picker-btn:active{opacity:.75;}
-.icon-picker-grid{position:absolute;bottom:calc(100% + 8px);left:0;z-index:500;background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--glass-border);border-radius:16px;padding:10px;display:grid;grid-template-columns:repeat(7,36px);gap:4px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:none;}
-.icon-picker-grid.open{display:grid;}
-.icon-opt{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all .12s;}
-.icon-opt:hover,.icon-opt.sel{background:rgba(91,91,214,.15);color:var(--acc);}
 .sheet{touch-action:pan-y;}
 .profile-photo-ring img,.profile-photo-ring div{width:100%;height:100%;border-radius:50%;}
 
@@ -241,101 +222,62 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 /* Score bar */
 .score-bar{height:4px;border-radius:2px;margin-top:6px;overflow:hidden;background:var(--sep);}
 .score-fill{height:100%;border-radius:2px;transition:width .4s;}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 </style>
 </head>
 <body>
 
 <!-- ONBOARDING -->
 <div class="onboard" id="onboard">
+  <!-- ob0: Language -->
+  <div id="ob0" style="background:var(--glass);backdrop-filter:blur(28px) saturate(1.8);-webkit-backdrop-filter:blur(28px) saturate(1.8);border:1px solid var(--glass-border);border-radius:24px;padding:28px 20px;width:100%;max-width:360px;box-shadow:var(--glass-shadow)">
+    <div style="text-align:center;margin-bottom:22px">
+      <div style="color:var(--acc);margin-bottom:10px"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div style="font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:6px">TaskFlow</div>
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text3)">Sprache / Language</div>
+    </div>
+    <div class="seg" id="obLangSeg" style="margin-bottom:18px">
+      <button class="seg-b on" onclick="obPickLang('de',this)">&#127465;&#127466; Deutsch</button>
+      <button class="seg-b" onclick="obPickLang('en',this)">&#127468;&#127463; English</button>
+    </div>
+    <button class="btn btn-p" id="ob0Next" onclick="showOb(1)">Weiter &#8594;</button>
+  </div>
   <!-- ob1: Name -->
-  <div id="ob1" class="ob-glass">
-    <div class="ob-logo">
-      <div style="color:var(--acc);margin-bottom:12px"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-      <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">TaskFlow</div>
-      <div style="font-size:13px;color:var(--text3);margin-top:4px">Gemeinsam mehr erledigen.</div>
+  <div id="ob1" style="display:none;background:var(--glass);backdrop-filter:blur(28px) saturate(1.8);-webkit-backdrop-filter:blur(28px) saturate(1.8);border:1px solid var(--glass-border);border-radius:24px;padding:28px 20px;width:100%;max-width:360px;box-shadow:var(--glass-shadow)">
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="color:var(--acc);margin-bottom:10px"><svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+      <div style="font-size:24px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px">TaskFlow</div>
+      <div id="ob1Tag" style="font-size:13px;color:var(--text3)">Gemeinsam mehr erledigen.</div>
     </div>
-    <label class="fl">Dein Name</label>
-    <input class="fi" id="ob-name" placeholder="Name eingeben…" style="margin-bottom:16px;font-size:16px" onkeydown="if(event.key==='Enter')obNext()">
-    <button class="btn btn-p" onclick="obNext()">Weiter →</button>
+    <label class="fl" id="ob1NmLbl" style="margin-bottom:8px">Dein Name</label>
+    <input class="fi" id="ob-name" placeholder="Name eingeben&#8230;" style="margin-bottom:14px;font-size:17px" onkeydown="if(event.key==='Enter')obNext()">
+    <button class="btn btn-p" id="ob1Btn" onclick="obNext()">Weiter &#8594;</button>
   </div>
-  <!-- ob2: Modus -->
-  <div id="ob2" style="display:none;width:100%;max-width:380px">
-    <div style="text-align:center;margin-bottom:16px">
-      <div style="font-size:20px;font-weight:700" id="ob2Name"></div>
-      <div style="font-size:13px;color:var(--text3);margin-top:4px">Wie möchtest du TaskFlow nutzen?</div>
+  <!-- ob2: Mode -->
+  <div id="ob2" style="display:none;width:100%;max-width:360px">
+    <div style="text-align:center;margin-bottom:14px">
+      <div id="ob2Hi" style="font-size:18px;font-weight:700;margin-bottom:2px"></div>
+      <div id="ob2Sub" style="font-size:13px;color:var(--text3)">Wie m&#246;chtest du TaskFlow nutzen?</div>
     </div>
-    <div class="ob-card" onclick="obChoose('solo')">
-      <div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-      <div><div style="font-size:15px;font-weight:700;margin-bottom:2px">Nur für mich</div><div style="font-size:12px;color:var(--text3)">Persönliche Aufgaben</div></div>
-    </div>
-    <div class="ob-card" onclick="obChoose('create')">
-      <div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-      <div><div style="font-size:15px;font-weight:700;margin-bottom:2px">Gruppe erstellen</div><div style="font-size:12px;color:var(--text3)">Haushalt, Familie, Team</div></div>
-    </div>
-    <div class="ob-card" onclick="obChoose('join')">
-      <div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
-      <div><div style="font-size:15px;font-weight:700;margin-bottom:2px">Gruppe beitreten</div><div style="font-size:12px;color:var(--text3)">Mit Einladungscode</div></div>
-    </div>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:6px" onclick="showOb(1)">← Zurück</button>
+    <div class="ob-card" onclick="obChoose('solo')"><div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div><div id="ob2SoloT" style="font-size:15px;font-weight:700;margin-bottom:3px">Nur f&#252;r mich</div><div id="ob2SoloS" style="font-size:13px;color:var(--text3)">Pers&#246;nliche Aufgaben</div></div></div>
+    <div class="ob-card" onclick="obChoose('create')"><div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div><div id="ob2CtT" style="font-size:15px;font-weight:700;margin-bottom:3px">Gruppe erstellen</div><div id="ob2CtS" style="font-size:13px;color:var(--text3)">Haushalt, Familie, Team</div></div></div>
+    <div class="ob-card" onclick="obChoose('join')"><div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><div><div id="ob2JoT" style="font-size:15px;font-weight:700;margin-bottom:3px">Gruppe beitreten</div><div id="ob2JoS" style="font-size:13px;color:var(--text3)">Mit Einladungscode</div></div></div>
+    <button id="ob2Back" class="btn btn-g" style="display:block;margin-top:8px" onclick="showOb(1)">&#8592; Zur&#252;ck</button>
   </div>
-  <!-- ob3c: Gruppe erstellen -->
-  <div id="ob3c" style="display:none" class="ob-glass">
-    <div style="font-size:18px;font-weight:700;margin-bottom:4px">Gruppe erstellen</div>
-    <div style="font-size:13px;color:var(--text3);margin-bottom:16px">Gib deiner Gruppe einen Namen</div>
-    <input class="fi" id="ob-gname" placeholder="Gruppenname…" style="margin-bottom:14px">
-    <button class="btn btn-p" onclick="obCreateGroup()">Erstellen</button>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" onclick="showOb(2)">← Zurück</button>
+  <!-- ob3c: Create group -->
+  <div id="ob3c" style="display:none;background:var(--glass);backdrop-filter:blur(28px) saturate(1.8);-webkit-backdrop-filter:blur(28px) saturate(1.8);border:1px solid var(--glass-border);border-radius:24px;padding:28px 20px;width:100%;max-width:360px;box-shadow:var(--glass-shadow)">
+    <div id="ob3cT" style="font-size:18px;font-weight:700;margin-bottom:14px">Gruppe erstellen</div>
+    <input class="fi" id="ob-gname" placeholder="Gruppenname&#8230;" style="margin-bottom:14px">
+    <button class="btn btn-p" id="ob3cBtn" onclick="obCreateGroup()">Erstellen</button>
+    <button class="btn btn-g" id="ob3cBack" style="display:block;margin-top:8px" onclick="showOb(2)">&#8592; Zur&#252;ck</button>
   </div>
-  <!-- ob3j: Gruppe beitreten -->
-  <div id="ob3j" style="display:none" class="ob-glass">
-    <div style="font-size:18px;font-weight:700;margin-bottom:4px">Gruppe beitreten</div>
-    <div style="font-size:13px;color:var(--text3);margin-bottom:16px">Einladungscode eingeben</div>
+  <!-- ob3j: Join group -->
+  <div id="ob3j" style="display:none;background:var(--glass);backdrop-filter:blur(28px) saturate(1.8);-webkit-backdrop-filter:blur(28px) saturate(1.8);border:1px solid var(--glass-border);border-radius:24px;padding:28px 20px;width:100%;max-width:360px;box-shadow:var(--glass-shadow)">
+    <div id="ob3jT" style="font-size:18px;font-weight:700;margin-bottom:14px">Gruppe beitreten</div>
     <input class="fi" id="ob-code" placeholder="z.B. ABC123" style="margin-bottom:14px;text-transform:uppercase;letter-spacing:3px;font-size:18px;text-align:center">
-    <button class="btn btn-p" onclick="obJoin()">Beitreten</button>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" onclick="showOb(2)">← Zurück</button>
-  </div>
-  <!-- PIN-Setup (ob4) -->
-  <div id="ob4" style="display:none" class="ob-glass">
-    <div style="text-align:center;margin-bottom:4px">
-      <div style="font-size:18px;font-weight:700;margin-bottom:4px">PIN festlegen</div>
-      <div style="font-size:13px;color:var(--text3)">Schütze deinen Account mit einem 4-stelligen PIN</div>
-    </div>
-    <div class="pin-dots" id="obPinDots">
-      <div class="pin-dot" id="opd0"></div><div class="pin-dot" id="opd1"></div>
-      <div class="pin-dot" id="opd2"></div><div class="pin-dot" id="opd3"></div>
-    </div>
-    <div class="pin-grid">
-      <div class="pin-key" onclick="obPinKey('1')">1</div><div class="pin-key" onclick="obPinKey('2')">2</div><div class="pin-key" onclick="obPinKey('3')">3</div>
-      <div class="pin-key" onclick="obPinKey('4')">4</div><div class="pin-key" onclick="obPinKey('5')">5</div><div class="pin-key" onclick="obPinKey('6')">6</div>
-      <div class="pin-key" onclick="obPinKey('7')">7</div><div class="pin-key" onclick="obPinKey('8')">8</div><div class="pin-key" onclick="obPinKey('9')">9</div>
-      <div></div><div class="pin-key" onclick="obPinKey('0')">0</div>
-      <div class="pin-key" onclick="obPinDel()" style="font-size:16px">⌫</div>
-    </div>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" onclick="showOb(2)">← Überspringen</button>
-  </div>
-  <!-- PIN-Login (ob5) -->
-  <div id="ob5" style="display:none" class="ob-glass">
-    <div class="ob-lock">
-      <div style="color:var(--acc)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-      <div style="font-size:18px;font-weight:700" id="ob5Name"></div>
-      <div style="font-size:13px;color:var(--text3)">PIN eingeben</div>
-    </div>
-    <div class="pin-dots" id="loginPinDots">
-      <div class="pin-dot" id="lpd0"></div><div class="pin-dot" id="lpd1"></div>
-      <div class="pin-dot" id="lpd2"></div><div class="pin-dot" id="lpd3"></div>
-    </div>
-    <div class="pin-grid">
-      <div class="pin-key" onclick="loginPinKey('1')">1</div><div class="pin-key" onclick="loginPinKey('2')">2</div><div class="pin-key" onclick="loginPinKey('3')">3</div>
-      <div class="pin-key" onclick="loginPinKey('4')">4</div><div class="pin-key" onclick="loginPinKey('5')">5</div><div class="pin-key" onclick="loginPinKey('6')">6</div>
-      <div class="pin-key" onclick="loginPinKey('7')">7</div><div class="pin-key" onclick="loginPinKey('8')">8</div><div class="pin-key" onclick="loginPinKey('9')">9</div>
-      <div></div><div class="pin-key" onclick="loginPinKey('0')">0</div>
-      <div class="pin-key" onclick="loginPinDel()" style="font-size:16px">⌫</div>
-    </div>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px;font-size:13px" onclick="pinLogout()">Anderes Konto nutzen</button>
+    <button class="btn btn-p" id="ob3jBtn" onclick="obJoin()">Beitreten</button>
+    <button class="btn btn-g" id="ob3jBack" style="display:block;margin-top:8px" onclick="showOb(2)">&#8592; Zur&#252;ck</button>
   </div>
 </div>
-
 <!-- APP -->
 <div id="app" style="display:none">
   <div class="nav">
@@ -362,10 +304,10 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="page" id="pgMy">
       <div style="padding:10px 14px 4px">
         <div class="seg" id="myFilterSeg">
-          <button class="seg-b on" onclick="setMyFilter('open',this)">Offen</button>
-          <button class="seg-b" onclick="setMyFilter('done',this)">Erledigt</button>
-          <button class="seg-b" onclick="setMyFilter('all',this)">Alle</button>
-          <button class="seg-b" onclick="setMyFilter('cats',this)">Kategorien</button>
+          <button id="fOpen" class="seg-b on" onclick="setMyFilter('open',this)">Offen</button>
+          <button id="fDone" class="seg-b" onclick="setMyFilter('done',this)">Erledigt</button>
+          <button id="fAll" class="seg-b" onclick="setMyFilter('all',this)">Alle</button>
+          <button id="fCats" class="seg-b" onclick="setMyFilter('cats',this)">Kategorien</button>
         </div>
       </div>
       <div id="myContainer"></div>
@@ -396,7 +338,6 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 
     <!-- PAGE 3: VOTE -->
     <div class="page" id="pgVote">
-      <div style="padding:10px 14px 4px"></div>
       <div id="voteContainer"></div>
     </div>
 
@@ -526,8 +467,12 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="fg"><label class="fl">Meine Farbe</label><div class="cgrid" id="myColorGrid"></div></div>
     <div class="fg" id="otherColorsSection"></div>
 
+    <!-- SEKTION: Sprache -->
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> <span id="slSecLang">Sprache</span></div></div>
+    <div class="fg" style="padding-top:4px"><div class="seg" id="langSeg"><button class="seg-b on" onclick="setLang('de')">&#127465;&#127466; Deutsch</button><button class="seg-b" onclick="setLang('en')">&#127468;&#127463; English</button></div></div>
+
     <!-- SEKTION: Darstellung -->
-    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> Design</div></div>
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> <span id="slSecDesign">Design</span></div></div>
     <div class="fg" style="padding-top:4px"><div class="seg" id="themeSeg"><button class="seg-b on" onclick="setTheme('',this)">Hell</button><button class="seg-b" onclick="setTheme('th-dark',this)">Dunkel</button><button class="seg-b" onclick="setTheme('th-warm',this)">Warm</button></div></div>
 
     <!-- SEKTION: Gruppe -->
@@ -538,13 +483,10 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Kategorien</div></div>
     <div class="fg" style="padding-top:4px">
       <div id="catList" style="margin-bottom:8px"></div>
-      <div style="display:flex;gap:7px;align-items:center">
-        <div class="icon-picker">
-          <div class="icon-picker-btn" id="iconPickerBtn" onclick="openIconPicker()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-          <div class="icon-picker-grid" id="iconPickerGrid"></div>
-        </div>
+      <div style="display:flex;gap:7px">
+        <input class="fi" id="newCatEmoji" placeholder="😀" style="width:50px;text-align:center;padding:10px 6px">
         <input class="fi" id="newCatName" placeholder="Neue Kategorie…" style="flex:1">
-        <button class="btn" style="background:var(--acc);color:#fff;padding:10px 12px;border-radius:12px;display:flex;align-items:center;flex-shrink:0" onclick="addCat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <button class="btn" style="background:var(--acc);color:#fff;padding:10px 12px;border-radius:12px;display:flex;align-items:center" onclick="addCat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
       </div>
     </div>
 
@@ -614,85 +556,54 @@ const CAT_ICONS={
   book:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`,
   pin:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`,
 };
-// Extended icon set for custom categories
-const CUSTOM_ICONS={
-  // Haushalt
-  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-  sofa:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v3"/><path d="M2 11a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-4z"/><path d="M4 17v2"/><path d="M20 17v2"/></svg>',
-  trash2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>',
-  droplet:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg>',
-  zap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>',
-  wind:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.59 4.59A2 2 0 1 1 11 8H2m10.59 11.41A2 2 0 1 0 14 16H2m15.73-8.27A2.5 2.5 0 1 1 19.5 12H2"/></svg>',
-  // Arbeit
-  work:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>',
-  monitor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>',
-  mail:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>',
-  phone:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.61 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>',
-  pen:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>',
-  chart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
-  // Einkaufen
-  cart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>',
-  bag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>',
-  tag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>',
-  // Gesundheit
-  heart:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>',
-  activity:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>',
-  pill:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 20.5L3.5 13.5a5 5 0 0 1 7.07-7.07l7 7a5 5 0 0 1-7.07 7.07z"/><line x1="8.5" y1="11.5" x2="15.5" y2="4.5"/></svg>',
-  moon:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>',
-  // Freizeit
-  star:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>',
-  music:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>',
-  camera:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>',
-  film:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/></svg>',
-  gamepad:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect x="2" y="8" width="20" height="12" rx="2"/></svg>',
-  // Schule/Lernen
-  book:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
-  grad:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
-  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
-  // Transport
-  car:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-3"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>',
-  train:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="16" rx="2"/><path d="M16 16 L8 16"/><path d="M12 3 L12 11"/><path d="M8 3 L8 11"/><path d="M16 3 L16 11"/><circle cx="8.5" cy="16.5" r="1.5"/><circle cx="15.5" cy="16.5" r="1.5"/><path d="M8 19 L6 22"/><path d="M16 19 L18 22"/></svg>',
-  plane:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>',
-  // Natur / Garten
-  tree:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14l3-3.19a1 1 0 0 0-.26-1.59L12 6l-7.74 3.22A1 1 0 0 0 4 10.81L7 14"/><path d="M12 3 L12 22"/><polyline points="5 14 12 21 19 14"/></svg>',
-  flower:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1a3 3 0 0 0 0 6 3 3 0 0 0 0-6zM12 17a3 3 0 0 0 0 6 3 3 0 0 0 0-6zM1 12a3 3 0 0 0 6 0 3 3 0 0 0-6 0zM17 12a3 3 0 0 0 6 0 3 3 0 0 0-6 0z"/></svg>',
-  sun:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>',
-  // Finanzen
-  dollar:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-  credit:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
-  // Sonstiges
-  pin:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-  flag:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>',
-  bell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>',
-  gift:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>',
-  tool:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
-  lock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
-  smile:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>',
-  globe:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>',
-  coffee:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>',
-  food:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M3 8h13v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"/><line x1="10" y1="2" x2="10" y2="8"/><path d="M6 2 Q5 5 6 8"/><path d="M14 2 Q13 5 14 8"/></svg>',
-  dumbbell:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="6.5" y1="6.5" x2="17.5" y2="17.5"/><path d="M8 8 L5 5 Q3 3 5 1 L7 3 L9 1 Q11 3 9 5Z"/><path d="M16 16 L19 19 Q21 21 19 23 L17 21 L15 23 Q13 21 15 19Z"/></svg>',
-  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
-  cloud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>',
-  map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>',
-};
-let selectedCatIcon='pin';
-function openIconPicker(){const g=document.getElementById('iconPickerGrid');g.classList.toggle('open');}
-function pickCatIcon(key){
-  selectedCatIcon=key;
-  const btn=document.getElementById('iconPickerBtn');
-  if(btn)btn.innerHTML=renderCustomIcon(key,18);
-  document.getElementById('iconPickerGrid').classList.remove('open');
-}
-function renderCustomIcon(key,sz=14){
-  const svg=CUSTOM_ICONS[key]||CUSTOM_ICONS.pin;
-  return svg.replace('<svg ','<svg width="'+sz+'" height="'+sz+'" ');
-}
 function catIcon(iconKey,sz=13){if(!iconKey)return'';if(CAT_ICONS[iconKey])return CAT_ICONS[iconKey].replace('width="13"',`width="${sz}"`).replace('height="13"',`height="${sz}"`);return'';}
 const ALL_COLORS=['#5B5BD6','#7C3AED','#DB2777','#DC2626','#EA580C','#CA8A04','#16A34A','#0891B2','#2563EB','#9333EA','#EC4899','#EF4444','#F97316','#EAB308','#22C55E','#06B6D4','#3B82F6','#6366F1','#A855F7','#F43F5E','#FB923C','#FBBF24','#4ADE80','#22D3EE'];
 const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn'};
-const CELEB=['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
-const NAV_TITLES=['Meine','Pool','Kalender','Scheißigkeitsscore'];
+// ── i18n ──────────────────────────────────────────────────────────
+let lang=localStorage.getItem('tf_lang')||'de';
+const TR={
+de:{
+  navMy:'Meine',navPool:'Pool',navCal:'Kalender',navVote:'Scheißigkeitsscore',
+  settings:'Einstellungen',done:'Fertig',close:'Schließen',
+  secLang:'Sprache',secDesign:'Design',
+  filterOpen:'Offen',filterDone:'Erledigt',filterAll:'Alle',filterCats:'Kategorien',
+  noNotifs:'Keine Meldungen',notifications:'Meldungen',
+  yourName:'Dein Name',namePlaceholder:'Name eingeben…',tagline:'Gemeinsam mehr erledigen.',next:'Weiter →',
+  howUse:'Wie möchtest du TaskFlow nutzen?',
+  soloTitle:'Nur für mich',soloSub:'Persönliche Aufgaben',
+  createTitle:'Gruppe erstellen',createSub:'Haushalt, Familie, Team',
+  joinTitle:'Gruppe beitreten',joinSub:'Mit Einladungscode',
+  groupPlaceholder:'Gruppenname…',createBtn:'Erstellen',
+  codePlaceholder:'z.B. ABC123',joinBtn:'Beitreten',back:'← Zurück',
+  nameRequired:'Name eingeben',codeRequired:'Code eingeben',errPrefix:'Fehler: ',
+  joined:'Beigetreten!',
+  calDays:['Mo','Di','Mi','Do','Fr','Sa','So'],locale:'de-DE',
+  celeb:['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'],
+},
+en:{
+  navMy:'My Tasks',navPool:'Pool',navCal:'Calendar',navVote:'Stink Score',
+  settings:'Settings',done:'Done',close:'Close',
+  secLang:'Language',secDesign:'Design',
+  filterOpen:'Open',filterDone:'Done',filterAll:'All',filterCats:'Categories',
+  noNotifs:'No notifications',notifications:'Notifications',
+  yourName:'Your name',namePlaceholder:'Enter name…',tagline:'Get more done together.',next:'Next →',
+  howUse:'How do you want to use TaskFlow?',
+  soloTitle:'Just for me',soloSub:'Personal tasks',
+  createTitle:'Create a group',createSub:'Household, family, team',
+  joinTitle:'Join a group',joinSub:'With invitation code',
+  groupPlaceholder:'Group name…',createBtn:'Create',
+  codePlaceholder:'e.g. ABC123',joinBtn:'Join',back:'← Back',
+  nameRequired:'Enter a name',codeRequired:'Enter a code',errPrefix:'Error: ',
+  joined:'Joined!',
+  calDays:['Mo','Tu','We','Th','Fr','Sa','Su'],locale:'en-GB',
+  celeb:['Nailed it!','Done! You are a star!','Crushed it, keep going!','Champion!','That task never stood a chance!'],
+}
+};
+function T(k){return((TR[lang]||TR.de)[k])||(TR.de[k])||k;}
+function setLang(l){lang=l;localStorage.setItem('tf_lang',l);applyLang();render();}
+
+const CELEB=['x']; // compat shim - use T('celeb') instead
+const NAV_TITLES=['Meine','Pool','Kalender','Scheißigkeitsscore']; // compat
 // poop colors by score range
 function poopCls(s){if(!s)return'';const n=Math.round(s);if(n<=3)return'poop-'+n;if(n<=6)return'poop-'+n;return'poop-'+Math.min(n,10);}
 function poopColor(s){if(!s)return'#9CA3AF';if(s<=3)return'#16A34A';if(s<=6)return'#D97706';return'#DC2626';}
@@ -746,7 +657,7 @@ function openNotifLog(){
   const dot=document.getElementById('notifDot');if(dot)dot.style.display='none';
   const list=document.getElementById('notifLogList');
   if(!list)return;
-  if(!notifLog.length){list.innerHTML='<div style="color:var(--text3);font-size:14px;text-align:center;padding:20px 0">Keine Meldungen</div>';document.getElementById('notifLogOv').classList.add('open');return;}
+  if(!notifLog.length){list.innerHTML=`<div style="color:var(--text3);font-size:14px;text-align:center;padding:20px 0">${T('noNotifs')}</div>`;document.getElementById('notifLogOv').classList.add('open');return;}
   list.innerHTML=notifLog.map(n=>{
     const t=n.time;
     const ts=t.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+', '+t.toLocaleDateString('de-DE',{day:'numeric',month:'short'});
@@ -776,29 +687,23 @@ async function api(method,path,body){
 async function init(){
   myToken=localStorage.getItem('tf_token');
   if(myToken){
-    const savedPin=localStorage.getItem('tf_pin');
-    const savedName=localStorage.getItem('tf_pin_name')||'';
-    if(savedPin){
-      // Show PIN screen before granting access
-      document.getElementById('ob5Name').textContent=savedName||'Willkommen zurück';
-      document.getElementById('onboard').classList.remove('hidden');
-      document.getElementById('app').style.display='none';
-      showOb(5);
-      // Pre-load data silently in background
-      try{
-        [users,me]=await Promise.all([api('GET','/users'),api('GET','/users/me')]);
-        const [t,g,as]=await Promise.all([api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
-        tasks=t;group=g;appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',...(as||{})};
-        processRecurring();
-      }catch(e){localStorage.removeItem('tf_token');myToken=null;showOnboard();return;}
-      return;
-    }
-    try{me=await api('GET','/users/me');await loadAll();showApp();startPolling();checkChangelog();checkNewTasks();return;}
-    catch(e){localStorage.removeItem('tf_token');myToken=null;}
+    try{
+      const [u,meData,t,g,as]=await Promise.all([
+        api('GET','/users'),
+        api('GET','/users/me'),
+        api('GET','/tasks'),
+        api('GET','/groups/mine').catch(()=>null),
+        api('GET','/appstate').catch(()=>({}))
+      ]);
+      me=meData;users=u;tasks=t;group=g;
+      appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',...(as||{})};
+      processRecurring();
+      showApp();startPolling();checkChangelog();checkNewTasks();return;
+    }catch(e){localStorage.removeItem('tf_token');myToken=null;}
   }
   showOnboard();
 }
-function showOnboard(){document.getElementById('onboard').classList.remove('hidden');document.getElementById('app').style.display='none';}
+function showOnboard(){document.getElementById('onboard').classList.remove('hidden');document.getElementById('app').style.display='none';showOb(0);}
 function showApp(){document.getElementById('onboard').classList.add('hidden');document.getElementById('app').style.display='block';applyTheme();render();setTimeout(initSheetDismiss,100);}
 async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
@@ -896,12 +801,39 @@ function processRecurring(){
 // ══════════════════════════════════════════
 // RENDER
 // ══════════════════════════════════════════
+function applyLang(){
+  const tr=TR[lang]||TR.de;
+  // nav title
+  const nt=document.getElementById('navTitle');
+  if(nt){const titles=[tr.navMy,tr.navPool,tr.navCal,tr.navVote];nt.textContent=titles[curTab]||'';}
+  // tab labels
+  [['t0',tr.navMy],['t1',tr.navPool],['t2',tr.navCal],['t3',tr.navVote]].forEach(([id,lbl])=>{
+    const el=document.querySelector('#'+id+' .tab-lbl');if(el)el.textContent=lbl;
+  });
+  // profile modal
+  const pmT=document.querySelector('#profileModal .mtitle');if(pmT)pmT.textContent=tr.settings;
+  const pmC=document.querySelector('#profileModal .mclose');if(pmC)pmC.textContent=tr.done;
+  // section span labels
+  const secMap={slSecLang:'secLang',slSecDesign:'secDesign'};
+  Object.entries(secMap).forEach(([id,k])=>{const el=document.getElementById(id);if(el)el.textContent=T(k);});
+  // filter buttons
+  const fm={fOpen:'filterOpen',fDone:'filterDone',fAll:'filterAll',fCats:'filterCats'};
+  Object.entries(fm).forEach(([id,k])=>{const el=document.getElementById(id);if(el)el.textContent=T(k);});
+  // lang seg active
+  const ls=document.getElementById('langSeg');
+  if(ls)ls.querySelectorAll('.seg-b').forEach((b,i)=>b.classList.toggle('on',i===(lang==='de'?0:1)));
+  // notif overlay
+  const nTitle=document.querySelector('#notifLogOv .mtitle');
+  if(nTitle){const svg=nTitle.querySelector('svg');nTitle.textContent=' '+T('notifications');if(svg)nTitle.prepend(svg);}
+  const nClose=document.querySelector('#notifLogOv .mclose');if(nClose)nClose.textContent=T('close');
+}
 function render(){
   if(!me)return;
+  applyLang();
   document.getElementById('navUser').textContent=me.name;
   const ab=document.getElementById('avBtn');
   ab.innerHTML=me.photo?`<img src="${me.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover"><span class="notif-dot" id="ndot" style="display:none"></span>`:`<span style="font-size:12px;font-weight:700;color:${me.color}">${me.name[0]}</span><span class="notif-dot" id="ndot" style="display:none"></span>`;
-  renderMy();renderPool();renderCalendar();renderVote();updateVoteTab();updatePoolTab();
+  renderMy();renderPool();renderCalendar();renderVote();updateVoteTab();
 }
 
 // ══════════════════════════════════════════
@@ -946,13 +878,8 @@ function scoreBadge(t){
   return`<span class="badge b-poop" style="color:${col};border-color:${col}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(12)} ${s}</span>`;
 }
 
-function updatePoolTab(){
-  const t1=document.getElementById('t1');if(!t1)return;
-  const inGroup=group&&users.length>=2;
-  t1.style.display=inGroup?'flex':'none';
-  if(!inGroup&&curTab===1)switchTab(0,false);
-}
 function updateVoteTab(){
+  // Show vote tab only if there are tasks pending my vote
   const pending=tasks.filter(t=>needsMyVote(t));
   const t3=document.getElementById('t3');
   if(!t3)return;
@@ -962,6 +889,7 @@ function updateVoteTab(){
   } else {
     t3.style.display='none';
     t3.classList.remove('has-votes');
+    // If we're on the vote tab and nothing to vote on, go back to tab 0
     if(curTab===3){switchTab(0);}
   }
 }
@@ -1072,7 +1000,7 @@ function uById(id){return users.find(u=>u._id?.toString()===id?.toString());}
 function uColor(assignee){if(!assignee||assignee==='all')return'#9CA3AF';const ovr=me?.colorOverrides?.[assignee];if(ovr)return ovr;return uById(assignee)?.color||'#9CA3AF';}
 function avHTML(u,sz=38){if(!u)return`<div class="av" style="width:${sz}px;height:${sz}px;background:#9CA3AF;font-size:${Math.round(sz*.38)}px">?</div>`;if(u.photo)return`<div class="av" style="width:${sz}px;height:${sz}px"><img src="${u.photo}"></div>`;return`<div class="av" style="width:${sz}px;height:${sz}px;background:${uColor(u._id?.toString())};font-size:${Math.round(sz*.38)}px">${u.name?.[0]||'?'}</div>`;}
 function prog(t){if(!t.subtasks?.length)return'';const done=t.subtasks.filter(s=>s.done).length,total=t.subtasks.length;return`<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${Math.round(done/total*100)}%"></div></div><span class="prog-lbl">${done}/${total}</span></div>`;}
-function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'short'});}
+function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString(T('locale'),{day:'numeric',month:'short'});}
 function uid(){return Math.random().toString(36).substr(2,9);}
 
 // TASK TYPE + VISIBILITY
@@ -1338,10 +1266,10 @@ function closeSlot(){document.getElementById('slotOv').classList.remove('show');
 
 // ── CALENDAR ──
 function renderCalendar(){
-  document.getElementById('calMonth').textContent=new Date(calY,calM).toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+  document.getElementById('calMonth').textContent=new Date(calY,calM).toLocaleDateString(T('locale'),{month:'long',year:'numeric'});
   const today=new Date();today.setHours(0,0,0,0);const firstDay=new Date(calY,calM,1),startDow=firstDay.getDay()===0?6:firstDay.getDay()-1;const dim=new Date(calY,calM+1,0).getDate(),dip=new Date(calY,calM,0).getDate();
   const dlMap={};tasks.filter(t=>t.deadline&&showInMy(t)).forEach(t=>{if(!dlMap[t.deadline])dlMap[t.deadline]=[];dlMap[t.deadline].push(t);});
-  const days=['Mo','Di','Mi','Do','Fr','Sa','So'];let html=days.map(d=>`<div class="cal-dn">${d}</div>`).join('');
+  const days=T('calDays');let html=days.map(d=>`<div class="cal-dn">${d}</div>`).join('');
   const total=Math.ceil((startDow+dim)/7)*7;
   for(let i=0;i<total;i++){
     let day,mo=calM,yr=calY,other=false;if(i<startDow){day=dip-startDow+i+1;mo=calM-1;other=true;if(mo<0){mo=11;yr--;}}else if(i>=startDow+dim){day=i-startDow-dim+1;mo=calM+1;other=true;if(mo>11){mo=0;yr++;}}else day=i-startDow+1;
@@ -1489,13 +1417,13 @@ function openProfile(){
   document.getElementById('myColorGrid').innerHTML=ALL_COLORS.map(c=>`<div class="cdot${me.color===c?' sel':''}" style="background:${c}" onclick="pickMyColor('${c}',this)"></div>`).join('');
   const others=users.filter(u=>u._id?.toString()!==me._id?.toString());
   document.getElementById('otherColorsSection').innerHTML=others.length?`<label class="fl">Farben anderer Mitglieder</label>`+others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;}).join(''):'';
-  renderGroupSection();renderCatList();buildIconPickerGrid();document.getElementById('profileModal').classList.add('open');
+  renderGroupSection();renderCatList();document.getElementById('profileModal').classList.add('open');
 }
 function closeProfile(){document.getElementById('profileModal').classList.remove('open');}
 function renderGroupSection(){
   const gs=document.getElementById('groupSection');
-  if(group){gs.innerHTML=`<div class="glass-card" style="margin:0;border-radius:14px"><div class="crow"><div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div><div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroup()">${I.edit}</button>`:''}</div><div class="sec">Mitglieder</div>${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}<button class="btn btn-out" onclick="leaveGroup()">Gruppe verlassen</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
-  else{gs.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button><button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
+  if(group){gs.innerHTML=`<label class="fl">Gruppe</label><div class="glass-card" style="margin:0;border-radius:14px"><div class="crow"><div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div><div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroup()">${I.edit}</button>`:''}</div><div class="sec">Mitglieder</div>${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}<button class="btn btn-out" onclick="leaveGroup()">Gruppe verlassen</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
+  else{gs.innerHTML=`<label class="fl">Gruppe</label><div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button><button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
 }
 function pickMyColor(c,el){me.color=c;document.querySelectorAll('#myColorGrid .cdot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');}
 function pickOvr(uid,color,el){if(!me.colorOverrides)me.colorOverrides={};me.colorOverrides[uid]=color;const par=el.parentElement;if(par)par.querySelectorAll('.cdot').forEach(d=>d.classList.toggle('sel',d.style.background===color));}
@@ -1510,22 +1438,8 @@ async function leaveGroup(){if(!confirm('Gruppe verlassen?'))return;try{await ap
 async function delGroup(){if(!confirm('Gruppe löschen? Alle Aufgaben werden gelöscht.'))return;try{await api('DELETE','/groups/mine');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
 function editGroup(){const name=prompt('Neuer Name:',group.name);if(!name)return;api('PATCH','/groups/mine',{name}).then(()=>{group.name=name;renderGroupSection();showToast('Aktualisiert');}).catch(e=>showToast(e.message));}
 async function deleteAccount(){if(!confirm('Account löschen?'))return;try{await api('DELETE','/users/me');localStorage.removeItem('tf_token');location.reload();}catch(e){showToast(e.message);}}
-function renderCatList(){const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Noch keine eigenen Kategorien.</div>`;return;}list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="color:var(--text2);display:flex;align-items:center">${CUSTOM_ICONS[icon]?renderCustomIcon(icon,16):catIcon(icon,16)||icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
-function addCat(){
-  const n=document.getElementById('newCatName').value.trim();
-  if(!n){showToast('Name eingeben');return;}
-  if(!appstate.customCats)appstate.customCats={};
-  appstate.customCats[n]=selectedCatIcon||'pin';
-  document.getElementById('newCatName').value='';
-  selectedCatIcon='pin';
-  const btn=document.getElementById('iconPickerBtn');
-  if(btn)btn.innerHTML=renderCustomIcon('pin',18);
-  saveState();renderCatList();populateCatSel();showToast(`"${n}" hinzugefügt`);
-}
-function buildIconPickerGrid(){
-  const g=document.getElementById('iconPickerGrid');if(!g)return;
-  g.innerHTML=Object.keys(CUSTOM_ICONS).map(k=>`<div class="icon-opt${selectedCatIcon===k?' sel':''}" onclick="pickCatIcon('${k}')" title="${k}">${renderCustomIcon(k,16)}</div>`).join('');
-}
+function renderCatList(){const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Noch keine eigenen Kategorien.</div>`;return;}list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="color:var(--text2);display:flex;align-items:center">${catIcon(icon,16)||icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
+function addCat(){const e=document.getElementById('newCatEmoji').value.trim()||'📌';const n=document.getElementById('newCatName').value.trim();if(!n){showToast('Name eingeben');return;}if(!appstate.customCats)appstate.customCats={};appstate.customCats[n]=e;document.getElementById('newCatEmoji').value='';document.getElementById('newCatName').value='';saveState();renderCatList();populateCatSel();showToast(`"${n}" hinzugefügt`);}
 function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();showToast('Gelöscht');}
 async function resetTasks(){if(!confirm('Alle Aufgaben löschen?'))return;for(const t of[...tasks]){try{await api('DELETE','/tasks/'+t._id);}catch(e){}}tasks=[];appstate.poolTasks=[];appstate.poolAssigns={};appstate.shuffleDebtScore={};saveState();render();showToast('Alle Aufgaben gelöscht');}
 
@@ -1538,7 +1452,7 @@ async function adminDelUser(uid){if(!confirm('Nutzer löschen?'))return;try{awai
 async function adminDelGroup(gid){if(!confirm('Gruppe löschen?'))return;try{await api('DELETE',`/admin/group/${gid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast('Gruppe gelöscht');}catch(e){showToast(e.message);}}
 
 // ── CELEBRATION ──
-function celebrate(){document.getElementById('celebFace').innerHTML=`<div style="color:#fff"><svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>`;document.getElementById('celebTxt').textContent=CELEB[Math.floor(Math.random()*CELEB.length)];const cc=document.getElementById('confWrap');cc.innerHTML='';const cols=['#5B5BD6','#22C55E','#EF4444','#F59E0B','#8B5CF6','#FBBF24'];for(let i=0;i<50;i++){const p=document.createElement('div');p.className='conf';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;cc.appendChild(p);}document.getElementById('celebOv').classList.add('show');setTimeout(closeceleb,4000);}
+function celebrate(){document.getElementById('celebFace').innerHTML=`<div style="color:#fff"><svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>`;document.getElementById('celebTxt').textContent=T('celeb')[Math.floor(Math.random()*T('celeb').length)];const cc=document.getElementById('confWrap');cc.innerHTML='';const cols=['#5B5BD6','#22C55E','#EF4444','#F59E0B','#8B5CF6','#FBBF24'];for(let i=0;i<50;i++){const p=document.createElement('div');p.className='conf';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;cc.appendChild(p);}document.getElementById('celebOv').classList.add('show');setTimeout(closeceleb,4000);}
 function closeceleb(){document.getElementById('celebOv').classList.remove('show');}
 
 // ── TOAST ──
@@ -1583,7 +1497,7 @@ function switchTab(i,anim=true){
   wrap.style.transform=`translateX(-${i*25}%)`;
   if(!anim)requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove('no-anim')));
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
-  document.getElementById('navTitle').textContent=NAV_TITLES[i]||'';
+  {const tr=TR[lang]||TR.de;const tts=[tr.navMy,tr.navPool,tr.navCal,tr.navVote];document.getElementById('navTitle').textContent=tts[i]||'';}
   if(i===2)renderCalendar();if(i===3)renderVote();
 }
 let swX=null,swY=null;
@@ -1596,98 +1510,48 @@ document.addEventListener('touchend',e=>{
   swX=null;swY=null;
 },{passive:true});
 
-// ── ONBOARDING + PIN LOGIN ──
-const ALL_STEPS=['ob1','ob2','ob3c','ob3j','ob4','ob5'];
+// ── ONBOARDING ──
+function obPickLang(l,btn){lang=l;localStorage.setItem('tf_lang',l);document.querySelectorAll('#obLangSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const nb=document.getElementById('ob0Next');if(nb)nb.textContent=T('next');}
 function showOb(n){
-  ALL_STEPS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
-  const map={1:'ob1',2:'ob2','c':'ob3c','j':'ob3j',4:'ob4',5:'ob5'};
-  const el=document.getElementById(map[n]);if(el)el.style.display='block';
-}
-function obNext(){
-  const name=document.getElementById('ob-name').value.trim();
-  if(!name){showToast('Name eingeben');return;}
-  document.getElementById('ob2Name').textContent='Hallo, '+name+' 👋';
-  showOb(2);
-}
-let obPendingMode=null;
-async function obChoose(c){
-  const name=document.getElementById('ob-name').value.trim();
-  try{await doLogin(name);}catch(e){showToast('Fehler: '+e.message);return;}
-  obPendingMode=c;
-  if(c==='solo'){
-    // Check if PIN already set, else offer PIN setup
-    if(!localStorage.getItem('tf_pin')){showOb(4);obPinBuf='';}
-    else{await finishSolo();}
-  } else {
-    showOb(c==='create'?'c':'j');
+  ['ob0','ob1','ob2','ob3c','ob3j'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  const m={0:'ob0',1:'ob1',2:'ob2','c':'ob3c','j':'ob3j'};
+  const el=document.getElementById(m[n]);if(el)el.style.display='block';
+  if(n===1){
+    const tl=document.getElementById('ob1Tag');if(tl)tl.textContent=T('tagline');
+    const nl=document.getElementById('ob1NmLbl');if(nl)nl.textContent=T('yourName');
+    const ni=document.getElementById('ob-name');if(ni)ni.placeholder=T('namePlaceholder');
+    const nb=document.getElementById('ob1Btn');if(nb)nb.textContent=T('next');
+  }
+  if(n===2){
+    const nm=document.getElementById('ob-name').value.trim();
+    const hi=document.getElementById('ob2Hi');if(hi)hi.textContent=nm?'👋 '+nm:'';
+    const sb=document.getElementById('ob2Sub');if(sb)sb.textContent=T('howUse');
+    const st=document.getElementById('ob2SoloT');if(st)st.textContent=T('soloTitle');
+    const ss=document.getElementById('ob2SoloS');if(ss)ss.textContent=T('soloSub');
+    const ct=document.getElementById('ob2CtT');if(ct)ct.textContent=T('createTitle');
+    const cs=document.getElementById('ob2CtS');if(cs)cs.textContent=T('createSub');
+    const jt=document.getElementById('ob2JoT');if(jt)jt.textContent=T('joinTitle');
+    const js=document.getElementById('ob2JoS');if(js)js.textContent=T('joinSub');
+    const bk=document.getElementById('ob2Back');if(bk)bk.textContent=T('back');
+  }
+  if(n==='c'){
+    const tt=document.getElementById('ob3cT');if(tt)tt.textContent=T('createTitle');
+    const bt=document.getElementById('ob3cBtn');if(bt)bt.textContent=T('createBtn');
+    const bk=document.getElementById('ob3cBack');if(bk)bk.textContent=T('back');
+    const ip=document.getElementById('ob-gname');if(ip)ip.placeholder=T('groupPlaceholder');
+  }
+  if(n==='j'){
+    const tt=document.getElementById('ob3jT');if(tt)tt.textContent=T('joinTitle');
+    const bt=document.getElementById('ob3jBtn');if(bt)bt.textContent=T('joinBtn');
+    const bk=document.getElementById('ob3jBack');if(bk)bk.textContent=T('back');
+    const ip=document.getElementById('ob-code');if(ip)ip.placeholder=T('codePlaceholder');
   }
 }
-async function finishSolo(){
-  await api('PATCH','/users/me',{solo:true});me.solo=true;await loadAll();showApp();startPolling();
-}
+function obNext(){const name=document.getElementById('ob-name').value.trim();if(!name){showToast(T('nameRequired'));return;}showOb(2);}
+async function obChoose(c){const name=document.getElementById('ob-name').value.trim();await doLogin(name);if(c==='solo'){await api('PATCH','/users/me',{solo:true});me.solo=true;await loadAll();showApp();startPolling();}else showOb(c==='create'?'c':'j');}
 async function doLogin(name){const d=await api('POST','/users/login',{username:name});myToken=d.token;localStorage.setItem('tf_token',myToken);me=await api('GET','/users/me');}
-
-// PIN setup during onboarding
-let obPinBuf='';
-function obPinKey(k){
-  if(obPinBuf.length>=4)return;
-  obPinBuf+=k;
-  updatePinDots('opd',obPinBuf.length);
-  if(obPinBuf.length===4){
-    // simple hash: XOR + sum based
-    const h=pinHash(obPinBuf);
-    localStorage.setItem('tf_pin',h);
-    localStorage.setItem('tf_pin_name',me?.name||'');
-    obPinBuf='';
-    showToast('PIN gesetzt ✓');
-    setTimeout(async()=>{
-      if(obPendingMode==='solo')await finishSolo();
-    },400);
-  }
-}
-function obPinDel(){if(obPinBuf.length>0){obPinBuf=obPinBuf.slice(0,-1);updatePinDots('opd',obPinBuf.length);}}
-function updatePinDots(prefix,len){for(let i=0;i<4;i++){const d=document.getElementById(prefix+i);if(d)d.classList.toggle('filled',i<len);}}
-
-// PIN login (returning user)
-let loginPinBuf='';
-function loginPinKey(k){
-  if(loginPinBuf.length>=4)return;
-  loginPinBuf+=k;
-  updatePinDots('lpd',loginPinBuf.length);
-  if(loginPinBuf.length===4){
-    const entered=pinHash(loginPinBuf);
-    loginPinBuf='';
-    if(entered===localStorage.getItem('tf_pin')){
-      updatePinDots('lpd',0);
-      document.getElementById('onboard').classList.add('hidden');
-      document.getElementById('app').style.display='block';
-      // Token already loaded in init, just render
-      applyTheme();render();startPolling();checkChangelog();checkNewTasks();
-    } else {
-      updatePinDots('lpd',0);
-      showToast('Falscher PIN');
-      // shake dots
-      const dots=document.getElementById('loginPinDots');
-      dots.style.animation='shake .35s';
-      setTimeout(()=>dots.style.animation='',400);
-    }
-  }
-}
-function loginPinDel(){if(loginPinBuf.length>0){loginPinBuf=loginPinBuf.slice(0,-1);updatePinDots('lpd',loginPinBuf.length);}}
-function pinHash(pin){
-  // Simple but effective client-side hash (not crypto, but enough for local PIN)
-  let h=0x811c9dc5;
-  for(let i=0;i<pin.length;i++){h^=pin.charCodeAt(i);h=(h*0x01000193)>>>0;}
-  return h.toString(16)+pin.split('').reduce((a,c,i)=>a+(c.charCodeAt(0)*(i+7)),0).toString(36);
-}
-function pinLogout(){localStorage.removeItem('tf_token');localStorage.removeItem('tf_pin');localStorage.removeItem('tf_pin_name');myToken=null;me=null;location.reload();}
-
-async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast('Name eingeben');return;}
-  try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Code: '+group.inviteCode);}catch(e){showToast(e.message);}
-}
-async function obJoin(){const code=document.getElementById('ob-code').value.trim().toUpperCase();if(!code){showToast('Code eingeben');return;}
-  try{group=await api('POST','/groups/join',{inviteCode:code});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Beigetreten!');}catch(e){showToast('Fehler: '+e.message);}
-}
+async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast(T('nameRequired'));return;}group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Code: '+group.inviteCode);}
+async function obJoin(){const code=document.getElementById('ob-code').value.trim().toUpperCase();if(!code){showToast(T('codeRequired'));return;}try{group=await api('POST','/groups/join',{inviteCode:code});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast(T('joined'));}catch(e){showToast(T('errPrefix')+e.message);}}
 
 init();
 </script>
