@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<style>html,body{background:#0a0a18!important}</style>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1013,11 +1014,13 @@ function updatePoolTab(){
 }
 function updateVoteTab(){
   const pending=tasks.filter(t=>needsMyVote(t));
+  // F7: show tab for all group members while any voting is in progress
+  const anyVotingOpen=tasks.some(t=>isPoolTask(t)&&t.votingEnabled&&!hasFullScore(t));
   const scored=tasks.filter(t=>isPoolTask(t)&&t.votingEnabled&&getScore(t)!=null);
   const t3=document.getElementById('t3');
   if(!t3)return;
   const inGroup=group&&users.length>=2;
-  const show=inGroup&&(pending.length||scored.length);
+  const show=inGroup&&(anyVotingOpen||scored.length);
   if(show){
     t3.style.display='flex';
     t3.classList.toggle('has-votes',pending.length>0);
@@ -1033,17 +1036,27 @@ function renderVote(){
   const myId=me._id?.toString();
   const toVote=tasks.filter(t=>needsMyVote(t));
   if(!toVote.length){
-    // Show completed scores overview instead of empty state
     const scored=tasks.filter(t=>isPoolTask(t)&&t.votingEnabled&&getScore(t)!=null);
-    if(scored.length){
-      c.innerHTML=`<div class="sec">💩 Abgeschlossene Scores</div>`+scored.map(t=>{
-        const sc=getScore(t);const col=poopColor(sc);
-        return`<div class="vote-card" onclick="openDetail('${t._id}')"><div class="vote-title">${t.title}</div><div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px;font-weight:800;color:${col}">${sc}</span><span style="font-size:12px;color:var(--text3)">/10 — Ø</span><div class="score-bar" style="flex:1;margin:0"><div class="score-fill" style="width:${Math.round(sc/10*100)}%;background:${col}"></div></div></div></div>`;
+    const waitingForOthers=tasks.filter(t=>isPoolTask(t)&&t.votingEnabled&&!hasFullScore(t)&&!needsMyVote(t));
+    let html='';
+    // Tasks waiting for other users to vote
+    if(waitingForOthers.length){
+      html+=`<div class="sec">⏳ Warte auf andere</div>`+waitingForOthers.map(t=>{
+        const vCnt=t.subtasks?.length?t.subtasks.reduce((s,sub)=>{const sv=t.subtaskVotes?.[sub.id]||{};return s+Object.keys(sv).length;},0):Object.keys(t.votes||{}).length;
+        const vTotal=t.subtasks?.length?t.subtasks.length*users.length:users.length;
+        const missing=users.filter(u=>{const uid=u._id?.toString();if(t.subtasks?.length)return t.subtasks.some(s=>!(t.subtaskVotes?.[s.id]||{})[uid]);return!(t.votes||{})[uid];}).map(u=>u.name).join(', ');
+        return`<div class="vote-card"><div class="vote-title">${t.title}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">${vCnt}/${vTotal} Stimmen · Fehlt: ${missing}</div></div>`;
       }).join('');
-    } else {
-      c.innerHTML=`<div class="empty"><div style="color:var(--text3);margin-bottom:12px">${poopSVG(52)}</div><div class="empty-t">Alles bewertet!</div><div class="empty-s">Keine offenen Votings für dich.</div></div>`;
     }
-    return;
+    // Completed scores
+    if(scored.length){
+      html+=`<div class="sec">💩 Abgeschlossene Scores</div>`+scored.map(t=>{
+        const sc=getScore(t);const col=poopColor(sc);
+        return`<div class="vote-card" onclick="openDetail('${t._id}')"><div class="vote-title">${t.title}</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><span style="font-size:28px;font-weight:800;color:${col}">${sc}</span><span style="font-size:12px;color:var(--text3)">/10 — Ø</span><div class="score-bar" style="flex:1;margin:0"><div class="score-fill" style="width:${Math.round(sc/10*100)}%;background:${col}"></div></div></div></div>`;
+      }).join('');
+    }
+    if(!html){html=`<div class="empty"><div style="color:var(--text3);margin-bottom:12px">${poopSVG(52)}</div><div class="empty-t">Alles bewertet!</div><div class="empty-s">Keine offenen Votings für dich.</div></div>`;}
+    c.innerHTML=html;return;
   }
   c.innerHTML=toVote.map(t=>{
     const tid=t._id?.toString();
@@ -1315,28 +1328,30 @@ function fairShuffleAssigns(ids){
 
 function renderPool(){
   const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  // Auto-assign if pool has tasks but no assignment yet — keep silent (UX: user can reshuffle)
-  if(!appstate.poolTasks?.length&&poolable.length){
-    appstate.poolTasks=poolable.map(t=>t._id?.toString());
-    appstate.poolAssigns=fairShuffleAssigns(appstate.poolTasks);
+  // F6: new pool tasks are NOT auto-assigned — only tracked, awaiting shuffle
+  if(!appstate.poolTasks)appstate.poolTasks=[];
+  const newIds=poolable.map(t=>t._id?.toString()).filter(id=>!(appstate.poolTasks||[]).includes(id));
+  if(newIds.length){
+    appstate.poolTasks=[...(appstate.poolTasks||[]),...newIds];
     saveState();
-  } else {
-    // Sync: add any new pool tasks that appeared since last shuffle
-    const newIds=poolable.map(t=>t._id?.toString()).filter(id=>!(appstate.poolTasks||[]).includes(id));
-    if(newIds.length){
-      newIds.forEach(id=>{const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;const uids=users.map(u=>u._id?.toString());const pick=uids[Math.floor(Math.random()*uids.length)];appstate.poolAssigns[id]={assignedUser:pick,subtaskAssignments:{}};});
-      appstate.poolTasks=[...(appstate.poolTasks||[]),...newIds];
-      saveState();
-    }
   }
+  // F7: only show tasks in pool tab if voting is done (or voting not enabled)
+  const visibleInPool=poolable.filter(t=>!t.votingEnabled||hasFullScore(t));
   const pf=appstate.poolFilter||'all';
   const pfBar=document.getElementById('poolFbar');pfBar.className='seg';
   pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
-  let toShow=poolable;
+  let toShow=visibleInPool;
   if(pf!=='all')toShow=toShow.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});
   const c=document.getElementById('poolContainer');
   if(!toShow.length&&!poolable.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div></div>`;return;}
-  if(!toShow.length){c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div><div class="empty-s">Wechsle den Filter</div></div>`;return;}
+  // Show tasks waiting for shuffle
+  const unassigned=visibleInPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]);
+  const waitingVote=poolable.filter(t=>t.votingEnabled&&!hasFullScore(t));
+  if(!toShow.length){
+    let msg='';
+    if(waitingVote.length)msg=`<div class="empty-s" style="margin-top:6px">💩 ${waitingVote.length} Aufgabe${waitingVote.length>1?'n':''} warte${waitingVote.length===1?'t':''} auf Voting-Abschluss</div>`;
+    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div>${msg||'<div class="empty-s">Wechsle den Filter</div>'}</div>`;return;
+  }
   c.innerHTML=toShow.map(t=>{
     const id=t._id?.toString();const asgn=appstate.poolAssigns?.[id];const myId=me._id?.toString();
     const hasSubAssigns=t.subtasks?.length&&asgn?.subtaskAssignments;
@@ -1402,6 +1417,15 @@ function shufflePool(){
     if(ticker===1)document.getElementById('slotSub').textContent='Scheißigkeits-Ausgleich läuft…';
     if(ticker===30){
       clearInterval(interval);appstate.poolAssigns=finalAssigns;saveState();renderPool();renderMy();
+      // F6: notify each assigned user
+      appstate.poolTasks.forEach(id=>{
+        const asgn=finalAssigns[id];if(!asgn)return;
+        const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+        const assignedUid=asgn.assignedUser;
+        if(assignedUid!==me._id?.toString()){
+          notifyUser(assignedUid,'Du wurdest für die Pool-Aufgabe "'+t.title+'" eingeteilt');
+        }
+      });
       appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:14px;font-weight:800">${u?.name||'?'}</div>`;});
       // Show balance info
       const uids=users.map(u=>u._id?.toString());
@@ -1417,7 +1441,7 @@ function closeSlot(){document.getElementById('slotOv').classList.remove('show');
 function renderCalendar(){
   document.getElementById('calMonth').textContent=new Date(calY,calM).toLocaleDateString('de-DE',{month:'long',year:'numeric'});
   const today=new Date();today.setHours(0,0,0,0);const firstDay=new Date(calY,calM,1),startDow=firstDay.getDay()===0?6:firstDay.getDay()-1;const dim=new Date(calY,calM+1,0).getDate(),dip=new Date(calY,calM,0).getDate();
-  const dlMap={};tasks.filter(t=>t.deadline&&showInMy(t)).forEach(t=>{if(!dlMap[t.deadline])dlMap[t.deadline]=[];dlMap[t.deadline].push(t);});
+  const dlMap={};tasks.filter(t=>t.deadline&&showInMy(t)&&!isPoolTask(t)).forEach(t=>{if(!dlMap[t.deadline])dlMap[t.deadline]=[];dlMap[t.deadline].push(t);});
   const days=['Mo','Di','Mi','Do','Fr','Sa','So'];let html=days.map(d=>`<div class="cal-dn">${d}</div>`).join('');
   const total=Math.ceil((startDow+dim)/7)*7;
   for(let i=0;i<total;i++){
@@ -1432,8 +1456,8 @@ function calPrev(){calM--;if(calM<0){calM=11;calY--;}renderCalendar();}
 function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCalendar();}
 function renderCalList(){
   const c=document.getElementById('calList');
-  if(calDay){const dt=tasks.filter(t=>t.deadline===calDay&&showInMy(t));if(!dt.length){c.innerHTML=`<div style="padding:12px 14px;color:var(--text3);font-size:14px">Keine Aufgaben.</div>`;return;}c.innerHTML=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(calDay)}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;}
-  else{const all=tasks.filter(t=>t.deadline&&showInMy(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));if(!all.length){c.innerHTML=`<div class="empty"><div>${I.calOff}</div><div class="empty-t">Keine Deadlines</div></div>`;return;}const byD={};all.forEach(t=>{if(!byD[t.deadline])byD[t.deadline]=[];byD[t.deadline].push(t);});let html='';Object.entries(byD).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,dt])=>{const od=new Date(date+'T00:00:00')<new Date()&&date!==todayStr();html+=`<div class="sec" style="${od?'color:var(--red)':''}display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(date)}${od?` ${I.alert}`:''}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;});c.innerHTML=html;}
+  if(calDay){const dt=tasks.filter(t=>t.deadline===calDay&&showInMy(t)&&!isPoolTask(t));if(!dt.length){c.innerHTML=`<div style="padding:12px 14px;color:var(--text3);font-size:14px">Keine Aufgaben.</div>`;return;}c.innerHTML=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(calDay)}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;}
+  else{const all=tasks.filter(t=>t.deadline&&showInMy(t)&&!isPoolTask(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));if(!all.length){c.innerHTML=`<div class="empty"><div>${I.calOff}</div><div class="empty-t">Keine Deadlines</div></div>`;return;}const byD={};all.forEach(t=>{if(!byD[t.deadline])byD[t.deadline]=[];byD[t.deadline].push(t);});let html='';Object.entries(byD).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,dt])=>{const od=new Date(date+'T00:00:00')<new Date()&&date!==todayStr();html+=`<div class="sec" style="${od?'color:var(--red)':''}display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(date)}${od?` ${I.alert}`:''}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;});c.innerHTML=html;}
 }
 
 // ── DETAIL ──
@@ -1491,6 +1515,11 @@ function initSubDrag(tid){
 }
 
 // ── TASK TOGGLE ──
+// ── NOTIFICATION HELPER ──
+async function notifyUser(userId,message){
+  try{await api('POST','/users/'+userId+'/notify',{message});}catch(e){}
+}
+
 async function toggleTask(id,withCeleb=false){
   const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
   if(!canComplete(t)){showToast('Du kannst diese Aufgabe nicht abschließen');return;}
@@ -1498,7 +1527,13 @@ async function toggleTask(id,withCeleb=false){
   if(!was&&t.repeat&&t.repeat!=='Nie'){if(!appstate.recurringLast)appstate.recurringLast={};appstate.recurringLast[id]=todayStr();saveState();}
   if(was&&t.repeat&&t.repeat!=='Nie'&&appstate.recurringLast){delete appstate.recurringLast[id];saveState();}
   if(!was){const el=document.getElementById('ti-'+id);if(el){el.classList.add('completing');setTimeout(()=>{render();},430);}else render();if(withCeleb)celebrate();}else render();
-  try{await api('PATCH','/tasks/'+id,{done:t.done});}catch(e){t.done=was;render();showToast('Fehler');}
+  try{
+    await api('PATCH','/tasks/'+id,{done:t.done});
+    // F1: notify creator when someone else completes their task
+    if(!was&&isMyTask(t)&&t.creatorId&&t.creatorId!==me._id?.toString()){
+      notifyUser(t.creatorId,me.name+' hat die Aufgabe "'+t.title+'" erledigt');
+    }
+  }catch(e){t.done=was;render();showToast('Fehler');}
 }
 
 // ── TASK MODAL ──
