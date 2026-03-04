@@ -16,8 +16,6 @@
   --glass-shadow:0 8px 32px rgba(91,91,214,0.12);--glass-nav:rgba(255,255,255,0.72);
   --sep:rgba(180,180,220,0.25);--r:18px;--r-sm:12px;
   --sb:env(safe-area-inset-bottom,0px);
-  /* vote color */
-  --poop:#8B4513;
 }
 body.th-dark{--acc:#818CF8;--text:#e8eaff;--text2:#b0b8d8;--text3:#5a6080;--bg-from:#0a0a18;--bg-to:#12102a;--glass:rgba(30,30,60,.55);--glass-border:rgba(100,100,180,.3);--glass-shadow:0 8px 32px rgba(0,0,0,.4);--glass-nav:rgba(15,15,35,.75);--sep:rgba(80,80,140,.3);}
 body.th-warm{--acc:#D97706;--text:#1c1510;--text2:#44403c;--text3:#a8926e;--bg-from:#fff8ec;--bg-to:#fef0e0;--glass:rgba(255,252,245,.6);--glass-border:rgba(255,220,160,.6);--glass-shadow:0 8px 32px rgba(180,120,0,.1);--glass-nav:rgba(255,250,240,.78);--sep:rgba(180,140,80,.2);}
@@ -191,9 +189,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 .onboard.hidden{display:none;}
 .ob-glass{background:var(--glass);backdrop-filter:blur(28px) saturate(1.8);-webkit-backdrop-filter:blur(28px) saturate(1.8);border:1px solid var(--glass-border);border-radius:24px;padding:24px 20px;width:100%;max-width:380px;box-shadow:var(--glass-shadow);}
 .ob-logo{display:flex;flex-direction:column;align-items:center;margin-bottom:24px;}
-.ob-card{display:flex;align-items:center;gap:14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px;margin-bottom:10px;cursor:pointer;transition:all .15s;backdrop-filter:blur(10px);}
-.ob-card:active{transform:scale(.98);opacity:.85;}
-.ob-icon{width:44px;height:44px;border-radius:12px;background:rgba(91,91,214,.12);display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0;}
+/* .ob-card/.ob-icon defined below (de-duped) */
 .pin-dots{display:flex;gap:14px;justify-content:center;margin:20px 0 8px;}
 .pin-dot{width:14px;height:14px;border-radius:50%;border:2px solid var(--sep);transition:all .2s;}
 .pin-dot.filled{background:var(--acc);border-color:var(--acc);}
@@ -337,6 +333,13 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 </div>
 
 <!-- APP -->
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:20000;background:linear-gradient(135deg,var(--bg-from),var(--bg-to));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;transition:opacity .3s">
+  <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--acc)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  <div style="font-size:22px;font-weight:800;letter-spacing:-.5px;color:var(--text)">TaskFlow</div>
+  <div style="width:36px;height:3px;border-radius:2px;background:var(--sep);overflow:hidden"><div style="height:100%;width:40%;background:var(--acc);border-radius:2px;animation:loadbar 1s ease-in-out infinite alternate"></div></div>
+</div>
+<style>@keyframes loadbar{from{transform:translateX(-100%)}to{transform:translateX(250%)}}</style>
+
 <div id="app" style="display:none">
   <div class="nav">
     <div class="nav-inner">
@@ -432,6 +435,16 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 
 <!-- OVERLAYS -->
 <div class="toast" id="toast"></div>
+
+<!-- INLINE PROMPT OVERLAY -->
+<div class="ov" id="promptOv">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr"><div class="mtitle" id="promptTitle"></div><span class="mclose" onclick="closePrompt()">Abbrechen</span></div>
+    <div class="fg"><input class="fi" id="promptInp" onkeydown="if(event.key==='Enter')confirmPrompt()"></div>
+    <div style="padding:0 16px 8px"><button class="btn btn-p" onclick="confirmPrompt()" id="promptConfirmBtn">OK</button></div>
+  </div>
+</div>
 <div class="celeb-ov" id="celebOv" onclick="closeceleb()">
   <div id="confWrap" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
   <div class="celeb-face" id="celebFace"></div>
@@ -694,7 +707,6 @@ const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn'};
 const CELEB=['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
 const NAV_TITLES=['Meine','Pool','Kalender','Scheißigkeitsscore'];
 // poop colors by score range
-function poopCls(s){if(!s)return'';const n=Math.round(s);if(n<=3)return'poop-'+n;if(n<=6)return'poop-'+n;return'poop-'+Math.min(n,10);}
 function poopColor(s){if(!s)return'#9CA3AF';if(s<=3)return'#16A34A';if(s<=6)return'#D97706';return'#DC2626';}
 
 const I={
@@ -798,15 +810,32 @@ async function init(){
   }
   showOnboard();
 }
-function showOnboard(){document.getElementById('onboard').classList.remove('hidden');document.getElementById('app').style.display='none';}
-function showApp(){document.getElementById('onboard').classList.add('hidden');document.getElementById('app').style.display='block';applyTheme();render();setTimeout(initSheetDismiss,100);}
+function showOnboard(){
+  document.getElementById('onboard').classList.remove('hidden');
+  document.getElementById('app').style.display='none';
+  const ls=document.getElementById('loadingScreen');
+  if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),300);}
+}
+function showApp(){
+  document.getElementById('onboard').classList.add('hidden');
+  document.getElementById('app').style.display='block';
+  applyTheme();render();setTimeout(initSheetDismiss,100);
+  const ls=document.getElementById('loadingScreen');
+  if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),300);}
+}
 async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
   appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',...appstate};
   processRecurring();
 }
-async function saveState(){try{await api('POST','/appstate',appstate);}catch(e){}}
+let _saveStateTimer=null;
+function saveState(){
+  clearTimeout(_saveStateTimer);
+  _saveStateTimer=setTimeout(async()=>{
+    try{await api('POST','/appstate',appstate);}catch(e){}
+  },600);
+}
 
 // ══════════════════════════════════════════
 // CHANGELOG
@@ -844,7 +873,7 @@ function startPolling(){
   if(pollTimer)clearInterval(pollTimer);
   pollTimer=setInterval(async()=>{
     try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}document.getElementById('ndot').style.display=r.hasNotifications?'block':'none';}catch(e){}
-  },5000);
+  },15000);
 }
 async function checkNotifs(){
   try{
@@ -888,7 +917,7 @@ function processRecurring(){
     if(t.repeat==='Wöchentlich'&&weekStart(last)<weekStart(today))reset=true;
     if(t.repeat==='Monatlich'&&monthStr(last)<monthStr(today))reset=true;
     if(t.repeat==='Jährlich'&&yearStr(last)<yearStr(today))reset=true;
-    if(reset){api('PATCH','/tasks/'+t._id,{done:false,subtasks:(t.subtasks||[]).map(s=>({...s,done:false}))});t.done=false;if(t.subtasks)t.subtasks.forEach(s=>s.done=false);delete appstate.recurringLast[t._id?.toString()];changed=true;}
+    if(reset){api('PATCH','/tasks/'+t._id,{done:false,subtasks:(t.subtasks||[]).map(s=>({...s,done:false}))}).catch(()=>{});t.done=false;if(t.subtasks)t.subtasks.forEach(s=>s.done=false);delete appstate.recurringLast[t._id?.toString()];changed=true;}
   });
   if(changed)saveState();
 }
@@ -899,9 +928,17 @@ function processRecurring(){
 function render(){
   if(!me)return;
   document.getElementById('navUser').textContent=me.name;
+  // Update avatar without touching ndot, to avoid resetting its visibility
   const ab=document.getElementById('avBtn');
-  ab.innerHTML=me.photo?`<img src="${me.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover"><span class="notif-dot" id="ndot" style="display:none"></span>`:`<span style="font-size:12px;font-weight:700;color:${me.color}">${me.name[0]}</span><span class="notif-dot" id="ndot" style="display:none"></span>`;
-  renderMy();renderPool();renderCalendar();renderVote();updateVoteTab();updatePoolTab();
+  const ndotEl=document.getElementById('ndot');
+  const ndotDisplay=ndotEl?ndotEl.style.display:'none';
+  ab.innerHTML=me.photo?`<img src="${me.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover"><span class="notif-dot" id="ndot"></span>`:`<span style="font-size:12px;font-weight:700;color:${me.color}">${me.name[0]}</span><span class="notif-dot" id="ndot"></span>`;
+  const newDot=document.getElementById('ndot');if(newDot)newDot.style.display=ndotDisplay;
+  renderMy();
+  if(curTab===1)renderPool();
+  if(curTab===2)renderCalendar();
+  if(curTab===3)renderVote();
+  updateVoteTab();updatePoolTab();
 }
 
 // ══════════════════════════════════════════
@@ -954,11 +991,14 @@ function updatePoolTab(){
 }
 function updateVoteTab(){
   const pending=tasks.filter(t=>needsMyVote(t));
+  const scored=tasks.filter(t=>isPoolTask(t)&&t.votingEnabled&&getScore(t)!=null);
   const t3=document.getElementById('t3');
   if(!t3)return;
-  if(pending.length){
+  const inGroup=group&&users.length>=2;
+  const show=inGroup&&(pending.length||scored.length);
+  if(show){
     t3.style.display='flex';
-    t3.classList.add('has-votes');
+    t3.classList.toggle('has-votes',pending.length>0);
   } else {
     t3.style.display='none';
     t3.classList.remove('has-votes');
@@ -971,7 +1011,16 @@ function renderVote(){
   const myId=me._id?.toString();
   const toVote=tasks.filter(t=>needsMyVote(t));
   if(!toVote.length){
-    c.innerHTML=`<div class="empty"><div style="color:var(--text3);margin-bottom:12px">${poopSVG(52)}</div><div class="empty-t">Alles bewertet!</div><div class="empty-s">Keine offenen Votings für dich.</div></div>`;
+    // Show completed scores overview instead of empty state
+    const scored=tasks.filter(t=>isPoolTask(t)&&t.votingEnabled&&getScore(t)!=null);
+    if(scored.length){
+      c.innerHTML=`<div class="sec">💩 Abgeschlossene Scores</div>`+scored.map(t=>{
+        const sc=getScore(t);const col=poopColor(sc);
+        return`<div class="vote-card" onclick="openDetail('${t._id}')"><div class="vote-title">${t.title}</div><div style="display:flex;align-items:center;gap:10px"><span style="font-size:28px;font-weight:800;color:${col}">${sc}</span><span style="font-size:12px;color:var(--text3)">/10 — Ø</span><div class="score-bar" style="flex:1;margin:0"><div class="score-fill" style="width:${Math.round(sc/10*100)}%;background:${col}"></div></div></div></div>`;
+      }).join('');
+    } else {
+      c.innerHTML=`<div class="empty"><div style="color:var(--text3);margin-bottom:12px">${poopSVG(52)}</div><div class="empty-t">Alles bewertet!</div><div class="empty-s">Keine offenen Votings für dich.</div></div>`;
+    }
     return;
   }
   c.innerHTML=toVote.map(t=>{
@@ -1171,19 +1220,20 @@ function initCatDrag(){
 // POOL — fair shuffle with poop score balancing
 // ══════════════════════════════════════════
 
-function buildAssigns(ids){
-  const a={};const uids=users.map(u=>u._id?.toString());if(!uids.length)return a;
-  let idx=Math.floor(Math.random()*uids.length);
+// Shared round-robin assign helper
+function _roundRobinAssign(ids,startIdx){
+  const uids=users.map(u=>u._id?.toString());const a={};if(!uids.length)return a;
+  let idx=startIdx??Math.floor(Math.random()*uids.length);
   ids.forEach(id=>{
     const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
     const last=appstate.poolAssigns?.[id]?.assignedUser;
-    const subA={};
-    (t.subtasks||[]).forEach(s=>{subA[s.id]=uids[idx%uids.length];idx++;});
+    const subA={};(t.subtasks||[]).forEach(s=>{subA[s.id]=uids[idx%uids.length];idx++;});
     let main=uids[idx%uids.length];if(uids.length>1&&main===last){idx++;main=uids[idx%uids.length];}idx++;
     a[id]={assignedUser:main,subtaskAssignments:subA};
   });
   return a;
 }
+function buildAssigns(ids){return _roundRobinAssign(ids);}
 
 // ── FAIR SHUFFLE: balance poop scores across users ──
 // debtScore[userId] = cumulative poop score assigned to them (carries over weeks)
@@ -1204,17 +1254,9 @@ function fairShuffleAssigns(ids){
   // Sort scored tasks by score descending (worst first)
   const scored=scoredIds.map(id=>({id,score:tasks.find(t=>t._id?.toString()===id)?.poopScore||0})).sort((x,y)=>y.score-x.score);
 
-  // Assign unscored randomly (round-robin, avoid repeating last assignee)
-  let idx=Math.floor(Math.random()*uids.length);
-  unscoredIds.forEach(id=>{
-    const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
-    const last=appstate.poolAssigns?.[id]?.assignedUser;
-    const subA={};(t.subtasks||[]).forEach(s=>{subA[s.id]=uids[idx%uids.length];idx++;});
-    let main=uids[idx%uids.length];if(uids.length>1&&main===last){idx++;main=uids[idx%uids.length];}idx++;
-    a[id]={assignedUser:main,subtaskAssignments:subA};
-    // Add average score (5) as placeholder debt for unscored
-    debt[main]=(debt[main]||0)+5;
-  });
+  // Assign unscored via shared round-robin helper
+  const unscoredA=_roundRobinAssign(unscoredIds);
+  unscoredIds.forEach(id=>{if(unscoredA[id]){a[id]=unscoredA[id];debt[unscoredA[id].assignedUser]=(debt[unscoredA[id].assignedUser]||0)+5;}});
 
   // Assign scored tasks to the user with lowest current debt
   scored.forEach(({id,score})=>{
@@ -1251,7 +1293,20 @@ function fairShuffleAssigns(ids){
 
 function renderPool(){
   const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  if(!appstate.poolTasks?.length&&poolable.length){appstate.poolTasks=poolable.map(t=>t._id?.toString());appstate.poolAssigns=buildAssigns(appstate.poolTasks);saveState();}
+  // Auto-assign if pool has tasks but no assignment yet — keep silent (UX: user can reshuffle)
+  if(!appstate.poolTasks?.length&&poolable.length){
+    appstate.poolTasks=poolable.map(t=>t._id?.toString());
+    appstate.poolAssigns=fairShuffleAssigns(appstate.poolTasks);
+    saveState();
+  } else {
+    // Sync: add any new pool tasks that appeared since last shuffle
+    const newIds=poolable.map(t=>t._id?.toString()).filter(id=>!(appstate.poolTasks||[]).includes(id));
+    if(newIds.length){
+      newIds.forEach(id=>{const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;const uids=users.map(u=>u._id?.toString());const pick=uids[Math.floor(Math.random()*uids.length)];appstate.poolAssigns[id]={assignedUser:pick,subtaskAssignments:{}};});
+      appstate.poolTasks=[...(appstate.poolTasks||[]),...newIds];
+      saveState();
+    }
+  }
   const pf=appstate.poolFilter||'all';
   const pfBar=document.getElementById('poolFbar');pfBar.className='seg';
   pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
@@ -1394,7 +1449,15 @@ function closeDetail(){document.getElementById('taskDetail').classList.remove('o
 function editCurrent(){if(detailId){closeDetail();setTimeout(()=>showAddTask(detailId),250);}}
 function delDetail(id){if(!confirm('Aufgabe löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeDetail();showToast('Gelöscht');}).catch(e=>showToast('Fehler: '+e.message));}
 async function toggleSub(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(s)s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});if(isPoolTask(t)&&t.subtasks?.length&&t.subtasks.every(s=>s.done)&&!t.done){t.done=true;await api('PATCH','/tasks/'+tid,{done:true});render();celebrate();}else{render();openDetail(tid);}}catch(e){showToast('Fehler');}}
-async function addSubDetail(tid){const title=prompt('Unteraufgabe:');if(!title)return;const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;if(!t.subtasks)t.subtasks=[];t.subtasks.push({id:uid(),title,done:false});await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});render();openDetail(tid);}
+async function addSubDetail(tid){
+  const title=await showPrompt('Unteraufgabe hinzufügen','Titel…','Hinzufügen');
+  if(!title)return;
+  const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;
+  if(!t.subtasks)t.subtasks=[];
+  t.subtasks.push({id:uid(),title,done:false});
+  await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});
+  render();openDetail(tid);
+}
 function initSubDrag(tid){
   const list=document.getElementById('dSubList');if(!list)return;let dr=null;
   function items(){return[...list.querySelectorAll('.sub-item[data-sid]')];}
@@ -1402,7 +1465,7 @@ function initSubDrag(tid){
   function move(e){if(!dr)return;e.preventDefault();const y=e.touches?e.touches[0].clientY:e.clientY;let t=null;for(const i of items().filter(i=>i!==dr)){const r=i.getBoundingClientRect();if(y<r.top+r.height/2){t=i;break;}}const ab=list.querySelector('.crow');if(t)list.insertBefore(dr,t);else if(ab)list.insertBefore(dr,ab);else list.appendChild(dr);}
   async function end(){if(!dr)return;dr.classList.remove('dragging');const t=tasks.find(t=>t._id?.toString()===tid);if(t){const ord=items().map(el=>el.dataset.sid);t.subtasks.sort((a,b)=>ord.indexOf(a.id)-ord.indexOf(b.id));await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});}dr=null;}
   list.addEventListener('touchstart',start,{passive:false});list.addEventListener('touchmove',move,{passive:false});list.addEventListener('touchend',end);
-  list.addEventListener('mousedown',start);window.addEventListener('mousemove',move);window.addEventListener('mouseup',end);
+  list.addEventListener('mousedown',start);list.addEventListener('mousemove',move);list.addEventListener('mouseup',end);
 }
 
 // ── TASK TOGGLE ──
@@ -1465,7 +1528,8 @@ function closeTaskModal(){document.getElementById('taskModal').classList.remove(
 async function saveTask(){
   const title=document.getElementById('fTitle').value.trim();if(!title){showToast('Titel eingeben!');return;}
   const assignee=selType==='mine'?document.getElementById('fAssignee').value:me._id?.toString();
-  const data={title,desc:document.getElementById('fDesc').value,cat:document.getElementById('fCat').value,prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:document.getElementById('fRepeat').value,type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
+  const existingTask=editingId?tasks.find(t=>t._id?.toString()===editingId):null;
+  const data={title,desc:document.getElementById('fDesc').value,cat:document.getElementById('fCat').value,prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:document.getElementById('fRepeat').value,type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:editingId?(existingTask?.done||false):false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
   if(editingId){
     const idx=tasks.findIndex(t=>t._id?.toString()===editingId);
     if(idx>=0)tasks[idx]={...tasks[idx],...data};
@@ -1494,8 +1558,8 @@ function openProfile(){
 function closeProfile(){document.getElementById('profileModal').classList.remove('open');}
 function renderGroupSection(){
   const gs=document.getElementById('groupSection');
-  if(group){gs.innerHTML=`<div class="glass-card" style="margin:0;border-radius:14px"><div class="crow"><div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div><div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroup()">${I.edit}</button>`:''}</div><div class="sec">Mitglieder</div>${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}<button class="btn btn-out" onclick="leaveGroup()">Gruppe verlassen</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
-  else{gs.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button><button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button></div>`;document.getElementById('leaveGroupWrap').innerHTML='';}
+  if(group){gs.innerHTML=`<div class="glass-card" style="margin:0;border-radius:14px"><div class="crow"><div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div><div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroup()">${I.edit}</button>`:''}</div><div class="sec">Mitglieder</div>${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}<button class="btn btn-out" onclick="leaveGroup()">Gruppe verlassen</button></div>`;}
+  else{gs.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button><button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button></div>`;}
 }
 function pickMyColor(c,el){me.color=c;document.querySelectorAll('#myColorGrid .cdot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');}
 function pickOvr(uid,color,el){if(!me.colorOverrides)me.colorOverrides={};me.colorOverrides[uid]=color;const par=el.parentElement;if(par)par.querySelectorAll('.cdot').forEach(d=>d.classList.toggle('sel',d.style.background===color));}
@@ -1504,11 +1568,46 @@ async function saveProfile(){
   const name=document.getElementById('profName').value.trim();
   try{me=await api('PATCH','/users/me',{name:name||me.name,color:me.color,photo:profilePhoto,colorOverrides:me.colorOverrides||{},theme:me.theme||''});const idx=users.findIndex(u=>u._id?.toString()===me._id?.toString());if(idx>=0)users[idx]={...users[idx],...me};applyTheme();render();closeProfile();showToast('Gespeichert');}catch(e){showToast('Fehler: '+e.message);}
 }
-async function createGroup(){const name=prompt('Gruppenname:');if(!name)return;try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Erstellt! Code: '+group.inviteCode);}catch(e){showToast(e.message);}}
-async function joinGroup(){const code=prompt('Einladungscode:');if(!code)return;try{group=await api('POST','/groups/join',{inviteCode:code.trim().toUpperCase()});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Beigetreten!');}catch(e){showToast(e.message);}}
+// ── INLINE PROMPT (replaces browser prompt()) ──
+let _promptResolve=null;
+function showPrompt(title,placeholder,confirmLabel='OK'){
+  return new Promise(resolve=>{
+    _promptResolve=resolve;
+    document.getElementById('promptTitle').textContent=title;
+    const inp=document.getElementById('promptInp');
+    inp.placeholder=placeholder||'';inp.value='';
+    document.getElementById('promptConfirmBtn').textContent=confirmLabel;
+    document.getElementById('promptOv').classList.add('open');
+    setTimeout(()=>inp.focus(),100);
+  });
+}
+function confirmPrompt(){
+  const v=document.getElementById('promptInp').value.trim();
+  closePrompt();
+  if(_promptResolve){_promptResolve(v||null);_promptResolve=null;}
+}
+function closePrompt(){
+  document.getElementById('promptOv').classList.remove('open');
+  if(_promptResolve){_promptResolve(null);_promptResolve=null;}
+}
+
+async function createGroup(){
+  const name=await showPrompt('Gruppe erstellen','Gruppenname…','Erstellen');
+  if(!name)return;
+  try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Code: '+group.inviteCode);}catch(e){showToast(e.message);}
+}
+async function joinGroup(){
+  const code=await showPrompt('Gruppe beitreten','Einladungscode (z.B. ABC123)','Beitreten');
+  if(!code)return;
+  try{group=await api('POST','/groups/join',{inviteCode:code.trim().toUpperCase()});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Beigetreten!');}catch(e){showToast(e.message);}
+}
 async function leaveGroup(){if(!confirm('Gruppe verlassen?'))return;try{await api('POST','/groups/leave');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
 async function delGroup(){if(!confirm('Gruppe löschen? Alle Aufgaben werden gelöscht.'))return;try{await api('DELETE','/groups/mine');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
-function editGroup(){const name=prompt('Neuer Name:',group.name);if(!name)return;api('PATCH','/groups/mine',{name}).then(()=>{group.name=name;renderGroupSection();showToast('Aktualisiert');}).catch(e=>showToast(e.message));}
+async function editGroup(){
+  const name=await showPrompt('Gruppe umbenennen',group.name,'Speichern');
+  if(!name)return;
+  api('PATCH','/groups/mine',{name}).then(()=>{group.name=name;renderGroupSection();showToast('Aktualisiert');}).catch(e=>showToast(e.message));
+}
 async function deleteAccount(){if(!confirm('Account löschen?'))return;try{await api('DELETE','/users/me');localStorage.removeItem('tf_token');location.reload();}catch(e){showToast(e.message);}}
 function renderCatList(){const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Noch keine eigenen Kategorien.</div>`;return;}list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="color:var(--text2);display:flex;align-items:center">${CUSTOM_ICONS[icon]?renderCustomIcon(icon,16):catIcon(icon,16)||icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
 function addCat(){
@@ -1527,7 +1626,18 @@ function buildIconPickerGrid(){
   g.innerHTML=Object.keys(CUSTOM_ICONS).map(k=>`<div class="icon-opt${selectedCatIcon===k?' sel':''}" onclick="pickCatIcon('${k}')" title="${k}">${renderCustomIcon(k,16)}</div>`).join('');
 }
 function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();showToast('Gelöscht');}
-async function resetTasks(){if(!confirm('Alle Aufgaben löschen?'))return;for(const t of[...tasks]){try{await api('DELETE','/tasks/'+t._id);}catch(e){}}tasks=[];appstate.poolTasks=[];appstate.poolAssigns={};appstate.shuffleDebtScore={};saveState();render();showToast('Alle Aufgaben gelöscht');}
+async function resetTasks(){
+  const myId=me._id?.toString();
+  const myTasks=tasks.filter(t=>t.assignee===myId||(t.creatorId===myId&&!isPoolTask(t)));
+  if(!myTasks.length){showToast('Keine eigenen Aufgaben');return;}
+  if(!confirm(`${myTasks.length} eigene Aufgabe${myTasks.length>1?'n':''} löschen?`))return;
+  for(const t of myTasks){try{await api('DELETE','/tasks/'+t._id);}catch(e){}}
+  tasks=tasks.filter(t=>!myTasks.some(m=>m._id===t._id));
+  // Clean up pool state for removed tasks
+  myTasks.forEach(t=>{const id=t._id?.toString();if(appstate.poolAssigns?.[id])delete appstate.poolAssigns[id];});
+  appstate.poolTasks=(appstate.poolTasks||[]).filter(id=>tasks.some(t=>t._id?.toString()===id));
+  saveState();render();showToast(`${myTasks.length} Aufgabe${myTasks.length>1?'n':''} gelöscht`);
+}
 
 // ── ADMIN ──
 function openAdmin(){document.getElementById('adminPin').value='';document.getElementById('adminModal').classList.add('open');}
@@ -1662,6 +1772,9 @@ function loginPinKey(k){
       document.getElementById('onboard').classList.add('hidden');
       document.getElementById('app').style.display='block';
       // Token already loaded in init, just render
+      const ls=document.getElementById('loadingScreen');if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),300);}
+      document.getElementById('onboard').classList.add('hidden');
+      document.getElementById('app').style.display='block';
       applyTheme();render();startPolling();checkChangelog();checkNewTasks();
     } else {
       updatePinDots('lpd',0);
