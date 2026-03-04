@@ -334,7 +334,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 
 <!-- APP -->
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
-<div id="loadingScreen" style="position:fixed;inset:0;z-index:20000;background:linear-gradient(135deg,var(--bg-from),var(--bg-to));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:opacity .3s">
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:20000;background:linear-gradient(135deg,#0a0a18,#12102a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:opacity .6s ease,transform .6s ease">
   <!-- Logo mark -->
   <div style="width:80px;height:80px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(91,91,214,.35),0 2px 8px rgba(91,91,214,.2),inset 0 1px 0 rgba(255,255,255,.25);margin-bottom:18px;position:relative;overflow:hidden">
     <div style="position:absolute;top:-30%;left:-20%;width:80%;height:60%;background:rgba(255,255,255,.15);border-radius:50%;filter:blur(12px)"></div>
@@ -350,7 +350,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <!-- Byline -->
   <div style="font-family:'Dancing Script',cursive;font-size:11px;color:var(--text3);margin-top:4px;letter-spacing:.3px">by x3n</div>
   <!-- Loading bar -->
-  <div style="width:48px;height:3px;border-radius:2px;background:rgba(91,91,214,.15);overflow:hidden;margin-top:22px"><div style="height:100%;width:45%;background:linear-gradient(90deg,var(--acc),var(--acc2));border-radius:2px;animation:loadbar 1.1s ease-in-out infinite alternate"></div></div>
+  <div style="width:48px;height:3px;border-radius:2px;background:rgba(91,91,214,.15);overflow:hidden;margin-top:22px"><div style="height:100%;width:45%;background:linear-gradient(90deg,#5B5BD6,#818CF8);border-radius:2px;animation:loadbar 1.1s ease-in-out infinite alternate"></div></div>
 </div>
 <style>@keyframes loadbar{from{transform:translateX(-120%)}to{transform:translateX(280%)}}</style>
 
@@ -799,7 +799,20 @@ async function api(method,path,body){
 // ══════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════
-function hideLoader(){const ls=document.getElementById('loadingScreen');if(ls){ls.style.opacity='0';setTimeout(()=>ls.remove(),300);}}
+// Track when loader appeared so we can enforce 2s minimum
+const _loaderStart=Date.now();
+function hideLoader(){
+  const ls=document.getElementById('loadingScreen');
+  if(!ls)return;
+  const elapsed=Date.now()-_loaderStart;
+  const wait=Math.max(0,2000-elapsed);
+  setTimeout(()=>{
+    // Scale-up + fade out
+    ls.style.opacity='0';
+    ls.style.transform='scale(1.04)';
+    setTimeout(()=>ls.remove(),650);
+  },wait);
+}
 async function init(){
   myToken=localStorage.getItem('tf_token');
   if(myToken){
