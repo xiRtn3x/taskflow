@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" style="background:#0a0a18">
 <head>
 <meta charset="UTF-8">
 <style>html,body{background:#0a0a18!important}</style>
@@ -362,7 +362,16 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 <div id="app" style="display:none">
   <div class="nav">
     <div class="nav-inner">
-      <div class="nav-title" id="navTitle">Meine</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="width:26px;height:26px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(91,91,214,.3)">
+          <svg width="14" height="14" viewBox="0 0 42 42" fill="none">
+            <rect x="8" y="14" width="5" height="20" rx="2.5" fill="white" opacity=".9"/>
+            <rect x="18.5" y="8" width="5" height="26" rx="2.5" fill="white"/>
+            <rect x="29" y="18" width="5" height="16" rx="2.5" fill="white" opacity=".75"/>
+          </svg>
+        </div>
+        <div class="nav-title" id="navTitle">Meine</div>
+      </div>
       <div class="nav-right">
         <span class="nav-username" id="navUser"></span>
         <button class="nav-btn" onclick="openNotifLog()" id="notifBtn" style="display:none">
@@ -562,36 +571,32 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> Design</div></div>
     <div class="fg" style="padding-top:4px"><div class="seg" id="themeSeg"><button class="seg-b on" onclick="setTheme('',this)">Hell</button><button class="seg-b" onclick="setTheme('th-dark',this)">Dunkel</button><button class="seg-b" onclick="setTheme('th-warm',this)">Warm</button></div></div>
 
-    <!-- SEKTION: Gruppe -->
+    <!-- SEKTION: Gruppe → Untermenü -->
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Gruppe</div></div>
-    <div class="fg" style="padding-top:4px" id="groupSection"></div>
+    <div class="fg" style="padding-top:4px">
+      <div onclick="openGruppenMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
+        <div id="profGroupPreview" style="flex:1;font-size:14px;color:var(--text2)">–</div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
 
-    <!-- SEKTION: Kategorien -->
+    <!-- SEKTION: Kategorien → Untermenü -->
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Kategorien</div></div>
     <div class="fg" style="padding-top:4px">
-      <div id="catList" style="margin-bottom:8px"></div>
-      <div style="display:flex;gap:7px;align-items:center">
-        <div class="icon-picker">
-          <div class="icon-picker-btn" id="iconPickerBtn" onclick="openIconPicker()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-          <div class="icon-picker-grid" id="iconPickerGrid"></div>
-        </div>
-        <input class="fi" id="newCatName" placeholder="Neue Kategorie…" style="flex:1">
-        <button class="btn" style="background:var(--acc);color:#fff;padding:10px 12px;border-radius:12px;display:flex;align-items:center;flex-shrink:0" onclick="addCat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      <div onclick="openKatMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
+        <div id="profCatPreview" style="flex:1;font-size:14px;color:var(--text2)">–</div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
 
-    <!-- SEKTION: Account & Daten -->
+    <!-- SEKTION: Account → Untermenü -->
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Account</div></div>
-    <div class="fg" style="padding-top:4px;display:flex;flex-direction:column;gap:8px">
-      <div class="admin-row" onclick="openAdmin()">
-        <div style="color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-        <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--red)">Admin-Bereich</div><div style="font-size:12px;color:var(--text3)">Nur mit PIN</div></div>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><polyline points="9 18 15 12 9 6"/></svg>
+    <div class="fg" style="padding-top:4px">
+      <div onclick="openAccountMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
+        <div style="flex:1;font-size:14px;color:var(--text2)">Admin · Aufgaben · Account</div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
-      <button class="btn btn-d" style="font-size:14px;gap:6px" onclick="resetTasks()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>Aufgaben zurücksetzen</button>
-      <button class="btn btn-d" onclick="deleteAccount()">Account löschen</button>
     </div>
-    <div style="padding:0 16px 8px" id="leaveGroupWrap"></div>
     <div style="height:8px"></div>
   </div>
 </div>
@@ -619,6 +624,62 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div id="adminContent">
       <div class="fg"><label class="fl">PIN</label><input class="fi" id="adminPin" type="password" placeholder="PIN eingeben…" inputmode="numeric" maxlength="12"><div style="margin-top:10px"><button class="btn btn-p" onclick="verifyAdmin()">Bestätigen</button></div></div>
     </div>
+  </div>
+</div>
+
+<!-- GRUPPEN UNTERMENÜ -->
+<div class="ov" id="gruppenOv">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr">
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Gruppe</div>
+      <span class="mclose" onclick="closeGruppenMenu()">Schließen</span>
+    </div>
+    <div id="gruppenContent" style="padding:0 16px 24px"></div>
+  </div>
+</div>
+
+<!-- KATEGORIEN UNTERMENÜ -->
+<div class="ov" id="katOv">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr">
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Kategorien</div>
+      <span class="mclose" onclick="closeKatMenu()">Schließen</span>
+    </div>
+    <div style="padding:0 16px 8px">
+      <div id="catList" style="margin-bottom:8px"></div>
+      <div style="display:flex;gap:7px;align-items:center">
+        <div class="icon-picker">
+          <div class="icon-picker-btn" id="iconPickerBtn" onclick="openIconPicker()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <div class="icon-picker-grid" id="iconPickerGrid"></div>
+        </div>
+        <input class="fi" id="newCatName" placeholder="Neue Kategorie…" style="flex:1">
+        <button class="btn" style="background:var(--acc);color:#fff;padding:10px 12px;border-radius:12px;display:flex;align-items:center;flex-shrink:0" onclick="addCat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+      </div>
+    </div>
+    <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- ACCOUNT UNTERMENÜ -->
+<div class="ov" id="accountOv">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr">
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Account</div>
+      <span class="mclose" onclick="closeAccountMenu()">Schließen</span>
+    </div>
+    <div style="padding:0 16px 8px;display:flex;flex-direction:column;gap:8px">
+      <div class="admin-row" onclick="closeAccountMenu();openAdmin()">
+        <div style="color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--red)">Admin-Bereich</div><div style="font-size:12px;color:var(--text3)">Nur mit PIN</div></div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+      <button class="btn btn-d" style="font-size:14px;gap:6px" onclick="resetTasks()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>Aufgaben zurücksetzen</button>
+      <button class="btn btn-d" style="font-size:14px" onclick="deleteAccount()">Account löschen</button>
+    </div>
+    <div style="height:16px"></div>
   </div>
 </div>
 
@@ -1610,13 +1671,61 @@ function openProfile(){
   document.getElementById('myColorGrid').innerHTML=ALL_COLORS.map(c=>`<div class="cdot${me.color===c?' sel':''}" style="background:${c}" onclick="pickMyColor('${c}',this)"></div>`).join('');
   const others=users.filter(u=>u._id?.toString()!==me._id?.toString());
   document.getElementById('otherColorsSection').innerHTML=others.length?`<label class="fl">Farben anderer Mitglieder</label>`+others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;}).join(''):'';
-  renderGroupSection();renderCatList();buildIconPickerGrid();document.getElementById('profileModal').classList.add('open');
+  // Update submenu previews
+  const gPrev=document.getElementById('profGroupPreview');
+  if(gPrev)gPrev.textContent=group?group.name:'Keine Gruppe';
+  const cPrev=document.getElementById('profCatPreview');
+  if(cPrev){const n=Object.keys(appstate.customCats||{}).length;cPrev.textContent=n?`${n} eigene Kategorie${n===1?'':'n'}`:'Kategorien verwalten';}
+  document.getElementById('profileModal').classList.add('open');
 }
 function closeProfile(){document.getElementById('profileModal').classList.remove('open');}
+
+// ── SUBMENU: GRUPPE ──
+function openGruppenMenu(){renderGroupSection();document.getElementById('gruppenOv').classList.add('open');}
+function closeGruppenMenu(){document.getElementById('gruppenOv').classList.remove('open');}
+async function editGroupInMenu(){
+  // Close gruppe menu first so prompt overlay appears on top
+  closeGruppenMenu();
+  await new Promise(r=>setTimeout(r,250));
+  const name=await showPrompt('Gruppe umbenennen',group.name,'Speichern');
+  if(!name){openGruppenMenu();return;}
+  try{await api('PATCH','/groups/mine',{name});group.name=name;showToast('Aktualisiert');}catch(e){showToast(e.message);}
+  openGruppenMenu();
+}
+
+// ── SUBMENU: KATEGORIEN ──
+function openKatMenu(){renderCatList();buildIconPickerGrid();document.getElementById('katOv').classList.add('open');}
+function closeKatMenu(){document.getElementById('katOv').classList.remove('open');}
+
+// ── SUBMENU: ACCOUNT ──
+function openAccountMenu(){document.getElementById('accountOv').classList.add('open');}
+function closeAccountMenu(){document.getElementById('accountOv').classList.remove('open');}
 function renderGroupSection(){
-  const gs=document.getElementById('groupSection');
-  if(group){gs.innerHTML=`<div class="glass-card" style="margin:0;border-radius:14px"><div class="crow"><div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div><div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroup()">${I.edit}</button>`:''}</div><div class="sec">Mitglieder</div>${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}</div><div style="margin-top:10px;display:flex;flex-direction:column;gap:7px">${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}<button class="btn btn-out" onclick="leaveGroup()">Gruppe verlassen</button></div>`;}
-  else{gs.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px"><button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button><button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button></div>`;}
+  // Render into gruppenContent (inside the submenu overlay)
+  const gs=document.getElementById('gruppenContent');if(!gs)return;
+  if(group){
+    gs.innerHTML=`<div class="glass-card" style="margin:0 0 12px;border-radius:14px">
+      <div class="crow">
+        <div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div>
+        <div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>
+        ${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroupInMenu()">${I.edit}</button>`:''}
+      </div>
+      <div class="sec">Mitglieder</div>
+      ${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn btn-out" style="font-size:14px" onclick="leaveGroup()">Gruppe verlassen</button>
+      ${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}
+    </div>`;
+  } else {
+    gs.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px">
+      <button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button>
+      <button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button>
+    </div>`;
+  }
+  // Also update main profile preview
+  const gPrev=document.getElementById('profGroupPreview');
+  if(gPrev)gPrev.textContent=group?group.name:'Keine Gruppe';
 }
 function pickMyColor(c,el){me.color=c;document.querySelectorAll('#myColorGrid .cdot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');}
 function pickOvr(uid,color,el){if(!me.colorOverrides)me.colorOverrides={};me.colorOverrides[uid]=color;const par=el.parentElement;if(par)par.querySelectorAll('.cdot').forEach(d=>d.classList.toggle('sel',d.style.background===color));}
@@ -1651,15 +1760,15 @@ function closePrompt(){
 async function createGroup(){
   const name=await showPrompt('Gruppe erstellen','Gruppenname…','Erstellen');
   if(!name)return;
-  try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Code: '+group.inviteCode);}catch(e){showToast(e.message);}
+  try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();openGruppenMenu();showToast('Code: '+group.inviteCode);}catch(e){showToast(e.message);}
 }
 async function joinGroup(){
   const code=await showPrompt('Gruppe beitreten','Einladungscode (z.B. ABC123)','Beitreten');
   if(!code)return;
-  try{group=await api('POST','/groups/join',{inviteCode:code.trim().toUpperCase()});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();showToast('Beigetreten!');}catch(e){showToast(e.message);}
+  try{group=await api('POST','/groups/join',{inviteCode:code.trim().toUpperCase()});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();openGruppenMenu();showToast('Beigetreten!');}catch(e){showToast(e.message);}
 }
-async function leaveGroup(){if(!confirm('Gruppe verlassen?'))return;try{await api('POST','/groups/leave');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
-async function delGroup(){if(!confirm('Gruppe löschen? Alle Aufgaben werden gelöscht.'))return;try{await api('DELETE','/groups/mine');group=null;me.groupId=null;await loadAll();render();renderGroupSection();}catch(e){showToast(e.message);}}
+async function leaveGroup(){if(!confirm('Gruppe verlassen?'))return;try{await api('POST','/groups/leave');group=null;me.groupId=null;await loadAll();render();renderGroupSection();closeGruppenMenu();}catch(e){showToast(e.message);}}
+async function delGroup(){if(!confirm('Gruppe löschen? Alle Aufgaben werden gelöscht.'))return;try{await api('DELETE','/groups/mine');group=null;me.groupId=null;await loadAll();render();renderGroupSection();closeGruppenMenu();}catch(e){showToast(e.message);}}
 async function editGroup(){
   const name=await showPrompt('Gruppe umbenennen',group.name,'Speichern');
   if(!name)return;
@@ -1676,13 +1785,13 @@ function addCat(){
   selectedCatIcon='pin';
   const btn=document.getElementById('iconPickerBtn');
   if(btn)btn.innerHTML=renderCustomIcon('pin',18);
-  saveState();renderCatList();populateCatSel();showToast(`"${n}" hinzugefügt`);
+  saveState();renderCatList();populateCatSel();showToast(`"${n}" hinzugefügt`);const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?`${nc} eigene Kategorie${nc===1?'':'n'}`:'Kategorien verwalten';}
 }
 function buildIconPickerGrid(){
   const g=document.getElementById('iconPickerGrid');if(!g)return;
   g.innerHTML=Object.keys(CUSTOM_ICONS).map(k=>`<div class="icon-opt${selectedCatIcon===k?' sel':''}" onclick="pickCatIcon('${k}')" title="${k}">${renderCustomIcon(k,16)}</div>`).join('');
 }
-function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();showToast('Gelöscht');}
+function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();populateCatSel();showToast('Gelöscht');const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?`${nc} eigene Kategorie${nc===1?'':'n'}`:'Kategorien verwalten';}}
 async function resetTasks(){
   const myId=me._id?.toString();
   const myTasks=tasks.filter(t=>t.assignee===myId||(t.creatorId===myId&&!isPoolTask(t)));
