@@ -1713,18 +1713,27 @@ function obNext(){
 let obPendingMode=null;
 async function obChoose(c){
   const name=document.getElementById('ob-name').value.trim();
-  try{await doLogin(name);}catch(e){showToast('Fehler: '+e.message);return;}
-  obPendingMode=c;
-  if(c==='solo'){
-    // Check if PIN already set, else offer PIN setup
-    if(!localStorage.getItem('tf_pin')){showOb(4);obPinBuf='';}
-    else{await finishSolo();}
-  } else {
-    showOb(c==='create'?'c':'j');
+  if(!name){showToast('Name eingeben');return;}
+  try{
+    await doLogin(name);
+    obPendingMode=c;
+    // Clear stale PIN if it belongs to a different user
+    const storedPinName=localStorage.getItem('tf_pin_name')||'';
+    const pinBelongsToMe=storedPinName===me?.name;
+    if(!pinBelongsToMe){localStorage.removeItem('tf_pin');localStorage.removeItem('tf_pin_name');}
+    if(c==='solo'){
+      if(!localStorage.getItem('tf_pin')){showOb(4);obPinBuf='';}
+      else{await finishSolo();}
+    } else {
+      showOb(c==='create'?'c':'j');
+    }
+  }catch(e){
+    showToast('Fehler: '+e.message);
   }
 }
 async function finishSolo(){
-  await api('PATCH','/users/me',{solo:true});me.solo=true;await loadAll();showApp();startPolling();
+  try{await api('PATCH','/users/me',{solo:true});me.solo=true;await loadAll();showApp();startPolling();}
+  catch(e){showToast('Fehler: '+e.message);}
 }
 async function doLogin(name){const d=await api('POST','/users/login',{username:name});myToken=d.token;localStorage.setItem('tf_token',myToken);me=await api('GET','/users/me');}
 
