@@ -724,7 +724,7 @@ async function api(method,path,body){
   const opts={method,headers:{'Content-Type':'application/json','x-token':myToken||''}};
   if(body!==undefined)opts.body=JSON.stringify(body);
   const r=await fetch('/api'+path,opts);
-  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||r.statusText);}
+  if(!r.ok){const e=await r.json().catch(()=>({}));const err=new Error(e.error||r.statusText);err.status=r.status;throw err;}
   return r.json();
 }
 
@@ -746,7 +746,16 @@ async function init(){
       appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',...(as||{})};
       processRecurring();
       showApp();startPolling();checkChangelog();checkNewTasks();return;
-    }catch(e){localStorage.removeItem('tf_token');myToken=null;}
+    }catch(e){
+      // only clear token on auth errors, not network issues
+      if(e.status===401||e.status===403||String(e.message).includes('401')||String(e.message).includes('403')||String(e.message).includes('Unauthorized')){
+        localStorage.removeItem('tf_token');myToken=null;
+      } else {
+        // network/server error - still try to show app with cached state
+        try{showApp();startPolling();return;}catch(e2){}
+        localStorage.removeItem('tf_token');myToken=null;
+      }
+    }
   }
   showOnboard();
 }
@@ -1608,9 +1617,37 @@ function showOb(n){
   }
 }
 function obNext(){const name=document.getElementById('ob-name').value.trim();if(!name){showToast(T('nameReq'));return;}showOb(2);}
-async function obChoose(c){const name=document.getElementById('ob-name').value.trim();await doLogin(name);if(c==='solo'){await api('PATCH','/users/me',{solo:true});me.solo=true;await loadAll();showApp();startPolling();}else showOb(c==='create'?'c':'j');}
+async function obChoose(c){
+  const name=document.getElementById('ob-name').value.trim();
+  if(!name){showToast(T('nameReq'));return;}
+  try{
+    await doLogin(name);
+    if(c==='solo'){
+      await api('PATCH','/users/me',{solo:true});
+      me.solo=true;
+      await loadAll();
+      showApp();
+      startPolling();
+    }else{
+      showOb(c==='create'?'c':'j');
+    }
+  }catch(e){
+    showToast(T('errPfx')+e.message);
+  }
+}
 async function doLogin(name){const d=await api('POST','/users/login',{username:name});myToken=d.token;localStorage.setItem('tf_token',myToken);me=await api('GET','/users/me');}
-async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast(T('nameReq'));return;}group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Code: '+group.inviteCode);}
+async function obCreateGroup(){
+  const name=document.getElementById('ob-gname').value.trim();
+  if(!name){showToast(T('nameReq'));return;}
+  try{
+    group=await api('POST','/groups',{name});
+    me=await api('GET','/users/me');
+    await loadAll();
+    showApp();
+    startPolling();
+    showToast('Code: '+group.inviteCode);
+  }catch(e){showToast(T('errPfx')+e.message);}
+}
 async function obJoin(){const code=document.getElementById('ob-code').value.trim().toUpperCase();if(!code){showToast(T('codeReq'));return;}try{group=await api('POST','/groups/join',{inviteCode:code});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast(T('joined'));}catch(e){showToast(T('errPfx')+e.message);}}
 
 init();
