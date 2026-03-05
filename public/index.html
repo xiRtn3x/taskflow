@@ -1795,9 +1795,10 @@ function closeAccountMenu(){document.getElementById('accountOv').classList.remov
 
 // ── KALENDERINTEGRATION ──
 function openKalMenu(){
-  const base=window.location.origin;
+  const rawOrigin=window.location.origin;
+  const base=rawOrigin.replace(/^http:/,'https:');
   const token=localStorage.getItem('tf_token')||'';
-  const link=`${base}/calendar/feed.ics?token=${token}`;
+  const link=`${base}/api/calendar/feed.ics?token=${token}`;
   const box=document.getElementById('icalLinkBox');
   if(box)box.textContent=link;
   document.getElementById('kalOv').classList.add('open');
