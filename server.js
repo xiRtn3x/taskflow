@@ -351,7 +351,9 @@ app.get('/api/poll', auth, async (req, res) => {
     const users = await db.collection('users')
       .find(req.user.groupId ? { groupId: req.user.groupId } : { _id: req.user._id })
       .project({ token: 0, notifications: 0 }).toArray();
-    const hash = crypto.createHash('md5').update(JSON.stringify(tasks)+JSON.stringify(users)).digest('hex');
+    const stateKey = req.user.groupId || req.user._id.toString();
+    const appstate = await db.collection('appstate').findOne({ _id: stateKey });
+    const hash = crypto.createHash('md5').update(JSON.stringify(tasks)+JSON.stringify(users)+JSON.stringify(appstate||{})).digest('hex');
     const me = await db.collection('users').findOne({ _id: req.user._id });
     res.json({ hash, hasNotifications: (me?.notifications||[]).length > 0, taskCount: tasks.filter(t=>!t.done).length });
   } catch(e) { res.status(500).json({ error: e.message }); }
