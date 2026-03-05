@@ -259,58 +259,58 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         </div>
       </div>
       <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">Task<span style="color:#818CF8">Flow</span></div>
-      <div style="font-size:13px;color:var(--text3);margin-top:4px">Gemeinsam mehr erledigen.</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:4px"id="obTagline">Gemeinsam mehr erledigen.</div>
     </div>
-    <label class="fl">Dein Name</label>
+    <label class="fl"id="obNameLbl">Dein Name</label>
     <input class="fi" id="ob-name" placeholder="Name eingeben…" style="margin-bottom:16px;font-size:16px" onkeydown="if(event.key==='Enter')obNext()">
-    <button class="btn btn-p" onclick="obNext()">Weiter →</button>
+    <button class="btn btn-p" onclick="obNext()"id="obNextBtn">Weiter →</button>
   </div>
   <!-- ob2: Modus -->
   <div id="ob2" style="display:none;width:100%;max-width:380px">
     <div style="text-align:center;margin-bottom:16px">
       <div style="font-size:20px;font-weight:700" id="ob2Name"></div>
-      <div style="font-size:13px;color:var(--text3);margin-top:4px">Wie möchtest du TaskFlow nutzen?</div>
+      <div style="font-size:13px;color:var(--text3);margin-top:4px"id="ob2Sub">Wie möchtest du TaskFlow nutzen?</div>
     </div>
     <div class="ob-card" onclick="obChoose('solo')">
       <div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-      <div><div style="font-size:15px;font-weight:700;margin-bottom:2px">Nur für mich</div><div style="font-size:12px;color:var(--text3)">Persönliche Aufgaben</div></div>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:2px"id="obSoloTitle">Nur für mich</div><div style="font-size:12px;color:var(--text3)"id="obSoloSub">Persönliche Aufgaben</div></div>
     </div>
     <div class="ob-card" onclick="obChoose('create')">
       <div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-      <div><div style="font-size:15px;font-weight:700;margin-bottom:2px">Gruppe erstellen</div><div style="font-size:12px;color:var(--text3)">Haushalt, Familie, Team</div></div>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:2px">Gruppe erstellen</div><div style="font-size:12px;color:var(--text3)"id="obCreateSub">Haushalt, Familie, Team</div></div>
     </div>
     <div class="ob-card" onclick="obChoose('join')">
       <div class="ob-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
-      <div><div style="font-size:15px;font-weight:700;margin-bottom:2px">Gruppe beitreten</div><div style="font-size:12px;color:var(--text3)">Mit Einladungscode</div></div>
+      <div><div style="font-size:15px;font-weight:700;margin-bottom:2px">Gruppe beitreten</div><div style="font-size:12px;color:var(--text3)"id="obJoinSub">Mit Einladungscode</div></div>
     </div>
     <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:6px" onclick="showOb(1)">← Zurück</button>
   </div>
   <!-- ob3c: Gruppe erstellen -->
   <div id="ob3c" style="display:none" class="ob-glass">
-    <div style="font-size:18px;font-weight:700;margin-bottom:4px">Gruppe erstellen</div>
-    <div style="font-size:13px;color:var(--text3);margin-bottom:16px">Gib deiner Gruppe einen Namen</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px" id="ob3cTitle">Gruppe erstellen</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:16px"id="ob3cHint">Gib deiner Gruppe einen Namen</div>
     <input class="fi" id="ob-gname" placeholder="Gruppenname…" style="margin-bottom:14px">
-    <button class="btn btn-p" onclick="obCreateGroup()">Erstellen</button>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" onclick="showOb(2)">← Zurück</button>
+    <button class="btn btn-p" id="ob3cBtn" onclick="obCreateGroup()">Erstellen</button>
+    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" id="ob3cBackBtn" onclick="showOb(2)">← Zurück</button>
   </div>
   <!-- ob3j: Gruppe beitreten -->
   <div id="ob3j" style="display:none" class="ob-glass">
-    <div style="font-size:18px;font-weight:700;margin-bottom:4px">Gruppe beitreten</div>
-    <div style="font-size:13px;color:var(--text3);margin-bottom:16px">Einladungscode eingeben</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:4px" id="ob3jTitle">Gruppe beitreten</div>
+    <div style="font-size:13px;color:var(--text3);margin-bottom:16px"id="ob3jHint">Einladungscode eingeben</div>
     <input class="fi" id="ob-code" placeholder="z.B. ABC123" style="margin-bottom:14px;text-transform:uppercase;letter-spacing:3px;font-size:18px;text-align:center">
-    <button class="btn btn-p" onclick="obJoin()">Beitreten</button>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" onclick="showOb(2)">← Zurück</button>
+    <button class="btn btn-p" id="ob3jBtn" onclick="obJoin()">Beitreten</button>
+    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" id="ob3jBackBtn" onclick="showOb(2)">← Zurück</button>
   </div>
   <!-- PIN-Setup (ob4) -->
   <div id="ob4" style="display:none" class="ob-glass">
     <div style="text-align:center;margin-bottom:4px">
-      <div style="font-size:18px;font-weight:700;margin-bottom:4px">PIN festlegen</div>
-      <div style="font-size:13px;color:var(--text3)">Schütze deinen Account mit einem 4-stelligen PIN</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px"id="ob4Title">PIN festlegen</div>
+      <div style="font-size:13px;color:var(--text3)"id="ob4Hint">Schütze deinen Account mit einem 4-stelligen PIN</div>
     </div>
     <div style="display:flex;align-items:center;gap:12px;background:rgba(91,91,214,.1);border:1px solid rgba(91,91,214,.2);border-radius:12px;padding:12px 14px;margin-bottom:12px">
       <div style="flex:1">
-        <div style="font-size:13px;font-weight:600;color:var(--text)">PIN auf Gerät speichern</div>
-        <div style="font-size:11px;color:var(--text3);margin-top:2px">Beim nächsten Start direkt zur App</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text)"id="ob4SaveLbl">PIN auf Gerät speichern</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px"id="ob4SaveSub">Beim nächsten Start direkt zur App</div>
       </div>
       <button class="tog" id="pinSaveTog" onclick="this.classList.toggle('on')"></button>
     </div>
@@ -325,7 +325,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <div></div><div class="pin-key" onclick="obPinKey('0')">0</div>
       <div class="pin-key" onclick="obPinDel()" style="font-size:16px">⌫</div>
     </div>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" onclick="obSkipPin()">Überspringen</button>
+    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" id="obSkipBtn" onclick="obSkipPin()">Überspringen</button>
   </div>
   <!-- PIN-Login (ob5) -->
   <div id="ob5" style="display:none" class="ob-glass">
@@ -345,7 +345,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <div></div><div class="pin-key" onclick="loginPinKey('0')">0</div>
       <div class="pin-key" onclick="loginPinDel()" style="font-size:16px">⌫</div>
     </div>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px;font-size:13px" onclick="pinLogout()">Anderes Konto nutzen</button>
+    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px;font-size:13px" id="ob5OtherBtn" onclick="pinLogout()">Anderes Konto nutzen</button>
   </div>
 </div>
 
@@ -380,8 +380,8 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 </style>
 <div id="landscapeLock">
   <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
-  <div style="font-size:16px;font-weight:700">Bitte drehe dein Gerät</div>
-  <div style="font-size:13px;color:#5a6080">TaskFlow funktioniert nur im Hochformat</div>
+  <div style="font-size:16px;font-weight:700"id="landscapeTitle">Bitte drehe dein Gerät</div>
+  <div style="font-size:13px;color:#5a6080"id="landscapeSub">TaskFlow funktioniert nur im Hochformat</div>
 </div>
 <style>@keyframes loadbar{from{transform:translateX(-120%)}to{transform:translateX(280%)}}@keyframes lsIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
 
@@ -418,10 +418,10 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="page" id="pgMy">
       <div style="padding:10px 14px 4px">
         <div class="seg" id="myFilterSeg">
-          <button class="seg-b on" onclick="setMyFilter('open',this)">Offen</button>
-          <button class="seg-b" onclick="setMyFilter('done',this)">Erledigt</button>
-          <button class="seg-b" onclick="setMyFilter('all',this)">Alle</button>
-          <button class="seg-b" onclick="setMyFilter('cats',this)">Kategorien</button>
+          <button class="seg-b on" id="fBtnOpen" onclick="setMyFilter('open',this)">Offen</button>
+          <button class="seg-b" id="fBtnDone" onclick="setMyFilter('done',this)">Erledigt</button>
+          <button class="seg-b" id="fBtnAll" onclick="setMyFilter('all',this)">Alle</button>
+          <button class="seg-b" id="fBtnCats" onclick="setMyFilter('cats',this)">Kategorien</button>
         </div>
       </div>
       <div id="myContainer"></div>
@@ -462,15 +462,15 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div class="tabs">
     <div class="tab active" onclick="switchTab(0)" id="t0">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
-      <span class="tab-lbl">Meine</span>
+      <span class="tab-lbl"id="tLbl0">Meine</span>
     </div>
     <div class="tab" onclick="switchTab(1)" id="t1">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg></div>
-      <span class="tab-lbl">Pool</span>
+      <span class="tab-lbl"id="tLbl1">${lang==='en'?'Pool':'Pool'}</span>
     </div>
     <div class="tab" onclick="switchTab(2)" id="t2">
       <div class="tab-iw"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
-      <span class="tab-lbl">Kalender</span>
+      <span class="tab-lbl"id="tLbl2">Kalender</span>
     </div>
     <div class="tab" onclick="switchTab(3)" id="t3" style="display:none">
       <div class="tab-iw">
@@ -478,10 +478,10 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         <!-- poop emoji icon -->
         <svg width="18" height="18" viewBox="0 0 100 100" fill="currentColor"><ellipse cx="50" cy="86" rx="40" ry="14"/><ellipse cx="50" cy="70" rx="30" ry="13"/><ellipse cx="50" cy="56" rx="22" ry="12"/><path d="M50 44 Q60 32 50 22 Q40 12 50 3" stroke="currentColor" stroke-width="7" fill="none" stroke-linecap="round"/></svg>
       </div>
-      <span class="tab-lbl">Vote</span>
+      <span class="tab-lbl"id="tLbl3">Vote</span>
     </div>
   </div>
-  <button class="fab" id="fabBtn" onclick="if(curTab===1&&(!group||users.length<2)){showToast('Pool benötigt eine Gruppe mit mind. 2 Mitgliedern');}else{showAddTask(null, curTab===1?'pool':null);}">
+  <button class="fab" id="fabBtn" onclick="if(curTab===1&&(!group||users.length<2)){showToast(lang==='en'?'Pool requires a group with at least 2 members':'Pool benötigt eine Gruppe mit mind. 2 Mitgliedern');}else{showAddTask(null, curTab===1?'pool':null);}">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 </div>
@@ -502,13 +502,13 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div id="confWrap" style="position:absolute;inset:0;overflow:hidden;pointer-events:none"></div>
   <div class="celeb-face" id="celebFace"></div>
   <div class="celeb-txt" id="celebTxt"></div>
-  <div class="celeb-sub">Tippe um fortzufahren</div>
+  <div class="celeb-sub"id="celebSub">Tippe um fortzufahren</div>
 </div>
 <div class="slot-ov" id="slotOv" onclick="closeSlot()">
   <div class="slot-card" onclick="event.stopPropagation()">
     <div class="slot-title">Aufgaben werden verteilt…</div>
     <div id="slotRows"></div>
-    <div class="slot-sub" id="slotSub">Die Würfel fallen…</div>
+    <div class="slot-sub" id="slotSub"id="slotSub">Die Würfel fallen…</div>
   </div>
 </div>
 <div class="chlog-ov" id="chlogOv">
@@ -516,7 +516,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div style="font-size:20px;font-weight:800;margin-bottom:4px">Neu in TaskFlow</div>
     <div id="chlogVersion" style="font-size:12px;color:var(--text3);margin-bottom:18px"></div>
     <div id="chlogList"></div>
-    <button class="btn btn-p" style="margin-top:16px" onclick="closeChangelog()">Los geht's!</button>
+    <button class="btn btn-p" style="margin-top:16px" onclick="closeChangelog()"id="chlogBtn">Los geht's!</button>
   </div>
 </div>
 
@@ -524,52 +524,52 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 <div class="ov" id="taskModal">
   <div class="sheet">
     <div class="handle"></div>
-    <div class="mhdr"><div class="mtitle" id="modalTitle">Neue Aufgabe</div><span class="mclose" onclick="closeTaskModal()">Fertig</span></div>
+    <div class="mhdr"><div class="mtitle" id="modalTitle"id="modalTitleDefault">Neue Aufgabe</div><span class="mclose" id="taskModalClose" onclick="closeTaskModal()">Fertig</span></div>
     <div class="fg"><label class="fl">Titel</label><input class="fi" id="fTitle" placeholder="Aufgabe eingeben…"></div>
-    <div class="fg"><label class="fl">Beschreibung</label><textarea class="fi" id="fDesc" rows="2" placeholder="Details…" style="resize:none"></textarea></div>
-    <div class="fg"><label class="fl">Kategorie</label><select class="fsel" id="fCat"></select></div>
-    <div class="fg"><label class="fl">Priorität</label>
+    <div class="fg"><label class="fl"id="lbDesc">Beschreibung</label><textarea class="fi" id="fDesc" rows="2" placeholder="Details…" style="resize:none"></textarea></div>
+    <div class="fg"><label class="fl"id="lbCat">Kategorie</label><select class="fsel" id="fCat"></select></div>
+    <div class="fg"><label class="fl"id="lbPrio">Priorität</label>
       <div class="seg" id="prioSeg">
-        <button class="seg-b" onclick="setPrio('Hoch',this)">Hoch</button>
-        <button class="seg-b on" onclick="setPrio('Mittel',this)">Mittel</button>
-        <button class="seg-b" onclick="setPrio('Niedrig',this)">Niedrig</button>
+        <button class="seg-b" id="prioHoch" onclick="setPrio('Hoch',this)">Hoch</button>
+        <button class="seg-b on" id="prioMittel" onclick="setPrio('Mittel',this)">Mittel</button>
+        <button class="seg-b" id="prioNiedrig" onclick="setPrio('Niedrig',this)">Niedrig</button>
       </div>
     </div>
-    <div class="fg"><label class="fl">Deadline</label><input class="fi" id="fDeadline" type="date"></div>
-    <div class="fg"><label class="fl">Wiederholt sich</label>
+    <div class="fg"><label class="fl"id="lbDeadline">Deadline</label><input class="fi" id="fDeadline" type="date"></div>
+    <div class="fg"><label class="fl"id="lbRepeat">Wiederholt sich</label>
       <select class="fsel" id="fRepeat">
         <option>Nie</option><option>Täglich</option><option>Wöchentlich</option><option>Monatlich</option><option>Jährlich</option>
       </select>
     </div>
-    <div class="fg"><label class="fl">Typ</label>
+    <div class="fg"><label class="fl"id="lbTyp">Typ</label>
       <div class="seg" id="typeSeg">
-        <button class="seg-b on" onclick="setType('mine',this)">Eigene</button>
-        <button class="seg-b" onclick="setType('pool',this)">Pool</button>
-        <button class="seg-b" onclick="setType('shared',this)">Gemeinsam</button>
+        <button class="seg-b on" id="typeMine" onclick="setType('mine',this)">Eigene</button>
+        <button class="seg-b" id="typePool" onclick="setType('pool',this)">Pool</button>
+        <button class="seg-b" id="typeShared" onclick="setType('shared',this)">Gemeinsam</button>
       </div>
     </div>
     <div class="fg" id="assigneeWrap" style="display:none"><label class="fl">Zuständig</label><select class="fsel" id="fAssignee"></select></div>
-    <div class="fg" id="sharedUsersWrap" style="display:none"><label class="fl">Sichtbar für</label><div id="sharedUsersList"></div></div>
+    <div class="fg" id="sharedUsersWrap" style="display:none"><label class="fl"id="lbVisible">Sichtbar für</label><div id="sharedUsersList"></div></div>
     <!-- VOTING TOGGLE — only shown for pool tasks -->
     <div class="fg" id="votingWrap" style="display:none">
-      <label class="fl">Scheißigkeits-Voting</label>
+      <label class="fl"id="lbVoting">Scheißigkeits-Voting</label>
       <div style="display:flex;align-items:center;gap:14px;padding:10px 0">
         <div style="flex:1">
-          <div style="font-size:14px;font-weight:600;margin-bottom:2px">Voting aktivieren</div>
-          <div style="font-size:12px;color:var(--text3)">Alle Nutzer bewerten diese Aufgabe 1–10</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px"id="votingActivate">Voting aktivieren</div>
+          <div style="font-size:12px;color:var(--text3)"id="votingHint">Alle Nutzer bewerten diese Aufgabe 1–10</div>
         </div>
         <button class="tog" id="fVotingTog" onclick="toggleVoting(this)"></button>
       </div>
     </div>
     <div class="fg">
-      <label class="fl">Unteraufgaben</label>
+      <label class="fl"id="lbSubtasks">Unteraufgaben</label>
       <div id="newSubList"></div>
       <div class="subrow">
         <input type="text" id="newSubInp" placeholder="Unteraufgabe…" onkeydown="if(event.key==='Enter'){addNewSub();event.preventDefault()}">
         <button onclick="addNewSub()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
       </div>
     </div>
-    <div style="padding:0 16px 8px"><button class="btn btn-p" onclick="saveTask()">Speichern</button></div>
+    <div style="padding:0 16px 8px"><button class="btn btn-p" id="saveTaskBtn" onclick="saveTask()">Speichern</button></div>
     <div style="padding:0 16px 4px" id="delTaskWrap"></div>
   </div>
 </div>
@@ -578,10 +578,10 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 <div class="ov" id="profileModal">
   <div class="sheet">
     <div class="handle"></div>
-    <div class="mhdr"><div class="mtitle">Einstellungen</div><span class="mclose" onclick="saveProfile()">Fertig</span></div>
+    <div class="mhdr"><div class="mtitle"id="settingsTitle">Einstellungen</div><span id="settingsDone" class="mclose" onclick="saveProfile()">Fertig</span></div>
 
     <!-- SEKTION: Profil -->
-    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profil</div></div>
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> <span id="secProfilLbl">Profil</span></div></div>
     <div class="fg" style="padding-top:4px">
       <div style="display:flex;align-items:center;gap:14px">
         <div class="profile-photo-ring" id="profPhotoWrap" onclick="document.getElementById('profPhotoInp').click()"></div>
@@ -589,8 +589,17 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         <div style="flex:1"><input class="fi" id="profName" placeholder="Name…"></div>
       </div>
     </div>
-    <div class="fg"><label class="fl">Meine Farbe</label><div class="cgrid" id="myColorGrid"></div></div>
+    <div class="fg"><label class="fl"id="myFarbeLbl">Meine Farbe</label><div class="cgrid" id="myColorGrid"></div></div>
     <div class="fg" id="otherColorsSection"></div>
+
+    <!-- SEKTION: Sprache -->
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> <span id="secLangLbl">Sprache</span></div></div>
+    <div class="fg" style="padding-top:4px">
+      <div class="seg" id="langSeg">
+        <button class="seg-b on" onclick="setLang('de',this)" id="langBtnDE">🇩🇪 Deutsch</button>
+        <button class="seg-b" onclick="setLang('en',this)" id="langBtnEN">🇬🇧 English</button>
+      </div>
+    </div>
 
     <!-- SEKTION: Gruppe → Untermenü -->
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Gruppe</div></div>
@@ -602,7 +611,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     </div>
 
     <!-- SEKTION: Kategorien → Untermenü -->
-    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Kategorien</div></div>
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> <span id="secKatLbl">Kategorien</span></div></div>
     <div class="fg" style="padding-top:4px">
       <div onclick="openKatMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
         <div id="profCatPreview" style="flex:1;font-size:13px;color:var(--text3)">–</div>
@@ -611,10 +620,10 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     </div>
 
     <!-- SEKTION: Kalenderintegration → Untermenü -->
-    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Kalenderintegration</div></div>
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <span id="secKalLbl">Kalenderintegration</span></div></div>
     <div class="fg" style="padding-top:4px">
       <div onclick="openKalMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
-        <div style="flex:1;font-size:13px;color:var(--text3)">iCal-Link · Outlook · Apple</div>
+        <div style="flex:1;font-size:13px;color:var(--text3)"id="kalPreview">iCal-Link · Outlook · Apple</div>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
@@ -622,7 +631,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Account</div></div>
     <div class="fg" style="padding-top:4px">
       <div onclick="openAccountMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
-        <div style="flex:1;font-size:13px;color:var(--text3)">Admin · Aufgaben · Account</div>
+        <div style="flex:1;font-size:13px;color:var(--text3)"id="accPreview">Admin · Aufgaben · Account</div>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
@@ -637,9 +646,9 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="mhdr">
       <div class="mtitle" style="display:flex;align-items:center;gap:8px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        Meldungen
+        <span id="notifTitle">Meldungen</span>
       </div>
-      <span class="mclose" onclick="closeNotifLog()">Schließen</span>
+      <span class="mclose" id="notifCloseBtn" onclick="closeNotifLog()">Schließen</span>
     </div>
     <div id="notifLogList" style="padding:0 16px 16px"></div>
   </div>
@@ -649,7 +658,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 <div class="ov" id="adminModal">
   <div class="sheet">
     <div class="handle"></div>
-    <div class="mhdr"><div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin</div><span class="mclose" onclick="closeAdmin()">Schließen</span></div>
+    <div class="mhdr"><div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Admin</div><span class="mclose" id="adminCloseBtn" onclick="closeAdmin()">Schließen</span></div>
     <div id="adminContent">
       <div class="fg"><label class="fl">PIN</label><input class="fi" id="adminPin" type="password" placeholder="PIN eingeben…" inputmode="numeric" maxlength="12"><div style="margin-top:10px"><button class="btn btn-p" onclick="verifyAdmin()">Bestätigen</button></div></div>
     </div>
@@ -662,7 +671,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="handle"></div>
     <div class="mhdr">
       <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Gruppe</div>
-      <span class="mclose" onclick="closeGruppenMenu()">Schließen</span>
+      <span class="mclose" id="grpCloseBtn" onclick="closeGruppenMenu()">Schließen</span>
     </div>
     <div id="gruppenContent" style="padding:0 16px 24px"></div>
   </div>
@@ -674,7 +683,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="handle"></div>
     <div class="mhdr">
       <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Kategorien</div>
-      <span class="mclose" onclick="closeKatMenu()">Schließen</span>
+      <span class="mclose" id="katCloseBtn" onclick="closeKatMenu()">Schließen</span>
     </div>
     <div style="padding:0 16px 8px">
       <div id="catList" style="margin-bottom:8px"></div>
@@ -697,17 +706,17 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="handle"></div>
     <div class="mhdr">
       <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Account</div>
-      <span class="mclose" onclick="closeAccountMenu()">Schließen</span>
+      <span class="mclose" id="accCloseBtn" onclick="closeAccountMenu()">Schließen</span>
     </div>
     <div style="padding:0 16px 8px;display:flex;flex-direction:column;gap:8px">
       <div class="admin-row" onclick="closeAccountMenu();openAdmin()">
         <div style="color:var(--red)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
-        <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--red)">Admin-Bereich</div><div style="font-size:12px;color:var(--text3)">Nur mit PIN</div></div>
+        <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--red)"id="adminAreaLbl">Admin-Bereich</div><div style="font-size:12px;color:var(--text3)"id="adminPinHint">Nur mit PIN</div></div>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
-      <button class="btn btn-out" style="font-size:14px;gap:6px" onclick="doLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Abmelden</button>
-      <button class="btn btn-d" style="font-size:14px;gap:6px" onclick="resetTasks()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>Aufgaben zurücksetzen</button>
-      <button class="btn btn-d" style="font-size:14px" onclick="deleteAccount()">Account löschen</button>
+      <button class="btn btn-out" style="font-size:14px;gap:6px" onclick="doLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svgid="logoutBtn">Abmelden</button>
+      <button class="btn btn-d" style="font-size:14px;gap:6px" onclick="resetTasks()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svgid="resetTasksBtn">Aufgaben zurücksetzen</button>
+      <button class="btn btn-d" style="font-size:14px" onclick="deleteAccount()"id="deleteAccBtn">Account löschen</button>
     </div>
     <div style="height:16px"></div>
   </div>
@@ -720,9 +729,9 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="mhdr">
       <div class="mtitle" style="display:flex;align-items:center;gap:8px">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        Kalenderintegration
+        <span id="kalTitle">Kalenderintegration</span>
       </div>
-      <span class="mclose" onclick="closeKalMenu()">Schließen</span>
+      <span class="mclose" id="kalCloseBtn" onclick="closeKalMenu()">Schließen</span>
     </div>
     <div style="padding:0 16px 24px;display:flex;flex-direction:column;gap:16px">
 
@@ -736,7 +745,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Dein persönlicher iCal-Link</div>
         <div style="display:flex;gap:8px;align-items:center">
           <div id="icalLinkBox" style="flex:1;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:11px 13px;font-size:12px;color:var(--text3);word-break:break-all;font-family:monospace;line-height:1.5">Wird geladen…</div>
-          <button onclick="copyIcalLink()" style="flex-shrink:0;padding:11px 14px;background:var(--acc);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Kopieren</button>
+          <button onclick="copyIcalLink()" style="flex-shrink:0;padding:11px 14px;background:var(--acc);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit"id="kalCopyBtn">Kopieren</button>
         </div>
       </div>
 
@@ -771,7 +780,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div class="handle" style="margin-top:10px"></div>
     <div class="mhdr">
       <div class="mtitle" id="detailTitle">Aufgabe</div>
-      <span style="color:var(--acc);cursor:pointer;font-size:15px;font-weight:600" onclick="editCurrent()">Bearbeiten</span>
+      <span style="color:var(--acc);cursor:pointer;font-size:15px;font-weight:600" id="detEditBtn" onclick="editCurrent()">Bearbeiten</span>
     </div>
     <div id="detailContent"></div>
   </div>
@@ -789,7 +798,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         </div>
         <div>
           <div style="font-size:20px;font-weight:800;letter-spacing:-.4px" id="tutGreet">Willkommen!</div>
-          <div style="font-size:13px;color:var(--text3);margin-top:2px">Kurze Einführung in TaskFlow</div>
+          <div style="font-size:13px;color:var(--text3);margin-top:2px"id="tutSub">Kurze Einführung in TaskFlow</div>
         </div>
       </div>
       <div style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:20px">
@@ -805,9 +814,9 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           <div style="width:34px;height:34px;background:rgba(91,91,214,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
           </div>
-          <div style="font-size:15px;font-weight:700">Meine Aufgaben</div>
+          <div style="font-size:15px;font-weight:700"id="tut1Title">Meine Aufgaben</div>
         </div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6">Im <b>Meine</b>-Tab siehst du alle Aufgaben, die dir zugewiesen wurden oder die du selbst erstellt hast. Tippe auf <b>+</b> um eine neue Aufgabe anzulegen.</div>
+        <div id="tut1Body" style="font-size:13px;color:var(--text2);line-height:1.6">Im <b>Meine</b>-Tab siehst du alle Aufgaben, die dir zugewiesen wurden oder die du selbst erstellt hast. Tippe auf <b>+</b> um eine neue Aufgabe anzulegen.</div>
       </div>
 
       <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px">
@@ -815,9 +824,9 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           <div style="width:34px;height:34px;background:rgba(91,91,214,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
-          <div style="font-size:15px;font-weight:700">Gruppen</div>
+          <div style="font-size:15px;font-weight:700"id="tut2Title">Gruppen</div>
         </div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6">Erstelle eine <b>Gruppe</b> oder tritt einer bei — dann können alle Mitglieder gemeinsam Aufgaben sehen und bearbeiten. Den Einladungscode findest du unter <b>Einstellungen → Gruppe</b>.</div>
+        <div id="tut2Body" style="font-size:13px;color:var(--text2);line-height:1.6">Erstelle eine <b>Gruppe</b> oder tritt einer bei — dann können alle Mitglieder gemeinsam Aufgaben sehen und bearbeiten. Den Einladungscode findest du unter <b>Einstellungen → Gruppe</b>.</div>
       </div>
 
       <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px">
@@ -825,9 +834,9 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           <div style="width:34px;height:34px;background:rgba(91,91,214,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
           </div>
-          <div style="font-size:15px;font-weight:700">Der Pool</div>
+          <div style="font-size:15px;font-weight:700"id="tut3Title">Der Pool</div>
         </div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6">Pool-Aufgaben sind Aufgaben, die <b>automatisch auf Gruppenmitglieder verteilt</b> werden. Erst bewertet die Gruppe jede Aufgabe nach Aufwand (Voting), dann wird per <b>„Neu mischen"</b> fair zugeteilt — niemand bekommt immer die schwersten Aufgaben.</div>
+        <div id="tut3Body" style="font-size:13px;color:var(--text2);line-height:1.6">Pool-Aufgaben sind Aufgaben, die <b>automatisch auf Gruppenmitglieder verteilt</b> werden. Erst bewertet die Gruppe jede Aufgabe nach Aufwand (Voting), dann wird per <b>„Neu mischen"</b> fair zugeteilt — niemand bekommt immer die schwersten Aufgaben.</div>
       </div>
 
       <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px">
@@ -835,9 +844,9 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           <div style="width:34px;height:34px;background:rgba(91,91,214,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4-7 4z"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
           </div>
-          <div style="font-size:15px;font-weight:700">Sichtbarkeit</div>
+          <div style="font-size:15px;font-weight:700"id="tut4Title">Sichtbarkeit</div>
         </div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6"><b>Eigene</b> Aufgaben sieht nur die zugewiesene Person. <b>Gemeinsame</b> Aufgaben sehen alle Gruppenmitglieder. <b>Pool</b>-Aufgaben erscheinen nach dem Shuffle bei der zugeteilten Person.</div>
+        <div id="tut4Body" style="font-size:13px;color:var(--text2);line-height:1.6"><b>Eigene</b> Aufgaben sieht nur die zugewiesene Person. <b>Gemeinsame</b> Aufgaben sehen alle Gruppenmitglieder. <b>Pool</b>-Aufgaben erscheinen nach dem Shuffle bei der zugeteilten Person.</div>
       </div>
 
       <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px">
@@ -845,9 +854,9 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           <div style="width:34px;height:34px;background:rgba(91,91,214,.15);border-radius:10px;display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
           </div>
-          <div style="font-size:15px;font-weight:700">Kalender-Integration</div>
+          <div style="font-size:15px;font-weight:700"id="tut5Title">Kalender-Integration</div>
         </div>
-        <div style="font-size:13px;color:var(--text2);line-height:1.6">Alle Aufgaben mit Deadline können in Outlook, Apple Kalender oder Google Kalender erscheinen. Den Link findest du unter <b>Einstellungen → Kalenderintegration</b>.</div>
+        <div id="tut5Body" style="font-size:13px;color:var(--text2);line-height:1.6">Alle Aufgaben mit Deadline können in Outlook, Apple Kalender oder Google Kalender erscheinen. Den Link findest du unter <b>Einstellungen → Kalenderintegration</b>.</div>
       </div>
 
     </div>
@@ -861,6 +870,179 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 </div>
 
 <script>
+// ══════════════════════════════════════════
+// I18N
+// ══════════════════════════════════════════
+let lang = localStorage.getItem('tf_lang') || 'de';
+
+function setLang(l, btn) {
+  lang = l;
+  localStorage.setItem('tf_lang', l);
+  // Update seg buttons
+  document.querySelectorAll('#langSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',(i===0&&l==='de')||(i===1&&l==='en')));
+  applyLang();
+  render();
+}
+
+function applyLang() {
+  const s = (id, txt) => { const el=document.getElementById(id); if(el) el.textContent=txt; };
+  const sH = (id, html) => { const el=document.getElementById(id); if(el) el.innerHTML=html; };
+  const ph = (id, txt) => { const el=document.getElementById(id); if(el) el.placeholder=txt; };
+  const de = lang === 'de';
+  // Landscape
+  s('landscapeTitle', de?'Bitte drehe dein Gerät':'Please rotate your device');
+  s('landscapeSub', de?'TaskFlow funktioniert nur im Hochformat':'TaskFlow only works in portrait mode');
+  // Onboarding ob1
+  s('obTagline', de?'Gemeinsam mehr erledigen.':'Get more done together.');
+  s('obNameLbl', de?'Dein Name':'Your Name');
+  ph('ob-name', de?'Name eingeben…':'Enter name…');
+  s('obNextBtn', de?'Weiter →':'Continue →');
+  // ob2
+  s('ob2Sub', de?'Wie möchtest du TaskFlow nutzen?':'How do you want to use TaskFlow?');
+  s('obSoloTitle', de?'Nur für mich':'Just for me');
+  s('obSoloSub', de?'Persönliche Aufgaben':'Personal tasks');
+  s('obCreateTitle', de?'Gruppe erstellen':'Create group');
+  s('obCreateSub', de?'Haushalt, Familie, Team':'Household, family, team');
+  s('obJoinTitle', de?'Gruppe beitreten':'Join group');
+  s('obJoinSub', de?'Mit Einladungscode':'With invite code');
+  if(document.getElementById('ob2BackBtn')) document.getElementById('ob2BackBtn').textContent=de?'← Zurück':'← Back';
+  // ob3c
+  s('ob3cTitle', de?'Gruppe erstellen':'Create group');
+  s('ob3cHint', de?'Gib deiner Gruppe einen Namen':'Give your group a name');
+  ph('ob-gname', de?'Gruppenname…':'Group name…');
+  s('ob3cBtn', de?'Erstellen':'Create');
+  if(document.getElementById('ob3cBackBtn')) document.getElementById('ob3cBackBtn').textContent=de?'← Zurück':'← Back';
+  // ob3j
+  s('ob3jTitle', de?'Gruppe beitreten':'Join group');
+  s('ob3jHint', de?'Einladungscode eingeben':'Enter invite code');
+  ph('ob-code', de?'z.B. ABC123':'e.g. ABC123');
+  s('ob3jBtn', de?'Beitreten':'Join');
+  if(document.getElementById('ob3jBackBtn')) document.getElementById('ob3jBackBtn').textContent=de?'← Zurück':'← Back';
+  // ob4
+  s('ob4Title', de?'PIN festlegen':'Set PIN');
+  s('ob4Hint', de?'Schütze deinen Account mit einem 4-stelligen PIN':'Protect your account with a 4-digit PIN');
+  s('ob4SaveLbl', de?'PIN auf Gerät speichern':'Save PIN on device');
+  s('ob4SaveSub', de?'Beim nächsten Start direkt zur App':'Go straight to the app next time');
+  s('obSkipBtn', de?'Überspringen':'Skip');
+  // ob5
+  s('ob5PinLbl', de?'PIN eingeben':'Enter PIN');
+  s('ob5OtherBtn', de?'Anderes Konto nutzen':'Use a different account');
+  // Tabs
+  s('tLbl0', de?'Meine':'Mine');
+  s('tLbl1', 'Pool');
+  s('tLbl2', de?'Kalender':'Calendar');
+  s('tLbl3', de?'Vote':'Vote');
+  // Filter buttons
+  s('fBtnOpen', de?'Offen':'Open');
+  s('fBtnDone', de?'Erledigt':'Done');
+  s('fBtnAll', de?'Alle':'All');
+  s('fBtnCats', de?'Kategorien':'Categories');
+  // Shuffle
+  s('shuffleLbl', de?'Neu mischen':'Reshuffle');
+  // Slot
+  s('slotSub', de?'Die Würfel fallen…':'Rolling the dice…');
+  // Changelog btn
+  s('chlogBtn', de?"Los geht's!":"Let's go!");
+  // Task modal
+  s('taskModalClose', de?'Fertig':'Done');
+  s('lbDesc', de?'Beschreibung':'Description');
+  s('lbCat', de?'Kategorie':'Category');
+  s('lbPrio', de?'Priorität':'Priority');
+  s('prioHoch', de?'Hoch':'High');
+  s('prioMittel', de?'Mittel':'Medium');
+  s('prioNiedrig', de?'Niedrig':'Low');
+  s('lbDeadline', de?'Deadline':'Deadline');
+  s('lbRepeat', de?'Wiederholt sich':'Repeats');
+  s('lbTyp', de?'Typ':'Type');
+  s('typeMine', de?'Eigene':'Personal');
+  s('typePool', 'Pool');
+  s('typeShared', de?'Gemeinsam':'Shared');
+  s('lbVisible', de?'Sichtbar für':'Visible to');
+  s('lbVoting', de?'Scheißigkeits-Voting':'Crappiness Score Voting');
+  s('votingActivate', de?'Voting aktivieren':'Enable voting');
+  s('votingHint', de?'Alle Nutzer bewerten diese Aufgabe 1–10':'All users rate this task 1–10');
+  s('lbSubtasks', de?'Unteraufgaben':'Subtasks');
+  ph('newSubInp', de?'Unteraufgabe…':'Subtask…');
+  s('saveTaskBtn', de?'Speichern':'Save');
+  // repeat options
+  const fRep = document.getElementById('fRepeat');
+  if(fRep && fRep.options.length >= 5) {
+    const opts = de
+      ? ['Nie','Täglich','Wöchentlich','Monatlich','Jährlich']
+      : ['Never','Daily','Weekly','Monthly','Yearly'];
+    [...fRep.options].forEach((o,i) => { if(opts[i]) o.text = opts[i]; });
+  }
+  // Assignee label
+  const lbAss = document.querySelector('label[for="fAssignee"], #assigneeWrap label');
+  if(lbAss) lbAss.textContent = de?'Zuständig':'Assigned to';
+  // Settings
+  s('settingsTitle', de?'Einstellungen':'Settings');
+  s('settingsDone', de?'Fertig':'Done');
+  s('secProfilLbl', de?'Profil':'Profile');
+  s('myFarbeLbl', de?'Meine Farbe':'My color');
+  s('secLangLbl', de?'Sprache':'Language');
+  // Group section header
+  const grpHdr = document.querySelector('.prof-sec-hdr svg[viewBox="0 0 24 24"]+*');
+  document.querySelectorAll('.prof-sec-hdr').forEach(hdr=>{
+    const txt=hdr.textContent.trim();
+    if(txt.includes('Gruppe')||txt.includes('Group')){const sp=hdr.querySelector('span')||hdr;if(sp.tagName==='SPAN')sp.textContent=de?'Gruppe':'Group';}
+    if(txt.includes('Kategorien')||txt.includes('Categor')){const sp=hdr.querySelector('#secKatLbl');if(sp)sp.textContent=de?'Kategorien':'Categories';}
+    if(txt.includes('Kalenderintegration')||txt.includes('Calendar')){const sp=hdr.querySelector('#secKalLbl');if(sp)sp.textContent=de?'Kalenderintegration':'Calendar integration';}
+    if(txt.includes('Account')){const sp=hdr.querySelector('span');if(sp)sp.textContent='Account';}
+  });
+  s('secKatLbl', de?'Kategorien':'Categories');
+  s('secKalLbl', de?'Kalenderintegration':'Calendar integration');
+  s('kalPreview', de?'iCal-Link · Outlook · Apple':'iCal link · Outlook · Apple');
+  s('accPreview', de?'Admin · Aufgaben · Account':'Admin · Tasks · Account');
+  // Submenus close buttons
+  s('notifCloseBtn', de?'Schließen':'Close');
+  s('adminCloseBtn', de?'Schließen':'Close');
+  s('grpCloseBtn', de?'Schließen':'Close');
+  s('katCloseBtn', de?'Schließen':'Close');
+  s('accCloseBtn', de?'Schließen':'Close');
+  s('kalCloseBtn', de?'Schließen':'Close');
+  // Account submenu
+  s('logoutBtn', de?'Abmelden':'Sign out');
+  s('resetTasksBtn', de?'Aufgaben zurücksetzen':'Reset tasks');
+  s('deleteAccBtn', de?'Account löschen':'Delete account');
+  s('adminAreaLbl', de?'Admin-Bereich':'Admin area');
+  s('adminPinHint', de?'Nur mit PIN':'PIN required');
+  // Kal submenu
+  s('kalTitle', de?'Kalenderintegration':'Calendar integration');
+  s('kalCopyBtn', de?'Kopieren':'Copy');
+  const kalDesc = document.querySelector('#kalOv .sheet > div:nth-of-type(3) > div:first-child');
+  // Detail
+  s('detEditBtn', de?'Bearbeiten':'Edit');
+  // Notif
+  s('notifTitle', de?'Meldungen':'Notifications');
+  // Celeb sub
+  s('celebSub', de?'Tippe um fortzufahren':'Tap to continue');
+  // Pull refresh
+  const pt = document.getElementById('pullTxt');
+  if(pt && pt.textContent && !pt.textContent.includes('…')) pt.textContent = de?'Zum Aktualisieren ziehen':'Pull to refresh';
+  // Tutorial
+  s('tutSub', de?'Kurze Einführung in TaskFlow':'Quick intro to TaskFlow');
+  sH('tutIntro', de?'Schön, dass du dabei bist! Hier sind die wichtigsten Dinge, die du über TaskFlow wissen solltest — danach kannst du sofort loslegen.':'Great to have you! Here are the key things to know about TaskFlow — then you can get started right away.');
+  s('tut1Title', de?'Meine Aufgaben':'My Tasks');
+  sH('tut1Body', de?'Im <b>Meine</b>-Tab siehst du alle Aufgaben, die dir zugewiesen wurden oder die du selbst erstellt hast. Tippe auf <b>+</b> um eine neue Aufgabe anzulegen.':'In the <b>Mine</b> tab you see all tasks assigned to or created by you. Tap <b>+</b> to add a new task.');
+  s('tut2Title', de?'Gruppen':'Groups');
+  sH('tut2Body', de?'Erstelle eine <b>Gruppe</b> oder tritt einer bei — dann können alle Mitglieder gemeinsam Aufgaben sehen und bearbeiten. Den Einladungscode findest du unter <b>Einstellungen → Gruppe</b>.':'Create a <b>group</b> or join one — then all members can see and work on tasks together. Find the invite code under <b>Settings → Group</b>.');
+  s('tut3Title', de?'Der Pool':'The Pool');
+  sH('tut3Body', de?'Pool-Aufgaben sind Aufgaben, die <b>automatisch auf Gruppenmitglieder verteilt</b> werden. Erst bewertet die Gruppe jede Aufgabe nach Aufwand (Voting), dann wird per <b>„Neu mischen"</b> fair zugeteilt.':'Pool tasks are <b>automatically distributed to group members</b>. First the group rates each task (voting), then they are fairly assigned via <b>Reshuffle</b>.');
+  s('tut4Title', de?'Sichtbarkeit':'Visibility');
+  sH('tut4Body', de?'<b>Eigene</b> Aufgaben sieht nur die zugewiesene Person. <b>Gemeinsame</b> Aufgaben sehen alle Gruppenmitglieder. <b>Pool</b>-Aufgaben erscheinen nach dem Shuffle bei der zugeteilten Person.':'<b>Personal</b> tasks are only visible to the assigned person. <b>Shared</b> tasks are visible to all members. <b>Pool</b> tasks appear with the assigned person after the shuffle.');
+  s('tut5Title', de?'Kalender-Integration':'Calendar Integration');
+  sH('tut5Body', de?'Alle Aufgaben mit Deadline können in Outlook, Apple Kalender oder Google Kalender erscheinen. Den Link findest du unter <b>Einstellungen → Kalenderintegration</b>.':'All tasks with a deadline can appear in Outlook, Apple Calendar or Google Calendar. Find the link under <b>Settings → Calendar integration</b>.');
+  s('tutConfirmBtn', de?"Verstanden — Los geht's!":"Got it — let's go!");
+  // Nav title (update current tab)
+  const nt = document.getElementById('navTitle');
+  if(nt && typeof curTab !== 'undefined') {
+    nt.textContent = (de?NAV_TITLES_DE:NAV_TITLES_EN)[curTab] || '';
+  }
+  // Lang seg
+  document.querySelectorAll('#langSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',(i===0&&de)||(i===1&&!de)));
+}
+
 // ══════════════════════════════════════════
 // CONSTANTS
 // ══════════════════════════════════════════
@@ -950,9 +1132,11 @@ function renderCustomIcon(key,sz=14){
 }
 function catIcon(iconKey,sz=13){if(!iconKey)return'';if(CAT_ICONS[iconKey])return CAT_ICONS[iconKey].replace('width="13"',`width="${sz}"`).replace('height="13"',`height="${sz}"`);return'';}
 const ALL_COLORS=['#5B5BD6','#7C3AED','#DB2777','#DC2626','#EA580C','#CA8A04','#16A34A','#0891B2','#2563EB','#9333EA','#EC4899','#EF4444','#F97316','#EAB308','#22C55E','#06B6D4','#3B82F6','#6366F1','#A855F7','#F43F5E','#FB923C','#FBBF24','#4ADE80','#22D3EE'];
-const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn'};
-const CELEB=['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
-const NAV_TITLES=['Meine','Pool','Kalender','Scheißigkeitsscore'];
+const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn',High:'b-red',Medium:'b-ora',Low:'b-grn'};
+const CELEB_DE=['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
+const CELEB_EN=['Well done!','Nailed it! You\'re a star!','Awesome, keep it up!','Crushed it!','That task never stood a chance!'];
+const NAV_TITLES_DE=['Meine','Pool','Kalender','Crappiness Score'];
+const NAV_TITLES_EN=['Mine','Pool','Calendar','Crappiness Score'];
 // poop colors by score range
 function poopColor(s){if(!s)return'#9CA3AF';if(s<=3)return'#16A34A';if(s<=6)return'#D97706';return'#DC2626';}
 
@@ -1008,7 +1192,7 @@ function openNotifLog(){
   if(!notifLog.length){list.innerHTML='<div style="color:var(--text3);font-size:14px;text-align:center;padding:20px 0">Keine Meldungen</div>';document.getElementById('notifLogOv').classList.add('open');return;}
   list.innerHTML=notifLog.map(n=>{
     const t=n.time;
-    const ts=t.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+', '+t.toLocaleDateString('de-DE',{day:'numeric',month:'short'});
+    const ts=t.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})+', '+t.toLocaleDateString(lang==='en'?'en-GB':'de-DE',{day:'numeric',month:'short'});
     return`<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--sep)">
       <div style="width:6px;height:6px;border-radius:50%;background:var(--acc);margin-top:6px;flex-shrink:0"></div>
       <div style="flex:1"><div style="font-size:14px;line-height:1.4">${n.text}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${ts}</div></div>
@@ -1057,7 +1241,7 @@ async function init(){
       // Show PIN screen before granting access
       hideLoader();
       const savedName=localStorage.getItem('tf_pin_name')||'';
-      document.getElementById('ob5Name').textContent=savedName||'Willkommen zurück';
+      document.getElementById('ob5Name').textContent=savedName||(lang==='en'?'Welcome back':'Willkommen zurück');
       document.getElementById('onboard').classList.remove('hidden');
       document.getElementById('app').style.display='none';
       showOb(5);
@@ -1075,12 +1259,12 @@ async function init(){
   }
   showOnboard();
 }
-function showOnboard(){hideLoader();document.getElementById('onboard').classList.remove('hidden');document.getElementById('app').style.display='none';}
+function showOnboard(){hideLoader();document.getElementById('onboard').classList.remove('hidden');document.getElementById('app').style.display='none';lang=localStorage.getItem('tf_lang')||'de';applyLang();}
 function showApp(){
   hideLoader();
   document.getElementById('onboard').classList.add('hidden');
   document.getElementById('app').style.display='block';
-  applyTheme();render();setTimeout(initSheetDismiss,100);
+  lang=localStorage.getItem('tf_lang')||'de';applyTheme();applyLang();render();setTimeout(initSheetDismiss,100);
   // Show tutorial on first ever login
   if(!localStorage.getItem('tf_tutorial_done')){
     setTimeout(()=>{
@@ -1133,7 +1317,7 @@ async function checkNewTasks(){
       hasNew=true;
     });
     tasks.filter(t=>!t.done&&t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime()&&visibleToMe(t)).forEach(t=>{
-      addNotif(`Fällig heute: „${t.title}“`);hasNew=true;
+      addNotif(lang==='en'?`Due today: "${t.title}"`:`Fällig heute: „${t.title}“`);hasNew=true;
     });
     tasks.filter(t=>needsMyVote(t)).forEach(t=>{
       addNotif(`Deine Bewertung steht aus für: „${t.title}“`);hasNew=true;
@@ -1326,7 +1510,7 @@ function renderVote(){
         const votedCount=Object.keys(svotes).length;
         const scale=Array.from({length:10},(_,i)=>i+1);
         const scaleHTML=scale.map(n=>{const col=n<=3?'#16A34A':n<=6?'#D97706':'#DC2626';const isSel=myVote===n;return`<button class="vote-btn${isSel?' sel':''}" onclick="setVote('${vKey}',${n})" style="${isSel?`background:${col};`:`border-color:${col}40;`}${isSel?'':'color:'+col}">${n}</button>`;}).join('');
-        return`<div class="vote-card"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${t.title}</div><div class="vote-title">${s.title}</div><div class="vote-meta"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span><span style="color:var(--text3)">${votedCount}/${users.length} bewertet</span></div><div class="vote-scale">${scaleHTML}</div>${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitSubVote('${tid}','${s.id}')">Abstimmen ${poopSVG(13)}</button>`:`<div class="vote-pending">Wähle eine Zahl um abzustimmen</div>`}</div>`;
+        return`<div class="vote-card"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${t.title}</div><div class="vote-title">${s.title}</div><div class="vote-meta"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span><span style="color:var(--text3)">${votedCount}/${users.length} ${lang==='en'?'rated':'bewertet'}</span></div><div class="vote-scale">${scaleHTML}</div>${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitSubVote('${tid}','${s.id}')">Abstimmen ${poopSVG(13)}</button>`:`<div class="vote-pending">${lang==='en'?'Choose a number to vote':'Wähle eine Zahl um abzustimmen'}</div>`}</div>`;
       }).filter(Boolean).join('');
     }
     const myVote=pendingVotes[tid]||0;
@@ -1346,18 +1530,18 @@ function renderVote(){
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
         <span class="badge b-blu">${t.cat}</span>
         ${t.deadline?`<span style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}
-        <span style="color:var(--text3)">${votedCount}/${totalUsers} bewertet</span>
+        <span style="color:var(--text3)">${votedCount}/${totalUsers} ${lang==='en'?'rated':'bewertet'}</span>
       </div>
       ${t.desc?`<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:10px">${t.desc}</div>`:''}
       <div class="vote-scale">${scaleHTML}</div>
-      ${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitVote('${tid}')">Abstimmen ${poopSVG(13)}</button>`:`<div class="vote-pending">Wähle eine Zahl um abzustimmen</div>`}
+      ${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitVote('${tid}')">Abstimmen ${poopSVG(13)}</button>`:`<div class="vote-pending">${lang==='en'?'Choose a number to vote':'Wähle eine Zahl um abzustimmen'}</div>`}
     </div>`;
   }).join('');
 }
 
 async function submitSubVote(tid,sid){
   const vKey=`${tid}-${sid}`;
-  const score=pendingVotes[vKey];if(!score){showToast('Bitte erst bewerten!');return;}
+  const score=pendingVotes[vKey];if(!score){showToast(lang==='en'?'Please rate first!':'Bitte erst bewerten!');return;}
   const myId=me._id?.toString();
   const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;
   if(!t.subtaskVotes)t.subtaskVotes={};
@@ -1371,10 +1555,10 @@ async function submitSubVote(tid,sid){
     if(!t.subtaskPoopScores)t.subtaskPoopScores={};
     t.subtaskPoopScores[sid]=finalScore;
     await api('PATCH','/tasks/'+tid,{subtaskVotes:t.subtaskVotes,subtaskPoopScores:t.subtaskPoopScores});
-    showToast(`Voting fertig! Score: ${finalScore}`);
+    showToast(lang==='en'?`Voting complete! Score: ${finalScore}`:`Voting fertig! Score: ${finalScore}`);
   } else {
     await api('PATCH','/tasks/'+tid,{subtaskVotes:t.subtaskVotes});
-    showToast('Stimme abgegeben!');
+    showToast(lang==='en'?'Vote submitted!':'Stimme abgegeben!');
   }
   render();
 }
@@ -1384,7 +1568,7 @@ function setVote(tid,score){
 }
 
 async function submitVote(tid){
-  const score=pendingVotes[tid];if(!score){showToast('Bitte erst bewerten!');return;}
+  const score=pendingVotes[tid];if(!score){showToast(lang==='en'?'Please rate first!':'Bitte erst bewerten!');return;}
   const myId=me._id?.toString();
   const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;
   if(!t.votes)t.votes={};
@@ -1397,9 +1581,9 @@ async function submitVote(tid){
       const finalScore=getScore(t);
       t.poopScore=finalScore;
       await api('PATCH','/tasks/'+tid,{poopScore:finalScore});
-      showToast(`Voting abgeschlossen! Score: ${finalScore}`);
+      showToast(lang==='en'?`Voting complete! Score: ${finalScore}`:`Voting abgeschlossen! Score: ${finalScore}`);
     } else {
-      showToast('Stimme abgegeben!');
+      showToast(lang==='en'?'Vote submitted!':'Stimme abgegeben!');
     }
     render();
   }catch(e){showToast('Fehler: '+e.message);}
@@ -1413,7 +1597,7 @@ function uById(id){return users.find(u=>u._id?.toString()===id?.toString());}
 function uColor(assignee){if(!assignee||assignee==='all')return'#9CA3AF';const ovr=me?.colorOverrides?.[assignee];if(ovr)return ovr;return uById(assignee)?.color||'#9CA3AF';}
 function avHTML(u,sz=38){if(!u)return`<div class="av" style="width:${sz}px;height:${sz}px;background:#9CA3AF;font-size:${Math.round(sz*.38)}px">?</div>`;if(u.photo)return`<div class="av" style="width:${sz}px;height:${sz}px"><img src="${u.photo}"></div>`;return`<div class="av" style="width:${sz}px;height:${sz}px;background:${uColor(u._id?.toString())};font-size:${Math.round(sz*.38)}px">${u.name?.[0]||'?'}</div>`;}
 function prog(t){if(!t.subtasks?.length)return'';const done=t.subtasks.filter(s=>s.done).length,total=t.subtasks.length;return`<div class="prog-wrap"><div class="prog-bg"><div class="prog-fill" style="width:${Math.round(done/total*100)}%"></div></div><span class="prog-lbl">${done}/${total}</span></div>`;}
-function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString('de-DE',{day:'numeric',month:'short'});}
+function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateString(lang==='en'?'en-GB':'de-DE',{day:'numeric',month:'short'});}
 function uid(){return Math.random().toString(36).substr(2,9);}
 
 // TASK TYPE + VISIBILITY
@@ -1439,7 +1623,7 @@ function taskHTML(t,showBar=false){
   const aname=u?u.name:(t.assignee==='all'?'Alle':'');
   const creatorNote=isMyTask(t)&&t.creatorId&&t.creatorId!==t.assignee?uById(t.creatorId)?.name:'';
   const canDo=canComplete(t);
-  const chkClick=canDo?`event.stopPropagation();toggleTask('${t._id}',true)`:`event.stopPropagation();showToast('Nicht deine Aufgabe')`;
+  const chkClick=canDo?`event.stopPropagation();toggleTask('${t._id}',true)`:`event.stopPropagation();showToast(lang==='en'?'Not your task':'Nicht deine Aufgabe')`;
   // My subtasks in pool
   let mySubsHtml='';
   if(isPoolTask(t)&&asgn?.subtaskAssignments&&t.subtasks?.length){
@@ -1470,7 +1654,7 @@ function taskHTML(t,showBar=false){
   </div>`;
 }
 
-async function toggleSubInline(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(!s)return;s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});if(isPoolTask(t)&&t.subtasks?.length&&t.subtasks.every(s=>s.done)&&!t.done){t.done=true;await api('PATCH','/tasks/'+tid,{done:true});celebrate();}render();}catch(e){s.done=!s.done;showToast('Fehler');}}
+async function toggleSubInline(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(!s)return;s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});if(isPoolTask(t)&&t.subtasks?.length&&t.subtasks.every(s=>s.done)&&!t.done){t.done=true;await api('PATCH','/tasks/'+tid,{done:true});celebrate();}render();}catch(e){s.done=!s.done;showToast(lang==='en'?'Error':'Fehler');}}
 
 // ── MY PAGE ──
 function setMyFilter(f,btn){myFilter=f;document.querySelectorAll('#myFilterSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderMy();}
@@ -1485,12 +1669,12 @@ function renderMy(){
     ord.forEach(cat=>{
       const ct=cat==='Pool'?myTasks.filter(t=>isPoolTask(t)):myTasks.filter(t=>!isPoolTask(t)&&t.cat===cat);if(!ct.length)return;
       const hasShared=ct.some(t=>isSharedTask(t));
-      html+=`<div class="cat-blk" data-cat="${cat}"><div class="sec"><span class="drag-ch">${I.grip}</span>${cat}${cat==='Pool'?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">Pool</span>`:hasShared?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">gemeinsam</span>`:''}</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,isSharedTask(t)||isPoolTask(t))).join('')}</div></div>`;
+      html+=`<div class="cat-blk" data-cat="${cat}"><div class="sec"><span class="drag-ch">${I.grip}</span>${cat}${cat==='Pool'?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">${lang==='en'?'Pool':'Pool'}</span>`:hasShared?` <span style="font-size:10px;color:var(--acc);font-weight:700;background:rgba(91,91,214,.12);padding:2px 6px;border-radius:8px;margin-left:4px">gemeinsam</span>`:''}</div><div class="glass-card cg">${ct.map(t=>taskHTML(t,isSharedTask(t)||isPoolTask(t))).join('')}</div></div>`;
     });
     c.innerHTML=html;initCatDrag();return;
   }
   let list=tasks.filter(t=>{if(!showInMy(t))return false;if(myFilter==='open')return!t.done;if(myFilter==='done')return t.done;return true;});
-  if(!list.length){const msg=myFilter==='done'?'Noch nichts erledigt':myFilter==='open'?'Keine offenen Aufgaben':'Keine Aufgaben';c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${msg}</div></div>`;return;}
+  if(!list.length){const msg=lang==='en'?(myFilter==='done'?'Nothing done yet':myFilter==='open'?'No open tasks':'No tasks'):(myFilter==='done'?'Noch nichts erledigt':myFilter==='open'?'Keine offenen Aufgaben':lang==='en'?'No tasks':'Keine Aufgaben');c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${msg}</div></div>`;return;}
   const mine=list.filter(t=>isMyTask(t)),shared=list.filter(t=>isSharedTask(t)),pool=list.filter(t=>isPoolTask(t));
   let html='';
   if(mine.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.user} Eigene</div><div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
@@ -1589,7 +1773,7 @@ function renderPool(){
   // Gate: no group or not enough members
   const poolGateC=document.getElementById('poolContainer');
   if(!group||users.length<2){
-    poolGateC.innerHTML=`<div class="empty"><div style="color:var(--text3);margin-bottom:12px">${I.users}</div><div class="empty-t">Pool braucht eine Gruppe</div><div class="empty-s" style="margin-bottom:16px">Der Pool funktioniert ab 2 Mitgliedern in einer Gruppe.</div><button class="btn btn-p" style="display:inline-flex" onclick="openProfile();setTimeout(openGruppenMenu,300)">Gruppe erstellen</button></div>`;
+    poolGateC.innerHTML=`<div class="empty"><div style="color:var(--text3);margin-bottom:12px">${I.users}</div><div class="empty-t">${lang==='en'?'Pool needs a group':'Pool braucht eine Gruppe'}</div><div class="empty-s" style="margin-bottom:16px">${lang==='en'?'Pool works with 2+ members in a group.':'Der Pool funktioniert ab 2 Mitgliedern in einer Gruppe.'}</div><button class="btn btn-p" style="display:inline-flex" onclick="openProfile();setTimeout(openGruppenMenu,300)">${lang==='en'?'Create group':'Gruppe erstellen'}</button></div>`;
     return;
   }
   const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
@@ -1618,15 +1802,15 @@ function renderPool(){
   if(!toShow.length&&!poolable.length){
     const grpBtns=!group?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:0 8px">
       <button onclick="createGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Gruppe erstellen</button>
-      <button onclick="joinGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Gruppe beitreten</button>
+      <button onclick="joinGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>${lang==='en'?'Join group':'Gruppe beitreten'}</button>
     </div>`:'';return;}
   // Show tasks waiting for shuffle
   const unassigned=visibleInPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]);
   const waitingVote=poolable.filter(t=>t.votingEnabled&&!hasFullScore(t));
   if(!toShow.length){
     let msg='';
-    if(waitingVote.length)msg=`<div class="empty-s" style="margin-top:6px">💩 ${waitingVote.length} Aufgabe${waitingVote.length>1?'n':''} warte${waitingVote.length===1?'t':''} auf Voting-Abschluss</div>`;
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Keine Aufgaben</div>${msg||'<div class="empty-s">Wechsle den Filter</div>'}</div>`;return;
+    if(waitingVote.length)msg=`<div class="empty-s" style="margin-top:6px">💩 ${waitingVote.length} ${lang==='en'?`task${waitingVote.length>1?'s':''} waiting for votes`:`Aufgabe${waitingVote.length>1?'n':''} warte${waitingVote.length===1?'t':''} auf Voting-Abschluss`}</div>`;
+    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${lang==='en'?'No tasks':'Keine Aufgaben'}</div>${msg||`<div class="empty-s">${lang==='en'?'Change the filter':'Wechsle den Filter'}</div>`}</div>`;return;
   }
   c.innerHTML=toShow.map(t=>{
     const id=t._id?.toString();const asgn=appstate.poolAssigns?.[id];const myId=me._id?.toString();
@@ -1711,8 +1895,8 @@ function shufflePool(){
   const poolable=allPool.filter(t=>poolTaskEligibleThisWeek(t));
   if(!poolable.length){
     // If there are tasks but none eligible this week, tell user
-    if(allPool.length){showToast('Keine Aufgaben für diese Woche fällig');return;}
-    showToast('Keine Pool-Aufgaben');return;
+    if(allPool.length){showToast(lang==='en'?'No tasks due this week':'Keine Aufgaben für diese Woche fällig');return;}
+    showToast(lang==='en'?'No pool tasks':'Keine Pool-Aufgaben');return;
   }
   // Mark recurring tasks as shown for this period
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
@@ -1731,13 +1915,13 @@ function shufflePool(){
     const sc=getScore(t);const subCount=t.subtasks?.length||0;
     return`<div class="slot-row"><div class="slot-task">${t.title.slice(0,20)}${t.title.length>20?'…':''}${sc!=null?` ${poopSVG(11)}${sc}`:''}${subCount?` <span style="font-size:10px;color:var(--text3)">(+${subCount})</span>`:''}</div><div class="slot-name-wrap" id="slot-${id}"><div class="slot-reel" id="reel-${id}"></div></div></div>`;
   }).join('');
-  document.getElementById('slotSub').textContent='Die Würfel fallen…';
+  document.getElementById('slotSub').textContent=lang==='en'?'Rolling the dice…':'Die Würfel fallen…';
   document.getElementById('slotOv').classList.add('show');
   const unames=users.map(u=>u.name);let ticker=0;
   const interval=setInterval(()=>{
     ticker++;
     appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const nm=unames[Math.floor(Math.random()*unames.length)];const span=document.createElement('div');span.className='slot-name-item';span.style.color=me?.color||'var(--acc)';span.textContent=nm;reel.insertBefore(span,reel.firstChild);if(reel.children.length>6)reel.removeChild(reel.lastChild);});
-    if(ticker===1)document.getElementById('slotSub').textContent='Scheißigkeits-Ausgleich läuft…';
+    if(ticker===1)document.getElementById('slotSub').textContent=lang==='en'?'Crappiness balancing…':'Scheißigkeits-Ausgleich läuft…';
     if(ticker===30){
       clearInterval(interval);appstate.poolAssigns=finalAssigns;saveState();renderPool();renderMy();
       // F6: notify each assigned user
@@ -1753,7 +1937,7 @@ function shufflePool(){
       // Show balance info
       const uids=users.map(u=>u._id?.toString());
       const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=appstate.poolTasks.filter(id=>finalAssigns[id]?.assignedUser===uid);const totalScore=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: 💩${totalScore.toFixed(1)}`;}).join(' · ');
-      document.getElementById('slotSub').textContent=scoreInfo||'Fertig! Ausgeglichen verteilt.';
+      document.getElementById('slotSub').textContent=scoreInfo||(lang==='en'?'Done! Fairly distributed.':'Fertig! Ausgeglichen verteilt.');
       setTimeout(closeSlot,2500);
     }
   },80);
@@ -1762,7 +1946,7 @@ function closeSlot(){document.getElementById('slotOv').classList.remove('show');
 
 // ── CALENDAR ──
 function renderCalendar(){
-  document.getElementById('calMonth').textContent=new Date(calY,calM).toLocaleDateString('de-DE',{month:'long',year:'numeric'});
+  document.getElementById('calMonth').textContent=new Date(calY,calM).toLocaleDateString(lang==='en'?'en-GB':'de-DE',{month:'long',year:'numeric'});
   const today=new Date();today.setHours(0,0,0,0);const firstDay=new Date(calY,calM,1),startDow=firstDay.getDay()===0?6:firstDay.getDay()-1;const dim=new Date(calY,calM+1,0).getDate(),dip=new Date(calY,calM,0).getDate();
   const dlMap={};tasks.filter(t=>t.deadline&&showInMy(t)&&!isPoolTask(t)).forEach(t=>{if(!dlMap[t.deadline])dlMap[t.deadline]=[];dlMap[t.deadline].push(t);});
   const days=['Mo','Di','Mi','Do','Fr','Sa','So'];let html=days.map(d=>`<div class="cal-dn">${d}</div>`).join('');
@@ -1779,8 +1963,8 @@ function calPrev(){calM--;if(calM<0){calM=11;calY--;}renderCalendar();}
 function calNext(){calM++;if(calM>11){calM=0;calY++;}renderCalendar();}
 function renderCalList(){
   const c=document.getElementById('calList');
-  if(calDay){const dt=tasks.filter(t=>t.deadline===calDay&&showInMy(t)&&!isPoolTask(t));if(!dt.length){c.innerHTML=`<div style="padding:12px 14px;color:var(--text3);font-size:14px">Keine Aufgaben.</div>`;return;}c.innerHTML=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(calDay)}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;}
-  else{const all=tasks.filter(t=>t.deadline&&showInMy(t)&&!isPoolTask(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));if(!all.length){c.innerHTML=`<div class="empty"><div>${I.calOff}</div><div class="empty-t">Keine Deadlines</div></div>`;return;}const byD={};all.forEach(t=>{if(!byD[t.deadline])byD[t.deadline]=[];byD[t.deadline].push(t);});let html='';Object.entries(byD).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,dt])=>{const od=new Date(date+'T00:00:00')<new Date()&&date!==todayStr();html+=`<div class="sec" style="${od?'color:var(--red)':''}display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(date)}${od?` ${I.alert}`:''}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;});c.innerHTML=html;}
+  if(calDay){const dt=tasks.filter(t=>t.deadline===calDay&&showInMy(t)&&!isPoolTask(t));if(!dt.length){c.innerHTML=`<div style="padding:12px 14px;color:var(--text3);font-size:14px">${lang==='en'?'No tasks.':'Keine Aufgaben.'}</div>`;return;}c.innerHTML=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(calDay)}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;}
+  else{const all=tasks.filter(t=>t.deadline&&showInMy(t)&&!isPoolTask(t)&&!t.done).sort((a,b)=>a.deadline.localeCompare(b.deadline));if(!all.length){c.innerHTML=`<div class="empty"><div>${I.calOff}</div><div class="empty-t">${lang==='en'?'No deadlines':'Keine Deadlines'}</div></div>`;return;}const byD={};all.forEach(t=>{if(!byD[t.deadline])byD[t.deadline]=[];byD[t.deadline].push(t);});let html='';Object.entries(byD).sort(([a],[b])=>a.localeCompare(b)).forEach(([date,dt])=>{const od=new Date(date+'T00:00:00')<new Date()&&date!==todayStr();html+=`<div class="sec" style="${od?'color:var(--red)':''}display:flex;align-items:center;gap:5px">${I.cal} ${fmtD(date)}${od?` ${I.alert}`:''}</div><div class="glass-card cg">${dt.map(t=>taskHTML(t,true)).join('')}</div>`;});c.innerHTML=html;}
 }
 
 // ── DETAIL ──
@@ -1790,7 +1974,7 @@ function openDetail(id){
   // subtask HTML
   let subsH='';
   if(t.subtasks?.length){
-    subsH=`<div class="sec">Unteraufgaben (${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})</div><div class="glass-card cg" id="dSubList">${t.subtasks.map(s=>{const subUid=asgn?.subtaskAssignments?.[s.id];const subU=subUid?uById(subUid):null;const subCol=subUid?uColor(subUid):'var(--text3)';const canToggleSub=!isPoolTask(t)||(subUid===myId);return`<div class="sub-item" data-sid="${s.id}"><span class="dragh">${I.grip}</span><div class="sub-chk${s.done?' done':''}" onclick="${canToggleSub?`toggleSub('${id}','${s.id}')`:`showToast('Nicht deine Unteraufgabe')`}" style="${!canToggleSub?'opacity:.45;cursor:not-allowed;':''}">${s.done?I.check:''}</div><span style="flex:1;font-size:14px;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>${subU?`<span style="font-size:11px;font-weight:700;color:${subCol}">${subU.name}</span>`:''}</div>`;}).join('')}<div class="crow" onclick="addSubDetail('${id}')"><span style="color:var(--acc)">${I.chevR}</span><span style="color:var(--acc);font-size:14px">Unteraufgabe hinzufügen</span></div></div>`;
+    subsH=`<div class="sec">${lang==='en'?'Subtasks (':'Unteraufgaben ('}${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})</div><div class="glass-card cg" id="dSubList">${t.subtasks.map(s=>{const subUid=asgn?.subtaskAssignments?.[s.id];const subU=subUid?uById(subUid):null;const subCol=subUid?uColor(subUid):'var(--text3)';const canToggleSub=!isPoolTask(t)||(subUid===myId);return`<div class="sub-item" data-sid="${s.id}"><span class="dragh">${I.grip}</span><div class="sub-chk${s.done?' done':''}" onclick="${canToggleSub?`toggleSub('${id}','${s.id}')`:`showToast(lang==='en'?'Not your subtask':'Nicht deine Unteraufgabe')`}" style="${!canToggleSub?'opacity:.45;cursor:not-allowed;':''}">${s.done?I.check:''}</div><span style="flex:1;font-size:14px;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>${subU?`<span style="font-size:11px;font-weight:700;color:${subCol}">${subU.name}</span>`:''}</div>`;}).join('')}<div class="crow" onclick="addSubDetail('${id}')"><span style="color:var(--acc)">${I.chevR}</span><span style="color:var(--acc);font-size:14px">${lang==='en'?'Add subtask':'Unteraufgabe hinzufügen'}</span></div></div>`;
   } else {subsH=`<div style="padding:0 14px 8px"><button class="btn btn-g" onclick="addSubDetail('${id}')">+ Unteraufgabe</button></div>`;}
   // Vote section in detail
   const sc=getScore(t);
@@ -1799,7 +1983,7 @@ function openDetail(id){
     if(sc!=null){
       const barW=Math.round(sc/10*100);
       const scoreDetails=t.subtasks?.length&&t.subtaskPoopScores?t.subtasks.map(s=>{const ss=t.subtaskPoopScores[s.id];return ss!=null?`${s.title}: 💩${ss}`:null;}).filter(Boolean).join(' · '):Object.entries(t.votes||{}).map(([uid,v])=>{const u=uById(uid);return`${u?.name||'?'}: ${v}`;}).join(' · ');
-      voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Scheißigkeitsscore</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — Ø Bewertung</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">${scoreDetails}</div></div></div>`;
+      voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Scheißigkeitsscore</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — Ø Rating':'10 — Ø Bewertung'}</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">${scoreDetails}</div></div></div>`;
     } else {
       const vCnt=t.subtasks?.length?t.subtasks.reduce((sum,s)=>{const sv=t.subtaskVotes?.[s.id]||{};return sum+Object.keys(sv).length;},0):Object.keys(t.votes||{}).length;
       const vTotal=t.subtasks?.length?t.subtasks.length*users.length:users.length;
@@ -1807,7 +1991,7 @@ function openDetail(id){
     }
   }
   document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
-  <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">Zuständig</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">Deadline</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">Pool</span><span style="color:var(--green);font-size:14px">${I.check} Ja</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">Gemeinsam</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
+  <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">"+(lang==='en'?'Assigned to':'Zuständig')+"</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">"+(lang==='en'?'Deadline':'Deadline')+"</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Pool':'Pool'}</span><span style="color:var(--green);font-size:14px">${I.check} Ja</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Shared':'Gemeinsam'}</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
   </div>${subsH}${voteSection}
   <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">Nur ${isPoolTask(t)?'der zugewiesene Nutzer':'der Aufgaben-Ersteller'} kann diese Aufgabe abschließen</div>`}</div>
   <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} Löschen</button></div>`;
@@ -1817,10 +2001,10 @@ function openDetail(id){
 }
 function closeDetail(){document.getElementById('taskDetail').classList.remove('open');}
 function editCurrent(){if(detailId){closeDetail();setTimeout(()=>showAddTask(detailId),250);}}
-function delDetail(id){if(!confirm('Aufgabe löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeDetail();showToast('Gelöscht');}).catch(e=>showToast('Fehler: '+e.message));}
-async function toggleSub(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(s)s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});if(isPoolTask(t)&&t.subtasks?.length&&t.subtasks.every(s=>s.done)&&!t.done){t.done=true;await api('PATCH','/tasks/'+tid,{done:true});render();celebrate();}else{render();openDetail(tid);}}catch(e){showToast('Fehler');}}
+function delDetail(id){if(!confirm(lang==='en'?'Delete task?':'Aufgabe löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeDetail();showToast(lang==='en'?'Deleted':'Gelöscht');}).catch(e=>showToast('Fehler: '+e.message));}
+async function toggleSub(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(s)s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});if(isPoolTask(t)&&t.subtasks?.length&&t.subtasks.every(s=>s.done)&&!t.done){t.done=true;await api('PATCH','/tasks/'+tid,{done:true});render();celebrate();}else{render();openDetail(tid);}}catch(e){showToast(lang==='en'?'Error':'Fehler');}}
 async function addSubDetail(tid){
-  const title=await showPrompt('Unteraufgabe hinzufügen','Titel…','Hinzufügen');
+  const title=await showPrompt(lang==='en'?'Add subtask':'Unteraufgabe hinzufügen','Titel…','Hinzufügen');
   if(!title)return;
   const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;
   if(!t.subtasks)t.subtasks=[];
@@ -1846,7 +2030,7 @@ async function notifyUser(userId,message){
 
 async function toggleTask(id,withCeleb=false){
   const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
-  if(!canComplete(t)){showToast('Du kannst diese Aufgabe nicht abschließen');return;}
+  if(!canComplete(t)){showToast(lang==='en'?'You cannot complete this task':'Du kannst diese Aufgabe nicht abschließen');return;}
   const was=t.done;t.done=!t.done;
   if(!was&&t.repeat&&t.repeat!=='Nie'){if(!appstate.recurringLast)appstate.recurringLast={};appstate.recurringLast[id]=todayStr();saveState();}
   if(was&&t.repeat&&t.repeat!=='Nie'&&appstate.recurringLast){delete appstate.recurringLast[id];saveState();}
@@ -1857,7 +2041,7 @@ async function toggleTask(id,withCeleb=false){
     if(!was&&isMyTask(t)&&t.creatorId&&t.creatorId!==me._id?.toString()){
       notifyUser(t.creatorId,me.name+' hat die Aufgabe "'+t.title+'" erledigt');
     }
-  }catch(e){t.done=was;render();showToast('Fehler');}
+  }catch(e){t.done=was;render();showToast(lang==='en'?'Error':'Fehler');}
 }
 
 // ── TASK MODAL ──
@@ -1927,12 +2111,15 @@ function showAddTask(editId=null, forceType=null){
   newSubs=t?[...(t.subtasks||[])].map(s=>({...s})):[];sharedUsers=new Set(t?.sharedWith||[]);
   selVoting=t?.votingEnabled||(forceType==='pool'&&!editId)||false;
   populateCatSel();
-  document.getElementById('modalTitle').textContent=editId?'Aufgabe bearbeiten':'Neue Aufgabe';
+  document.getElementById('modalTitle').textContent=lang==='en'?(editId?'Edit task':'New task'):(editId?'Aufgabe bearbeiten':'Neue Aufgabe');
   document.getElementById('fTitle').value=t?.title||'';
   document.getElementById('fDesc').value=t?.desc||'';
   document.getElementById('fCat').value=t?.cat||Object.keys(allCats())[0];
   document.getElementById('fDeadline').value=t?.deadline||'';
-  document.getElementById('fRepeat').value=t?.repeat||'Nie';
+  const repMapEN={'Nie':'Never','Täglich':'Daily','Wöchentlich':'Weekly','Monatlich':'Monthly','Jährlich':'Yearly'};
+  const repMapDE={Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'};
+  const repVal=t?.repeat||'Nie';
+  document.getElementById('fRepeat').value=lang==='en'?(repMapEN[repVal]||repVal):(repMapDE[repVal]||repVal);
   selPrio=t?.prio||'Mittel';
   document.querySelectorAll('#prioSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',['Hoch','Mittel','Niedrig'][i]===selPrio));
   const tp=forceType||(t?.type||'mine');selType=tp;
@@ -1949,25 +2136,25 @@ function showAddTask(editId=null, forceType=null){
 }
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
 async function saveTask(){
-  const title=document.getElementById('fTitle').value.trim();if(!title){showToast('Titel eingeben!');return;}
+  const title=document.getElementById('fTitle').value.trim();if(!title){showToast(lang==='en'?'Please enter a title!':'Titel eingeben!');return;}
   const assignee=selType==='mine'?document.getElementById('fAssignee').value:me._id?.toString();
   const existingTask=editingId?tasks.find(t=>t._id?.toString()===editingId):null;
-  const data={title,desc:document.getElementById('fDesc').value,cat:document.getElementById('fCat').value,prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:document.getElementById('fRepeat').value,type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:editingId?(existingTask?.done||false):false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
+  const data={title,desc:document.getElementById('fDesc').value,cat:document.getElementById('fCat').value,prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:(()=>{const rv=document.getElementById('fRepeat').value;const back={Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'};return lang==='en'?(back[rv]||rv):rv;})(),type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:editingId?(existingTask?.done||false):false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
   if(editingId){
     const idx=tasks.findIndex(t=>t._id?.toString()===editingId);
     if(idx>=0)tasks[idx]={...tasks[idx],...data};
-    newSubs=[];render();closeTaskModal();showToast('Gespeichert');
-    api('PATCH','/tasks/'+editingId,data).catch(e=>showToast('Sync-Fehler: '+e.message));
+    newSubs=[];render();closeTaskModal();showToast(lang==='en'?'Saved':'Gespeichert');
+    api('PATCH','/tasks/'+editingId,data).catch(e=>showToast((lang==='en'?'Sync error: ':'Sync-Fehler: ')+e.message));
     saveState();
   } else {
     const tmpId='tmp-'+uid();
     tasks.push({...data,_id:tmpId,createdAt:new Date().toISOString()});
-    newSubs=[];render();closeTaskModal();showToast('Erstellt');
+    newSubs=[];render();closeTaskModal();showToast(lang==='en'?'Created':'Erstellt');
     api('POST','/tasks',data).then(created=>{const idx=tasks.findIndex(t=>t._id===tmpId);if(idx>=0)tasks[idx]=created;render();}).catch(e=>{tasks=tasks.filter(t=>t._id!==tmpId);render();showToast('Fehler: '+e.message);});
     saveState();
   }
 }
-function delFromModal(id){if(!confirm('Löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeTaskModal();showToast('Gelöscht');}).catch(e=>showToast(e.message));}
+function delFromModal(id){if(!confirm(lang==='en'?'Delete?':'Löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeTaskModal();showToast(lang==='en'?'Deleted':'Gelöscht');}).catch(e=>showToast(e.message));}
 
 // ── PROFILE ──
 function openProfile(){
@@ -1975,12 +2162,12 @@ function openProfile(){
   const pw=document.getElementById('profPhotoWrap');pw.innerHTML=me.photo?`<img src="${me.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<div style="width:100%;height:100%;background:${me.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff">${me.name[0]}</div>`;
   document.getElementById('myColorGrid').innerHTML=ALL_COLORS.map(c=>`<div class="cdot${me.color===c?' sel':''}" style="background:${c}" onclick="pickMyColor('${c}',this)"></div>`).join('');
   const others=users.filter(u=>u._id?.toString()!==me._id?.toString());
-  document.getElementById('otherColorsSection').innerHTML=others.length?`<label class="fl">Farben anderer Mitglieder</label>`+others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;}).join(''):'';
+  document.getElementById('otherColorsSection').innerHTML=others.length?`<label class="fl">${lang==='en'?'Other members\' colors':'Farben anderer Mitglieder'}</label>`+others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;}).join(''):'';
   // Update submenu previews
   const gPrev=document.getElementById('profGroupPreview');
-  if(gPrev)gPrev.textContent=group?group.name:'Keine Gruppe';
+  if(gPrev)gPrev.textContent=group?group.name:lang==='en'?'No group':'Keine Gruppe';
   const cPrev=document.getElementById('profCatPreview');
-  if(cPrev){const n=Object.keys(appstate.customCats||{}).length;cPrev.textContent=n?`${n} eigene Kategorie${n===1?'':'n'}`:'Kategorien verwalten';}
+  if(cPrev){const n=Object.keys(appstate.customCats||{}).length;cPrev.textContent=n?lang==='en'?`${n} custom categor${n===1?'y':'ies'}`:`${n} eigene Kategorie${n===1?'':'n'}`:lang==='en'?'Manage categories':'Kategorien verwalten';}
   document.getElementById('profileModal').classList.add('open');
 }
 function closeProfile(){document.getElementById('profileModal').classList.remove('open');}
@@ -1996,7 +2183,7 @@ async function editGroupInMenu(){
   const name=await showPrompt('Gruppe umbenennen',group.name,'Speichern');
   pOv.style.zIndex=origZ;
   if(!name)return;
-  try{await api('PATCH','/groups/mine',{name});group.name=name;renderGroupSection();showToast('Aktualisiert');}catch(e){showToast(e.message);}
+  try{await api('PATCH','/groups/mine',{name});group.name=name;renderGroupSection();showToast(lang==='en'?'Updated':'Aktualisiert');}catch(e){showToast(e.message);}
 }
 
 // ── SUBMENU: KATEGORIEN ──
@@ -2021,8 +2208,8 @@ function closeKalMenu(){document.getElementById('kalOv').classList.remove('open'
 function copyIcalLink(){
   const box=document.getElementById('icalLinkBox');
   if(!box)return;
-  navigator.clipboard?.writeText(box.textContent).then(()=>showToast('Link kopiert!')).catch(()=>{
-    const ta=document.createElement('textarea');ta.value=box.textContent;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showToast('Link kopiert!');
+  navigator.clipboard?.writeText(box.textContent).then(()=>showToast(lang==='en'?'Link copied!':'Link kopiert!')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=box.textContent;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showToast(lang==='en'?'Link copied!':'Link kopiert!');
   });
 }
 function renderGroupSection(){
@@ -2035,29 +2222,29 @@ function renderGroupSection(){
         <div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>
         ${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroupInMenu()">${I.edit}</button>`:''}
       </div>
-      <div class="sec">Mitglieder</div>
-      ${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● Du</span>':''}</div></div>`).join('')}
+      <div class="sec">${lang==='en'?'Members':'Mitglieder'}</div>
+      ${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● '+(lang==='en'?'You':'Du')+'</span>':''}</div></div>`).join('')}
     </div>
     <div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn btn-out" style="font-size:14px" onclick="leaveGroup()">Gruppe verlassen</button>
-      ${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} Gruppe löschen</button>`:''}
+      <button class="btn btn-out" style="font-size:14px" onclick="leaveGroup()">${lang==='en'?'Leave group':'Gruppe verlassen'}</button>
+      ${group.creatorId===me._id?.toString()?`<button class="btn btn-d" style="font-size:14px;gap:6px" onclick="delGroup()">${I.trash} ${lang==='en'?'Delete group':'Gruppe löschen'}</button>`:''}
     </div>`;
   } else {
     gs.innerHTML=`<div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn btn-p" onclick="createGroup()">+ Gruppe erstellen</button>
-      <button class="btn btn-out" onclick="joinGroup()">Gruppe beitreten</button>
+      <button class="btn btn-p" onclick="createGroup()">${lang==='en'?'+ Create group':'+ Gruppe erstellen'}</button>
+      <button class="btn btn-out" onclick="joinGroup()">${lang==='en'?'Join group':'Gruppe beitreten'}</button>
     </div>`;
   }
   // Also update main profile preview
   const gPrev=document.getElementById('profGroupPreview');
-  if(gPrev)gPrev.textContent=group?group.name:'Keine Gruppe';
+  if(gPrev)gPrev.textContent=group?group.name:lang==='en'?'No group':'Keine Gruppe';
 }
 function pickMyColor(c,el){me.color=c;document.querySelectorAll('#myColorGrid .cdot').forEach(d=>d.classList.remove('sel'));el.classList.add('sel');}
 function pickOvr(uid,color,el){if(!me.colorOverrides)me.colorOverrides={};me.colorOverrides[uid]=color;const par=el.parentElement;if(par)par.querySelectorAll('.cdot').forEach(d=>d.classList.toggle('sel',d.style.background===color));}
 function handlePhoto(inp){const f=inp.files[0];if(!f)return;const r=new FileReader();r.onload=e=>{profilePhoto=e.target.result;document.getElementById('profPhotoWrap').innerHTML=`<img src="${profilePhoto}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`};r.readAsDataURL(f);}
 async function saveProfile(){
   const name=document.getElementById('profName').value.trim();
-  try{me=await api('PATCH','/users/me',{name:name||me.name,color:me.color,photo:profilePhoto,colorOverrides:me.colorOverrides||{},theme:me.theme||''});const idx=users.findIndex(u=>u._id?.toString()===me._id?.toString());if(idx>=0)users[idx]={...users[idx],...me};applyTheme();render();closeProfile();showToast('Gespeichert');}catch(e){showToast('Fehler: '+e.message);}
+  try{me=await api('PATCH','/users/me',{name:name||me.name,color:me.color,photo:profilePhoto,colorOverrides:me.colorOverrides||{},theme:me.theme||''});const idx=users.findIndex(u=>u._id?.toString()===me._id?.toString());if(idx>=0)users[idx]={...users[idx],...me};applyTheme();render();closeProfile();showToast(lang==='en'?'Saved':'Gespeichert');}catch(e){showToast('Fehler: '+e.message);}
 }
 // ── INLINE PROMPT (replaces browser prompt()) ──
 let _promptResolve=null;
@@ -2083,23 +2270,23 @@ function closePrompt(){
 }
 
 async function createGroup(){
-  const name=await showPrompt('Gruppe erstellen','Gruppenname…','Erstellen');
+  const name=await showPrompt(lang==='en'?'Create group':'Gruppe erstellen',lang==='en'?'Group name…':'Gruppenname…',lang==='en'?'Create':'Erstellen');
   if(!name)return;
-  try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();openGruppenMenu();showToast('Code: '+group.inviteCode);}catch(e){showToast(e.message);}
+  try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();openGruppenMenu();showToast((lang==='en'?'Code: ':'Code: ')+group.inviteCode);}catch(e){showToast(e.message);}
 }
 async function joinGroup(){
-  const code=await showPrompt('Gruppe beitreten','Einladungscode (z.B. ABC123)','Beitreten');
+  const code=await showPrompt(lang==='en'?'Join group':'Gruppe beitreten','Einladungscode (z.B. ABC123)','Beitreten');
   if(!code)return;
-  try{group=await api('POST','/groups/join',{inviteCode:code.trim().toUpperCase()});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();openGruppenMenu();showToast('Beigetreten!');}catch(e){showToast(e.message);}
+  try{group=await api('POST','/groups/join',{inviteCode:code.trim().toUpperCase()});me=await api('GET','/users/me');await loadAll();render();renderGroupSection();openGruppenMenu();showToast(lang==='en'?'Joined!':'Beigetreten!');}catch(e){showToast(e.message);}
 }
-async function leaveGroup(){if(!confirm('Gruppe verlassen?'))return;try{await api('POST','/groups/leave');group=null;me.groupId=null;await loadAll();render();renderGroupSection();closeGruppenMenu();}catch(e){showToast(e.message);}}
-async function delGroup(){if(!confirm('Gruppe löschen? Alle Aufgaben werden gelöscht.'))return;try{await api('DELETE','/groups/mine');group=null;me.groupId=null;await loadAll();render();renderGroupSection();closeGruppenMenu();}catch(e){showToast(e.message);}}
+async function leaveGroup(){if(!confirm(lang==='en'?'Leave group?':'Gruppe verlassen?'))return;try{await api('POST','/groups/leave');group=null;me.groupId=null;await loadAll();render();renderGroupSection();closeGruppenMenu();}catch(e){showToast(e.message);}}
+async function delGroup(){if(!confirm(lang==='en'?'Delete group? All tasks will be deleted.':'Gruppe löschen? Alle Aufgaben werden gelöscht.'))return;try{await api('DELETE','/groups/mine');group=null;me.groupId=null;await loadAll();render();renderGroupSection();closeGruppenMenu();}catch(e){showToast(e.message);}}
 async function editGroup(){
   const name=await showPrompt('Gruppe umbenennen',group.name,'Speichern');
   if(!name)return;
-  api('PATCH','/groups/mine',{name}).then(()=>{group.name=name;renderGroupSection();showToast('Aktualisiert');}).catch(e=>showToast(e.message));
+  api('PATCH','/groups/mine',{name}).then(()=>{group.name=name;renderGroupSection();showToast(lang==='en'?'Updated':'Aktualisiert');}).catch(e=>showToast(e.message));
 }
-async function deleteAccount(){if(!confirm('Account löschen?'))return;try{await api('DELETE','/users/me');localStorage.removeItem('tf_token');location.reload();}catch(e){showToast(e.message);}}
+async function deleteAccount(){if(!confirm(lang==='en'?'Delete account?':'Account löschen?'))return;try{await api('DELETE','/users/me');localStorage.removeItem('tf_token');location.reload();}catch(e){showToast(e.message);}}
 function renderCatList(){const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Noch keine eigenen Kategorien.</div>`;return;}list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="color:var(--text2);display:flex;align-items:center">${CUSTOM_ICONS[icon]?renderCustomIcon(icon,16):catIcon(icon,16)||icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
 function addCat(){
   const n=document.getElementById('newCatName').value.trim();
@@ -2110,36 +2297,36 @@ function addCat(){
   selectedCatIcon='pin';
   const btn=document.getElementById('iconPickerBtn');
   if(btn)btn.innerHTML=renderCustomIcon('pin',18);
-  saveState();renderCatList();populateCatSel();showToast(`"${n}" hinzugefügt`);const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?`${nc} eigene Kategorie${nc===1?'':'n'}`:'Kategorien verwalten';}
+  saveState();renderCatList();populateCatSel();showToast(lang==='en'?`"${n}" added`:`"${n}" hinzugefügt`);const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?`${nc} eigene Kategorie${nc===1?'':'n'}`:lang==='en'?'Manage categories':'Kategorien verwalten';}
 }
 function buildIconPickerGrid(){
   const g=document.getElementById('iconPickerGrid');if(!g)return;
   g.innerHTML=Object.keys(CUSTOM_ICONS).map(k=>`<div class="icon-opt${selectedCatIcon===k?' sel':''}" onclick="pickCatIcon('${k}')" title="${k}">${renderCustomIcon(k,16)}</div>`).join('');
 }
-function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();populateCatSel();showToast('Gelöscht');const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?`${nc} eigene Kategorie${nc===1?'':'n'}`:'Kategorien verwalten';}}
+function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(lang==='en'?`"${name}" is still in use`:`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();populateCatSel();showToast(lang==='en'?'Deleted':'Gelöscht');const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?`${nc} eigene Kategorie${nc===1?'':'n'}`:lang==='en'?'Manage categories':'Kategorien verwalten';}}
 async function resetTasks(){
   const myId=me._id?.toString();
   const myTasks=tasks.filter(t=>t.assignee===myId||(t.creatorId===myId&&!isPoolTask(t)));
-  if(!myTasks.length){showToast('Keine eigenen Aufgaben');return;}
-  if(!confirm(`${myTasks.length} eigene Aufgabe${myTasks.length>1?'n':''} löschen?`))return;
+  if(!myTasks.length){showToast(lang==='en'?'No personal tasks':'Keine eigenen Aufgaben');return;}
+  if(!confirm(lang==='en'?`Delete ${myTasks.length} personal task${myTasks.length>1?'s':''}?`:`${myTasks.length} eigene Aufgabe${myTasks.length>1?'n':''} löschen?`))return;
   for(const t of myTasks){try{await api('DELETE','/tasks/'+t._id);}catch(e){}}
   tasks=tasks.filter(t=>!myTasks.some(m=>m._id===t._id));
   // Clean up pool state for removed tasks
   myTasks.forEach(t=>{const id=t._id?.toString();if(appstate.poolAssigns?.[id])delete appstate.poolAssigns[id];});
   appstate.poolTasks=(appstate.poolTasks||[]).filter(id=>tasks.some(t=>t._id?.toString()===id));
-  saveState();render();showToast(`${myTasks.length} Aufgabe${myTasks.length>1?'n':''} gelöscht`);
+  saveState();render();showToast(lang==='en'?`${myTasks.length} task${myTasks.length>1?'s':''} deleted`:`${myTasks.length} Aufgabe${myTasks.length>1?'n':''} gelöscht`);
 }
 
 // ── ADMIN ──
 function openAdmin(){document.getElementById('adminPin').value='';document.getElementById('adminModal').classList.add('open');}
 function closeAdmin(){document.getElementById('adminModal').classList.remove('open');adminPin=null;}
-async function verifyAdmin(){const pin=document.getElementById('adminPin').value.trim();if(!pin){showToast('PIN eingeben');return;}try{await api('POST','/admin/verify',{pin});adminPin=pin;const d=await api('GET',`/admin/data?pin=${encodeURIComponent(pin)}`);renderAdminDash(d);}catch(e){showToast('Falscher PIN');}}
+async function verifyAdmin(){const pin=document.getElementById('adminPin').value.trim();if(!pin){showToast(lang==='en'?'Please enter PIN':'PIN eingeben');return;}try{await api('POST','/admin/verify',{pin});adminPin=pin;const d=await api('GET',`/admin/data?pin=${encodeURIComponent(pin)}`);renderAdminDash(d);}catch(e){showToast(lang==='en'?'Wrong PIN':'Falscher PIN');}}
 function renderAdminDash(d){document.getElementById('adminContent').innerHTML=`<div style="padding:0 16px 8px"><div style="display:flex;gap:8px;margin-bottom:18px"><div style="flex:1;background:rgba(91,91,214,.1);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(91,91,214,.15)"><div style="font-size:22px;font-weight:700;color:var(--acc)">${d.users.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Nutzer</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.groups.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Gruppen</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.totalTasks}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Aufgaben</div></div></div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px">Gruppen</div>${d.groups.map(g=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:600">${g.name}</div><div style="font-size:11px;color:var(--text3)">${g.memberCount} Mitglieder · ${g.taskCount} Aufgaben · Code: ${g.inviteCode}</div></div><button onclick="adminDelGroup('${g._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button></div>`).join('')}<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:14px 0 8px">Nutzer</div>${d.users.map(u=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px"><div class="av" style="width:34px;height:34px;background:${u.color||'#9CA3AF'};font-size:13px">${u.name?.[0]||'?'}</div><div style="flex:1"><div style="font-size:14px;font-weight:600">${u.name}</div><div style="font-size:11px;color:var(--text3)">${u.groupName} · ${u.taskCount} Aufgaben</div></div><button onclick="adminDelUser('${u._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button></div></div>`).join('')}</div>`;}
-async function adminDelUser(uid){if(!confirm('Nutzer löschen?'))return;try{await api('DELETE',`/admin/user/${uid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast('Nutzer gelöscht');}catch(e){showToast(e.message);}}
+async function adminDelUser(uid){if(!confirm(lang==='en'?'Delete user?':'Nutzer löschen?'))return;try{await api('DELETE',`/admin/user/${uid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast(lang==='en'?'User deleted':'Nutzer gelöscht');}catch(e){showToast(e.message);}}
 async function adminDelGroup(gid){if(!confirm('Gruppe löschen?'))return;try{await api('DELETE',`/admin/group/${gid}?pin=${encodeURIComponent(adminPin)}`);const d=await api('GET',`/admin/data?pin=${encodeURIComponent(adminPin)}`);renderAdminDash(d);await loadAll();render();showToast('Gruppe gelöscht');}catch(e){showToast(e.message);}}
 
 // ── CELEBRATION ──
-function celebrate(){document.getElementById('celebFace').innerHTML=`<div style="color:#fff"><svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>`;document.getElementById('celebTxt').textContent=CELEB[Math.floor(Math.random()*CELEB.length)];const cc=document.getElementById('confWrap');cc.innerHTML='';const cols=['#5B5BD6','#22C55E','#EF4444','#F59E0B','#8B5CF6','#FBBF24'];for(let i=0;i<50;i++){const p=document.createElement('div');p.className='conf';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;cc.appendChild(p);}document.getElementById('celebOv').classList.add('show');setTimeout(closeceleb,4000);}
+function celebrate(){document.getElementById('celebFace').innerHTML=`<div style="color:#fff"><svg width="76" height="76" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>`;document.getElementById('celebTxt').textContent=(lang==='en'?CELEB_EN:CELEB_DE)[Math.floor(Math.random()*(lang==='en'?CELEB_EN:CELEB_DE).length)];const cc=document.getElementById('confWrap');cc.innerHTML='';const cols=['#5B5BD6','#22C55E','#EF4444','#F59E0B','#8B5CF6','#FBBF24'];for(let i=0;i<50;i++){const p=document.createElement('div');p.className='conf';p.style.cssText=`left:${Math.random()*100}%;background:${cols[Math.floor(Math.random()*cols.length)]};width:${5+Math.random()*7}px;height:${5+Math.random()*7}px;border-radius:${Math.random()>.5?'50%':'2px'};animation-duration:${1.4+Math.random()*2}s;animation-delay:${Math.random()*.5}s`;cc.appendChild(p);}document.getElementById('celebOv').classList.add('show');setTimeout(closeceleb,4000);}
 function closeceleb(){document.getElementById('celebOv').classList.remove('show');}
 
 // ── TOAST ──
@@ -2191,7 +2378,7 @@ function initSheetDismiss(){
       indicator=document.createElement('div');
       indicator.id='pullIndicator';
       indicator.style.cssText='position:fixed;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%) translateY(-56px);z-index:9999;background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:50px;padding:8px 18px;font-size:13px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:8px;transition:transform .2s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2)';
-      indicator.innerHTML=`<svg id="pullArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><polyline points="7 10 12 15 17 10"/></svg><span id="pullTxt">Zum Aktualisieren ziehen</span>`;
+      indicator.innerHTML=`<svg id="pullArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><polyline points="7 10 12 15 17 10"/></svg><span id="pullTxt"id="pullTxt">Zum Aktualisieren ziehen</span>`;
       document.body.appendChild(indicator);
     }
     return indicator;
@@ -2219,7 +2406,7 @@ function initSheetDismiss(){
     ind.style.transform=`translateX(-50%) translateY(${-56+yOff}px)`;
     ind.style.opacity=String(progress);
     document.getElementById('pullArrow').style.transform=progress>=1?'rotate(180deg)':'rotate(0deg)';
-    document.getElementById('pullTxt').textContent=progress>=1?'Loslassen zum Aktualisieren':'Zum Aktualisieren ziehen';
+    document.getElementById('pullTxt').textContent=progress>=1?lang==='en'?'Release to refresh':'Loslassen zum Aktualisieren':lang==='en'?'Pull to refresh':'Zum Aktualisieren ziehen';
   },{passive:true});
 
   document.addEventListener('touchend',async e=>{
@@ -2229,7 +2416,7 @@ function initSheetDismiss(){
     const ind=getIndicator();
     if(dy>=110){
       ind.style.transform='translateX(-50%) translateY(0px)';
-      document.getElementById('pullTxt').textContent='Aktualisiere…';
+      document.getElementById('pullTxt').textContent=lang==='en'?'Refreshing…':'Aktualisiere…';
       document.getElementById('pullArrow').innerHTML=`<circle cx="12" cy="12" r="9" stroke-dasharray="28 56" stroke-linecap="round" style="animation:spin .7s linear infinite"/>`;
       // Add spin keyframes once
       if(!document.getElementById('spinKf')){const s=document.createElement('style');s.id='spinKf';s.textContent='@keyframes spin{from{stroke-dashoffset:0}to{stroke-dashoffset:-84}}';document.head.appendChild(s);}
@@ -2237,7 +2424,7 @@ function initSheetDismiss(){
         const r=await api('GET','/poll');
         pollHash=r.hash;
         await loadAll();render();
-        showToast('Aktualisiert ✓');
+        showToast(lang==='en'?'Updated ✓':'Aktualisiert ✓');
       }catch(e){}
     }
     // Hide indicator
@@ -2257,7 +2444,7 @@ function switchTab(i,anim=true){
   wrap.style.transform=`translateX(-${i*25}%)`;
   if(!anim)requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove('no-anim')));
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
-  document.getElementById('navTitle').textContent=NAV_TITLES[i]||'';
+  document.getElementById('navTitle').textContent=(lang==='en'?NAV_TITLES_EN:NAV_TITLES_DE)[i]||'';
   if(i===2)renderCalendar();if(i===3)renderVote();
   // Auto-refresh on tab switch
   api('GET','/poll').then(r=>{if(r.hash!==pollHash){pollHash=r.hash;loadAll().then(()=>render());}}).catch(()=>{});
@@ -2281,14 +2468,14 @@ function showOb(n){
 }
 function obNext(){
   const name=document.getElementById('ob-name').value.trim();
-  if(!name){showToast('Name eingeben');return;}
-  document.getElementById('ob2Name').textContent='Hallo, '+name+' 👋';
+  if(!name){showToast(lang==='en'?'Please enter a name':'Name eingeben');return;}
+  document.getElementById('ob2Name').textContent=(lang==='en'?'Hi, ':'Hallo, ')+name+' 👋';
   showOb(2);
 }
 let obPendingMode=null;
 async function obChoose(c){
   const name=document.getElementById('ob-name').value.trim();
-  if(!name){showToast('Name eingeben');return;}
+  if(!name){showToast(lang==='en'?'Please enter a name':'Name eingeben');return;}
   try{
     await doLogin(name);
     obPendingMode=c;
@@ -2325,7 +2512,7 @@ function obPinKey(k){
     localStorage.setItem('tf_pin_name',me?.name||'');
     if(savePin){localStorage.setItem('tf_pin_auto','1');}else{localStorage.removeItem('tf_pin_auto');}
     obPinBuf='';
-    showToast('PIN gesetzt ✓');
+    showToast(lang==='en'?'PIN set ✓':'PIN gesetzt ✓');
     setTimeout(async()=>{
       if(obPendingMode==='solo')await finishSolo();
     },400);
@@ -2349,7 +2536,7 @@ function loginPinKey(k){
       sessionStorage.setItem('tf_pin_ok','1');showApp();startPolling();checkChangelog();checkNewTasks();
     } else {
       updatePinDots('lpd',0);
-      showToast('Falscher PIN');
+      showToast(lang==='en'?'Wrong PIN':'Falscher PIN');
       // shake dots
       const dots=document.getElementById('loginPinDots');
       dots.style.animation='shake .35s';
@@ -2364,14 +2551,14 @@ function pinHash(pin){
   for(let i=0;i<pin.length;i++){h^=pin.charCodeAt(i);h=(h*0x01000193)>>>0;}
   return h.toString(16)+pin.split('').reduce((a,c,i)=>a+(c.charCodeAt(0)*(i+7)),0).toString(36);
 }
-function doLogout(){if(!confirm("Wirklich abmelden?"))return;sessionStorage.removeItem("tf_pin_ok");localStorage.removeItem("tf_pin_auto");localStorage.removeItem("tf_token");myToken=null;me=null;location.reload();}
+function doLogout(){if(!confirm(lang==='en'?'Really sign out?':'Wirklich abmelden?'))return;sessionStorage.removeItem("tf_pin_ok");localStorage.removeItem("tf_pin_auto");localStorage.removeItem("tf_token");myToken=null;me=null;location.reload();}
 function pinLogout(){sessionStorage.removeItem('tf_pin_ok');localStorage.removeItem('tf_token');localStorage.removeItem('tf_pin');localStorage.removeItem('tf_pin_name');myToken=null;me=null;location.reload();}
 
-async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast('Name eingeben');return;}
-  try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Code: '+group.inviteCode);}catch(e){showToast(e.message);}
+async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast(lang==='en'?'Please enter a name':'Name eingeben');return;}
+  try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast((lang==='en'?'Code: ':'Code: ')+group.inviteCode);}catch(e){showToast(e.message);}
 }
 async function obJoin(){const code=document.getElementById('ob-code').value.trim().toUpperCase();if(!code){showToast('Code eingeben');return;}
-  try{group=await api('POST','/groups/join',{inviteCode:code});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Beigetreten!');}catch(e){showToast('Fehler: '+e.message);}
+  try{group=await api('POST','/groups/join',{inviteCode:code});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast(lang==='en'?'Joined!':'Beigetreten!');}catch(e){showToast('Fehler: '+e.message);}
 }
 
 init();
