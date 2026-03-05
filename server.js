@@ -488,6 +488,35 @@ app.get('/api/calendar/feed.ics', async (req, res) => {
       }
     }
 
+    // ── Build "TaskFlow - Poolaufgaben" week block ────────────────
+    // Find all pool tasks assigned to this user this week (no deadline required)
+    const todayD = new Date();
+    todayD.setHours(0, 0, 0, 0);
+    const todayDay = todayD.getDay(); // 0=Sun
+    const diffToMon = todayDay === 0 ? -6 : 1 - todayDay;
+    const thisMonday = new Date(todayD);
+    thisMonday.setDate(todayD.getDate() + diffToMon);
+
+    const myPoolTitles = [];
+    for (const t of allTasks) {
+      if (!t.inPool) continue;
+      const tid = t._id.toString();
+      const assign = poolAssigns[tid];
+      if (!assign) continue;
+
+      if (t.subtasks && t.subtasks.length > 0 && assign.subtaskAssignments) {
+        const mySubs = t.subtasks.filter(s =>
+          !s.done && assign.subtaskAssignments[s.id] === uid
+        );
+        for (const sub of mySubs) {
+          myPoolTitles.push(`${t.title}: ${sub.title}`);
+        }
+      } else {
+        if (assign.assignedUser !== uid) continue;
+        if (!t.done) myPoolTitles.push(t.title);
+      }
+    }
+
     // ── Build iCal lines ──────────────────────────
     const lines = [
       'BEGIN:VCALENDAR',
@@ -547,7 +576,29 @@ app.get('/api/calendar/feed.ics', async (req, res) => {
       );
     }
 
-    // 2. Individual deadline markers (single-day, transparent)
+    // 2. "TaskFlow - Poolaufgaben" — 7 individual all-day events Mon–Sun (current week)
+    if (myPoolTitles.length > 0) {
+      const poolDesc = myPoolTitles.map(t => `• ${t}`).join('\n');
+      for (let i = 0; i < 7; i++) {
+        const day = new Date(thisMonday);
+        day.setDate(thisMonday.getDate() + i);
+        const nextDay = new Date(day);
+        nextDay.setDate(day.getDate() + 1);
+        lines.push(
+          'BEGIN:VEVENT',
+          `UID:pool-week-${toDateStr(thisMonday)}-day${i}-${uid}@taskflow`,
+          `SUMMARY:${icalEscape('TaskFlow - Poolaufgaben')}`,
+          `DTSTART;VALUE=DATE:${toDateStr(day)}`,
+          `DTEND;VALUE=DATE:${toDateStr(nextDay)}`,
+          `DESCRIPTION:${icalEscape(poolDesc)}`,
+          'TRANSP:TRANSPARENT',
+          'STATUS:CONFIRMED',
+          'END:VEVENT'
+        );
+      }
+    }
+
+    // 3. Individual deadline markers (single-day, transparent)
     for (const e of myEntries) {
       const nextDay = new Date(e.deadline + 'T00:00:00');
       nextDay.setDate(nextDay.getDate() + 1);
