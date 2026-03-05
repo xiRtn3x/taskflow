@@ -1149,7 +1149,7 @@ function startPolling(){
   if(pollTimer)clearInterval(pollTimer);
   pollTimer=setInterval(async()=>{
     try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}document.getElementById('notifDot').style.display=r.hasNotifications?'block':'none';document.getElementById('notifBtn').style.display=r.hasNotifications?'flex':'none';}catch(e){}
-  },3000);
+  },15000);
   // Immediate refresh when app comes back to foreground
   if(!window._visListenerAdded){
     window._visListenerAdded=true;
@@ -2259,6 +2259,8 @@ function switchTab(i,anim=true){
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
   document.getElementById('navTitle').textContent=NAV_TITLES[i]||'';
   if(i===2)renderCalendar();if(i===3)renderVote();
+  // Auto-refresh on tab switch
+  api('GET','/poll').then(r=>{if(r.hash!==pollHash){pollHash=r.hash;loadAll().then(()=>render());}}).catch(()=>{});
 }
 let swX=null,swY=null;
 document.addEventListener('touchstart',e=>{swX=e.touches[0].clientX;swY=e.touches[0].clientY;},{passive:true});
