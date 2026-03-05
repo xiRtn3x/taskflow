@@ -182,6 +182,21 @@ app.delete('/api/users/notifications', auth, async (req, res) => {
   res.json({ ok: true });
 });
 
+app.post('/api/users/:id/notify', auth, async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message) return res.status(400).json({ error: 'Nachricht fehlt' });
+    await db.collection('users').updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $push: { notifications: {
+        id: genToken().slice(0,8), type: 'info',
+        text: message, createdAt: new Date()
+      }}}
+    );
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
 // ── GROUPS ────────────────────────────────────────
 app.post('/api/groups', auth, async (req, res) => {
   try {
@@ -340,6 +355,53 @@ app.get('/api/poll', auth, async (req, res) => {
     const me = await db.collection('users').findOne({ _id: req.user._id });
     res.json({ hash, hasNotifications: (me?.notifications||[]).length > 0, taskCount: tasks.filter(t=>!t.done).length });
   } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── ICAL KALENDER ─────────────────────────────────
+app.get('/api/calendar/feed.ics', async (req, res) => {
+  try {
+    const token = req.query.token;
+    if (!token) return res.status(401).send('Kein Token');
+    const user = await db.collection('users').findOne({ token });
+    if (!user) return res.status(401).send('Ungültiger Token');
+
+    const sc = user.groupId
+      ? { groupId: user.groupId }
+      : { groupId: null, ownerId: user._id.toString() };
+    const tasks = await db.collection('tasks').find(sc).toArray();
+
+    const lines = [
+      'BEGIN:VCALENDAR',
+      'VERSION:2.0',
+      'PRODID:-//TaskFlow//DE',
+      'CALSCALE:GREGORIAN',
+      'X-WR-CALNAME:TaskFlow',
+      'X-WR-CALDESC:Deine TaskFlow-Deadlines',
+    ];
+
+    tasks.filter(t => t.deadline && !t.done).forEach(t => {
+      const date = t.deadline.replace(/-/g, '');
+      const nextDay = new Date(t.deadline + 'T00:00:00');
+      nextDay.setDate(nextDay.getDate() + 1);
+      const end = nextDay.toISOString().slice(0, 10).replace(/-/g, '');
+      lines.push(
+        'BEGIN:VEVENT',
+        `UID:${t._id.toString()}@taskflow`,
+        `SUMMARY:${t.title.replace(/\n/g, ' ')}`,
+        `DTSTART;VALUE=DATE:${date}`,
+        `DTEND;VALUE=DATE:${end}`,
+        `DESCRIPTION:Kategorie: ${t.cat || '–'}\\nPriorität: ${t.prio || '–'}`,
+        `STATUS:${t.done ? 'COMPLETED' : 'CONFIRMED'}`,
+        'END:VEVENT'
+      );
+    });
+
+    lines.push('END:VCALENDAR');
+
+    res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="taskflow.ics"');
+    res.send(lines.join('\r\n'));
+  } catch(e) { res.status(500).send('Fehler: ' + e.message); }
 });
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
