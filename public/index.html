@@ -644,7 +644,105 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
+    <!-- SEKTION: FAQ -->
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <span id="secFaqLbl">FAQ</span></div></div>
+    <div class="fg" style="padding-top:4px">
+      <div onclick="openFaqMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
+        <div id="profFaqPreview" style="flex:1;font-size:13px;color:var(--text3)">Aufgaben · Gruppen · Pool · App</div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
     <div style="height:8px"></div>
+  </div>
+</div>
+
+<!-- FAQ UNTERMENÜ -->
+<div class="ov" id="faqOv">
+  <div class="sheet" style="max-height:92dvh">
+    <div class="handle"></div>
+    <div class="mhdr">
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <span id="faqMenuTitle">FAQ</span></div>
+      <span class="mclose" id="faqCloseBtn" onclick="closeFaqMenu()">Schließen</span>
+    </div>
+    <div style="padding:0 16px 32px">
+
+      <!-- AUFGABEN -->
+      <div style="margin-bottom:20px">
+        <div id="faqTasksTitle" style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--acc);margin:16px 2px 10px">Aufgaben</div>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqT1q">Wie erstelle ich eine Aufgabe?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqT1a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Tippe auf das <b>+</b>-Symbol unten rechts. Du kannst Titel, Beschreibung, Priorität, Kategorie, Deadline und Wiederholung festlegen.</div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqT2q">Was sind die Attribute?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqT2a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)"><b>Titel</b> – Pflichtfeld, kurze Bezeichnung der Aufgabe<br><b>Beschreibung</b> – optionaler Zusatztext<br><b>Priorität</b> – Hoch / Mittel / Niedrig (beeinflusst Sortierung)<br><b>Kategorie</b> – Arbeit, Haushalt, Einkauf usw. (auch eigene möglich)<br><b>Deadline</b> – Fälligkeitsdatum; erscheint im Kalender-Tab<br><b>Wiederholung</b> – Täglich, Wöchentlich, Monatlich, Jährlich<br><b>Unteraufgaben</b> – einzelne Schritte innerhalb einer Aufgabe<br><b>Typ</b> – bestimmt, wer die Aufgabe sieht (siehe unten)</div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqT3q">Wer sieht welche Aufgabe?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqT3a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)"><b>Eigene Aufgabe</b> – nur du siehst und bearbeitest sie<br><b>Gemeinsame Aufgabe</b> – du wählst Mitglieder aus; alle Gewählten sehen sie<br><b>Pool-Aufgabe</b> – wird nach dem Shuffle automatisch einer Person zugewiesen; bis dahin unsichtbar im persönlichen Tab</div>
+        </details>
+      </div>
+
+      <!-- GRUPPEN -->
+      <div style="margin-bottom:20px">
+        <div id="faqGroupsTitle" style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--acc);margin:4px 2px 10px">Gruppen</div>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqG1q">Was ist eine Gruppe?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqG1a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Eine Gruppe verbindet mehrere Personen in TaskFlow. Erst in einer Gruppe werden gemeinsame und Pool-Aufgaben möglich.</div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqG2q">Wie erstelle oder betrete ich eine Gruppe?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqG2a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Unter <b>Einstellungen → Gruppe</b> kannst du eine neue Gruppe erstellen oder mit einem 6-stelligen Einladungscode einer bestehenden beitreten. Den Code kannst du direkt per Nachricht, WhatsApp o. ä. teilen.</div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqG3q">Welche Möglichkeiten bietet eine Gruppe?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqG3a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)"><b>Gemeinsame Aufgaben</b> – du weist Aufgaben bestimmten Mitgliedern zu; alle Beteiligten sehen und können sie abschließen<br><b>Pool-Aufgaben</b> – wiederkehrende oder faire Aufgabenverteilung per Shuffle<br><b>Voting</b> – alle Mitglieder bewerten Pool-Aufgaben nach Aufwand<br><br><b>Rollen:</b> Der Ersteller kann die Gruppe umbenennen und löschen. Mitglieder können die Gruppe verlassen.</div>
+        </details>
+      </div>
+
+      <!-- POOL -->
+      <div style="margin-bottom:20px">
+        <div id="faqPoolTitle" style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--acc);margin:4px 2px 10px">Pool &amp; Scheißigkeitsscore</div>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqP1q">Was ist der Pool?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqP1a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Der Pool ist eine Sammlung von Aufgaben, die <b>automatisch fair</b> auf alle Gruppenmitglieder verteilt werden. Niemand bekommt immer die unangenehmsten Aufgaben.</div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqP2q">Wie erstelle ich eine Pool-Aufgabe?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqP2a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Beim Erstellen einer Aufgabe den Typ <b>Pool</b> wählen. Optional: Voting aktivieren, damit die Gruppe den Aufwand bewertet.</div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqP3q">Was ist der Scheißigkeitsscore?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqP3a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Jede Pool-Aufgabe bekommt einen Score von <b>1–10</b>, der den Aufwand beschreibt:<br>1–3: leicht / angenehm<br>4–6: mittel<br>7–10: unangenehm / aufwändig<br><br>Jedes Mitglied bewertet jede Aufgabe. Der Durchschnittswert aller Stimmen ergibt den Score.</div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqP4q">Nach welchen Kriterien wird verteilt?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqP4a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Der Shuffle-Algorithmus berücksichtigt:<br><b>1. Score-Balance</b> – niemand bekommt unverhältnismäßig viele schwere Aufgaben<br><b>2. Schulden-Score</b> – wer zuletzt viele schwere Aufgaben hatte, wird entlastet (der Schuldenstand sinkt wöchentlich automatisch ab)<br><b>3. Letzte Zuteilung</b> – dieselbe Aufgabe geht nicht zweimal hintereinander an dieselbe Person<br><br><i>Beispiel: Hat Anna letzte Woche Klo putzen (Score 8) und Müll rausbringen (Score 6) erledigt, bekommt sie beim nächsten Shuffle bevorzugt leichtere Aufgaben, bis der Score-Ausgleich wieder stimmt.</i></div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqP5q">Wann kommen Pool-Aufgaben in den Shuffle?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqP5a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)"><b>Einmalige Pool-Aufgaben</b> – immer beim nächsten Shuffle<br><b>Täglich / Wöchentlich</b> – bei jedem Shuffle<br><b>Monatlich</b> – ca. einmal pro Monat (nicht in den letzten 5 Tagen des Monats)<br><b>Jährlich</b> – ca. einmal pro Jahr (nicht in November / Dezember)</div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqP6q">Wann wird geshuffelt?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqP6a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Standardmäßig <b>automatisch jeden Dienstag um 0:01 Uhr</b>. Den Tag kannst du unter <b>Einstellungen → Pool-Einstellungen</b> ändern oder den Auto-Shuffle deaktivieren und manuell anstoßen.</div>
+        </details>
+      </div>
+
+      <!-- ALS APP SPEICHERN -->
+      <div style="margin-bottom:8px">
+        <div id="faqAppTitle" style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--acc);margin:4px 2px 10px">Als App speichern</div>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqA1q">iPhone / iPad (Safari)<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqA1a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">1. Seite in Safari öffnen<br>2. Unten auf das <b>Teilen-Symbol</b> tippen (Quadrat mit Pfeil nach oben)<br>3. <b>„Zum Home-Bildschirm"</b> antippen<br>4. Name „TaskFlow" eingeben → <b>Hinzufügen</b></div>
+        </details>
+        <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
+          <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqA2q">Android (Chrome)<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
+          <div id="faqA2a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">1. Seite in Chrome öffnen<br>2. Oben rechts auf die <b>drei Punkte</b> tippen<br>3. <b>„Zum Startbildschirm hinzufügen"</b> antippen<br>4. Name „TaskFlow" bestätigen → <b>Hinzufügen</b></div>
+        </details>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -888,7 +986,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           </div>
           <div style="font-size:15px;font-weight:700"id="tut3Title">Der Pool</div>
         </div>
-        <div id="tut3Body" style="font-size:13px;color:var(--text2);line-height:1.6">Pool-Aufgaben sind Aufgaben, die <b>automatisch auf Gruppenmitglieder verteilt</b> werden. Erst bewertet die Gruppe jede Aufgabe nach Aufwand (Voting), dann wird per <b>„Neu mischen"</b> fair zugeteilt — niemand bekommt immer die schwersten Aufgaben.</div>
+        <div id="tut3Body" style="font-size:13px;color:var(--text2);line-height:1.6">Pool-Aufgaben werden <b>automatisch fair verteilt</b>. Falls Voting aktiviert ist, bewertet die Gruppe die Aufgaben zuerst — dann erfolgt der Shuffle. Genaueres erklärt die <b>FAQ in den Einstellungen</b>.</div>
       </div>
 
       <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px">
@@ -913,8 +1011,14 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 
     </div>
 
-    <div style="padding:20px 16px 32px">
-      <button onclick="closeTutorial()" style="width:100%;padding:14px;background:linear-gradient(135deg,#5B5BD6,#818CF8);color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(91,91,214,.35)">
+    <div style="padding:0 16px 16px">
+      <div style="background:rgba(91,91,214,.08);border:1px solid rgba(91,91,214,.18);border-radius:14px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--acc);flex-shrink:0"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <div id="tutFaqHint" style="font-size:13px;color:var(--text2);line-height:1.5">Fragen zur App? Unter <b>Einstellungen → FAQ</b> findest du eine ausführliche Erklärung aller Funktionen.</div>
+      </div>
+    </div>
+    <div style="padding:4px 16px 32px">
+      <button onclick="closeTutorial()" style="width:100%;padding:14px;background:linear-gradient(135deg,#5B5BD6,#818CF8);color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(91,91,214,.35)" id="tutCloseBtn">
         Verstanden — Los geht's!
       </button>
     </div>
@@ -1087,15 +1191,18 @@ function applyLang() {
   s('tut2Title', de?'Gruppen':'Groups');
   sH('tut2Body', de?'Erstelle eine <b>Gruppe</b> oder tritt einer bei — dann können alle Mitglieder gemeinsam Aufgaben sehen und bearbeiten. Den Einladungscode findest du unter <b>Einstellungen → Gruppe</b>.':'Create a <b>group</b> or join one — then all members can see and work on tasks together. Find the invite code under <b>Settings → Group</b>.');
   s('tut3Title', de?'Der Pool':'The Pool');
-  sH('tut3Body', de?'Pool-Aufgaben werden <b>automatisch verteilt</b>. Erst bewertet jede Person die Aufgaben (Voting), dann erfolgt der Shuffle — standardmäßig <b>automatisch jeden Dienstag</b>. Den Tag änderst du unter <b>Einstellungen → Pool-Einstellungen</b> oder du deaktivierst den Auto-Shuffle.':'Pool tasks are <b>automatically distributed</b>. First everyone rates the tasks, then the shuffle runs — by default <b>every Tuesday automatically</b>. Change the day under <b>Settings → Pool Settings</b> or disable auto-shuffle.');
+  sH('tut3Body', de?'Pool-Aufgaben werden <b>automatisch fair verteilt</b>. Falls Voting aktiviert ist, bewertet die Gruppe die Aufgaben zuerst — dann erfolgt der Shuffle. Genaueres erklärt die <b>FAQ in den Einstellungen</b>.':'Pool tasks are <b>automatically and fairly distributed</b>. If voting is enabled, the group rates the tasks first — then the shuffle runs. For details, check the <b>FAQ in Settings</b>.');
   s('tut4Title', de?'Sichtbarkeit':'Visibility');
   sH('tut4Body', de?'<b>Eigene</b> Aufgaben sieht nur die zugewiesene Person. <b>Gemeinsame</b> Aufgaben sehen alle Gruppenmitglieder. <b>Pool</b>-Aufgaben erscheinen nach dem Shuffle bei der zugeteilten Person.':'<b>Personal</b> tasks are only visible to the assigned person. <b>Shared</b> tasks are visible to all members. <b>Pool</b> tasks appear with the assigned person after the shuffle.');
   s('tut5Title', de?'Kalender-Integration':'Calendar Integration');
+  sH('tutFaqHint', de?'Fragen zur App? Unter <b>Einstellungen → FAQ</b> findest du eine ausführliche Erklärung aller Funktionen.':'Questions about the app? Check <b>Settings → FAQ</b> for a detailed explanation of all features.');
+  s('tutCloseBtn', de?'Verstanden — Los geht\'s!':'Got it — Let\'s go!');
   sH('tut5Body', de?'Alle Aufgaben mit Deadline können in Outlook, Apple Kalender oder Google Kalender erscheinen. Den Link findest du unter <b>Einstellungen → Kalenderintegration</b>.':'All tasks with a deadline can appear in Outlook, Apple Calendar or Google Calendar. Find the link under <b>Settings → Calendar integration</b>.');
   s('tutConfirmBtn', de?"Verstanden — Los geht's!":"Got it — let's go!");
   // Settings section labels
   s('secGrpLbl', de?'Gruppe':'Group');
-  s('secAccLbl', 'Account');
+  s('secFaqLbl', de?'FAQ':'FAQ');
+  if(document.getElementById('faqOv')?.classList.contains('open'))applyFaqLang();
   // Calendar export section
   s('kalDescText', de?'Abonniere deine TaskFlow-Deadlines direkt in deinem Kalender. Der Link aktualisiert sich automatisch — einmal einrichten, immer aktuell.':'Subscribe to your TaskFlow deadlines directly in your calendar. The link updates automatically — set it up once, always current.');
   s('kalPersonalLbl', de?'Dein persönlicher iCal-Link':'Your personal iCal link');
@@ -2353,6 +2460,51 @@ async function editGroupInMenu(){
 }
 
 // ── SUBMENU: KATEGORIEN ──
+function openFaqMenu(){
+  document.getElementById('faqOv').classList.add('open');
+  applyFaqLang();
+}
+function closeFaqMenu(){document.getElementById('faqOv').classList.remove('open');}
+function applyFaqLang(){
+  const de=lang==='de';
+  const s=(id,t)=>{const el=document.getElementById(id);if(el)el.textContent=t;};
+  const sH=(id,t)=>{const el=document.getElementById(id);if(el)el.innerHTML=t;};
+  s('faqMenuTitle','FAQ');
+  s('faqCloseBtn',de?'Schließen':'Close');
+  s('faqTasksTitle',de?'Aufgaben':'Tasks');
+  s('faqGroupsTitle',de?'Gruppen':'Groups');
+  s('faqPoolTitle',de?'Pool & Scheißigkeitsscore':'Pool & Crappiness Score');
+  s('faqAppTitle',de?'Als App speichern':'Save as App');
+  s('faqT1q',de?'Wie erstelle ich eine Aufgabe?':'How do I create a task?');
+  sH('faqT1a',de?'Tippe auf das <b>+</b>-Symbol unten rechts. Du kannst Titel, Beschreibung, Priorität, Kategorie, Deadline und Wiederholung festlegen.':'Tap the <b>+</b> button in the bottom right. You can set title, description, priority, category, deadline and repeat.');
+  s('faqT2q',de?'Was sind die Attribute?':'What are the attributes?');
+  sH('faqT2a',de?'<b>Titel</b> – Pflichtfeld, kurze Bezeichnung der Aufgabe<br><b>Beschreibung</b> – optionaler Zusatztext<br><b>Priorität</b> – Hoch / Mittel / Niedrig (beeinflusst Sortierung)<br><b>Kategorie</b> – Arbeit, Haushalt, Einkauf usw. (auch eigene möglich)<br><b>Deadline</b> – Fälligkeitsdatum; erscheint im Kalender-Tab<br><b>Wiederholung</b> – Täglich, Wöchentlich, Monatlich, Jährlich<br><b>Unteraufgaben</b> – einzelne Schritte innerhalb einer Aufgabe<br><b>Typ</b> – bestimmt, wer die Aufgabe sieht (siehe unten)':'<b>Title</b> – required, short name for the task<br><b>Description</b> – optional extra text<br><b>Priority</b> – High / Medium / Low (affects sorting)<br><b>Category</b> – Work, Home, Shopping etc. (custom categories also possible)<br><b>Deadline</b> – due date; appears in the Calendar tab<br><b>Repeat</b> – Daily, Weekly, Monthly, Yearly<br><b>Subtasks</b> – individual steps within a task<br><b>Type</b> – determines who sees the task (see below)');
+  s('faqT3q',de?'Wer sieht welche Aufgabe?':'Who sees which task?');
+  sH('faqT3a',de?'<b>Eigene Aufgabe</b> – nur du siehst und bearbeitest sie<br><b>Gemeinsame Aufgabe</b> – du wählst Mitglieder aus; alle Gewählten sehen sie<br><b>Pool-Aufgabe</b> – wird nach dem Shuffle automatisch einer Person zugewiesen; bis dahin unsichtbar im persönlichen Tab':'<b>Personal task</b> – only you see and edit it<br><b>Shared task</b> – you choose members; all selected members see it<br><b>Pool task</b> – automatically assigned after the shuffle; invisible in personal tab until then');
+  s('faqG1q',de?'Was ist eine Gruppe?':'What is a group?');
+  sH('faqG1a',de?'Eine Gruppe verbindet mehrere Personen in TaskFlow. Erst in einer Gruppe werden gemeinsame und Pool-Aufgaben möglich.':'A group connects multiple people in TaskFlow. Shared and pool tasks are only possible within a group.');
+  s('faqG2q',de?'Wie erstelle oder betrete ich eine Gruppe?':'How do I create or join a group?');
+  sH('faqG2a',de?'Unter <b>Einstellungen → Gruppe</b> kannst du eine neue Gruppe erstellen oder mit einem 6-stelligen Einladungscode einer bestehenden beitreten. Den Code kannst du direkt per Nachricht, WhatsApp o. ä. teilen.':'Under <b>Settings → Group</b> you can create a new group or join one with a 6-digit invite code. You can share the code directly via message, WhatsApp etc.');
+  s('faqG3q',de?'Welche Möglichkeiten bietet eine Gruppe?':'What does a group offer?');
+  sH('faqG3a',de?'<b>Gemeinsame Aufgaben</b> – du weist Aufgaben bestimmten Mitgliedern zu; alle Beteiligten sehen und können sie abschließen<br><b>Pool-Aufgaben</b> – wiederkehrende oder faire Aufgabenverteilung per Shuffle<br><b>Voting</b> – alle Mitglieder bewerten Pool-Aufgaben nach Aufwand<br><br><b>Rollen:</b> Der Ersteller kann die Gruppe umbenennen und löschen. Mitglieder können die Gruppe verlassen.':'<b>Shared tasks</b> – assign tasks to specific members; all involved can see and complete them<br><b>Pool tasks</b> – recurring or fair task distribution via shuffle<br><b>Voting</b> – all members rate pool tasks by effort<br><br><b>Roles:</b> The creator can rename and delete the group. Members can leave the group.');
+  s('faqP1q',de?'Was ist der Pool?':'What is the Pool?');
+  sH('faqP1a',de?'Der Pool ist eine Sammlung von Aufgaben, die <b>automatisch fair</b> auf alle Gruppenmitglieder verteilt werden. Niemand bekommt immer die unangenehmsten Aufgaben.':'The pool is a collection of tasks that are <b>automatically and fairly</b> distributed among group members. Nobody always gets the most unpleasant tasks.');
+  s('faqP2q',de?'Wie erstelle ich eine Pool-Aufgabe?':'How do I create a pool task?');
+  sH('faqP2a',de?'Beim Erstellen einer Aufgabe den Typ <b>Pool</b> wählen. Optional: Voting aktivieren, damit die Gruppe den Aufwand bewertet.':'Select the type <b>Pool</b> when creating a task. Optional: enable voting so the group can rate the effort.');
+  s('faqP3q',de?'Was ist der Scheißigkeitsscore?':'What is the Crappiness Score?');
+  sH('faqP3a',de?'Jede Pool-Aufgabe bekommt einen Score von <b>1–10</b>, der den Aufwand beschreibt:<br>1–3: leicht / angenehm<br>4–6: mittel<br>7–10: unangenehm / aufwändig<br><br>Jedes Mitglied bewertet jede Aufgabe. Der Durchschnittswert aller Stimmen ergibt den Score.':'Each pool task gets a score of <b>1–10</b> describing its effort:<br>1–3: easy / pleasant<br>4–6: medium<br>7–10: unpleasant / demanding<br><br>Every member rates every task. The average of all votes becomes the score.');
+  s('faqP4q',de?'Nach welchen Kriterien wird verteilt?':'How is distribution decided?');
+  sH('faqP4a',de?'Der Shuffle-Algorithmus berücksichtigt:<br><b>1. Score-Balance</b> – niemand bekommt unverhältnismäßig viele schwere Aufgaben<br><b>2. Schulden-Score</b> – wer zuletzt viele schwere Aufgaben hatte, wird entlastet (der Schuldenstand sinkt wöchentlich automatisch ab)<br><b>3. Letzte Zuteilung</b> – dieselbe Aufgabe geht nicht zweimal hintereinander an dieselbe Person<br><br><i>Beispiel: Hat Anna letzte Woche Klo putzen (Score 8) und Müll rausbringen (Score 6) erledigt, bekommt sie beim nächsten Shuffle bevorzugt leichtere Aufgaben, bis der Score-Ausgleich wieder stimmt.</i>':'The shuffle algorithm considers:<br><b>1. Score balance</b> – nobody gets a disproportionate number of hard tasks<br><b>2. Debt score</b> – whoever had many hard tasks recently gets lighter ones next (debt decreases automatically each week)<br><b>3. Last assignment</b> – the same task never goes to the same person twice in a row<br><br><i>Example: If Anna cleaned the toilet (score 8) and took out the trash (score 6) last week, she gets preferably easier tasks next shuffle until the balance is restored.</i>');
+  s('faqP5q',de?'Wann kommen Pool-Aufgaben in den Shuffle?':'When do pool tasks enter the shuffle?');
+  sH('faqP5a',de?'<b>Einmalige Pool-Aufgaben</b> – immer beim nächsten Shuffle<br><b>Täglich / Wöchentlich</b> – bei jedem Shuffle<br><b>Monatlich</b> – ca. einmal pro Monat (nicht in den letzten 5 Tagen des Monats)<br><b>Jährlich</b> – ca. einmal pro Jahr (nicht in November / Dezember)':'<b>One-time pool tasks</b> – always at the next shuffle<br><b>Daily / Weekly</b> – at every shuffle<br><b>Monthly</b> – approx. once a month (not in the last 5 days of the month)<br><b>Yearly</b> – approx. once a year (not in November / December)');
+  s('faqP6q',de?'Wann wird geshuffelt?':'When does the shuffle run?');
+  sH('faqP6a',de?'Standardmäßig <b>automatisch jeden Dienstag um 0:01 Uhr</b>. Den Tag kannst du unter <b>Einstellungen → Pool-Einstellungen</b> ändern oder den Auto-Shuffle deaktivieren und manuell anstoßen.':'By default <b>automatically every Tuesday at 00:01</b>. You can change the day under <b>Settings → Pool Settings</b> or disable auto-shuffle and trigger it manually.');
+  s('faqA1q',de?'iPhone / iPad (Safari)':'iPhone / iPad (Safari)');
+  sH('faqA1a',de?'1. Seite in Safari öffnen<br>2. Unten auf das <b>Teilen-Symbol</b> tippen (Quadrat mit Pfeil nach oben)<br>3. <b>„Zum Home-Bildschirm"</b> antippen<br>4. Name „TaskFlow" eingeben → <b>Hinzufügen</b>':'1. Open the page in Safari<br>2. Tap the <b>Share icon</b> at the bottom (square with arrow up)<br>3. Tap <b>"Add to Home Screen"</b><br>4. Enter name "TaskFlow" → <b>Add</b>');
+  s('faqA2q',de?'Android (Chrome)':'Android (Chrome)');
+  sH('faqA2a',de?'1. Seite in Chrome öffnen<br>2. Oben rechts auf die <b>drei Punkte</b> tippen<br>3. <b>„Zum Startbildschirm hinzufügen"</b> antippen<br>4. Name „TaskFlow" bestätigen → <b>Hinzufügen</b>':'1. Open the page in Chrome<br>2. Tap the <b>three dots</b> in the top right<br>3. Tap <b>"Add to Home Screen"</b><br>4. Confirm name "TaskFlow" → <b>Add</b>');
+  s('profFaqPreview',de?'Aufgaben · Gruppen · Pool · App':'Tasks · Groups · Pool · App');
+}
 function openPoolMenu(){
   initPoolSettings();
   document.getElementById('poolOv').classList.add('open');
