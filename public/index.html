@@ -609,7 +609,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           <div style="font-size:14px;font-weight:600" id="autoShuffleLbl">Automatisch neu mischen</div>
           <div style="font-size:12px;color:var(--text3);margin-top:2px" id="autoShuffleSub">Jede Woche automatisch um 0:01 Uhr</div>
         </div>
-        <label class="tog-wrap"><input type="checkbox" id="autoShuffleToggle" onchange="toggleAutoShuffle(this.checked)" checked><span class="tog"></span></label>
+        <button id="autoShuffleToggle" class="tog on" onclick="toggleAutoShuffle(this)" aria-label="Auto Reshuffle"></button>
       </div>
       <div id="shuffleDayRow" class="crow" style="cursor:default;padding:8px 14px 12px">
         <span style="font-size:14px;color:var(--text2);flex:1" id="shuffleDayLbl">Wochentag</span>
@@ -1031,6 +1031,7 @@ function applyLang() {
   s('katCloseBtn', de?'Schließen':'Close');
   ph('newCatName', de?'Neue Kategorie…':'New category…');
   renderCatList();
+  renderOtherColors();
   s('accCloseBtn', de?'Schließen':'Close');
   s('kalCloseBtn', de?'Schließen':'Close');
   // Account submenu
@@ -1563,7 +1564,7 @@ function renderVote(){
         const vCnt=t.subtasks?.length?t.subtasks.reduce((s,sub)=>{const sv=t.subtaskVotes?.[sub.id]||{};return s+Object.keys(sv).length;},0):Object.keys(t.votes||{}).length;
         const vTotal=t.subtasks?.length?t.subtasks.length*users.length:users.length;
         const missing=users.filter(u=>{const uid=u._id?.toString();if(t.subtasks?.length)return t.subtasks.some(s=>!(t.subtaskVotes?.[s.id]||{})[uid]);return!(t.votes||{})[uid];}).map(u=>u.name).join(', ');
-        return`<div class="vote-card"><div class="vote-title">${t.title}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">${vCnt}/${vTotal} Stimmen · Fehlt: ${missing}</div></div>`;
+        return`<div class="vote-card"><div class="vote-title">${t.title}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">${vCnt}/${vTotal} ${lang==='en'?'votes':'Stimmen'} · Fehlt: ${missing}</div></div>`;
       }).join('');
     }
     // Completed scores
@@ -1980,7 +1981,9 @@ function checkAutoShuffle(){
   if(!ready.length||ready.some(t=>t.votingEnabled&&!hasFullScore(t)))return;
   appstate.lastShuffleWeek=weekKey;saveState();shufflePool();
 }
-function toggleAutoShuffle(on){
+function toggleAutoShuffle(btn){
+  const on=!btn.classList.contains('on');
+  btn.classList.toggle('on',on);
   appstate.autoShuffleEnabled=on;saveState();
   const row=document.getElementById('shuffleDayRow');
   if(row)row.style.display=on?'flex':'none';
@@ -1993,7 +1996,7 @@ function setShuffleDay(d){
 }
 function initPoolSettings(){
   const tog=document.getElementById('autoShuffleToggle');
-  if(tog)tog.checked=appstate.autoShuffleEnabled!==false;
+  if(tog)tog.classList.toggle('on',appstate.autoShuffleEnabled!==false);
   const row=document.getElementById('shuffleDayRow');
   if(row)row.style.display=(appstate.autoShuffleEnabled!==false)?'flex':'none';
   const day=appstate.autoShuffleDay??2;
@@ -2085,7 +2088,7 @@ function openDetail(id){
   let subsH='';
   if(t.subtasks?.length){
     subsH=`<div class="sec">${lang==='en'?'Subtasks (':'Unteraufgaben ('}${t.subtasks.filter(s=>s.done).length}/${t.subtasks.length})</div><div class="glass-card cg" id="dSubList">${t.subtasks.map(s=>{const subUid=asgn?.subtaskAssignments?.[s.id];const subU=subUid?uById(subUid):null;const subCol=subUid?uColor(subUid):'var(--text3)';const canToggleSub=!isPoolTask(t)||(subUid===myId);return`<div class="sub-item" data-sid="${s.id}"><span class="dragh">${I.grip}</span><div class="sub-chk${s.done?' done':''}" onclick="${canToggleSub?`toggleSub('${id}','${s.id}')`:`showToast(lang==='en'?'Not your subtask':'Nicht deine Unteraufgabe')`}" style="${!canToggleSub?'opacity:.45;cursor:not-allowed;':''}">${s.done?I.check:''}</div><span style="flex:1;font-size:14px;${s.done?'text-decoration:line-through;color:var(--text3)':''}">${s.title}</span>${subU?`<span style="font-size:11px;font-weight:700;color:${subCol}">${subU.name}</span>`:''}</div>`;}).join('')}<div class="crow" onclick="addSubDetail('${id}')"><span style="color:var(--acc)">${I.chevR}</span><span style="color:var(--acc);font-size:14px">${lang==='en'?'Add subtask':'Unteraufgabe hinzufügen'}</span></div></div>`;
-  } else {subsH=`<div style="padding:0 14px 8px"><button class="btn btn-g" onclick="addSubDetail('${id}')">+ Unteraufgabe</button></div>`;}
+  } else {subsH=`<div style="padding:0 14px 8px"><button class="btn btn-g" onclick="addSubDetail('${id}')">${lang==='en'?'+ Subtask':'+ Unteraufgabe'}</button></div>`;}
   // Vote section in detail
   const sc=getScore(t);
   let voteSection='';
@@ -2097,14 +2100,14 @@ function openDetail(id){
     } else {
       const vCnt=t.subtasks?.length?t.subtasks.reduce((sum,s)=>{const sv=t.subtaskVotes?.[s.id]||{};return sum+Object.keys(sv).length;},0):Object.keys(t.votes||{}).length;
       const vTotal=t.subtasks?.length?t.subtasks.length*users.length:users.length;
-      voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} Stimmen${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen ${poopSVG(13)}</button>`:''}</div></div>`;
+      voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} ${lang==='en'?'votes':'Stimmen'}${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">${lang==='en'?'Vote now':'Jetzt abstimmen'} ${poopSVG(13)}</button>`:''}</div></div>`;
     }
   }
   document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
   <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Assigned to':'Zuständig'}</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">Deadline</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Pool':'Pool'}</span><span style="color:var(--green);font-size:14px">${I.check} ${lang==='en'?'Yes':'Ja'}</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Shared':'Gemeinsam'}</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
   </div>${subsH}${voteSection}
-  <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">Nur ${isPoolTask(t)?'der zugewiesene Nutzer':'der Aufgaben-Ersteller'} kann diese Aufgabe abschließen</div>`}</div>
-  <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} Löschen</button></div>`;
+  <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?(lang==='en'?'Reopen':'Wieder öffnen'):(lang==='en'?'Mark as done':'Als erledigt markieren')}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">${lang==='en'?(isPoolTask(t)?'Only the assigned user can complete this task':'Only the task creator can complete this task'):(isPoolTask(t)?'Nur der zugewiesene Nutzer kann diese Aufgabe abschließen':'Nur der Aufgaben-Ersteller kann diese Aufgabe abschließen')}</div>`}</div>
+  <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} ${lang==='en'?'Delete':'Löschen'}</button></div>`;
   const dt=document.getElementById('detailTitle');if(dt)dt.textContent=t.title.length>28?t.title.slice(0,27)+'…':t.title;
   document.getElementById('taskDetail').classList.add('open');
   if(t.subtasks?.length)setTimeout(()=>initSubDrag(id),60);
@@ -2267,12 +2270,17 @@ async function saveTask(){
 function delFromModal(id){if(!confirm(lang==='en'?'Delete?':'Löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeTaskModal();showToast(lang==='en'?'Deleted':'Gelöscht');}).catch(e=>showToast(e.message));}
 
 // ── PROFILE ──
+function renderOtherColors(){
+  const sec=document.getElementById('otherColorsSection');if(!sec||!me)return;
+  const others=(users||[]).filter(u=>u._id?.toString()!==me._id?.toString());
+  sec.innerHTML=others.length?`<label class="fl">${lang==='en'?"Other members' colors":'Farben anderer Mitglieder'}</label>`+others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;}).join(''):'';
+}
 function openProfile(){initPoolSettings();
   profilePhoto=me.photo||null;document.getElementById('profName').value=me.name;
   const pw=document.getElementById('profPhotoWrap');pw.innerHTML=me.photo?`<img src="${me.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<div style="width:100%;height:100%;background:${me.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff">${me.name[0]}</div>`;
   document.getElementById('myColorGrid').innerHTML=ALL_COLORS.map(c=>`<div class="cdot${me.color===c?' sel':''}" style="background:${c}" onclick="pickMyColor('${c}',this)"></div>`).join('');
   const others=users.filter(u=>u._id?.toString()!==me._id?.toString());
-  document.getElementById('otherColorsSection').innerHTML=others.length?`<label class="fl">${lang==='en'?'Other members\' colors':'Farben anderer Mitglieder'}</label>`+others.map(u=>{const ovr=me.colorOverrides?.[u._id?.toString()]||u.color;return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">${avHTML(u,30)}<span style="flex:1;font-size:14px;font-weight:500">${u.name}</span><div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;max-width:165px">${ALL_COLORS.slice(0,16).map(c=>`<div class="cdot${ovr===c?' sel':''}" style="background:${c};width:17px;height:17px;border-width:2px" onclick="pickOvr('${u._id}','${c}',this)"></div>`).join('')}</div></div>`;}).join(''):'';
+  renderOtherColors();
   // Update submenu previews
   const gPrev=document.getElementById('profGroupPreview');
   if(gPrev)gPrev.textContent=group?group.name:lang==='en'?'No group':'Keine Gruppe';
@@ -2561,7 +2569,7 @@ function switchTab(i,anim=true){
   if(!anim)requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove('no-anim')));
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
   document.getElementById('navTitle').textContent=(lang==='en'?NAV_TITLES_EN:NAV_TITLES_DE)[i]||'';
-  if(i===2)renderCalendar();if(i===3)renderVote();
+  if(i===1)renderPool();if(i===2)renderCalendar();if(i===3)renderVote();
   // Auto-refresh on tab switch
   api('GET','/poll').then(r=>{if(r.hash!==pollHash){pollHash=r.hash;loadAll().then(()=>render());}}).catch(()=>{});
 }
