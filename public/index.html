@@ -128,6 +128,11 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 .av img{width:100%;height:100%;object-fit:cover;}
 .dov{position:fixed;inset:0;background:linear-gradient(135deg,var(--bg-from),var(--bg-to));z-index:400;transform:translateX(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);overflow-y:auto;}
 .dov.open{transform:translateX(0);}
+/* task detail as bottom sheet */
+#taskDetail{position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s;backdrop-filter:blur(6px);}
+#taskDetail.open{opacity:1;pointer-events:all;}
+#taskDetail .det-sheet{background:var(--bg-from);background:linear-gradient(180deg,var(--bg-from),var(--bg-to));border-radius:24px 24px 0 0;width:100%;max-height:92dvh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,.72,0,1);}
+#taskDetail.open .det-sheet{transform:translateY(0);}
 .dnav{position:sticky;top:0;background:var(--glass-nav);backdrop-filter:blur(24px);border-bottom:1px solid var(--glass-border);padding:14px 16px;display:flex;align-items:center;gap:8px;z-index:10;}
 .back{color:var(--acc);font-size:15px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:4px;}
 .sub-item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--sep);}
@@ -358,6 +363,15 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div style="width:48px;height:3px;border-radius:2px;background:rgba(91,91,214,.2);overflow:hidden;margin-top:22px"><div style="height:100%;width:45%;background:linear-gradient(90deg,#5B5BD6,#818CF8);border-radius:2px;animation:loadbar 1.1s ease-in-out infinite alternate"></div></div>
   </div>
 </div>
+<style>
+#landscapeLock{display:none;position:fixed;inset:0;z-index:99999;background:#0a0a18;align-items:center;justify-content:center;flex-direction:column;gap:16px;color:#e8eaff;}
+@media(orientation:landscape){#landscapeLock{display:flex;}}
+</style>
+<div id="landscapeLock">
+  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#818CF8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12" y2="18"/></svg>
+  <div style="font-size:16px;font-weight:700">Bitte drehe dein Gerät</div>
+  <div style="font-size:13px;color:#5a6080">TaskFlow funktioniert nur im Hochformat</div>
+</div>
 <style>@keyframes loadbar{from{transform:translateX(-120%)}to{transform:translateX(280%)}}@keyframes lsIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
 
 <div id="app" style="display:none">
@@ -466,7 +480,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 <div class="toast" id="toast"></div>
 
 <!-- INLINE PROMPT OVERLAY -->
-<div class="ov" id="promptOv">
+<div class="ov" id="promptOv" style="z-index:2000">
   <div class="sheet">
     <div class="handle"></div>
     <div class="mhdr"><div class="mtitle" id="promptTitle"></div><span class="mclose" onclick="closePrompt()">Abbrechen</span></div>
@@ -531,7 +545,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <label class="fl">Scheißigkeits-Voting</label>
       <div style="display:flex;align-items:center;gap:14px;padding:10px 0">
         <div style="flex:1">
-          <div style="font-size:14px;font-weight:600;margin-bottom:2px">Voting aktivieren 💩</div>
+          <div style="font-size:14px;font-weight:600;margin-bottom:2px">Voting aktivieren</div>
           <div style="font-size:12px;color:var(--text3)">Alle Nutzer bewerten diese Aufgabe 1–10</div>
         </div>
         <button class="tog" id="fVotingTog" onclick="toggleVoting(this)"></button>
@@ -685,13 +699,15 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 </div>
 
 <!-- TASK DETAIL -->
-<div class="dov" id="taskDetail">
-  <div class="dnav">
-    <span class="back" onclick="closeDetail()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>Zurück</span>
-    <span style="flex:1"></span>
-    <span style="color:var(--acc);cursor:pointer;font-size:15px;font-weight:600" onclick="editCurrent()">Bearbeiten</span>
+<div id="taskDetail" onclick="if(event.target===this)closeDetail()">
+  <div class="det-sheet">
+    <div class="handle" style="margin-top:10px"></div>
+    <div class="mhdr">
+      <div class="mtitle" id="detailTitle">Aufgabe</div>
+      <span style="color:var(--acc);cursor:pointer;font-size:15px;font-weight:600" onclick="editCurrent()">Bearbeiten</span>
+    </div>
+    <div id="detailContent"></div>
   </div>
-  <div id="detailContent"></div>
 </div>
 
 <script>
@@ -884,10 +900,12 @@ async function init(){
   myToken=localStorage.getItem('tf_token');
   if(myToken){
     const savedPin=localStorage.getItem('tf_pin');
-    const savedName=localStorage.getItem('tf_pin_name')||'';
-    if(savedPin){
+    const pinAlreadyUnlocked=sessionStorage.getItem('tf_pin_ok')==='1';
+    // PIN only required after explicit logout — not on every page load
+    if(savedPin&&!pinAlreadyUnlocked){
       // Show PIN screen before granting access
       hideLoader();
+      const savedName=localStorage.getItem('tf_pin_name')||'';
       document.getElementById('ob5Name').textContent=savedName||'Willkommen zurück';
       document.getElementById('onboard').classList.remove('hidden');
       document.getElementById('app').style.display='none';
@@ -901,7 +919,7 @@ async function init(){
       }catch(e){localStorage.removeItem('tf_token');myToken=null;showOnboard();return;}
       return;
     }
-    try{me=await api('GET','/users/me');await loadAll();showApp();startPolling();checkChangelog();checkNewTasks();return;}
+    try{me=await api('GET','/users/me');await loadAll();sessionStorage.setItem('tf_pin_ok','1');showApp();startPolling();checkChangelog();checkNewTasks();return;}
     catch(e){localStorage.removeItem('tf_token');myToken=null;}
   }
   showOnboard();
@@ -1111,7 +1129,7 @@ function renderVote(){
     }
     // Completed scores
     if(scored.length){
-      html+=`<div class="sec">💩 Abgeschlossene Scores</div>`+scored.map(t=>{
+      html+=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Abgeschlossene Scores</div>`+scored.map(t=>{
         const sc=getScore(t);const col=poopColor(sc);
         return`<div class="vote-card" onclick="openDetail('${t._id}')"><div class="vote-title">${t.title}</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><span style="font-size:28px;font-weight:800;color:${col}">${sc}</span><span style="font-size:12px;color:var(--text3)">/10 — Ø</span><div class="score-bar" style="flex:1;margin:0"><div class="score-fill" style="width:${Math.round(sc/10*100)}%;background:${col}"></div></div></div></div>`;
       }).join('');
@@ -1130,7 +1148,7 @@ function renderVote(){
         const votedCount=Object.keys(svotes).length;
         const scale=Array.from({length:10},(_,i)=>i+1);
         const scaleHTML=scale.map(n=>{const col=n<=3?'#16A34A':n<=6?'#D97706':'#DC2626';const isSel=myVote===n;return`<button class="vote-btn${isSel?' sel':''}" onclick="setVote('${vKey}',${n})" style="${isSel?`background:${col};`:`border-color:${col}40;`}${isSel?'':'color:'+col}">${n}</button>`;}).join('');
-        return`<div class="vote-card"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${t.title}</div><div class="vote-title">${s.title}</div><div class="vote-meta"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span><span style="color:var(--text3)">${votedCount}/${users.length} bewertet</span></div><div class="vote-scale">${scaleHTML}</div>${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitSubVote('${tid}','${s.id}')">Abstimmen 💩</button>`:`<div class="vote-pending">Wähle eine Zahl um abzustimmen</div>`}</div>`;
+        return`<div class="vote-card"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${t.title}</div><div class="vote-title">${s.title}</div><div class="vote-meta"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span><span style="color:var(--text3)">${votedCount}/${users.length} bewertet</span></div><div class="vote-scale">${scaleHTML}</div>${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitSubVote('${tid}','${s.id}')">Abstimmen ${poopSVG(13)}</button>`:`<div class="vote-pending">Wähle eine Zahl um abzustimmen</div>`}</div>`;
       }).filter(Boolean).join('');
     }
     const myVote=pendingVotes[tid]||0;
@@ -1154,7 +1172,7 @@ function renderVote(){
       </div>
       ${t.desc?`<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:10px">${t.desc}</div>`:''}
       <div class="vote-scale">${scaleHTML}</div>
-      ${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitVote('${tid}')">Abstimmen 💩</button>`:`<div class="vote-pending">Wähle eine Zahl um abzustimmen</div>`}
+      ${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitVote('${tid}')">Abstimmen ${poopSVG(13)}</button>`:`<div class="vote-pending">Wähle eine Zahl um abzustimmen</div>`}
     </div>`;
   }).join('');
 }
@@ -1175,10 +1193,10 @@ async function submitSubVote(tid,sid){
     if(!t.subtaskPoopScores)t.subtaskPoopScores={};
     t.subtaskPoopScores[sid]=finalScore;
     await api('PATCH','/tasks/'+tid,{subtaskVotes:t.subtaskVotes,subtaskPoopScores:t.subtaskPoopScores});
-    showToast(`Voting fertig! 💩 ${finalScore}`);
+    showToast(`Voting fertig! Score: ${finalScore}`);
   } else {
     await api('PATCH','/tasks/'+tid,{subtaskVotes:t.subtaskVotes});
-    showToast('Stimme abgegeben! 💩');
+    showToast('Stimme abgegeben!');
   }
   render();
 }
@@ -1201,9 +1219,9 @@ async function submitVote(tid){
       const finalScore=getScore(t);
       t.poopScore=finalScore;
       await api('PATCH','/tasks/'+tid,{poopScore:finalScore});
-      showToast(`Voting abgeschlossen! Score: 💩 ${finalScore}`);
+      showToast(`Voting abgeschlossen! Score: ${finalScore}`);
     } else {
-      showToast('Stimme abgegeben! 💩');
+      showToast('Stimme abgegeben!');
     }
     render();
   }catch(e){showToast('Fehler: '+e.message);}
@@ -1266,7 +1284,7 @@ function taskHTML(t,showBar=false){
         ${scoreBadge(t)}
         ${showBar&&aname?`<span class="badge" style="background:${col}22;color:${col};border:1px solid ${col}44;display:inline-flex;align-items:center;gap:3px">${I.user} ${aname}</span>`:''}
         ${creatorNote?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.user} ${creatorNote}</span>`:''}
-        ${t.votingEnabled&&!hasFullScore(t)?`<span class="badge b-ora" style="display:inline-flex;align-items:center;gap:3px">💩 Voting läuft…</span>`:''}
+        ${t.votingEnabled&&!hasFullScore(t)?`<span class="badge b-ora" style="display:inline-flex;align-items:center;gap:3px">${poopSVG(11)} Voting läuft…</span>`:''}
       </div>
       ${mySubsHtml}${prog(t)}
     </div>
@@ -1412,8 +1430,8 @@ function renderPool(){
   const c=document.getElementById('poolContainer');
   if(!toShow.length&&!poolable.length){
     const grpBtns=!group?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:0 8px">
-      <button onclick="createGroup()" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);font-family:inherit">+ Gruppe erstellen</button>
-      <button onclick="joinGroup()" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text3);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);font-family:inherit">Gruppe beitreten</button>
+      <button onclick="createGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">+ Gruppe erstellen</button>
+      <button onclick="joinGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">Gruppe beitreten</button>
     </div>`:'';
     c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div>${grpBtns}</div>`;return;}
   // Show tasks waiting for shuffle
@@ -1459,7 +1477,7 @@ function renderPool(){
         ${t.cat?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${catIcon(allCats()[t.cat]||'')} ${t.cat}</span>`:''}
         ${(()=>{const ov=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();return t.deadline?`<span class="badge ${ov?'b-red':'b-blu'}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${ov?` ${I.alert}`:''}</span>`:''})()}
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
-        ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 Voting läuft…</span>`:''}
+        ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 Voting läuft…</span>`:''}
         ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}
       </div>
       ${subsHtml}${prog(t)}
@@ -1478,7 +1496,7 @@ function shufflePool(){
   rows.innerHTML=appstate.poolTasks.map(id=>{
     const t=tasks.find(t=>t._id?.toString()===id);if(!t)return'';
     const sc=getScore(t);const subCount=t.subtasks?.length||0;
-    return`<div class="slot-row"><div class="slot-task">${t.title.slice(0,20)}${t.title.length>20?'…':''}${sc!=null?` 💩${sc}`:''}${subCount?` <span style="font-size:10px;color:var(--text3)">(+${subCount})</span>`:''}</div><div class="slot-name-wrap" id="slot-${id}"><div class="slot-reel" id="reel-${id}"></div></div></div>`;
+    return`<div class="slot-row"><div class="slot-task">${t.title.slice(0,20)}${t.title.length>20?'…':''}${sc!=null?` ${poopSVG(11)}${sc}`:''}${subCount?` <span style="font-size:10px;color:var(--text3)">(+${subCount})</span>`:''}</div><div class="slot-name-wrap" id="slot-${id}"><div class="slot-reel" id="reel-${id}"></div></div></div>`;
   }).join('');
   document.getElementById('slotSub').textContent='Die Würfel fallen…';
   document.getElementById('slotOv').classList.add('show');
@@ -1548,18 +1566,19 @@ function openDetail(id){
     if(sc!=null){
       const barW=Math.round(sc/10*100);
       const scoreDetails=t.subtasks?.length&&t.subtaskPoopScores?t.subtasks.map(s=>{const ss=t.subtaskPoopScores[s.id];return ss!=null?`${s.title}: 💩${ss}`:null;}).filter(Boolean).join(' · '):Object.entries(t.votes||{}).map(([uid,v])=>{const u=uById(uid);return`${u?.name||'?'}: ${v}`;}).join(' · ');
-      voteSection=`<div class="sec">💩 Scheißigkeitsscore</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — Ø Bewertung</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">${scoreDetails}</div></div></div>`;
+      voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Scheißigkeitsscore</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — Ø Bewertung</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">${scoreDetails}</div></div></div>`;
     } else {
       const vCnt=t.subtasks?.length?t.subtasks.reduce((sum,s)=>{const sv=t.subtaskVotes?.[s.id]||{};return sum+Object.keys(sv).length;},0):Object.keys(t.votes||{}).length;
       const vTotal=t.subtasks?.length?t.subtasks.length*users.length:users.length;
-      voteSection=`<div class="sec">💩 Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} Stimmen${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen 💩</button>`:''}</div></div>`;
+      voteSection=`<div class="sec">💩 Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} Stimmen${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen ${poopSVG(13)}</button>`:''}</div></div>`;
     }
   }
-  document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30">💩 ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
+  document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
   <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">Zuständig</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">Deadline</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">Pool</span><span style="color:var(--green);font-size:14px">${I.check} Ja</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">Gemeinsam</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
   </div>${subsH}${voteSection}
   <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">Nur ${isPoolTask(t)?'der zugewiesene Nutzer':'der Aufgaben-Ersteller'} kann diese Aufgabe abschließen</div>`}</div>
   <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} Löschen</button></div>`;
+  const dt=document.getElementById('detailTitle');if(dt)dt.textContent=t.title.length>28?t.title.slice(0,27)+'…':t.title;
   document.getElementById('taskDetail').classList.add('open');
   if(t.subtasks?.length)setTimeout(()=>initSubDrag(id),60);
 }
@@ -1835,7 +1854,7 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 
 // ── SHEET DRAG TO DISMISS ──
 function initSheetDismiss(){
-  document.querySelectorAll('.ov .sheet').forEach(sheet=>{
+  document.querySelectorAll('.ov .sheet, #taskDetail .det-sheet').forEach(sheet=>{
     let sy=null,startScrollTop=0;
     sheet.addEventListener('touchstart',e=>{
       sy=e.touches[0].clientY;startScrollTop=sheet.scrollTop;
@@ -1878,7 +1897,7 @@ let swX=null,swY=null;
 document.addEventListener('touchstart',e=>{swX=e.touches[0].clientX;swY=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchend',e=>{
   if(swX===null)return;const dx=e.changedTouches[0].clientX-swX,dy=e.changedTouches[0].clientY-swY;
-  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){if([...document.querySelectorAll('.ov.open,.dov.open')].length)return;
+  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){if([...document.querySelectorAll('.ov.open'),document.getElementById('taskDetail')].some(el=>el?.classList?.contains('open')))return;
     const maxTab=document.getElementById('t3')?.style.display!=='none'?3:2;
     if(dx<0&&curTab<maxTab)switchTab(curTab+1);else if(dx>0&&curTab>0)switchTab(curTab-1);}
   swX=null;swY=null;
@@ -1956,7 +1975,7 @@ function loginPinKey(k){
     loginPinBuf='';
     if(entered===localStorage.getItem('tf_pin')){
       updatePinDots('lpd',0);
-      showApp();startPolling();checkChangelog();checkNewTasks();
+      sessionStorage.setItem('tf_pin_ok','1');showApp();startPolling();checkChangelog();checkNewTasks();
     } else {
       updatePinDots('lpd',0);
       showToast('Falscher PIN');
@@ -1974,7 +1993,7 @@ function pinHash(pin){
   for(let i=0;i<pin.length;i++){h^=pin.charCodeAt(i);h=(h*0x01000193)>>>0;}
   return h.toString(16)+pin.split('').reduce((a,c,i)=>a+(c.charCodeAt(0)*(i+7)),0).toString(36);
 }
-function pinLogout(){localStorage.removeItem('tf_token');localStorage.removeItem('tf_pin');localStorage.removeItem('tf_pin_name');myToken=null;me=null;location.reload();}
+function pinLogout(){sessionStorage.removeItem('tf_pin_ok');localStorage.removeItem('tf_token');localStorage.removeItem('tf_pin');localStorage.removeItem('tf_pin_name');myToken=null;me=null;location.reload();}
 
 async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast('Name eingeben');return;}
   try{group=await api('POST','/groups',{name});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast('Code: '+group.inviteCode);}catch(e){showToast(e.message);}
