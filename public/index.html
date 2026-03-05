@@ -214,12 +214,12 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 .cat-blk.dragging{opacity:.35;}
 .profile-photo-ring{width:72px;height:72px;border-radius:50%;border:2px solid var(--glass-border);padding:2px;cursor:pointer;overflow:hidden;flex-shrink:0;background:var(--glass);backdrop-filter:blur(10px);}
 .prof-sec-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text3);display:flex;align-items:center;gap:6px;padding:12px 0 6px;border-top:1px solid var(--sep);margin-top:4px;}
-.icon-picker{position:relative;display:inline-block;}
-.icon-picker-btn{width:46px;height:46px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);flex-shrink:0;}
+.icon-picker{display:flex;flex-direction:column;gap:8px;}
+.icon-picker-btn{height:46px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;display:flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;cursor:pointer;color:var(--text2);font-size:13px;font-weight:500;font-family:inherit;width:100%;}
 .icon-picker-btn:active{opacity:.75;}
-.icon-picker-grid{position:absolute;bottom:calc(100% + 8px);left:0;z-index:500;background:var(--glass);backdrop-filter:blur(24px);border:1px solid var(--glass-border);border-radius:16px;padding:10px;display:grid;grid-template-columns:repeat(7,36px);gap:4px;box-shadow:0 8px 32px rgba(0,0,0,.18);display:none;}
+.icon-picker-grid{display:none;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:10px;grid-template-columns:repeat(8,1fr);gap:4px;}
 .icon-picker-grid.open{display:grid;}
-.icon-opt{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all .12s;}
+.icon-opt{aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--text2);transition:all .12s;}
 .icon-opt:hover,.icon-opt.sel{background:rgba(91,91,214,.15);color:var(--acc);}
 .sheet{touch-action:pan-y;}
 .profile-photo-ring img,.profile-photo-ring div{width:100%;height:100%;border-radius:50%;}
@@ -729,13 +729,19 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     </div>
     <div style="padding:0 16px 8px">
       <div id="catList" style="margin-bottom:8px"></div>
-      <div style="display:flex;gap:7px;align-items:center">
+      <div style="display:flex;flex-direction:column;gap:8px">
         <div class="icon-picker">
-          <div class="icon-picker-btn" id="iconPickerBtn" onclick="openIconPicker()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+          <button class="icon-picker-btn" id="iconPickerBtn" onclick="openIconPicker()">
+            <span id="iconPickerPreview" style="display:flex;align-items:center;justify-content:center;width:20px;height:20px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+            <span id="iconPickerLbl" style="flex:1;text-align:left">Symbol wählen</span>
+            <svg id="iconPickerChev" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
           <div class="icon-picker-grid" id="iconPickerGrid"></div>
         </div>
-        <input class="fi" id="newCatName" placeholder="Neue Kategorie…" style="flex:1">
-        <button class="btn" style="background:var(--acc);color:#fff;padding:10px 12px;border-radius:12px;display:flex;align-items:center;flex-shrink:0" onclick="addCat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        <div style="display:flex;gap:7px;align-items:center">
+          <input class="fi" id="newCatName" placeholder="Neue Kategorie…" style="flex:1">
+          <button class="btn" style="background:var(--acc);color:#fff;padding:10px 12px;border-radius:12px;display:flex;align-items:center;flex-shrink:0" onclick="addCat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+        </div>
       </div>
     </div>
     <div style="height:16px"></div>
@@ -1048,8 +1054,10 @@ function applyLang() {
   s('katMenuTitle', de?'Kategorien':'Categories');
   s('katCloseBtn', de?'Schließen':'Close');
   ph('newCatName', de?'Neue Kategorie…':'New category…');
+  s('iconPickerLbl', de?'Symbol wählen':'Choose symbol');
   renderCatList();
   renderOtherColors();
+  {const _cp=document.getElementById('profCatPreview');if(_cp&&appstate){const _nc=Object.keys(appstate.customCats||{}).length;_cp.textContent=_nc?(de?`${_nc} eigene Kategorie${_nc===1?'':'n'}`:`${_nc} custom categor${_nc===1?'y':'ies'}`):(de?'Kategorien verwalten':'Manage categories');}}
   s('accCloseBtn', de?'Schließen':'Close');
   s('kalCloseBtn', de?'Schließen':'Close');
   // Account submenu
@@ -1092,12 +1100,12 @@ function applyLang() {
   s('kalDescText', de?'Abonniere deine TaskFlow-Deadlines direkt in deinem Kalender. Der Link aktualisiert sich automatisch — einmal einrichten, immer aktuell.':'Subscribe to your TaskFlow deadlines directly in your calendar. The link updates automatically — set it up once, always current.');
   s('kalPersonalLbl', de?'Dein persönlicher iCal-Link':'Your personal iCal link');
   s('kalHowLbl', de?'So trägst du den Link ein':'How to add the link');
-  s('kalAppleTitle', de?'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 5.44-3 7-5.06A8 8 0 0 0 5 10c-1.5 2-2 4-2 5a8 8 0 0 0 9 5.94z"/><path d="M12 7c0-3 2-5 4-5"/></svg> Apple Kalender':'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 5.44-3 7-5.06A8 8 0 0 0 5 10c-1.5 2-2 4-2 5a8 8 0 0 0 9 5.94z"/><path d="M12 7c0-3 2-5 4-5"/></svg> Apple Calendar');
+  sH('kalAppleTitle', de?'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 5.44-3 7-5.06A8 8 0 0 0 5 10c-1.5 2-2 4-2 5a8 8 0 0 0 9 5.94z"/><path d="M12 7c0-3 2-5 4-5"/></svg> Apple Kalender':'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 5.44-3 7-5.06A8 8 0 0 0 5 10c-1.5 2-2 4-2 5a8 8 0 0 0 9 5.94z"/><path d="M12 7c0-3 2-5 4-5"/></svg> Apple Calendar');
   s('kalAppleDesc', de?'Ablage → Neues Kalenderabonnement → Link einfügen → Abonnieren':'File → New calendar subscription → Paste link → Subscribe');
-  s('kalGoogleTitle', de?'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Google Kalender':'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Google Calendar');
+  sH('kalGoogleTitle', de?'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Google Kalender':'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Google Calendar');
   s('kalGoogleDesc', de?'Andere Kalender → Per URL → Link einfügen → Kalender hinzufügen':'Other calendars → From URL → Paste link → Add calendar');
   s('kalOutlookDesc', de?'Kalender öffnen → Kalender hinzufügen → Aus dem Internet abonnieren → Link einfügen':'Open calendar → Add calendar → Subscribe from internet → Paste link');
-  s('kalAndroidTitle', de?'Android (Google Kalender)':'Android (Google Calendar)');
+  sH('kalAndroidTitle', de?'Android (Google Kalender)':'Android (Google Calendar)');
   s('kalAndroidDesc', de?'Google Kalender App → Einstellungen → Konto hinzufügen → Weitere → iCal-URL einfügen':'Google Calendar app → Settings → Add account → Other → Paste iCal URL');
   s('kalFootnote', de?'Nur Aufgaben mit gesetzter Deadline erscheinen im Kalender.':'Only tasks with a deadline appear in the calendar.');
   s('icalLoading', de?'Wird geladen…':'Loading…');
@@ -1217,12 +1225,21 @@ const CUSTOM_ICONS={
   key2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
 };
 let selectedCatIcon='pin';
-function openIconPicker(){const g=document.getElementById('iconPickerGrid');g.classList.toggle('open');}
+function openIconPicker(){
+  const g=document.getElementById('iconPickerGrid');
+  const open=g.classList.toggle('open');
+  const chev=document.getElementById('iconPickerChev');
+  if(chev)chev.style.transform=open?'rotate(180deg)':'';
+}
 function pickCatIcon(key){
   selectedCatIcon=key;
-  const btn=document.getElementById('iconPickerBtn');
-  if(btn)btn.innerHTML=renderCustomIcon(key,18);
+  const prev=document.getElementById('iconPickerPreview');
+  if(prev)prev.innerHTML=renderCustomIcon(key,18);
+  const lbl=document.getElementById('iconPickerLbl');
+  if(lbl)lbl.textContent=lang==='en'?'Symbol selected':'Symbol gewählt';
   document.getElementById('iconPickerGrid').classList.remove('open');
+  const chev=document.getElementById('iconPickerChev');
+  if(chev)chev.style.transform='';
 }
 function renderCustomIcon(key,sz=14){
   const svg=CUSTOM_ICONS[key]||CUSTOM_ICONS.pin;
@@ -1411,7 +1428,7 @@ async function checkNewTasks(){
     tasks.filter(t=>!t.done&&new Date(t.createdAt||0)>lastVisit&&visibleToMe(t)).forEach(t=>{
       const creator=uById(t.creatorId);const who=creator&&creator._id?.toString()!==me._id?.toString()?creator.name:null;
       const typeLabel=isPoolTask(t)?(lang==='en'?'pool task':'Pool-Aufgabe'):isSharedTask(t)?(lang==='en'?'shared task':'gemeinsame Aufgabe'):(lang==='en'?'task':'Aufgabe');
-      addNotif(who?`${who} hat eine neue ${typeLabel} erstellt: „${t.title}“`:`Neue ${typeLabel}: „${t.title}“`);
+      if(lang==='en'){addNotif(who?`${who} created a new ${typeLabel}: "${t.title}"`:`New ${typeLabel}: "${t.title}"`);}else{addNotif(who?`${who} hat eine neue ${typeLabel} erstellt: „${t.title}“`:`Neue ${typeLabel}: „${t.title}“`);}
       hasNew=true;
     });
     tasks.filter(t=>!t.done&&t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime()&&visibleToMe(t)).forEach(t=>{
@@ -2114,7 +2131,7 @@ function renderCalList(){
 // ── DETAIL ──
 function openDetail(id){
   const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;detailId=id;
-  const asgn=isPoolTask(t)?appstate.poolAssigns?.[id]:null;const effId=asgn?.assignedUser||t.assignee;const col=uColor(effId);const u=uById(effId);const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();const aname=t.assignee==='all'?'Alle':(u?u.name:'');const myId=me._id?.toString();
+  const asgn=isPoolTask(t)?appstate.poolAssigns?.[id]:null;const effId=asgn?.assignedUser||t.assignee;const col=uColor(effId);const u=uById(effId);const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();const aname=t.assignee==='all'?(lang==='en'?'All':'Alle'):(u?u.name:'');const myId=me._id?.toString();
   // subtask HTML
   let subsH='';
   if(t.subtasks?.length){
@@ -2455,15 +2472,17 @@ function addCat(){
   appstate.customCats[n]=selectedCatIcon||'pin';
   document.getElementById('newCatName').value='';
   selectedCatIcon='pin';
-  const btn=document.getElementById('iconPickerBtn');
-  if(btn)btn.innerHTML=renderCustomIcon('pin',18);
+  const prev2=document.getElementById('iconPickerPreview');
+  if(prev2)prev2.innerHTML=renderCustomIcon('pin',18);
+  const lbl2=document.getElementById('iconPickerLbl');
+  if(lbl2)lbl2.textContent=lang==='en'?'Choose symbol':'Symbol wählen';
   saveState();renderCatList();populateCatSel();showToast(lang==='en'?`"${n}" added`:`"${n}" hinzugefügt`);const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?`${nc} eigene Kategorie${nc===1?'':'n'}`:lang==='en'?'Manage categories':'Kategorien verwalten';}
 }
 function buildIconPickerGrid(){
   const g=document.getElementById('iconPickerGrid');if(!g)return;
   g.innerHTML=Object.keys(CUSTOM_ICONS).map(k=>`<div class="icon-opt${selectedCatIcon===k?' sel':''}" onclick="pickCatIcon('${k}')" title="${k}">${renderCustomIcon(k,16)}</div>`).join('');
 }
-function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(lang==='en'?`"${name}" is still in use`:`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();populateCatSel();showToast(lang==='en'?'Deleted':'Gelöscht');const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?`${nc} eigene Kategorie${nc===1?'':'n'}`:lang==='en'?'Manage categories':'Kategorien verwalten';}}
+function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(lang==='en'?`"${name}" is still in use`:`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();populateCatSel();showToast(lang==='en'?'Deleted':'Gelöscht');const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?(lang==='en'?`${nc} custom categor${nc===1?'y':'ies'}`:`${nc} eigene Kategorie${nc===1?'':'n'}`):lang==='en'?'Manage categories':'Kategorien verwalten';}}
 async function resetTasks(){
   const myId=me._id?.toString();
   const myTasks=tasks.filter(t=>t.assignee===myId||(t.creatorId===myId&&!isPoolTask(t)));
