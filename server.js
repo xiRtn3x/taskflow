@@ -365,36 +365,202 @@ app.get('/api/calendar/feed.ics', async (req, res) => {
     const user = await db.collection('users').findOne({ token });
     if (!user) return res.status(401).send('Ungültiger Token');
 
+    const uid = user._id.toString();
+
+    // Load all tasks in scope
     const sc = user.groupId
       ? { groupId: user.groupId }
-      : { groupId: null, ownerId: user._id.toString() };
-    const tasks = await db.collection('tasks').find(sc).toArray();
+      : { groupId: null, ownerId: uid };
+    const allTasks = await db.collection('tasks').find(sc).toArray();
 
+    // Load appstate to get pool assignments
+    const stateKey = user.groupId || uid;
+    const stateDoc = await db.collection('appstate').findOne({ _id: stateKey });
+    const poolAssigns = stateDoc?.poolAssigns || {};
+
+    // Helper: get monday of a given date (YYYY-MM-DD)
+    function getMondayOf(dateStr) {
+      const d = new Date(dateStr + 'T00:00:00');
+      const day = d.getDay(); // 0=Sun,1=Mon,...
+      const diff = (day === 0 ? -6 : 1 - day);
+      d.setDate(d.getDate() + diff);
+      return d;
+    }
+    function toDateStr(d) {
+      return d.toISOString().slice(0, 10).replace(/-/g, '');
+    }
+    function icalEscape(s) {
+      return (s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
+    }
+    // Fold long lines per RFC 5545 (max 75 octets)
+    function fold(line) {
+      const bytes = Buffer.from(line, 'utf8');
+      if (bytes.length <= 75) return line;
+      const parts = [];
+      let start = 0;
+      while (start < bytes.length) {
+        const chunk = bytes.slice(start, start + (start === 0 ? 75 : 74));
+        parts.push((start === 0 ? '' : ' ') + chunk.toString('utf8'));
+        start += (start === 0 ? 75 : 74);
+      }
+      return parts.join('\r\n');
+    }
+
+    // ── Build personal task list ──────────────────
+    // Each entry: { title, label, deadline, startDate, prio, cat, done }
+    const myEntries = [];
+
+    for (const t of allTasks) {
+      if (t.done) continue;
+      const tid = t._id.toString();
+      const isPool = t.inPool === true;
+      const isShared = !isPool && t.type === 'shared';
+      const isMine = !isPool && !isShared;
+
+      if (isMine) {
+        // Own task: only if assigned to me
+        if (t.assignee !== uid) continue;
+        if (!t.deadline) continue;
+        myEntries.push({
+          uid: tid,
+          title: t.title,
+          label: '✓',
+          deadline: t.deadline,
+          startDate: t.createdAt ? new Date(t.createdAt).toISOString().slice(0,10) : t.deadline,
+          prio: t.prio || '–',
+          cat: t.cat || '–',
+        });
+
+      } else if (isShared) {
+        // Shared task: only if I am in sharedWith or creator
+        const involved = (t.sharedWith || []).includes(uid) || t.creatorId === uid;
+        if (!involved) continue;
+        if (!t.deadline) continue;
+        myEntries.push({
+          uid: tid,
+          title: t.title,
+          label: '👥',
+          deadline: t.deadline,
+          startDate: t.createdAt ? new Date(t.createdAt).toISOString().slice(0,10) : t.deadline,
+          prio: t.prio || '–',
+          cat: t.cat || '–',
+        });
+
+      } else if (isPool) {
+        const assign = poolAssigns[tid];
+        if (!assign) continue;
+
+        if (t.subtasks && t.subtasks.length > 0 && assign.subtaskAssignments) {
+          // Has subtasks: only include subtasks assigned to me
+          const mySubs = t.subtasks.filter(s =>
+            !s.done && assign.subtaskAssignments[s.id] === uid
+          );
+          if (!mySubs.length) continue;
+          if (!t.deadline) continue;
+          // One entry per subtask
+          for (const sub of mySubs) {
+            myEntries.push({
+              uid: `${tid}-${sub.id}`,
+              title: `${t.title}: ${sub.title}`,
+              label: '🔄',
+              deadline: t.deadline,
+              startDate: t.createdAt ? new Date(t.createdAt).toISOString().slice(0,10) : t.deadline,
+              prio: t.prio || '–',
+              cat: t.cat || '–',
+            });
+          }
+        } else {
+          // No subtasks: only if main assignee is me
+          if (assign.assignedUser !== uid) continue;
+          if (!t.deadline) continue;
+          myEntries.push({
+            uid: tid,
+            title: t.title,
+            label: '🔄',
+            deadline: t.deadline,
+            startDate: t.createdAt ? new Date(t.createdAt).toISOString().slice(0,10) : t.deadline,
+            prio: t.prio || '–',
+            cat: t.cat || '–',
+          });
+        }
+      }
+    }
+
+    // ── Build iCal lines ──────────────────────────
     const lines = [
       'BEGIN:VCALENDAR',
       'VERSION:2.0',
       'PRODID:-//TaskFlow//DE',
       'CALSCALE:GREGORIAN',
-      'X-WR-CALNAME:TaskFlow',
-      'X-WR-CALDESC:Deine TaskFlow-Deadlines',
+      'X-WR-CALNAME:TaskFlow – ' + (user.name || 'Meine Aufgaben'),
+      'X-WR-CALDESC:Persönliche Aufgaben aus TaskFlow',
+      'REFRESH-INTERVAL;VALUE=DURATION:PT1H',
+      'X-PUBLISHED-TTL:PT1H',
     ];
 
-    tasks.filter(t => t.deadline && !t.done).forEach(t => {
-      const date = t.deadline.replace(/-/g, '');
-      const nextDay = new Date(t.deadline + 'T00:00:00');
-      nextDay.setDate(nextDay.getDate() + 1);
-      const end = nextDay.toISOString().slice(0, 10).replace(/-/g, '');
+    // Group entries by calendar week (Mon–Sun of deadline)
+    const byWeek = {};
+    for (const e of myEntries) {
+      const mon = getMondayOf(e.deadline);
+      const key = toDateStr(mon); // YYYYMMDD of monday
+      if (!byWeek[key]) byWeek[key] = { mon, entries: [] };
+      byWeek[key].entries.push(e);
+    }
+
+    // 1. Weekly digest events (one all-day event Mon→Sun per week)
+    for (const [weekKey, { mon, entries }] of Object.entries(byWeek)) {
+      const sun = new Date(mon);
+      sun.setDate(sun.getDate() + 7); // DTEND is exclusive, so +7 = next Monday = full week
+
+      // Build description
+      const poolLines = entries.filter(e => e.label === '🔄').map(e =>
+        `  🔄 ${e.title} (fällig ${e.deadline.slice(8)}.${e.deadline.slice(5,7)}.)`
+      );
+      const ownLines = entries.filter(e => e.label === '✓').map(e =>
+        `  ✓ ${e.title} (fällig ${e.deadline.slice(8)}.${e.deadline.slice(5,7)}.)`
+      );
+      const sharedLines = entries.filter(e => e.label === '👥').map(e =>
+        `  👥 ${e.title} (fällig ${e.deadline.slice(8)}.${e.deadline.slice(5,7)}.)`
+      );
+
+      let desc = '';
+      if (poolLines.length) desc += 'POOL-AUFGABEN:\n' + poolLines.join('\n') + '\n\n';
+      if (ownLines.length) desc += 'EIGENE AUFGABEN:\n' + ownLines.join('\n') + '\n\n';
+      if (sharedLines.length) desc += 'GEMEINSAME AUFGABEN:\n' + sharedLines.join('\n');
+      desc = desc.trim();
+
+      const totalDone = entries.filter(e => e.done).length;
+      const summary = `📋 Meine Aufgaben (${entries.length})`;
+
       lines.push(
         'BEGIN:VEVENT',
-        `UID:${t._id.toString()}@taskflow`,
-        `SUMMARY:${t.title.replace(/\n/g, ' ')}`,
-        `DTSTART;VALUE=DATE:${date}`,
-        `DTEND;VALUE=DATE:${end}`,
-        `DESCRIPTION:Kategorie: ${t.cat || '–'}\\nPriorität: ${t.prio || '–'}`,
-        `STATUS:${t.done ? 'COMPLETED' : 'CONFIRMED'}`,
+        `UID:week-${weekKey}-${uid}@taskflow`,
+        `SUMMARY:${icalEscape(summary)}`,
+        `DTSTART;VALUE=DATE:${toDateStr(mon)}`,
+        `DTEND;VALUE=DATE:${toDateStr(sun)}`,
+        `DESCRIPTION:${icalEscape(desc)}`,
+        'TRANSP:TRANSPARENT',
+        'STATUS:CONFIRMED',
         'END:VEVENT'
       );
-    });
+    }
+
+    // 2. Individual deadline markers (single-day, transparent)
+    for (const e of myEntries) {
+      const nextDay = new Date(e.deadline + 'T00:00:00');
+      nextDay.setDate(nextDay.getDate() + 1);
+      lines.push(
+        'BEGIN:VEVENT',
+        `UID:dl-${e.uid}@taskflow`,
+        `SUMMARY:${icalEscape(e.label + ' ' + e.title)}`,
+        `DTSTART;VALUE=DATE:${e.deadline.replace(/-/g, '')}`,
+        `DTEND;VALUE=DATE:${toDateStr(nextDay)}`,
+        `DESCRIPTION:${icalEscape('Kategorie: ' + e.cat + '\nPriorität: ' + e.prio)}`,
+        'TRANSP:TRANSPARENT',
+        'STATUS:CONFIRMED',
+        'END:VEVENT'
+      );
+    }
 
     lines.push('END:VCALENDAR');
 
