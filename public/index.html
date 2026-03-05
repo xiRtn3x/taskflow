@@ -1149,7 +1149,17 @@ function startPolling(){
   if(pollTimer)clearInterval(pollTimer);
   pollTimer=setInterval(async()=>{
     try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}document.getElementById('notifDot').style.display=r.hasNotifications?'block':'none';document.getElementById('notifBtn').style.display=r.hasNotifications?'flex':'none';}catch(e){}
-  },15000);
+  },3000);
+  // Immediate refresh when app comes back to foreground
+  if(!window._visListenerAdded){
+    window._visListenerAdded=true;
+    document.addEventListener('visibilitychange',async()=>{
+      if(document.visibilityState==='visible'){
+        try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}}
+        catch(e){}
+      }
+    });
+  }
 }
 async function checkNotifs(){
   try{
@@ -1655,9 +1665,56 @@ function renderPool(){
 }
 function setPoolF(id){appstate.poolFilter=id;saveState();renderPool();}
 
+// Returns true if a recurring pool task should appear in this week's shuffle
+function poolTaskEligibleThisWeek(t){
+  if(!t.repeat||t.repeat==='Nie'||t.repeat==='Täglich'||t.repeat==='Wöchentlich')return true;
+  const id=t._id?.toString();
+  const today=new Date();today.setHours(0,0,0,0);
+  // If already assigned this period, skip
+  const lastAssigned=appstate.recurringPoolShown?.[id];
+  if(t.repeat==='Monatlich'){
+    const monthKey=todayStr().slice(0,7); // YYYY-MM
+    if(lastAssigned===monthKey)return false;
+    // Don't assign in last 5 days of month
+    const lastDay=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
+    if(today.getDate()>lastDay-5)return false;
+    // Random chance: ~1 in 3 shuffles this month (roughly weekly shuffles)
+    // Use a deterministic seed per task+week so all users agree
+    const weekKey=weekStart(todayStr());
+    const seed=id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+    const weekNum=Math.floor((new Date(weekKey)-new Date(today.getFullYear(),0,1))/(7*86400000));
+    return((seed+weekNum)%3)===0;
+  }
+  if(t.repeat==='Jährlich'){
+    const yearKey=todayStr().slice(0,4); // YYYY
+    if(lastAssigned===yearKey)return false;
+    // Don't assign in last 2 months of year (Nov, Dec)
+    if(today.getMonth()>=10)return false;
+    // Random chance: ~1 in 12 shuffles per year
+    const weekKey=weekStart(todayStr());
+    const seed=id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
+    const weekNum=Math.floor((new Date(weekKey)-new Date(today.getFullYear(),0,1))/(7*86400000));
+    return((seed+weekNum)%12)===0;
+  }
+  return true;
+}
+
 function shufflePool(){
-  const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  if(!poolable.length){showToast('Keine Pool-Aufgaben');return;}
+  const allPool=tasks.filter(t=>isPoolTask(t)&&!t.done);
+  const poolable=allPool.filter(t=>poolTaskEligibleThisWeek(t));
+  if(!poolable.length){
+    // If there are tasks but none eligible this week, tell user
+    if(allPool.length){showToast('Keine Aufgaben für diese Woche fällig');return;}
+    showToast('Keine Pool-Aufgaben');return;
+  }
+  // Mark recurring tasks as shown for this period
+  if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
+  poolable.forEach(t=>{
+    if(!t.repeat||t.repeat==='Nie')return;
+    const id=t._id?.toString();
+    if(t.repeat==='Monatlich')appstate.recurringPoolShown[id]=todayStr().slice(0,7);
+    if(t.repeat==='Jährlich')appstate.recurringPoolShown[id]=todayStr().slice(0,4);
+  });
   appstate.poolTasks=poolable.map(t=>t._id?.toString());
   const finalAssigns=fairShuffleAssigns(appstate.poolTasks);
   appstate.poolFilter='all';
@@ -1812,7 +1869,49 @@ function toggleVoting(el){selVoting=!selVoting;el.classList.toggle('on',selVotin
 function renderSharedUserPicker(){const others=users.filter(u=>u._id?.toString()!==me._id?.toString());document.getElementById('sharedUsersList').innerHTML=others.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)">${avHTML(u,32)}<span style="flex:1;font-size:14px">${u.name}</span><div class="tog${sharedUsers.has(u._id?.toString())?' on':''}" onclick="toggleSharedUser('${u._id}',this)"></div></div>`).join('');}
 function toggleSharedUser(id,el){if(sharedUsers.has(id))sharedUsers.delete(id);else sharedUsers.add(id);el.classList.toggle('on',sharedUsers.has(id));}
 function setPrio(p,btn){selPrio=p;document.querySelectorAll('#prioSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
-function refreshSubList(){const el=document.getElementById('newSubList');if(!el)return;el.innerHTML=newSubs.map((s,i)=>`<div class="sub-tag"><span class="dragh">${I.grip}</span><span style="flex:1;font-size:13px">${s.title}</span><button onclick="rmSub(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
+function refreshSubList(){
+  const el=document.getElementById('newSubList');if(!el)return;
+  el.innerHTML=newSubs.map((s,i)=>`<div class="sub-tag" data-idx="${i}"><span class="dragh">${I.grip}</span><span style="flex:1;font-size:13px">${s.title}</span><button onclick="rmSub(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');
+  initNewSubDrag();
+}
+function initNewSubDrag(){
+  const el=document.getElementById('newSubList');if(!el)return;
+  let dr=null,startY=0,origIdx=0;
+  function items(){return[...el.querySelectorAll('.sub-tag[data-idx]')];}
+  function start(e){
+    const h=e.target.closest('.dragh');if(!h)return;
+    e.preventDefault();
+    dr=h.closest('.sub-tag');if(!dr)return;
+    origIdx=parseInt(dr.dataset.idx);
+    dr.style.opacity='.4';
+    startY=e.touches?e.touches[0].clientY:e.clientY;
+  }
+  function move(e){
+    if(!dr)return;e.preventDefault();
+    const y=e.touches?e.touches[0].clientY:e.clientY;
+    let target=null;
+    for(const it of items().filter(i=>i!==dr)){
+      const r=it.getBoundingClientRect();
+      if(y<r.top+r.height/2){target=it;break;}
+    }
+    if(target)el.insertBefore(dr,target);else el.appendChild(dr);
+  }
+  function end(){
+    if(!dr)return;
+    dr.style.opacity='';
+    // Reorder newSubs array to match DOM order
+    const order=items().map(el=>parseInt(el.dataset.idx));
+    newSubs=order.map(i=>newSubs[i]);
+    dr=null;
+    refreshSubList();
+  }
+  el.addEventListener('touchstart',start,{passive:false});
+  el.addEventListener('touchmove',move,{passive:false});
+  el.addEventListener('touchend',end);
+  el.addEventListener('mousedown',start);
+  el.addEventListener('mousemove',move);
+  el.addEventListener('mouseup',end);
+}
 function addNewSub(){const inp=document.getElementById('newSubInp');const v=inp.value.trim();if(!v)return;newSubs.push({id:uid(),title:v,done:false});inp.value='';refreshSubList();}
 function rmSub(i){newSubs.splice(i,1);refreshSubList();}
 
