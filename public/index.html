@@ -601,27 +601,12 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       </div>
     </div>
 
-    <!-- SEKTION: Pool-Einstellungen -->
+    <!-- SEKTION: Pool-Einstellungen → Untermenü -->
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg> <span id="secPoolLbl">Pool-Einstellungen</span></div></div>
     <div class="fg" style="padding-top:4px">
-      <div class="crow" style="cursor:default;padding:12px 14px">
-        <div style="flex:1">
-          <div style="font-size:14px;font-weight:600" id="autoShuffleLbl">Automatisch neu mischen</div>
-          <div style="font-size:12px;color:var(--text3);margin-top:2px" id="autoShuffleSub">Jede Woche automatisch um 0:01 Uhr</div>
-        </div>
-        <button id="autoShuffleToggle" class="tog on" onclick="toggleAutoShuffle(this)" aria-label="Auto Reshuffle"></button>
-      </div>
-      <div id="shuffleDayRow" class="crow" style="cursor:default;padding:8px 14px 12px">
-        <span style="font-size:14px;color:var(--text2);flex:1" id="shuffleDayLbl">Wochentag</span>
-        <select id="shuffleDaySelect" onchange="setShuffleDay(parseInt(this.value))" style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:7px 10px;font-size:14px;color:var(--text);font-family:inherit;cursor:pointer;outline:none">
-          <option value="1" id="sdMo">Montag</option>
-          <option value="2" id="sdDi" selected>Dienstag</option>
-          <option value="3" id="sdMi">Mittwoch</option>
-          <option value="4" id="sdDo">Donnerstag</option>
-          <option value="5" id="sdFr">Freitag</option>
-          <option value="6" id="sdSa">Samstag</option>
-          <option value="0" id="sdSo">Sonntag</option>
-        </select>
+      <div onclick="openPoolMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
+        <div id="profPoolPreview" style="flex:1;font-size:13px;color:var(--text3)">Auto · Di</div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
 
@@ -698,6 +683,39 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <span class="mclose" id="grpCloseBtn" onclick="closeGruppenMenu()">Schließen</span>
     </div>
     <div id="gruppenContent" style="padding:0 16px 24px"></div>
+  </div>
+</div>
+
+<!-- POOL EINSTELLUNGEN UNTERMENÜ -->
+<div class="ov" id="poolOv">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr">
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg> <span id="poolMenuTitle">Pool-Einstellungen</span></div>
+      <span class="mclose" id="poolCloseBtn" onclick="closePoolMenu()">Schließen</span>
+    </div>
+    <div style="padding:0 16px 32px">
+      <div class="crow" style="cursor:default;padding:16px 0">
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600" id="autoShuffleLbl">Automatisch neu mischen</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:3px" id="autoShuffleSub">Jede Woche automatisch um 0:01 Uhr</div>
+        </div>
+        <button id="autoShuffleToggle" class="tog on" onclick="toggleAutoShuffle(this)" aria-label="Auto Reshuffle"></button>
+      </div>
+      <div style="height:1px;background:var(--sep)"></div>
+      <div id="shuffleDayRow" class="crow" style="cursor:default;padding:16px 0">
+        <span style="font-size:15px;color:var(--text);flex:1;font-weight:500" id="shuffleDayLbl">Wochentag</span>
+        <select id="shuffleDaySelect" onchange="setShuffleDay(parseInt(this.value))" style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:8px 12px;font-size:14px;color:var(--text);font-family:inherit;cursor:pointer;outline:none">
+          <option value="1" id="sdMo">Montag</option>
+          <option value="2" id="sdDi" selected>Dienstag</option>
+          <option value="3" id="sdMi">Mittwoch</option>
+          <option value="4" id="sdDo">Donnerstag</option>
+          <option value="5" id="sdFr">Freitag</option>
+          <option value="6" id="sdSa">Samstag</option>
+          <option value="0" id="sdSo">Sonntag</option>
+        </select>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -807,7 +825,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div class="det-sheet">
     <div class="handle" style="margin-top:10px"></div>
     <div class="mhdr">
-      <div class="mtitle" id="detailTitle">Aufgabe</div>
+      <div class="mtitle" id="detailTitle" style="font-size:22px;letter-spacing:-.4px;line-height:1.3;max-width:calc(100% - 90px)">Aufgabe</div>
       <span style="color:var(--acc);cursor:pointer;font-size:15px;font-weight:600" id="detEditBtn" onclick="editCurrent()">Bearbeiten</span>
     </div>
     <div id="detailContent"></div>
@@ -1084,6 +1102,9 @@ function applyLang() {
   s('kalFootnote', de?'Nur Aufgaben mit gesetzter Deadline erscheinen im Kalender.':'Only tasks with a deadline appear in the calendar.');
   s('icalLoading', de?'Wird geladen…':'Loading…');
   s('secPoolLbl', de?'Pool-Einstellungen':'Pool Settings');
+  s('poolMenuTitle', de?'Pool-Einstellungen':'Pool Settings');
+  s('poolCloseBtn', de?'Schließen':'Close');
+  updatePoolPreview();
   s('autoShuffleLbl', de?'Automatisch neu mischen':'Auto Reshuffle');
   s('autoShuffleSub', de?'Jede Woche automatisch um 0:01 Uhr':'Every week automatically at 00:01');
   s('shuffleDayLbl', de?'Wochentag':'Day of week');
@@ -1700,7 +1721,7 @@ function taskHTML(t,showBar=false){
   const effId=asgn?.assignedUser||t.assignee;
   const col=uColor(effId);const u=isPoolTask(t)?uById(effId):uById(t.assignee);
   const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();
-  const aname=u?u.name:(t.assignee==='all'?'Alle':'');
+  const aname=u?u.name:(t.assignee==='all'?(lang==='en'?'All':'Alle'):'');
   const creatorNote=isMyTask(t)&&t.creatorId&&t.creatorId!==t.assignee?uById(t.creatorId)?.name:'';
   const canDo=canComplete(t);
   const chkClick=canDo?`event.stopPropagation();toggleTask('${t._id}',true)`:`event.stopPropagation();showToast(lang==='en'?'Not your task':'Nicht deine Aufgabe')`;
@@ -1987,7 +2008,7 @@ function toggleAutoShuffle(btn){
   appstate.autoShuffleEnabled=on;saveState();
   const row=document.getElementById('shuffleDayRow');
   if(row)row.style.display=on?'flex':'none';
-  render();
+  updatePoolPreview();render();
 }
 function setShuffleDay(d){
   appstate.autoShuffleDay=d;saveState();
@@ -2002,6 +2023,16 @@ function initPoolSettings(){
   const day=appstate.autoShuffleDay??2;
   const sel=document.getElementById('shuffleDaySelect');
   if(sel)sel.value=String(day);
+  updatePoolPreview();
+}
+function updatePoolPreview(){
+  const p=document.getElementById('profPoolPreview');if(!p)return;
+  const on=appstate.autoShuffleEnabled!==false;
+  const day=appstate.autoShuffleDay??2;
+  const dDE=['So','Mo','Di','Mi','Do','Fr','Sa'];
+  const dEN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayStr=lang==='en'?dEN[day]:dDE[day];
+  p.textContent=on?`Auto · ${dayStr}`:(lang==='en'?'Manual':'Manuell');
 }
 function shufflePool(){
   const allPool=tasks.filter(t=>isPoolTask(t)&&!t.done);
@@ -2103,12 +2134,12 @@ function openDetail(id){
       voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} ${lang==='en'?'votes':'Stimmen'}${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">${lang==='en'?'Vote now':'Jetzt abstimmen'} ${poopSVG(13)}</button>`:''}</div></div>`;
     }
   }
-  document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
+  document.getElementById('detailContent').innerHTML=`<div style="padding:14px 14px 10px"><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
   <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Assigned to':'Zuständig'}</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">Deadline</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Pool':'Pool'}</span><span style="color:var(--green);font-size:14px">${I.check} ${lang==='en'?'Yes':'Ja'}</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Shared':'Gemeinsam'}</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
   </div>${subsH}${voteSection}
   <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?(lang==='en'?'Reopen':'Wieder öffnen'):(lang==='en'?'Mark as done':'Als erledigt markieren')}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">${lang==='en'?(isPoolTask(t)?'Only the assigned user can complete this task':'Only the task creator can complete this task'):(isPoolTask(t)?'Nur der zugewiesene Nutzer kann diese Aufgabe abschließen':'Nur der Aufgaben-Ersteller kann diese Aufgabe abschließen')}</div>`}</div>
   <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} ${lang==='en'?'Delete':'Löschen'}</button></div>`;
-  const dt=document.getElementById('detailTitle');if(dt)dt.textContent=t.title.length>28?t.title.slice(0,27)+'…':t.title;
+  const dt=document.getElementById('detailTitle');if(dt)dt.textContent=t.title;
   document.getElementById('taskDetail').classList.add('open');
   if(t.subtasks?.length)setTimeout(()=>initSubDrag(id),60);
 }
@@ -2305,6 +2336,11 @@ async function editGroupInMenu(){
 }
 
 // ── SUBMENU: KATEGORIEN ──
+function openPoolMenu(){
+  initPoolSettings();
+  document.getElementById('poolOv').classList.add('open');
+}
+function closePoolMenu(){document.getElementById('poolOv').classList.remove('open');}
 function openKatMenu(){renderCatList();buildIconPickerGrid();document.getElementById('katOv').classList.add('open');const _kt=document.getElementById('katMenuTitle');if(_kt)_kt.textContent=lang==='en'?'Categories':'Kategorien';const _ph=document.getElementById('newCatName');if(_ph)_ph.placeholder=lang==='en'?'New category…':'Neue Kategorie…';}
 function closeKatMenu(){document.getElementById('katOv').classList.remove('open');}
 
