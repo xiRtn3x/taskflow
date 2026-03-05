@@ -2205,7 +2205,7 @@ function shufflePool(){
       // Show balance info
       const uids=users.map(u=>u._id?.toString());
       const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=appstate.poolTasks.filter(id=>finalAssigns[id]?.assignedUser===uid);const totalScore=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: ${poopSVG(10)}${totalScore.toFixed(1)}`;}).join(' · ');
-      document.getElementById('slotSub').textContent=scoreInfo||(lang==='en'?'Done! Fairly distributed.':'Fertig! Ausgeglichen verteilt.');
+      document.getElementById('slotSub').innerHTML=scoreInfo||(lang==='en'?'Done! Fairly distributed.':'Fertig! Ausgeglichen verteilt.');
       setTimeout(closeSlot,2500);
     }
   },80);
