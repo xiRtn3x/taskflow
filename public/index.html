@@ -1600,8 +1600,15 @@ function renderPool(){
     appstate.poolTasks=[...(appstate.poolTasks||[]),...newIds];
     saveState();
   }
-  // F7: only show tasks in pool tab if voting is done (or voting not enabled)
-  const visibleInPool=poolable.filter(t=>!t.votingEnabled||hasFullScore(t));
+  // F7: show tasks if:
+  // (a) voting not enabled, OR
+  // (b) already assigned via shuffle (poolAssigns entry exists) → always show, OR
+  // (c) voting fully done (hasFullScore)
+  const visibleInPool=poolable.filter(t=>{
+    if(!t.votingEnabled)return true;
+    if(appstate.poolAssigns?.[t._id?.toString()])return true; // already shuffled → always visible
+    return hasFullScore(t);
+  });
   const pf=appstate.poolFilter||'all';
   const pfBar=document.getElementById('poolFbar');pfBar.className='seg';
   pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
