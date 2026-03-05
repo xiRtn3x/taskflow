@@ -245,15 +245,20 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 </style>
 </head>
-<body>
+<body class="th-dark">
 
 <!-- ONBOARDING -->
 <div class="onboard" id="onboard">
   <!-- ob1: Name -->
   <div id="ob1" class="ob-glass">
     <div class="ob-logo">
-      <div style="color:var(--acc);margin-bottom:12px"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
-      <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">TaskFlow</div>
+      <div style="margin-bottom:16px">
+        <div style="width:72px;height:72px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(91,91,214,.4),inset 0 1px 0 rgba(255,255,255,.25);margin:0 auto;position:relative;overflow:hidden">
+          <div style="position:absolute;top:-30%;left:-20%;width:80%;height:60%;background:rgba(255,255,255,.15);border-radius:50%;filter:blur(10px)"></div>
+          <svg width="36" height="36" viewBox="0 0 42 42" fill="none"><rect x="8" y="14" width="5" height="20" rx="2.5" fill="white" opacity=".9"/><rect x="18.5" y="8" width="5" height="26" rx="2.5" fill="white"/><rect x="29" y="18" width="5" height="16" rx="2.5" fill="white" opacity=".75"/><path d="M9 10 Q21 4 33 10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity=".35"/></svg>
+        </div>
+      </div>
+      <div style="font-size:26px;font-weight:800;letter-spacing:-.5px">Task<span style="color:#818CF8">Flow</span></div>
       <div style="font-size:13px;color:var(--text3);margin-top:4px">Gemeinsam mehr erledigen.</div>
     </div>
     <label class="fl">Dein Name</label>
@@ -313,7 +318,14 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <div></div><div class="pin-key" onclick="obPinKey('0')">0</div>
       <div class="pin-key" onclick="obPinDel()" style="font-size:16px">⌫</div>
     </div>
-    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" onclick="showOb(2)">← Überspringen</button>
+    <div style="display:flex;align-items:center;gap:12px;background:rgba(91,91,214,.1);border:1px solid rgba(91,91,214,.2);border-radius:12px;padding:12px 14px;margin-top:12px">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600;color:var(--text)">PIN auf Gerät speichern</div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">Beim nächsten Start direkt zur App</div>
+      </div>
+      <button class="tog" id="pinSaveTog" onclick="this.classList.toggle('on')"></button>
+    </div>
+    <button class="btn btn-g" style="display:block;width:100%;text-align:center;margin-top:8px" onclick="obSkipPin()">Überspringen</button>
   </div>
   <!-- PIN-Login (ob5) -->
   <div id="ob5" style="display:none" class="ob-glass">
@@ -418,7 +430,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <!-- PAGE 1: POOL -->
     <div class="page" id="pgPool">
       <div style="padding:10px 14px 4px"><div class="seg" id="poolFbar"></div></div>
-      <div style="padding:0 14px 10px">
+      <div id="shuffleWrap" style="padding:0 14px 10px;display:none">
         <button onclick="shufflePool()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
           Neu mischen
@@ -1039,8 +1051,9 @@ async function init(){
   if(myToken){
     const savedPin=localStorage.getItem('tf_pin');
     const pinAlreadyUnlocked=sessionStorage.getItem('tf_pin_ok')==='1';
-    // PIN only required after explicit logout — not on every page load
-    if(savedPin&&!pinAlreadyUnlocked){
+    const pinAutoLogin=localStorage.getItem('tf_pin_auto')==='1';
+    // PIN only required after explicit logout and if auto-login not enabled
+    if(savedPin&&!pinAlreadyUnlocked&&!pinAutoLogin){
       // Show PIN screen before granting access
       hideLoader();
       const savedName=localStorage.getItem('tf_pin_name')||'';
@@ -1561,6 +1574,8 @@ function fairShuffleAssigns(ids){
 }
 
 function renderPool(){
+  const _sw=document.getElementById('shuffleWrap');
+  if(_sw)_sw.style.display=(group&&users.length>=2)?'block':'none';
   // Gate: no group or not enough members
   const poolGateC=document.getElementById('poolContainer');
   if(!group||users.length<2){
@@ -2123,10 +2138,11 @@ function obPinKey(k){
   obPinBuf+=k;
   updatePinDots('opd',obPinBuf.length);
   if(obPinBuf.length===4){
-    // simple hash: XOR + sum based
-    const h=pinHash(obPinBuf);
-    localStorage.setItem('tf_pin',h);
+    const ph=pinHash(obPinBuf);
+    const savePin=document.getElementById('pinSaveTog')?.classList?.contains('on');
+    localStorage.setItem('tf_pin',ph);
     localStorage.setItem('tf_pin_name',me?.name||'');
+    if(savePin){localStorage.setItem('tf_pin_auto','1');}else{localStorage.removeItem('tf_pin_auto');}
     obPinBuf='';
     showToast('PIN gesetzt ✓');
     setTimeout(async()=>{
@@ -2135,6 +2151,7 @@ function obPinKey(k){
   }
 }
 function obPinDel(){if(obPinBuf.length>0){obPinBuf=obPinBuf.slice(0,-1);updatePinDots('opd',obPinBuf.length);}}
+function obSkipPin(){localStorage.removeItem('tf_pin');localStorage.removeItem('tf_pin_name');localStorage.removeItem('tf_pin_auto');if(obPendingMode==='solo')finishSolo();}
 function updatePinDots(prefix,len){for(let i=0;i<4;i++){const d=document.getElementById(prefix+i);if(d)d.classList.toggle('filled',i<len);}}
 
 // PIN login (returning user)
@@ -2166,7 +2183,7 @@ function pinHash(pin){
   for(let i=0;i<pin.length;i++){h^=pin.charCodeAt(i);h=(h*0x01000193)>>>0;}
   return h.toString(16)+pin.split('').reduce((a,c,i)=>a+(c.charCodeAt(0)*(i+7)),0).toString(36);
 }
-function doLogout(){if(!confirm("Wirklich abmelden?"))return;sessionStorage.removeItem("tf_pin_ok");localStorage.removeItem("tf_token");myToken=null;me=null;location.reload();}
+function doLogout(){if(!confirm("Wirklich abmelden?"))return;sessionStorage.removeItem("tf_pin_ok");localStorage.removeItem("tf_pin_auto");localStorage.removeItem("tf_token");myToken=null;me=null;location.reload();}
 function pinLogout(){sessionStorage.removeItem('tf_pin_ok');localStorage.removeItem('tf_token');localStorage.removeItem('tf_pin');localStorage.removeItem('tf_pin_name');myToken=null;me=null;location.reload();}
 
 async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast('Name eingeben');return;}
