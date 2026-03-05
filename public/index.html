@@ -395,7 +395,6 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         </button>
         <button class="nav-btn" onclick="openProfile()" id="avBtn">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <span class="notif-dot" id="ndot" style="display:none"></span>
         </button>
       </div>
     </div>
@@ -471,7 +470,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <span class="tab-lbl">Vote</span>
     </div>
   </div>
-  <button class="fab" id="fabBtn" onclick="showAddTask()">
+  <button class="fab" id="fabBtn" onclick="showAddTask(null, curTab===1?'pool':null)">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 </div>
@@ -612,6 +611,14 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
+    <!-- SEKTION: Kalenderintegration → Untermenü -->
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Kalenderintegration</div></div>
+    <div class="fg" style="padding-top:4px">
+      <div onclick="openKalMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
+        <div style="flex:1;font-size:14px;color:var(--text2)">iCal-Link · Outlook · Apple</div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
     <div style="height:8px"></div>
   </div>
 </div>
@@ -691,10 +698,63 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         <div style="flex:1"><div style="font-size:14px;font-weight:600;color:var(--red)">Admin-Bereich</div><div style="font-size:12px;color:var(--text3)">Nur mit PIN</div></div>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3)"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
+      <button class="btn btn-out" style="font-size:14px;gap:6px" onclick="doLogout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Abmelden</button>
       <button class="btn btn-d" style="font-size:14px;gap:6px" onclick="resetTasks()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>Aufgaben zurücksetzen</button>
       <button class="btn btn-d" style="font-size:14px" onclick="deleteAccount()">Account löschen</button>
     </div>
     <div style="height:16px"></div>
+  </div>
+</div>
+
+<!-- KALENDERINTEGRATION UNTERMENÜ -->
+<div class="ov" id="kalOv">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr">
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Kalenderintegration
+      </div>
+      <span class="mclose" onclick="closeKalMenu()">Schließen</span>
+    </div>
+    <div style="padding:0 16px 24px;display:flex;flex-direction:column;gap:16px">
+
+      <!-- Erklärung -->
+      <div style="font-size:14px;color:var(--text2);line-height:1.6">
+        Abonniere deine TaskFlow-Deadlines direkt in deinem Kalender. Der Link aktualisiert sich automatisch — einmal einrichten, immer aktuell.
+      </div>
+
+      <!-- iCal Link Box -->
+      <div>
+        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Dein persönlicher iCal-Link</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div id="icalLinkBox" style="flex:1;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:11px 13px;font-size:12px;color:var(--text3);word-break:break-all;font-family:monospace;line-height:1.5">Wird geladen…</div>
+          <button onclick="copyIcalLink()" style="flex-shrink:0;padding:11px 14px;background:var(--acc);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">Kopieren</button>
+        </div>
+      </div>
+
+      <!-- Anleitungen -->
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">So trägst du den Link ein</div>
+
+        <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden">
+          <div style="padding:12px 14px;border-bottom:1px solid var(--sep)">
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px">📅 Outlook (Web & Desktop)</div>
+            <div style="font-size:12px;color:var(--text3);line-height:1.6">Kalender öffnen → Kalender hinzufügen → Aus dem Internet abonnieren → Link einfügen</div>
+          </div>
+          <div style="padding:12px 14px;border-bottom:1px solid var(--sep)">
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px">🍎 Apple Kalender</div>
+            <div style="font-size:12px;color:var(--text3);line-height:1.6">Ablage → Neues Kalenderabonnement → Link einfügen → Abonnieren</div>
+          </div>
+          <div style="padding:12px 14px">
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px">📆 Google Kalender</div>
+            <div style="font-size:12px;color:var(--text3);line-height:1.6">Andere Kalender → Per URL → Link einfügen → Kalender hinzufügen</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-size:12px;color:var(--text3);text-align:center">Nur Aufgaben mit gesetzter Deadline erscheinen im Kalender.</div>
+    </div>
   </div>
 </div>
 
@@ -957,15 +1017,20 @@ async function checkNewTasks(){
   try{
     const lastVisit=me.lastVisit?new Date(me.lastVisit):null;if(!lastVisit)return;
     const today=new Date();today.setHours(0,0,0,0);
-    const tomorrow=new Date(today);tomorrow.setDate(tomorrow.getDate()+1);
-    const newT=tasks.filter(t=>{if(t.done)return false;const cr=new Date(t.createdAt||0);const isNew=cr>lastVisit;const dueToday=t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime();return(isNew&&visibleToMe(t))||(dueToday&&visibleToMe(t));});
-    if(!newT.length)return;
-    const msgs=[];const cr2=newT.filter(t=>new Date(t.createdAt||0)>lastVisit&&visibleToMe(t));
-    if(cr2.length)msgs.push(`${cr2.length} neue Aufgabe${cr2.length>1?'n':''}`);
-    const dT=newT.filter(t=>t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime());
-    if(dT.length)msgs.push(`${dT.length} fällig heute`);
-    if(msgs.length){showToast(msgs.join(' · '));msgs.forEach(m=>addNotif(m));}
-    const badge=document.getElementById('ndot');if(badge&&newT.length)badge.style.display='block';
+    let hasNew=false;
+    tasks.filter(t=>!t.done&&new Date(t.createdAt||0)>lastVisit&&visibleToMe(t)).forEach(t=>{
+      const creator=uById(t.creatorId);const who=creator&&creator._id?.toString()!==me._id?.toString()?creator.name:null;
+      const typeLabel=isPoolTask(t)?'Pool-Aufgabe':isSharedTask(t)?'gemeinsame Aufgabe':'Aufgabe';
+      addNotif(who?`${who} hat eine neue ${typeLabel} erstellt: „${t.title}“`:`Neue ${typeLabel}: „${t.title}“`);
+      hasNew=true;
+    });
+    tasks.filter(t=>!t.done&&t.deadline&&new Date(t.deadline+'T00:00:00').getTime()===today.getTime()&&visibleToMe(t)).forEach(t=>{
+      addNotif(`Fällig heute: „${t.title}“`);hasNew=true;
+    });
+    tasks.filter(t=>needsMyVote(t)).forEach(t=>{
+      addNotif(`Deine Bewertung steht aus für: „${t.title}“`);hasNew=true;
+    });
+    if(hasNew){document.getElementById('notifDot').style.display='block';document.getElementById('notifBtn').style.display='flex';}
   }catch(e){}
 }
 
@@ -975,7 +1040,7 @@ async function checkNewTasks(){
 function startPolling(){
   if(pollTimer)clearInterval(pollTimer);
   pollTimer=setInterval(async()=>{
-    try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}document.getElementById('ndot').style.display=r.hasNotifications?'block':'none';}catch(e){}
+    try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}document.getElementById('notifDot').style.display=r.hasNotifications?'block':'none';document.getElementById('notifBtn').style.display=r.hasNotifications?'flex':'none';}catch(e){}
   },15000);
 }
 async function checkNotifs(){
@@ -985,7 +1050,7 @@ async function checkNotifs(){
       ns.forEach(n=>{const txt=n.text||n.message||'';if(txt)addNotif(txt);});
       showToast(ns[0].text||ns[0].message||'');
       await api('DELETE','/users/notifications');
-      document.getElementById('ndot').style.display='none';
+      document.getElementById('notifDot').style.display='none';
     }
   }catch(e){}
 }
@@ -1033,10 +1098,7 @@ function render(){
   document.getElementById('navUser').textContent=me.name;
   // Update avatar without touching ndot, to avoid resetting its visibility
   const ab=document.getElementById('avBtn');
-  const ndotEl=document.getElementById('ndot');
-  const ndotDisplay=ndotEl?ndotEl.style.display:'none';
-  ab.innerHTML=me.photo?`<img src="${me.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover"><span class="notif-dot" id="ndot"></span>`:`<span style="font-size:12px;font-weight:700;color:${me.color}">${me.name[0]}</span><span class="notif-dot" id="ndot"></span>`;
-  const newDot=document.getElementById('ndot');if(newDot)newDot.style.display=ndotDisplay;
+  ab.innerHTML=me.photo?`<img src="${me.photo}" style="width:22px;height:22px;border-radius:50%;object-fit:cover">`:`<span style="font-size:12px;font-weight:700;color:${me.color}">${me.name[0]}</span>`;
   renderMy();
   if(curTab===1)renderPool();
   if(curTab===2)renderCalendar();
@@ -1430,10 +1492,9 @@ function renderPool(){
   const c=document.getElementById('poolContainer');
   if(!toShow.length&&!poolable.length){
     const grpBtns=!group?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:0 8px">
-      <button onclick="createGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">+ Gruppe erstellen</button>
-      <button onclick="joinGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">Gruppe beitreten</button>
-    </div>`:'';
-    c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">Kein Pool</div><div class="empty-s">Erstelle Aufgaben vom Typ "Pool"</div>${grpBtns}</div>`;return;}
+      <button onclick="createGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Gruppe erstellen</button>
+      <button onclick="joinGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>Gruppe beitreten</button>
+    </div>`:'';return;}
   // Show tasks waiting for shuffle
   const unassigned=visibleInPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]);
   const waitingVote=poolable.filter(t=>t.votingEnabled&&!hasFullScore(t));
@@ -1513,7 +1574,7 @@ function shufflePool(){
         const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
         const assignedUid=asgn.assignedUser;
         if(assignedUid!==me._id?.toString()){
-          notifyUser(assignedUid,'Du wurdest für die Pool-Aufgabe "'+t.title+'" eingeteilt');
+          const _st=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});notifyUser(assignedUid,'Pool-Shuffle um '+_st+': Du bist jetzt zuständig für „'+t.title+'“');
         }
       });
       appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:14px;font-weight:800">${u?.name||'?'}</div>`;});
@@ -1647,7 +1708,7 @@ function refreshSubList(){const el=document.getElementById('newSubList');if(!el)
 function addNewSub(){const inp=document.getElementById('newSubInp');const v=inp.value.trim();if(!v)return;newSubs.push({id:uid(),title:v,done:false});inp.value='';refreshSubList();}
 function rmSub(i){newSubs.splice(i,1);refreshSubList();}
 
-function showAddTask(editId=null){
+function showAddTask(editId=null, forceType=null){
   editingId=editId;const t=editId?tasks.find(t=>t._id?.toString()===editId):null;
   newSubs=t?[...(t.subtasks||[])].map(s=>({...s})):[];sharedUsers=new Set(t?.sharedWith||[]);
   selVoting=t?.votingEnabled||false;
@@ -1660,7 +1721,7 @@ function showAddTask(editId=null){
   document.getElementById('fRepeat').value=t?.repeat||'Nie';
   selPrio=t?.prio||'Mittel';
   document.querySelectorAll('#prioSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',['Hoch','Mittel','Niedrig'][i]===selPrio));
-  const tp=t?.type||'mine';selType=tp;
+  const tp=forceType||(t?.type||'mine');selType=tp;
   document.querySelectorAll('#typeSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',['mine','pool','shared'][i]===tp));
   document.getElementById('assigneeWrap').style.display=tp==='mine'?'block':'none';
   document.getElementById('sharedUsersWrap').style.display=tp==='shared'?'block':'none';
@@ -1731,6 +1792,24 @@ function closeKatMenu(){document.getElementById('katOv').classList.remove('open'
 // ── SUBMENU: ACCOUNT ──
 function openAccountMenu(){document.getElementById('accountOv').classList.add('open');}
 function closeAccountMenu(){document.getElementById('accountOv').classList.remove('open');}
+
+// ── KALENDERINTEGRATION ──
+function openKalMenu(){
+  const base=window.location.origin;
+  const token=localStorage.getItem('tf_token')||'';
+  const link=`${base}/calendar/feed.ics?token=${token}`;
+  const box=document.getElementById('icalLinkBox');
+  if(box)box.textContent=link;
+  document.getElementById('kalOv').classList.add('open');
+}
+function closeKalMenu(){document.getElementById('kalOv').classList.remove('open');}
+function copyIcalLink(){
+  const box=document.getElementById('icalLinkBox');
+  if(!box)return;
+  navigator.clipboard?.writeText(box.textContent).then(()=>showToast('Link kopiert!')).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=box.textContent;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showToast('Link kopiert!');
+  });
+}
 function renderGroupSection(){
   // Render into gruppenContent (inside the submenu overlay)
   const gs=document.getElementById('gruppenContent');if(!gs)return;
@@ -1993,6 +2072,7 @@ function pinHash(pin){
   for(let i=0;i<pin.length;i++){h^=pin.charCodeAt(i);h=(h*0x01000193)>>>0;}
   return h.toString(16)+pin.split('').reduce((a,c,i)=>a+(c.charCodeAt(0)*(i+7)),0).toString(36);
 }
+function doLogout(){if(!confirm("Wirklich abmelden?"))return;sessionStorage.removeItem("tf_pin_ok");localStorage.removeItem("tf_token");myToken=null;me=null;location.reload();}
 function pinLogout(){sessionStorage.removeItem('tf_pin_ok');localStorage.removeItem('tf_token');localStorage.removeItem('tf_pin');localStorage.removeItem('tf_pin_name');myToken=null;me=null;location.reload();}
 
 async function obCreateGroup(){const name=document.getElementById('ob-gname').value.trim();if(!name){showToast('Name eingeben');return;}
