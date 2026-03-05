@@ -601,6 +601,30 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       </div>
     </div>
 
+    <!-- SEKTION: Pool-Einstellungen -->
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg> <span id="secPoolLbl">Pool-Einstellungen</span></div></div>
+    <div class="fg" style="padding-top:4px">
+      <div class="crow" style="cursor:default;padding:12px 14px">
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:600" id="autoShuffleLbl">Automatisch neu mischen</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px" id="autoShuffleSub">Jede Woche automatisch um 0:01 Uhr</div>
+        </div>
+        <label class="tog-wrap"><input type="checkbox" id="autoShuffleToggle" onchange="toggleAutoShuffle(this.checked)" checked><span class="tog"></span></label>
+      </div>
+      <div id="shuffleDayRow" class="crow" style="cursor:default;padding:8px 14px 12px">
+        <span style="font-size:14px;color:var(--text2);flex:1" id="shuffleDayLbl">Wochentag</span>
+        <select id="shuffleDaySelect" onchange="setShuffleDay(parseInt(this.value))" style="background:var(--glass);border:1px solid var(--glass-border);border-radius:10px;padding:7px 10px;font-size:14px;color:var(--text);font-family:inherit;cursor:pointer;outline:none">
+          <option value="1" id="sdMo">Montag</option>
+          <option value="2" id="sdDi" selected>Dienstag</option>
+          <option value="3" id="sdMi">Mittwoch</option>
+          <option value="4" id="sdDo">Donnerstag</option>
+          <option value="5" id="sdFr">Freitag</option>
+          <option value="6" id="sdSa">Samstag</option>
+          <option value="0" id="sdSo">Sonntag</option>
+        </select>
+      </div>
+    </div>
+
     <!-- SEKTION: Gruppe → Untermenü -->
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span id="secGrpLbl">Gruppe</span></div></div>
     <div class="fg" style="padding-top:4px">
@@ -623,7 +647,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <span id="secKalLbl">Kalenderintegration</span></div></div>
     <div class="fg" style="padding-top:4px">
       <div onclick="openKalMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
-        <div style="flex:1;font-size:13px;color:var(--text3)"id="kalPreview">iCal-Link · Outlook · Apple</div>
+        <div style="flex:1;font-size:13px;color:var(--text3)"id="kalPreview">iCal-Link · Outlook · Apple · Android</div>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
@@ -682,7 +706,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div class="sheet">
     <div class="handle"></div>
     <div class="mhdr">
-      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> Kategorien</div>
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg> <span id="katMenuTitle">Kategorien</span></div>
       <span class="mclose" id="katCloseBtn" onclick="closeKatMenu()">Schließen</span>
     </div>
     <div style="padding:0 16px 8px">
@@ -755,16 +779,20 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 
         <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden">
           <div style="padding:12px 14px;border-bottom:1px solid var(--sep)">
-            <div style="font-size:13px;font-weight:700;margin-bottom:2px">📅 Outlook (Web & Desktop)</div>
+            <div style="font-size:13px;font-weight:700;margin-bottom:2px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Outlook (Web &amp; Desktop)</div>
             <div id="kalOutlookDesc" style="font-size:12px;color:var(--text3);line-height:1.6">Kalender öffnen → Kalender hinzufügen → Aus dem Internet abonnieren → Link einfügen</div>
           </div>
           <div style="padding:12px 14px;border-bottom:1px solid var(--sep)">
-            <div id="kalAppleTitle" style="font-size:13px;font-weight:700;margin-bottom:2px">🍎 Apple Kalender</div>
+            <div id="kalAppleTitle" style="font-size:13px;font-weight:700;margin-bottom:2px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 5.44-3 7-5.06A8 8 0 0 0 5 10c-1.5 2-2 4-2 5a8 8 0 0 0 9 5.94z"/><path d="M12 7c0-3 2-5 4-5"/></svg> Apple Kalender</div>
             <div id="kalAppleDesc" style="font-size:12px;color:var(--text3);line-height:1.6">Ablage → Neues Kalenderabonnement → Link einfügen → Abonnieren</div>
           </div>
           <div style="padding:12px 14px">
-            <div id="kalGoogleTitle" style="font-size:13px;font-weight:700;margin-bottom:2px">📆 Google Kalender</div>
+            <div id="kalGoogleTitle" style="font-size:13px;font-weight:700;margin-bottom:2px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Google Kalender</div>
             <div id="kalGoogleDesc" style="font-size:12px;color:var(--text3);line-height:1.6">Andere Kalender → Per URL → Link einfügen → Kalender hinzufügen</div>
+          </div>
+          <div style="padding:12px 14px;border-top:1px solid var(--sep)">
+            <div id="kalAndroidTitle" style="font-size:13px;font-weight:700;margin-bottom:2px"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg> Android (Google Kalender)</div>
+            <div id="kalAndroidDesc" style="font-size:12px;color:var(--text3);line-height:1.6">Google Kalender App → Einstellungen → Konto hinzufügen → Weitere → iCal-URL einfügen</div>
           </div>
         </div>
       </div>
@@ -992,14 +1020,17 @@ function applyLang() {
   });
   s('secKatLbl', de?'Kategorien':'Categories');
   s('secKalLbl', de?'Kalenderintegration':'Calendar integration');
-  s('kalPreview', de?'iCal-Link · Outlook · Apple':'iCal link · Outlook · Apple');
+  s('kalPreview', de?'iCal-Link · Outlook · Apple · Android':'iCal link · Outlook · Apple · Android');
   s('accPreview', de?'Admin · Aufgaben · Account':'Admin · Tasks · Account');
   // Submenus close buttons
   s('notifCloseBtn', de?'Schließen':'Close');
   s('adminCloseBtn', de?'Schließen':'Close');
   s('grpMenuTitle', de?'Gruppe':'Group');
   s('grpCloseBtn', de?'Schließen':'Close');
+  s('katMenuTitle', de?'Kategorien':'Categories');
   s('katCloseBtn', de?'Schließen':'Close');
+  ph('newCatName', de?'Neue Kategorie…':'New category…');
+  renderCatList();
   s('accCloseBtn', de?'Schließen':'Close');
   s('kalCloseBtn', de?'Schließen':'Close');
   // Account submenu
@@ -1029,7 +1060,7 @@ function applyLang() {
   s('tut2Title', de?'Gruppen':'Groups');
   sH('tut2Body', de?'Erstelle eine <b>Gruppe</b> oder tritt einer bei — dann können alle Mitglieder gemeinsam Aufgaben sehen und bearbeiten. Den Einladungscode findest du unter <b>Einstellungen → Gruppe</b>.':'Create a <b>group</b> or join one — then all members can see and work on tasks together. Find the invite code under <b>Settings → Group</b>.');
   s('tut3Title', de?'Der Pool':'The Pool');
-  sH('tut3Body', de?'Pool-Aufgaben sind Aufgaben, die <b>automatisch auf Gruppenmitglieder verteilt</b> werden. Erst bewertet die Gruppe jede Aufgabe nach Aufwand (Voting), dann wird per <b>„Neu mischen"</b> fair zugeteilt.':'Pool tasks are <b>automatically distributed to group members</b>. First the group rates each task (voting), then they are fairly assigned via <b>Reshuffle</b>.');
+  sH('tut3Body', de?'Pool-Aufgaben werden <b>automatisch verteilt</b>. Erst bewertet jede Person die Aufgaben (Voting), dann erfolgt der Shuffle — standardmäßig <b>automatisch jeden Dienstag</b>. Den Tag änderst du unter <b>Einstellungen → Pool-Einstellungen</b> oder du deaktivierst den Auto-Shuffle.':'Pool tasks are <b>automatically distributed</b>. First everyone rates the tasks, then the shuffle runs — by default <b>every Tuesday automatically</b>. Change the day under <b>Settings → Pool Settings</b> or disable auto-shuffle.');
   s('tut4Title', de?'Sichtbarkeit':'Visibility');
   sH('tut4Body', de?'<b>Eigene</b> Aufgaben sieht nur die zugewiesene Person. <b>Gemeinsame</b> Aufgaben sehen alle Gruppenmitglieder. <b>Pool</b>-Aufgaben erscheinen nach dem Shuffle bei der zugeteilten Person.':'<b>Personal</b> tasks are only visible to the assigned person. <b>Shared</b> tasks are visible to all members. <b>Pool</b> tasks appear with the assigned person after the shuffle.');
   s('tut5Title', de?'Kalender-Integration':'Calendar Integration');
@@ -1042,13 +1073,23 @@ function applyLang() {
   s('kalDescText', de?'Abonniere deine TaskFlow-Deadlines direkt in deinem Kalender. Der Link aktualisiert sich automatisch — einmal einrichten, immer aktuell.':'Subscribe to your TaskFlow deadlines directly in your calendar. The link updates automatically — set it up once, always current.');
   s('kalPersonalLbl', de?'Dein persönlicher iCal-Link':'Your personal iCal link');
   s('kalHowLbl', de?'So trägst du den Link ein':'How to add the link');
-  s('kalAppleTitle', de?'🍎 Apple Kalender':'🍎 Apple Calendar');
+  s('kalAppleTitle', de?'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 5.44-3 7-5.06A8 8 0 0 0 5 10c-1.5 2-2 4-2 5a8 8 0 0 0 9 5.94z"/><path d="M12 7c0-3 2-5 4-5"/></svg> Apple Kalender':'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.94c1.5 0 5.44-3 7-5.06A8 8 0 0 0 5 10c-1.5 2-2 4-2 5a8 8 0 0 0 9 5.94z"/><path d="M12 7c0-3 2-5 4-5"/></svg> Apple Calendar');
   s('kalAppleDesc', de?'Ablage → Neues Kalenderabonnement → Link einfügen → Abonnieren':'File → New calendar subscription → Paste link → Subscribe');
-  s('kalGoogleTitle', de?'📆 Google Kalender':'📆 Google Calendar');
+  s('kalGoogleTitle', de?'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Google Kalender':'<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Google Calendar');
   s('kalGoogleDesc', de?'Andere Kalender → Per URL → Link einfügen → Kalender hinzufügen':'Other calendars → From URL → Paste link → Add calendar');
   s('kalOutlookDesc', de?'Kalender öffnen → Kalender hinzufügen → Aus dem Internet abonnieren → Link einfügen':'Open calendar → Add calendar → Subscribe from internet → Paste link');
+  s('kalAndroidTitle', de?'Android (Google Kalender)':'Android (Google Calendar)');
+  s('kalAndroidDesc', de?'Google Kalender App → Einstellungen → Konto hinzufügen → Weitere → iCal-URL einfügen':'Google Calendar app → Settings → Add account → Other → Paste iCal URL');
   s('kalFootnote', de?'Nur Aufgaben mit gesetzter Deadline erscheinen im Kalender.':'Only tasks with a deadline appear in the calendar.');
   s('icalLoading', de?'Wird geladen…':'Loading…');
+  s('secPoolLbl', de?'Pool-Einstellungen':'Pool Settings');
+  s('autoShuffleLbl', de?'Automatisch neu mischen':'Auto Reshuffle');
+  s('autoShuffleSub', de?'Jede Woche automatisch um 0:01 Uhr':'Every week automatically at 00:01');
+  s('shuffleDayLbl', de?'Wochentag':'Day of week');
+  {const dL=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+   const eL=['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
+   const ids=['sdMo','sdDi','sdMi','sdDo','sdFr','sdSa','sdSo'];
+   ids.forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=de?dL[i]:eL[i];});}
   // Nav title (update current tab)
   const nt = document.getElementById('navTitle');
   if(nt && typeof curTab !== 'undefined') {
@@ -1132,6 +1173,26 @@ const CUSTOM_ICONS={
   clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>',
   cloud:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>',
   map:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>',
+  piggy:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 9a7 7 0 0 0-14 0v2a7 7 0 0 0 14 0V9z"/><path d="M12 19v2"/><path d="M8 19v2"/><path d="M16 19v2"/><circle cx="15" cy="9" r="1"/></svg>',
+  receipt:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="14" y2="16"/></svg>',
+  utensils:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h1"/><path d="M18 22v-3"/></svg>',
+  bed:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4v16"/><path d="M22 4v16"/><path d="M2 8h20"/><path d="M2 20h20"/><path d="M6 8v4"/><path d="M18 8v4"/><rect x="6" y="12" width="12" height="4" rx="1"/></svg>',
+  bath:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10.5V5a2 2 0 0 1 4 0"/><path d="M1 13h22v3a5 5 0 0 1-5 5H6a5 5 0 0 1-5-5v-3z"/><line x1="6" y1="21" x2="6" y2="23"/><line x1="18" y1="21" x2="18" y2="23"/></svg>',
+  bike:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18.5" cy="17.5" r="3.5"/><circle cx="5.5" cy="17.5" r="3.5"/><circle cx="15" cy="5" r="1"/><path d="M12 17.5V14l-3-3 4-3 2 3h2"/></svg>',
+  wifi:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>',
+  printer:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+  msg:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+  award:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>',
+  box:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>',
+  anchor:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="3"/><line x1="12" y1="22" x2="12" y2="8"/><path d="M5 12H2a10 10 0 0 0 20 0h-3"/></svg>',
+  compass:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/></svg>',
+  leaf:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8C8 10 5.9 16.17 3.82 19.34a1 1 0 0 0 1.46 1.34C7.07 19.06 9.81 18 12 18c4 0 7-2 8-6 0 0-1 3-4 4 2-2 3-5 1-8z"/></svg>',
+  cloud_rain:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="16" y1="13" x2="16" y2="21"/><line x1="8" y1="13" x2="8" y2="21"/><line x1="12" y1="15" x2="12" y2="23"/><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/></svg>',
+  target:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+  shield:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+  archive:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+  scissors:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>',
+  key2:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>',
 };
 let selectedCatIcon='pin';
 function openIconPicker(){const g=document.getElementById('iconPickerGrid');g.classList.toggle('open');}
@@ -1264,7 +1325,7 @@ async function init(){
       try{
         [users,me]=await Promise.all([api('GET','/users'),api('GET','/users/me')]);
         const [t,g,as]=await Promise.all([api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
-        tasks=t;group=g;appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',...(as||{})};
+        tasks=t;group=g;appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,...(as||{})};
         processRecurring();
       }catch(e){localStorage.removeItem('tf_token');myToken=null;showOnboard();return;}
       return;
@@ -1279,7 +1340,7 @@ function showApp(){
   hideLoader();
   document.getElementById('onboard').classList.add('hidden');
   document.getElementById('app').style.display='block';
-  lang=localStorage.getItem('tf_lang')||'de';applyTheme();applyLang();render();setTimeout(initSheetDismiss,100);
+  lang=localStorage.getItem('tf_lang')||'de';applyTheme();applyLang();render();setTimeout(()=>{initSheetDismiss();initPoolSettings();},100);
   // Show tutorial on first ever login
   if(!localStorage.getItem('tf_tutorial_done')){
     setTimeout(()=>{
@@ -1296,7 +1357,7 @@ function closeTutorial(){
 async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
-  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',...appstate};
+  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,...appstate};
   processRecurring();
 }
 let _saveStateTimer=null;
@@ -1349,6 +1410,7 @@ function startPolling(){
   pollTimer=setInterval(async()=>{
     try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}document.getElementById('notifDot').style.display=r.hasNotifications?'block':'none';document.getElementById('notifBtn').style.display=r.hasNotifications?'flex':'none';}catch(e){}
   },15000);
+  checkAutoShuffle();
   // Immediate refresh when app comes back to foreground
   if(!window._visListenerAdded){
     window._visListenerAdded=true;
@@ -1607,7 +1669,9 @@ async function submitVote(tid){
 // ══════════════════════════════════════════
 // HELPERS
 // ══════════════════════════════════════════
-function allCats(){return{...DEFAULT_CATS,...(appstate.customCats||{})};}
+const DEFAULT_CATS_EN={Work:'work',Home:'home',Shopping:'cart',Health:'heart',Leisure:'star',School:'book',Other:'pin'};
+function allCats(){const base=lang==='en'?DEFAULT_CATS_EN:DEFAULT_CATS;return{...base,...(appstate.customCats||{})};}
+function catKeyToDE(name){const m={Work:'Arbeit',Home:'Haushalt',Shopping:'Einkauf',Health:'Gesundheit',Leisure:'Freizeit',School:'Schule',Other:'Sonstiges'};return m[name]||name;}
 function uById(id){return users.find(u=>u._id?.toString()===id?.toString());}
 function uColor(assignee){if(!assignee||assignee==='all')return'#9CA3AF';const ovr=me?.colorOverrides?.[assignee];if(ovr)return ovr;return uById(assignee)?.color||'#9CA3AF';}
 function avHTML(u,sz=38){if(!u)return`<div class="av" style="width:${sz}px;height:${sz}px;background:#9CA3AF;font-size:${Math.round(sz*.38)}px">?</div>`;if(u.photo)return`<div class="av" style="width:${sz}px;height:${sz}px"><img src="${u.photo}"></div>`;return`<div class="av" style="width:${sz}px;height:${sz}px;background:${uColor(u._id?.toString())};font-size:${Math.round(sz*.38)}px">${u.name?.[0]||'?'}</div>`;}
@@ -1784,7 +1848,8 @@ function fairShuffleAssigns(ids){
 
 function renderPool(){
   const _sw=document.getElementById('shuffleWrap');
-  if(_sw)_sw.style.display=(group&&users.length>=2)?'block':'none';
+  const _autoOn=appstate.autoShuffleEnabled!==false;
+  if(_sw)_sw.style.display=(group&&users.length>=2&&!_autoOn)?'block':'none';
   // Gate: no group or not enough members
   const poolGateC=document.getElementById('poolContainer');
   if(!group||users.length<2){
@@ -1824,7 +1889,7 @@ function renderPool(){
   const waitingVote=poolable.filter(t=>t.votingEnabled&&!hasFullScore(t));
   if(!toShow.length){
     let msg='';
-    if(waitingVote.length)msg=`<div class="empty-s" style="margin-top:6px">💩 ${waitingVote.length} ${lang==='en'?`task${waitingVote.length>1?'s':''} waiting for votes`:`Aufgabe${waitingVote.length>1?'n':''} warte${waitingVote.length===1?'t':''} auf Voting-Abschluss`}</div>`;
+    if(waitingVote.length)msg=`<div class="empty-s" style="margin-top:6px">'+poopSVG(12)+' ${waitingVote.length} ${lang==='en'?`task${waitingVote.length>1?'s':''} waiting for votes`:`Aufgabe${waitingVote.length>1?'n':''} warte${waitingVote.length===1?'t':''} auf Voting-Abschluss`}</div>`;
     c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${lang==='en'?'No tasks':'Keine Aufgaben'}</div>${msg||`<div class="empty-s">${lang==='en'?'Change the filter':'Wechsle den Filter'}</div>`}</div>`;return;
   }
   c.innerHTML=toShow.map(t=>{
@@ -1844,7 +1909,7 @@ function renderPool(){
     let subsHtml='';
     if(t.subtasks?.length&&asgn?.subtaskAssignments){
       subsHtml=`<div style="margin-top:10px;border-top:1px solid var(--sep);padding-top:8px">`;
-      subsHtml+=t.subtasks.map(s=>{const subUid=asgn.subtaskAssignments[s.id];const subU=uById(subUid);const subCol=uColor(subUid);const sScore=t.subtaskPoopScores?.[s.id];return`<div class="pool-sub-row"><div class="pool-sub-dot" style="background:${subCol}"></div><span style="flex:1;font-size:12px;color:${s.done?'var(--text3)':'var(--text2)'};${s.done?'text-decoration:line-through;':''}padding:1px 0">${s.title}</span>${sScore!=null?`<span style="font-size:10px;color:${poopColor(sScore)};font-weight:700;margin-right:4px">💩${sScore}</span>`:''}<span style="font-size:11px;font-weight:700;color:${subCol}">${subU?.name||'?'}</span></div>`;}).join('');
+      subsHtml+=t.subtasks.map(s=>{const subUid=asgn.subtaskAssignments[s.id];const subU=uById(subUid);const subCol=uColor(subUid);const sScore=t.subtaskPoopScores?.[s.id];return`<div class="pool-sub-row"><div class="pool-sub-dot" style="background:${subCol}"></div><span style="flex:1;font-size:12px;color:${s.done?'var(--text3)':'var(--text2)'};${s.done?'text-decoration:line-through;':''}padding:1px 0">${s.title}</span>${sScore!=null?`<span style="font-size:10px;color:${poopColor(sScore)};font-weight:700;margin-right:4px"> ${poopSVG(10)}${sScore}</span>`:''}<span style="font-size:11px;font-weight:700;color:${subCol}">${subU?.name||'?'}</span></div>`;}).join('');
       subsHtml+=`</div>`;
     } else if(t.subtasks?.length){
       subsHtml=`<div style="margin-top:10px;border-top:1px solid var(--sep);padding-top:8px">`;
@@ -1905,6 +1970,36 @@ function poolTaskEligibleThisWeek(t){
   return true;
 }
 
+function checkAutoShuffle(){
+  if(!group||!me||appstate.autoShuffleEnabled===false)return;
+  const d=new Date(),dayOfWeek=d.getDay(),targetDay=appstate.autoShuffleDay??2;
+  if(dayOfWeek!==targetDay)return;
+  const weekKey='autoShuf_'+weekStart(todayStr());
+  if(appstate.lastShuffleWeek===weekKey)return;
+  const ready=tasks.filter(t=>isPoolTask(t)&&!t.done);
+  if(!ready.length||ready.some(t=>t.votingEnabled&&!hasFullScore(t)))return;
+  appstate.lastShuffleWeek=weekKey;saveState();shufflePool();
+}
+function toggleAutoShuffle(on){
+  appstate.autoShuffleEnabled=on;saveState();
+  const row=document.getElementById('shuffleDayRow');
+  if(row)row.style.display=on?'flex':'none';
+  render();
+}
+function setShuffleDay(d){
+  appstate.autoShuffleDay=d;saveState();
+  const sel=document.getElementById('shuffleDaySelect');
+  if(sel)sel.value=String(d);
+}
+function initPoolSettings(){
+  const tog=document.getElementById('autoShuffleToggle');
+  if(tog)tog.checked=appstate.autoShuffleEnabled!==false;
+  const row=document.getElementById('shuffleDayRow');
+  if(row)row.style.display=(appstate.autoShuffleEnabled!==false)?'flex':'none';
+  const day=appstate.autoShuffleDay??2;
+  const sel=document.getElementById('shuffleDaySelect');
+  if(sel)sel.value=String(day);
+}
 function shufflePool(){
   const allPool=tasks.filter(t=>isPoolTask(t)&&!t.done);
   const poolable=allPool.filter(t=>poolTaskEligibleThisWeek(t));
@@ -1951,7 +2046,7 @@ function shufflePool(){
       appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:14px;font-weight:800">${u?.name||'?'}</div>`;});
       // Show balance info
       const uids=users.map(u=>u._id?.toString());
-      const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=appstate.poolTasks.filter(id=>finalAssigns[id]?.assignedUser===uid);const totalScore=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: 💩${totalScore.toFixed(1)}`;}).join(' · ');
+      const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=appstate.poolTasks.filter(id=>finalAssigns[id]?.assignedUser===uid);const totalScore=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: ${poopSVG(10)}${totalScore.toFixed(1)}`;}).join(' · ');
       document.getElementById('slotSub').textContent=scoreInfo||(lang==='en'?'Done! Fairly distributed.':'Fertig! Ausgeglichen verteilt.');
       setTimeout(closeSlot,2500);
     }
@@ -1997,12 +2092,12 @@ function openDetail(id){
   if(t.votingEnabled&&isPoolTask(t)){
     if(sc!=null){
       const barW=Math.round(sc/10*100);
-      const scoreDetails=t.subtasks?.length&&t.subtaskPoopScores?t.subtasks.map(s=>{const ss=t.subtaskPoopScores[s.id];return ss!=null?`${s.title}: 💩${ss}`:null;}).filter(Boolean).join(' · '):Object.entries(t.votes||{}).map(([uid,v])=>{const u=uById(uid);return`${u?.name||'?'}: ${v}`;}).join(' · ');
-      voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Scheißigkeitsscore</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">/10 — Ø Rating':'10 — Ø Bewertung'}</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">${scoreDetails}</div></div></div>`;
+      const scoreDetails=t.subtasks?.length&&t.subtaskPoopScores?t.subtasks.map(s=>{const ss=t.subtaskPoopScores[s.id];return ss!=null?`${s.title}: ${poopSVG(10)}${ss}`:null;}).filter(Boolean).join(' · '):Object.entries(t.votes||{}).map(([uid,v])=>{const u=uById(uid);return`${u?.name||'?'}: ${v}`;}).join(' · ');
+      voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} ${lang==='en'?'Crappiness Score':'Scheißigkeitsscore'}</div><div class="glass-card cg"><div style="padding:14px"><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><span style="font-size:32px;font-weight:800;color:${poopColor(sc)}">${sc}</span><span style="font-size:14px;color:var(--text3)">${lang==='en'?'/ 10 — Ø Rating':'/ 10 — Ø Bewertung'}</span></div><div class="score-bar"><div class="score-fill" style="width:${barW}%;background:${poopColor(sc)}"></div></div><div style="margin-top:10px;font-size:12px;color:var(--text3)">${scoreDetails}</div></div></div>`;
     } else {
       const vCnt=t.subtasks?.length?t.subtasks.reduce((sum,s)=>{const sv=t.subtaskVotes?.[s.id]||{};return sum+Object.keys(sv).length;},0):Object.keys(t.votes||{}).length;
       const vTotal=t.subtasks?.length?t.subtasks.length*users.length:users.length;
-      voteSection=`<div class="sec">💩 Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} Stimmen${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen ${poopSVG(13)}</button>`:''}</div></div>`;
+      voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} Stimmen${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen ${poopSVG(13)}</button>`:''}</div></div>`;
     }
   }
   document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
@@ -2154,7 +2249,7 @@ async function saveTask(){
   const title=document.getElementById('fTitle').value.trim();if(!title){showToast(lang==='en'?'Please enter a title!':'Titel eingeben!');return;}
   const assignee=selType==='mine'?document.getElementById('fAssignee').value:me._id?.toString();
   const existingTask=editingId?tasks.find(t=>t._id?.toString()===editingId):null;
-  const data={title,desc:document.getElementById('fDesc').value,cat:document.getElementById('fCat').value,prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:(()=>{const rv=document.getElementById('fRepeat').value;const back={Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'};return lang==='en'?(back[rv]||rv):rv;})(),type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:editingId?(existingTask?.done||false):false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
+  const data={title,desc:document.getElementById('fDesc').value,cat:(()=>{const v=document.getElementById('fCat').value;return lang==='en'?catKeyToDE(v):v;})(),prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:(()=>{const rv=document.getElementById('fRepeat').value;const back={Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'};return lang==='en'?(back[rv]||rv):rv;})(),type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:editingId?(existingTask?.done||false):false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
   if(editingId){
     const idx=tasks.findIndex(t=>t._id?.toString()===editingId);
     if(idx>=0)tasks[idx]={...tasks[idx],...data};
@@ -2172,7 +2267,7 @@ async function saveTask(){
 function delFromModal(id){if(!confirm(lang==='en'?'Delete?':'Löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeTaskModal();showToast(lang==='en'?'Deleted':'Gelöscht');}).catch(e=>showToast(e.message));}
 
 // ── PROFILE ──
-function openProfile(){
+function openProfile(){initPoolSettings();
   profilePhoto=me.photo||null;document.getElementById('profName').value=me.name;
   const pw=document.getElementById('profPhotoWrap');pw.innerHTML=me.photo?`<img src="${me.photo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:`<div style="width:100%;height:100%;background:${me.color};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;font-weight:700;color:#fff">${me.name[0]}</div>`;
   document.getElementById('myColorGrid').innerHTML=ALL_COLORS.map(c=>`<div class="cdot${me.color===c?' sel':''}" style="background:${c}" onclick="pickMyColor('${c}',this)"></div>`).join('');
@@ -2202,7 +2297,7 @@ async function editGroupInMenu(){
 }
 
 // ── SUBMENU: KATEGORIEN ──
-function openKatMenu(){renderCatList();buildIconPickerGrid();document.getElementById('katOv').classList.add('open');}
+function openKatMenu(){renderCatList();buildIconPickerGrid();document.getElementById('katOv').classList.add('open');const _kt=document.getElementById('katMenuTitle');if(_kt)_kt.textContent=lang==='en'?'Categories':'Kategorien';const _ph=document.getElementById('newCatName');if(_ph)_ph.placeholder=lang==='en'?'New category…':'Neue Kategorie…';}
 function closeKatMenu(){document.getElementById('katOv').classList.remove('open');}
 
 // ── SUBMENU: ACCOUNT ──
@@ -2220,6 +2315,12 @@ function openKalMenu(){
   document.getElementById('kalOv').classList.add('open');
 }
 function closeKalMenu(){document.getElementById('kalOv').classList.remove('open');}
+function shareGroupCode(){
+  const code=group?.inviteCode;if(!code)return;
+  const msg=lang==='en'?`Join my TaskFlow group! Invite code: ${code}`:`Tritt meiner TaskFlow-Gruppe bei! Einladungscode: ${code}`;
+  if(navigator.share){navigator.share({title:'TaskFlow',text:msg}).catch(()=>{});}
+  else{navigator.clipboard?.writeText(code).then(()=>showToast(lang==='en'?'Code copied!':'Code kopiert!')).catch(()=>{const ta=document.createElement('textarea');ta.value=code;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showToast(lang==='en'?'Code copied!':'Code kopiert!');});}
+}
 function copyIcalLink(){
   const box=document.getElementById('icalLinkBox');
   if(!box)return;
@@ -2235,7 +2336,7 @@ function renderGroupSection(){
       <div class="crow">
         <div style="width:40px;height:40px;border-radius:12px;background:rgba(91,91,214,.15);display:flex;align-items:center;justify-content:center;color:var(--acc);font-size:18px;font-weight:700">${group.name[0]}</div>
         <div style="flex:1"><div style="font-size:15px;font-weight:600">${group.name}</div><div style="font-size:12px;color:var(--text3)">Code: <b>${group.inviteCode}</b></div></div>
-        ${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroupInMenu()">${I.edit}</button>`:''}
+        <button onclick="shareGroupCode()" style="background:none;border:1px solid var(--glass-border);border-radius:10px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--acc);cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:4px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg> ${lang==='en'?'Share':'Teilen'}</button>${group.creatorId===me._id?.toString()?`<button class="ibtn" onclick="editGroupInMenu()">${I.edit}</button>`:''}
       </div>
       <div class="sec">${lang==='en'?'Members':'Mitglieder'}</div>
       ${users.map(u=>`<div class="crow" style="cursor:default">${avHTML(u,32)}<div style="flex:1;font-size:14px">${u.name}${u._id?.toString()===me._id?.toString()?' <span style="color:var(--green);font-size:11px">● '+(lang==='en'?'You':'Du')+'</span>':''}</div></div>`).join('')}
@@ -2302,7 +2403,7 @@ async function editGroup(){
   api('PATCH','/groups/mine',{name}).then(()=>{group.name=name;renderGroupSection();showToast(lang==='en'?'Updated':'Aktualisiert');}).catch(e=>showToast(e.message));
 }
 async function deleteAccount(){if(!confirm(lang==='en'?'Delete account?':'Account löschen?'))return;try{await api('DELETE','/users/me');localStorage.removeItem('tf_token');location.reload();}catch(e){showToast(e.message);}}
-function renderCatList(){const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">Noch keine eigenen Kategorien.</div>`;return;}list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="color:var(--text2);display:flex;align-items:center">${CUSTOM_ICONS[icon]?renderCustomIcon(icon,16):catIcon(icon,16)||icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
+function renderCatList(){const list=document.getElementById('catList');const customs=Object.entries(appstate.customCats||{});if(!customs.length){list.innerHTML=`<div style="color:var(--text3);font-size:13px;margin-bottom:8px">${lang==='en'?'No custom categories yet.':'Noch keine eigenen Kategorien.'}</div>`;return;}list.innerHTML=customs.map(([name,icon])=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)"><span style="color:var(--text2);display:flex;align-items:center">${CUSTOM_ICONS[icon]?renderCustomIcon(icon,16):catIcon(icon,16)||icon}</span><span style="flex:1;font-size:14px">${name}</span><button onclick="rmCat('${name}')" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');}
 function addCat(){
   const n=document.getElementById('newCatName').value.trim();
   if(!n){showToast('Name eingeben');return;}
