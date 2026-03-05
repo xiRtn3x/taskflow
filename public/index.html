@@ -337,8 +337,10 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&display=swap" rel="stylesheet">
-<div id="loadingScreen" style="position:fixed;inset:0;z-index:20000;background:linear-gradient(135deg,#0a0a18,#12102a);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:opacity .6s ease,transform .6s ease">
-  <div style="display:flex;flex-direction:column;align-items:center;opacity:0;animation:lsIn .5s ease .15s forwards">
+<div id="loadingScreen" style="position:fixed;inset:0;z-index:20000;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;transition:opacity .6s ease,transform .6s ease">
+  <div id="lsWhite" style="position:absolute;inset:0;background:#fff;z-index:1;animation:lsWhiteFade .55s ease .05s forwards"></div>
+  <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a0a18,#12102a);z-index:0"></div>
+  <div style="display:flex;flex-direction:column;align-items:center;opacity:0;animation:lsIn .5s ease .5s forwards;position:relative;z-index:2">
     <!-- Logo mark -->
     <div style="width:80px;height:80px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(91,91,214,.35),0 2px 8px rgba(91,91,214,.2),inset 0 1px 0 rgba(255,255,255,.25);margin-bottom:18px;position:relative;overflow:hidden">
       <div style="position:absolute;top:-30%;left:-20%;width:80%;height:60%;background:rgba(255,255,255,.15);border-radius:50%;filter:blur(12px)"></div>
@@ -357,12 +359,12 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <div style="width:48px;height:3px;border-radius:2px;background:rgba(91,91,214,.2);overflow:hidden;margin-top:22px"><div style="height:100%;width:45%;background:linear-gradient(90deg,#5B5BD6,#818CF8);border-radius:2px;animation:loadbar 1.1s ease-in-out infinite alternate"></div></div>
   </div>
 </div>
-<style>@keyframes loadbar{from{transform:translateX(-120%)}to{transform:translateX(280%)}}@keyframes lsIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}</style>
+<style>@keyframes loadbar{from{transform:translateX(-120%)}to{transform:translateX(280%)}}@keyframes lsIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}@keyframes lsWhiteFade{0%{opacity:1}100%{opacity:0;pointer-events:none}}</style>
 
 <div id="app" style="display:none">
   <div class="nav">
     <div class="nav-inner">
-      <div style="display:flex;align-items:center;gap:8px">
+      <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
         <div style="width:26px;height:26px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(91,91,214,.3)">
           <svg width="14" height="14" viewBox="0 0 42 42" fill="none">
             <rect x="8" y="14" width="5" height="20" rx="2.5" fill="white" opacity=".9"/>
@@ -1069,9 +1071,8 @@ function scoreBadge(t){
 
 function updatePoolTab(){
   const t1=document.getElementById('t1');if(!t1)return;
-  const inGroup=group&&users.length>=2;
-  t1.style.display=inGroup?'flex':'none';
-  if(!inGroup&&curTab===1)switchTab(0,false);
+  t1.style.display='flex'; // always visible
+  // If not in a qualifying group and on pool tab, show info — don't auto-switch
 }
 function updateVoteTab(){
   const pending=tasks.filter(t=>needsMyVote(t));
@@ -1388,6 +1389,12 @@ function fairShuffleAssigns(ids){
 }
 
 function renderPool(){
+  // Gate: no group or not enough members
+  const poolGateC=document.getElementById('poolContainer');
+  if(!group||users.length<2){
+    poolGateC.innerHTML=`<div class="empty"><div style="color:var(--text3);margin-bottom:12px">${I.users}</div><div class="empty-t">Pool braucht eine Gruppe</div><div class="empty-s" style="margin-bottom:16px">Der Pool funktioniert ab 2 Mitgliedern in einer Gruppe.</div><button class="btn btn-p" style="display:inline-flex" onclick="openProfile();setTimeout(openGruppenMenu,300)">Gruppe erstellen</button></div>`;
+    return;
+  }
   const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
   // F6: new pool tasks are NOT auto-assigned — only tracked, awaiting shuffle
   if(!appstate.poolTasks)appstate.poolTasks=[];
@@ -1684,13 +1691,14 @@ function closeProfile(){document.getElementById('profileModal').classList.remove
 function openGruppenMenu(){renderGroupSection();document.getElementById('gruppenOv').classList.add('open');}
 function closeGruppenMenu(){document.getElementById('gruppenOv').classList.remove('open');}
 async function editGroupInMenu(){
-  // Close gruppe menu first so prompt overlay appears on top
-  closeGruppenMenu();
-  await new Promise(r=>setTimeout(r,250));
+  // Elevate prompt overlay above all sheets, then restore
+  const pOv=document.getElementById('promptOv');
+  const origZ=pOv.style.zIndex;
+  pOv.style.zIndex='9999';
   const name=await showPrompt('Gruppe umbenennen',group.name,'Speichern');
-  if(!name){openGruppenMenu();return;}
-  try{await api('PATCH','/groups/mine',{name});group.name=name;showToast('Aktualisiert');}catch(e){showToast(e.message);}
-  openGruppenMenu();
+  pOv.style.zIndex=origZ;
+  if(!name)return;
+  try{await api('PATCH','/groups/mine',{name});group.name=name;renderGroupSection();showToast('Aktualisiert');}catch(e){showToast(e.message);}
 }
 
 // ── SUBMENU: KATEGORIEN ──
