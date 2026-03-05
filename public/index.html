@@ -2149,16 +2149,17 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // ── SHEET DRAG TO DISMISS ──
 function initSheetDismiss(){
   document.querySelectorAll('.ov .sheet, #taskDetail .det-sheet').forEach(sheet=>{
-    let sy=null,startScrollTop=0;
+    let sy=null;
     sheet.addEventListener('touchstart',e=>{
-      sy=e.touches[0].clientY;startScrollTop=sheet.scrollTop;
+      sy=e.touches[0].clientY;
     },{passive:true});
     sheet.addEventListener('touchmove',e=>{
       if(sy===null)return;
       const dy=e.touches[0].clientY-sy;
       if(dy>0&&sheet.scrollTop<=0){
         sheet.style.transition='none';
-        sheet.style.transform=`translateY(${dy}px)`;
+        sheet.style.transform=`translateY(${Math.min(dy,220)}px)`;
+        sheet.style.opacity=String(Math.max(0.5,1-dy/300));
       }
     },{passive:true});
     sheet.addEventListener('touchend',e=>{
@@ -2166,14 +2167,86 @@ function initSheetDismiss(){
       const dy=e.changedTouches[0].clientY-sy;
       sheet.style.transition='';
       sheet.style.transform='';
+      sheet.style.opacity='';
       if(dy>80&&sheet.scrollTop<=0){
+        // Close: check if it's the taskDetail sheet or a regular .ov
+        const detailWrap=sheet.closest('#taskDetail');
+        if(detailWrap){closeDetail();return;}
         const ov=sheet.closest('.ov');
-        if(ov){ov.classList.remove('open');}
+        if(ov)ov.classList.remove('open');
       }
       sy=null;
     },{passive:true});
   });
 }
+
+// ── PULL-TO-REFRESH ──
+(function initPullRefresh(){
+  const pgwrap=document.getElementById('pgwrap');
+  if(!pgwrap)return;
+  let startY=0,pulling=false,indicator=null;
+
+  function getIndicator(){
+    if(!indicator){
+      indicator=document.createElement('div');
+      indicator.id='pullIndicator';
+      indicator.style.cssText='position:fixed;top:env(safe-area-inset-top,0px);left:50%;transform:translateX(-50%) translateY(-56px);z-index:9999;background:var(--glass);backdrop-filter:blur(16px);border:1px solid var(--glass-border);border-radius:50px;padding:8px 18px;font-size:13px;font-weight:600;color:var(--text2);display:flex;align-items:center;gap:8px;transition:transform .2s;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2)';
+      indicator.innerHTML=`<svg id="pullArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .2s"><polyline points="7 10 12 15 17 10"/></svg><span id="pullTxt">Zum Aktualisieren ziehen</span>`;
+      document.body.appendChild(indicator);
+    }
+    return indicator;
+  }
+
+  document.addEventListener('touchstart',e=>{
+    // Only trigger if no sheet/overlay is open and we're at the top of the page
+    const anyOpen=[...document.querySelectorAll('.ov.open')].length>0||
+      document.getElementById('taskDetail')?.classList?.contains('open');
+    if(anyOpen)return;
+    const page=document.querySelector('.page:not([style*="display:none"])');
+    const scrollEl=page||document.scrollingElement;
+    if((scrollEl?.scrollTop||0)>2)return;
+    startY=e.touches[0].clientY;
+    pulling=true;
+  },{passive:true});
+
+  document.addEventListener('touchmove',e=>{
+    if(!pulling)return;
+    const dy=e.touches[0].clientY-startY;
+    if(dy<8)return;
+    const ind=getIndicator();
+    const progress=Math.min(dy/110,1);
+    const yOff=Math.min(dy*0.45,56);
+    ind.style.transform=`translateX(-50%) translateY(${-56+yOff}px)`;
+    ind.style.opacity=String(progress);
+    document.getElementById('pullArrow').style.transform=progress>=1?'rotate(180deg)':'rotate(0deg)';
+    document.getElementById('pullTxt').textContent=progress>=1?'Loslassen zum Aktualisieren':'Zum Aktualisieren ziehen';
+  },{passive:true});
+
+  document.addEventListener('touchend',async e=>{
+    if(!pulling)return;
+    pulling=false;
+    const dy=e.changedTouches[0].clientY-startY;
+    const ind=getIndicator();
+    if(dy>=110){
+      ind.style.transform='translateX(-50%) translateY(0px)';
+      document.getElementById('pullTxt').textContent='Aktualisiere…';
+      document.getElementById('pullArrow').innerHTML=`<circle cx="12" cy="12" r="9" stroke-dasharray="28 56" stroke-linecap="round" style="animation:spin .7s linear infinite"/>`;
+      // Add spin keyframes once
+      if(!document.getElementById('spinKf')){const s=document.createElement('style');s.id='spinKf';s.textContent='@keyframes spin{from{stroke-dashoffset:0}to{stroke-dashoffset:-84}}';document.head.appendChild(s);}
+      try{
+        const r=await api('GET','/poll');
+        pollHash=r.hash;
+        await loadAll();render();
+        showToast('Aktualisiert ✓');
+      }catch(e){}
+    }
+    // Hide indicator
+    ind.style.transition='transform .3s,opacity .3s';
+    ind.style.transform='translateX(-50%) translateY(-56px)';
+    ind.style.opacity='0';
+    setTimeout(()=>{ind.style.transition='';},350);
+  },{passive:true});
+})();
 
 // ── TABS + SWIPE (4 tabs, but vote tab may be hidden) ──
 function switchTab(i,anim=true){
