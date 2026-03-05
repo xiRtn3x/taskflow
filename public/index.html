@@ -433,7 +433,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <div id="shuffleWrap" style="padding:0 14px 10px;display:none">
         <button onclick="shufflePool()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-          Neu mischen
+          <span id="shuffleLbl">Neu mischen</span>
         </button>
       </div>
       <div id="poolContainer"></div>
@@ -602,7 +602,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     </div>
 
     <!-- SEKTION: Gruppe → Untermenü -->
-    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Gruppe</div></div>
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span id="secGrpLbl">Gruppe</span></div></div>
     <div class="fg" style="padding-top:4px">
       <div onclick="openGruppenMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
         <div id="profGroupPreview" style="flex:1;font-size:13px;color:var(--text3)">–</div>
@@ -628,7 +628,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       </div>
     </div>
     <!-- SEKTION: Account → Untermenü -->
-    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> Account</div></div>
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg> <span id="secAccLbl">Account</span></div></div>
     <div class="fg" style="padding-top:4px">
       <div onclick="openAccountMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
         <div style="flex:1;font-size:13px;color:var(--text3)"id="accPreview">Admin · Aufgaben · Account</div>
@@ -670,7 +670,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div class="sheet">
     <div class="handle"></div>
     <div class="mhdr">
-      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Gruppe</div>
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> <span id="grpMenuTitle">Gruppe</span></div>
       <span class="mclose" id="grpCloseBtn" onclick="closeGruppenMenu()">Schließen</span>
     </div>
     <div id="gruppenContent" style="padding:0 16px 24px"></div>
@@ -737,39 +737,39 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 
       <!-- Erklärung -->
       <div style="font-size:14px;color:var(--text2);line-height:1.6">
-        Abonniere deine TaskFlow-Deadlines direkt in deinem Kalender. Der Link aktualisiert sich automatisch — einmal einrichten, immer aktuell.
+        <span id="kalDescText">Abonniere deine TaskFlow-Deadlines direkt in deinem Kalender. Der Link aktualisiert sich automatisch — einmal einrichten, immer aktuell.</span>
       </div>
 
       <!-- iCal Link Box -->
       <div>
-        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Dein persönlicher iCal-Link</div>
+        <div id="kalPersonalLbl" style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Dein persönlicher iCal-Link</div>
         <div style="display:flex;gap:8px;align-items:center">
-          <div id="icalLinkBox" style="flex:1;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:11px 13px;font-size:12px;color:var(--text3);word-break:break-all;font-family:monospace;line-height:1.5">Wird geladen…</div>
+          <div id="icalLinkBox" style="flex:1;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:11px 13px;font-size:12px;color:var(--text3);word-break:break-all;font-family:monospace;line-height:1.5" id="icalLoading">Wird geladen…</div>
           <button onclick="copyIcalLink()" style="flex-shrink:0;padding:11px 14px;background:var(--acc);color:#fff;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit"id="kalCopyBtn">Kopieren</button>
         </div>
       </div>
 
       <!-- Anleitungen -->
       <div style="display:flex;flex-direction:column;gap:8px">
-        <div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">So trägst du den Link ein</div>
+        <div id="kalHowLbl" style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px">So trägst du den Link ein</div>
 
         <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden">
           <div style="padding:12px 14px;border-bottom:1px solid var(--sep)">
             <div style="font-size:13px;font-weight:700;margin-bottom:2px">📅 Outlook (Web & Desktop)</div>
-            <div style="font-size:12px;color:var(--text3);line-height:1.6">Kalender öffnen → Kalender hinzufügen → Aus dem Internet abonnieren → Link einfügen</div>
+            <div id="kalOutlookDesc" style="font-size:12px;color:var(--text3);line-height:1.6">Kalender öffnen → Kalender hinzufügen → Aus dem Internet abonnieren → Link einfügen</div>
           </div>
           <div style="padding:12px 14px;border-bottom:1px solid var(--sep)">
-            <div style="font-size:13px;font-weight:700;margin-bottom:2px">🍎 Apple Kalender</div>
-            <div style="font-size:12px;color:var(--text3);line-height:1.6">Ablage → Neues Kalenderabonnement → Link einfügen → Abonnieren</div>
+            <div id="kalAppleTitle" style="font-size:13px;font-weight:700;margin-bottom:2px">🍎 Apple Kalender</div>
+            <div id="kalAppleDesc" style="font-size:12px;color:var(--text3);line-height:1.6">Ablage → Neues Kalenderabonnement → Link einfügen → Abonnieren</div>
           </div>
           <div style="padding:12px 14px">
-            <div style="font-size:13px;font-weight:700;margin-bottom:2px">📆 Google Kalender</div>
-            <div style="font-size:12px;color:var(--text3);line-height:1.6">Andere Kalender → Per URL → Link einfügen → Kalender hinzufügen</div>
+            <div id="kalGoogleTitle" style="font-size:13px;font-weight:700;margin-bottom:2px">📆 Google Kalender</div>
+            <div id="kalGoogleDesc" style="font-size:12px;color:var(--text3);line-height:1.6">Andere Kalender → Per URL → Link einfügen → Kalender hinzufügen</div>
           </div>
         </div>
       </div>
 
-      <div style="font-size:12px;color:var(--text3);text-align:center">Nur Aufgaben mit gesetzter Deadline erscheinen im Kalender.</div>
+      <div id="kalFootnote" style="font-size:12px;color:var(--text3);text-align:center">Nur Aufgaben mit gesetzter Deadline erscheinen im Kalender.</div>
     </div>
   </div>
 </div>
@@ -997,6 +997,7 @@ function applyLang() {
   // Submenus close buttons
   s('notifCloseBtn', de?'Schließen':'Close');
   s('adminCloseBtn', de?'Schließen':'Close');
+  s('grpMenuTitle', de?'Gruppe':'Group');
   s('grpCloseBtn', de?'Schließen':'Close');
   s('katCloseBtn', de?'Schließen':'Close');
   s('accCloseBtn', de?'Schließen':'Close');
@@ -1034,6 +1035,20 @@ function applyLang() {
   s('tut5Title', de?'Kalender-Integration':'Calendar Integration');
   sH('tut5Body', de?'Alle Aufgaben mit Deadline können in Outlook, Apple Kalender oder Google Kalender erscheinen. Den Link findest du unter <b>Einstellungen → Kalenderintegration</b>.':'All tasks with a deadline can appear in Outlook, Apple Calendar or Google Calendar. Find the link under <b>Settings → Calendar integration</b>.');
   s('tutConfirmBtn', de?"Verstanden — Los geht's!":"Got it — let's go!");
+  // Settings section labels
+  s('secGrpLbl', de?'Gruppe':'Group');
+  s('secAccLbl', 'Account');
+  // Calendar export section
+  s('kalDescText', de?'Abonniere deine TaskFlow-Deadlines direkt in deinem Kalender. Der Link aktualisiert sich automatisch — einmal einrichten, immer aktuell.':'Subscribe to your TaskFlow deadlines directly in your calendar. The link updates automatically — set it up once, always current.');
+  s('kalPersonalLbl', de?'Dein persönlicher iCal-Link':'Your personal iCal link');
+  s('kalHowLbl', de?'So trägst du den Link ein':'How to add the link');
+  s('kalAppleTitle', de?'🍎 Apple Kalender':'🍎 Apple Calendar');
+  s('kalAppleDesc', de?'Ablage → Neues Kalenderabonnement → Link einfügen → Abonnieren':'File → New calendar subscription → Paste link → Subscribe');
+  s('kalGoogleTitle', de?'📆 Google Kalender':'📆 Google Calendar');
+  s('kalGoogleDesc', de?'Andere Kalender → Per URL → Link einfügen → Kalender hinzufügen':'Other calendars → From URL → Paste link → Add calendar');
+  s('kalOutlookDesc', de?'Kalender öffnen → Kalender hinzufügen → Aus dem Internet abonnieren → Link einfügen':'Open calendar → Add calendar → Subscribe from internet → Paste link');
+  s('kalFootnote', de?'Nur Aufgaben mit gesetzter Deadline erscheinen im Kalender.':'Only tasks with a deadline appear in the calendar.');
+  s('icalLoading', de?'Wird geladen…':'Loading…');
   // Nav title (update current tab)
   const nt = document.getElementById('navTitle');
   if(nt && typeof curTab !== 'undefined') {
@@ -1312,7 +1327,7 @@ async function checkNewTasks(){
     let hasNew=false;
     tasks.filter(t=>!t.done&&new Date(t.createdAt||0)>lastVisit&&visibleToMe(t)).forEach(t=>{
       const creator=uById(t.creatorId);const who=creator&&creator._id?.toString()!==me._id?.toString()?creator.name:null;
-      const typeLabel=isPoolTask(t)?'Pool-Aufgabe':isSharedTask(t)?'gemeinsame Aufgabe':'Aufgabe';
+      const typeLabel=isPoolTask(t)?(lang==='en'?'pool task':'Pool-Aufgabe'):isSharedTask(t)?(lang==='en'?'shared task':'gemeinsame Aufgabe'):(lang==='en'?'task':'Aufgabe');
       addNotif(who?`${who} hat eine neue ${typeLabel} erstellt: „${t.title}“`:`Neue ${typeLabel}: „${t.title}“`);
       hasNew=true;
     });
@@ -1491,7 +1506,7 @@ function renderVote(){
     }
     // Completed scores
     if(scored.length){
-      html+=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Abgeschlossene Scores</div>`+scored.map(t=>{
+      html+=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} ${lang==='en'?'Completed Scores':'Abgeschlossene Scores'}</div>`+scored.map(t=>{
         const sc=getScore(t);const col=poopColor(sc);
         return`<div class="vote-card" onclick="openDetail('${t._id}')"><div class="vote-title">${t.title}</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><span style="font-size:28px;font-weight:800;color:${col}">${sc}</span><span style="font-size:12px;color:var(--text3)">/10 — Ø</span><div class="score-bar" style="flex:1;margin:0"><div class="score-fill" style="width:${Math.round(sc/10*100)}%;background:${col}"></div></div></div></div>`;
       }).join('');
@@ -1510,7 +1525,7 @@ function renderVote(){
         const votedCount=Object.keys(svotes).length;
         const scale=Array.from({length:10},(_,i)=>i+1);
         const scaleHTML=scale.map(n=>{const col=n<=3?'#16A34A':n<=6?'#D97706':'#DC2626';const isSel=myVote===n;return`<button class="vote-btn${isSel?' sel':''}" onclick="setVote('${vKey}',${n})" style="${isSel?`background:${col};`:`border-color:${col}40;`}${isSel?'':'color:'+col}">${n}</button>`;}).join('');
-        return`<div class="vote-card"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${t.title}</div><div class="vote-title">${s.title}</div><div class="vote-meta"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span><span style="color:var(--text3)">${votedCount}/${users.length} ${lang==='en'?'rated':'bewertet'}</span></div><div class="vote-scale">${scaleHTML}</div>${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitSubVote('${tid}','${s.id}')">Abstimmen ${poopSVG(13)}</button>`:`<div class="vote-pending">${lang==='en'?'Choose a number to vote':'Wähle eine Zahl um abzustimmen'}</div>`}</div>`;
+        return`<div class="vote-card"><div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${t.title}</div><div class="vote-title">${s.title}</div><div class="vote-meta"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span><span class="badge b-blu">${t.cat}</span><span style="color:var(--text3)">${votedCount}/${users.length} ${lang==='en'?'rated':'bewertet'}</span></div><div class="vote-scale">${scaleHTML}</div>${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitSubVote('${tid}','${s.id}')">${lang==='en'?'Vote':'Abstimmen'} ${poopSVG(13)}</button>`:`<div class="vote-pending">${lang==='en'?'Choose a number to vote':'Wähle eine Zahl um abzustimmen'}</div>`}</div>`;
       }).filter(Boolean).join('');
     }
     const myVote=pendingVotes[tid]||0;
@@ -1527,14 +1542,14 @@ function renderVote(){
     return`<div class="vote-card">
       <div class="vote-title">${t.title}</div>
       <div class="vote-meta">
-        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span>
         <span class="badge b-blu">${t.cat}</span>
         ${t.deadline?`<span style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}</span>`:''}
         <span style="color:var(--text3)">${votedCount}/${totalUsers} ${lang==='en'?'rated':'bewertet'}</span>
       </div>
       ${t.desc?`<div style="font-size:13px;color:var(--text2);line-height:1.5;margin-bottom:10px">${t.desc}</div>`:''}
       <div class="vote-scale">${scaleHTML}</div>
-      ${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitVote('${tid}')">Abstimmen ${poopSVG(13)}</button>`:`<div class="vote-pending">${lang==='en'?'Choose a number to vote':'Wähle eine Zahl um abzustimmen'}</div>`}
+      ${myVote?`<button class="btn btn-p" style="font-size:14px;padding:10px 16px" onclick="submitVote('${tid}')">${lang==='en'?'Vote':'Abstimmen'} ${poopSVG(13)}</button>`:`<div class="vote-pending">${lang==='en'?'Choose a number to vote':'Wähle eine Zahl um abzustimmen'}</div>`}
     </div>`;
   }).join('');
 }
@@ -1639,14 +1654,14 @@ function taskHTML(t,showBar=false){
     <div class="task-body">
       <div class="task-title${t.done?' done':''}">${t.title}</div>
       <div class="task-meta">
-        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span>
         ${isSharedTask(t)?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.users} ${[(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'';}).filter(Boolean),(t.creatorId&&t.creatorId!==me._id?.toString()?[uById(t.creatorId)?.name].filter(Boolean):[])].flat().filter((v,i,a)=>a.indexOf(v)===i).join(', ')||'gemeinsam'}</span>`:''}
         ${t.deadline?`<span class="badge ${overdue?'b-red':'b-blu'}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span>`:''}
-        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
+        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}
         ${scoreBadge(t)}
         ${showBar&&aname?`<span class="badge" style="background:${col}22;color:${col};border:1px solid ${col}44;display:inline-flex;align-items:center;gap:3px">${I.user} ${aname}</span>`:''}
         ${creatorNote?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.user} ${creatorNote}</span>`:''}
-        ${t.votingEnabled&&!hasFullScore(t)?`<span class="badge b-ora" style="display:inline-flex;align-items:center;gap:3px">${poopSVG(11)} Voting läuft…</span>`:''}
+        ${t.votingEnabled&&!hasFullScore(t)?`<span class="badge b-ora" style="display:inline-flex;align-items:center;gap:3px">${poopSVG(11)} ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:''}
       </div>
       ${mySubsHtml}${prog(t)}
     </div>
@@ -1677,8 +1692,8 @@ function renderMy(){
   if(!list.length){const msg=lang==='en'?(myFilter==='done'?'Nothing done yet':myFilter==='open'?'No open tasks':'No tasks'):(myFilter==='done'?'Noch nichts erledigt':myFilter==='open'?'Keine offenen Aufgaben':lang==='en'?'No tasks':'Keine Aufgaben');c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${msg}</div></div>`;return;}
   const mine=list.filter(t=>isMyTask(t)),shared=list.filter(t=>isSharedTask(t)),pool=list.filter(t=>isPoolTask(t));
   let html='';
-  if(mine.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.user} Eigene</div><div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
-  if(shared.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.users} Gemeinsam</div><div class="glass-card cg">${shared.map(t=>taskHTML(t,true)).join('')}</div>`;
+  if(mine.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.user} ${lang==='en'?'Personal':'Eigene'}</div><div class="glass-card cg">${mine.map(t=>taskHTML(t,false)).join('')}</div>`;
+  if(shared.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.users} ${lang==='en'?'Shared':'Gemeinsam'}</div><div class="glass-card cg">${shared.map(t=>taskHTML(t,true)).join('')}</div>`;
   if(pool.length)html+=`<div class="sec" style="display:flex;align-items:center;gap:6px">${I.shuf} Pool</div><div class="glass-card cg">${pool.map(t=>taskHTML(t,true)).join('')}</div>`;
   c.innerHTML=html;
 }
@@ -1843,12 +1858,12 @@ function renderPool(){
         ${userHeaderHtml}
       </div>
       <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span>
+        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span>
         ${t.cat?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${catIcon(allCats()[t.cat]||'')} ${t.cat}</span>`:''}
         ${(()=>{const ov=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();return t.deadline?`<span class="badge ${ov?'b-red':'b-blu'}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${ov?` ${I.alert}`:''}</span>`:''})()}
-        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}
-        ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 Voting läuft…</span>`:''}
-        ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}
+        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}
+        ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:''}
+        ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}
       </div>
       ${subsHtml}${prog(t)}
     </div>`;
@@ -1990,8 +2005,8 @@ function openDetail(id){
       voteSection=`<div class="sec">💩 Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} Stimmen${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">Jetzt abstimmen ${poopSVG(13)}</button>`:''}</div></div>`;
     }
   }
-  document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} Erledigt</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
-  <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">"+(lang==='en'?'Assigned to':'Zuständig')+"</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">"+(lang==='en'?'Deadline':'Deadline')+"</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Pool':'Pool'}</span><span style="color:var(--green);font-size:14px">${I.check} Ja</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Shared':'Gemeinsam'}</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
+  document.getElementById('detailContent').innerHTML=`<div style="padding:18px 14px 10px"><div style="font-size:22px;font-weight:700;letter-spacing:-.4px;margin-bottom:12px;line-height:1.3">${t.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
+  <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">"+(lang==='en'?'Assigned to':'Zuständig')+"</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">"+(lang==='en'?'Deadline':'Deadline')+"</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Pool':'Pool'}</span><span style="color:var(--green);font-size:14px">${I.check} ${lang==='en'?'Yes':'Ja'}</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Shared':'Gemeinsam'}</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
   </div>${subsH}${voteSection}
   <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?'Wieder öffnen':'Als erledigt markieren'}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">Nur ${isPoolTask(t)?'der zugewiesene Nutzer':'der Aufgaben-Ersteller'} kann diese Aufgabe abschließen</div>`}</div>
   <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} Löschen</button></div>`;
