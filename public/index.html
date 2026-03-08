@@ -743,11 +743,11 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         </details>
         <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
           <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqP3q">Was ist der Scheißigkeitsscore?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
-          <div id="faqP3a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Jede Pool-Aufgabe bekommt einen Score von <b>1–10</b>, der den Aufwand beschreibt:<br>1–3: leicht / angenehm<br>4–6: mittel<br>7–10: unangenehm / aufwändig<br><br>Jedes Mitglied bewertet jede Aufgabe. Der Durchschnittswert aller Stimmen ergibt den Score.</div>
+          <div id="faqP3a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Jede Pool-Aufgabe bekommt einen Score von <b>1–10</b>, der die Schwierigkeit/den Aufwand aus Sicht jedes Mitglieds beschreibt:<br>1–3: leicht / angenehm<br>4–6: mittel<br>7–10: unangenehm / aufwändig<br><br><b>Fairness:</b> Jedes Mitglied bewertet jede Aufgabe <i>individuell</i> — dein persönlicher Score spiegelt wider, wie schwer du die Aufgabe findest. Im Pool-Tab siehst du daher immer deine eigene Bewertung als Badge. Beim Shuffle wird dein persönlicher Score verwendet, um die Verteilung gerecht für dich zu gestalten.<br><br><b>Durchschnitt:</b> Der angezeigte Gesamt-Score im Vote-Tab ist der Mittelwert aller Stimmen. Dort siehst du außerdem, wer wie bewertet hat.</div>
         </details>
         <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
           <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqP4q">Nach welchen Kriterien wird verteilt?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
-          <div id="faqP4a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Der Shuffle-Algorithmus berücksichtigt:<br><b>1. Score-Balance</b> – niemand bekommt unverhältnismäßig viele schwere Aufgaben<br><b>2. Schulden-Score</b> – wer zuletzt viele schwere Aufgaben hatte, wird entlastet (der Schuldenstand sinkt wöchentlich automatisch ab)<br><b>3. Letzte Zuteilung</b> – dieselbe Aufgabe geht nicht zweimal hintereinander an dieselbe Person<br><br><i>Beispiel: Hat Anna letzte Woche Klo putzen (Score 8) und Müll rausbringen (Score 6) erledigt, bekommt sie beim nächsten Shuffle bevorzugt leichtere Aufgaben, bis der Score-Ausgleich wieder stimmt.</i></div>
+          <div id="faqP4a" style="padding:0 14px 12px;font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--sep)">Der Shuffle-Algorithmus berücksichtigt:<br><b>1. Persönlicher Score</b> – der Algorithmus verwendet deinen <i>eigenen</i> Vote (nicht den Durchschnitt), um zu berechnen, wie schwer die Aufgabe für dich persönlich ist. Das macht die Verteilung fairer: Wer eine Aufgabe als leicht empfindet, bekommt sie häufiger.<br><b>2. Score-Balance</b> – niemand bekommt unverhältnismäßig viele schwere Aufgaben (bezogen auf seine eigene Bewertung)<br><b>3. Schulden-Score</b> – wer zuletzt viele schwere Aufgaben hatte, wird entlastet (der Schuldenstand sinkt wöchentlich automatisch ab)<br><b>4. Letzte Zuteilung</b> – dieselbe Aufgabe geht nicht zweimal hintereinander an dieselbe Person<br><br><i>Beispiel: Anna findet "Klo putzen" extrem schlimm (Score 9), Bob findet es erträglich (Score 5). Beim nächsten Shuffle wird Bob diese Aufgabe häufiger bekommen — aus seiner Sicht ist sie weniger belastend.</i></div>
         </details>
         <details style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;margin-bottom:6px;overflow:hidden">
           <summary style="padding:12px 14px;font-size:14px;font-weight:600;cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px" id="faqP5q">Wann kommen Pool-Aufgaben in den Shuffle?<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;color:var(--text3)"><polyline points="6 9 12 15 18 9"/></svg></summary>
@@ -1016,7 +1016,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           </div>
           <div style="font-size:15px;font-weight:700"id="tut3Title">Der Pool</div>
         </div>
-        <div id="tut3Body" style="font-size:13px;color:var(--text2);line-height:1.6">Pool-Aufgaben werden <b>automatisch fair verteilt</b>. Falls Voting aktiviert ist, bewertet die Gruppe die Aufgaben zuerst — dann erfolgt der Shuffle. Genaueres erklärt die <b>FAQ in den Einstellungen</b>.</div>
+        <div id="tut3Body" style="font-size:13px;color:var(--text2);line-height:1.6">Pool-Aufgaben werden <b>automatisch fair verteilt</b>. Jedes Mitglied bewertet Aufgaben <b>individuell</b> nach ihrer Schwere — beim Shuffle wird dein persönlicher Score genutzt, damit Aufgaben fair für jede Person verteilt werden. Genaueres erklärt die <b>FAQ in den Einstellungen</b>.</div>
       </div>
 
       <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:16px">
@@ -1221,7 +1221,7 @@ function applyLang() {
   s('tut2Title', de?'Gruppen':'Groups');
   sH('tut2Body', de?'Erstelle eine <b>Gruppe</b> oder tritt einer bei — dann können alle Mitglieder gemeinsam Aufgaben sehen und bearbeiten. Den Einladungscode findest du unter <b>Einstellungen → Gruppe</b>.':'Create a <b>group</b> or join one — then all members can see and work on tasks together. Find the invite code under <b>Settings → Group</b>.');
   s('tut3Title', de?'Der Pool':'The Pool');
-  sH('tut3Body', de?'Pool-Aufgaben werden <b>automatisch fair verteilt</b>. Falls Voting aktiviert ist, bewertet die Gruppe die Aufgaben zuerst — dann erfolgt der Shuffle. Genaueres erklärt die <b>FAQ in den Einstellungen</b>.':'Pool tasks are <b>automatically and fairly distributed</b>. If voting is enabled, the group rates the tasks first — then the shuffle runs. For details, check the <b>FAQ in Settings</b>.');
+  sH('tut3Body', de?'Pool-Aufgaben werden <b>automatisch fair verteilt</b>. Jedes Mitglied bewertet Aufgaben <b>individuell</b> nach ihrer Schwere — beim Shuffle wird dein persönlicher Score genutzt, damit Aufgaben fair für jede Person verteilt werden. Genaueres erklärt die <b>FAQ in den Einstellungen</b>.':'Pool tasks are <b>automatically and fairly distributed</b>. Each member rates tasks <b>individually</b> by difficulty — the shuffle uses your personal score to ensure tasks are distributed fairly for each person. For details, check the <b>FAQ in Settings</b>.');
   s('tut4Title', de?'Sichtbarkeit':'Visibility');
   sH('tut4Body', de?'<b>Eigene</b> Aufgaben sieht nur die zugewiesene Person. <b>Gemeinsame</b> Aufgaben sehen alle Gruppenmitglieder. <b>Pool</b>-Aufgaben erscheinen nach dem Shuffle bei der zugeteilten Person.':'<b>Personal</b> tasks are only visible to the assigned person. <b>Shared</b> tasks are visible to all members. <b>Pool</b> tasks appear with the assigned person after the shuffle.');
   s('tut5Title', de?'Kalender-Integration':'Calendar Integration');
@@ -1387,7 +1387,7 @@ const ALL_COLORS=['#5B5BD6','#7C3AED','#DB2777','#DC2626','#EA580C','#CA8A04','#
 const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn',High:'b-red',Medium:'b-ora',Low:'b-grn'};
 const CELEB_DE=['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
 const CELEB_EN=['Well done!','Nailed it! You\'re a star!','Awesome, keep it up!','Crushed it!','That task never stood a chance!'];
-const NAV_TITLES_DE=['Meine','Pool','Kalender','Crappiness Score'];
+const NAV_TITLES_DE=['Meine','Pool','Kalender','Scheißigkeitsscore'];
 const NAV_TITLES_EN=['Mine','Pool','Calendar','Crappiness Score'];
 // poop colors by score range
 function poopColor(s){if(!s)return'#9CA3AF';if(s<=3)return'#16A34A';if(s<=6)return'#D97706';return'#DC2626';}
@@ -1713,6 +1713,23 @@ function scoreBadge(t){
   const col=poopColor(s);
   return`<span class="badge b-poop" style="color:${col};border-color:${col}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(12)} ${s}</span>`;
 }
+// Pool-Tab: zeigt nur das individuelle Rating des eingeloggten Users
+function myScoreBadge(t){
+  if(!t.votingEnabled||!isPoolTask(t))return'';
+  const myId=me?._id?.toString();if(!myId)return'';
+  let myVote=null;
+  if(t.subtasks?.length){
+    // Für Unteraufgaben: zeige den Durchschnitt der eigenen Votes auf alle Unteraufgaben
+    const myVotes=t.subtasks.map(s=>(t.subtaskVotes?.[s.id]||{})[myId]).filter(v=>v!=null);
+    if(!myVotes.length)return'';
+    myVote=Math.round((myVotes.reduce((a,b)=>a+b,0)/myVotes.length)*10)/10;
+  } else {
+    myVote=(t.votes||{})[myId];
+    if(myVote==null)return'';
+  }
+  const col=poopColor(myVote);
+  return`<span class="badge b-poop" style="color:${col};border-color:${col}30;display:inline-flex;align-items:center;gap:2px" title="${lang==='en'?'Your rating':'Deine Bewertung'}">${poopSVG(12)} ${myVote}</span>`;
+}
 
 function updatePoolTab(){
   const t1=document.getElementById('t1');if(!t1)return;
@@ -1755,11 +1772,26 @@ function renderVote(){
         return`<div class="vote-card"><div class="vote-title">${t.title}</div><div style="font-size:12px;color:var(--text3);margin-top:4px">${vCnt}/${vTotal} ${lang==='en'?'votes':'Stimmen'} · Fehlt: ${missing}</div></div>`;
       }).join('');
     }
-    // Completed scores
+    // Completed scores — sorted by score descending (highest = hardest first)
     if(scored.length){
-      html+=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} ${lang==='en'?'Completed Scores':'Abgeschlossene Scores'}</div>`+scored.map(t=>{
+      const sortedScored=[...scored].sort((a,b)=>(getScore(b)||0)-(getScore(a)||0));
+      html+=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} ${lang==='en'?'Completed Scores':'Abgeschlossene Scores'}</div>`+sortedScored.map(t=>{
         const sc=getScore(t);const col=poopColor(sc);
-        return`<div class="vote-card" onclick="openDetail('${t._id}')"><div class="vote-title">${t.title}</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><span style="font-size:28px;font-weight:800;color:${col}">${sc}</span><span style="font-size:12px;color:var(--text3)">/10 — Ø</span><div class="score-bar" style="flex:1;margin:0"><div class="score-fill" style="width:${Math.round(sc/10*100)}%;background:${col}"></div></div></div></div>`;
+        // Build per-user vote badges
+        const votesBadges=users.map(u=>{
+          const uid=u._id?.toString();
+          let uVote=null;
+          if(t.subtasks?.length){
+            const uVotes=t.subtasks.map(s=>(t.subtaskVotes?.[s.id]||{})[uid]).filter(v=>v!=null);
+            if(uVotes.length)uVote=Math.round((uVotes.reduce((a,b)=>a+b,0)/uVotes.length)*10)/10;
+          } else {
+            uVote=(t.votes||{})[uid];
+          }
+          if(uVote==null)return'';
+          const uc=poopColor(uVote);
+          return`<span class="badge b-poop" style="color:${uc};border-color:${uc}30;font-size:10px" title="${u.name}: ${uVote}">${u.name[0]}: ${uVote}</span>`;
+        }).join('');
+        return`<div class="vote-card" onclick="openDetail('${t._id}')"><div class="vote-title">${t.title}</div><div style="display:flex;align-items:center;gap:10px;margin-top:8px"><span style="font-size:28px;font-weight:800;color:${col}">${sc}</span><span style="font-size:12px;color:var(--text3)">/10 — Ø</span><div class="score-bar" style="flex:1;margin:0"><div class="score-fill" style="width:${Math.round(sc/10*100)}%;background:${col}"></div></div></div>${votesBadges?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:8px">${votesBadges}</div>`:''}</div>`;
       }).join('');
     }
     if(!html){html=`<div class="empty"><div style="color:var(--text3);margin-bottom:12px">${poopSVG(52)}</div><div class="empty-t">Alles bewertet!</div><div class="empty-s">Keine offenen Votings für dich.</div></div>`;}
@@ -2098,9 +2130,21 @@ function renderPool(){
   });
   const pf=appstate.poolFilter||'all';
   const pfBar=document.getElementById('poolFbar');pfBar.className='seg';
-  pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">Alle</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
+  pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">${lang==='en'?'All':'Alle'}</button><button class="seg-b${pf==='nextshuffle'?' on':''}" onclick="setPoolF('nextshuffle')" title="${lang==='en'?'Tasks in next shuffle':'Aufgaben im nächsten Shuffle'}">${lang==='en'?'Next Shuffle':'Nächster Shuffle'}</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
   let toShow=visibleInPool;
-  if(pf!=='all')toShow=toShow.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});
+  if(pf==='nextshuffle'){
+    // Zeige: (1) Aufgaben die beim letzten Shuffle nicht bewertet/zugeteilt waren (unassigned), 
+    // (2) wöchentliche, monatliche, jährliche Aufgaben die beim nächsten Shuffle eligible sind
+    const unassignedIds=new Set(visibleInPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]).map(t=>t._id?.toString()));
+    toShow=tasks.filter(t=>isPoolTask(t)&&!t.done).filter(t=>{
+      const id=t._id?.toString();
+      // Unassigned (not yet shuffled)
+      if(unassignedIds.has(id))return true;
+      // Recurring tasks eligible for next shuffle
+      if(t.repeat&&t.repeat!=='Nie')return poolTaskEligibleThisWeek(t);
+      return false;
+    });
+  } else if(pf!=='all'){toShow=toShow.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});}
   const c=document.getElementById('poolContainer');
   if(!toShow.length&&!poolable.length){
     const grpBtns=!group?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:0 8px">
@@ -2150,7 +2194,7 @@ function renderPool(){
         ${t.cat?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${catIcon(allCats()[t.cat]||'')} ${t.cat}</span>`:''}
         ${(()=>{const ov=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();return t.deadline?`<span class="badge ${ov?'b-red':'b-blu'}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${ov?` ${I.alert}`:''}</span>`:''})()}
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}${t.repeat==='Monatlich'&&(t.repeatInterval||1)>1?` (alle ${t.repeatInterval}M)`:''}</span>`:''}
-        ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:''}
+        ${myScoreBadge(t)||( sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px" title="${lang==='en'?'Group avg':'Gruppen-Ø'}">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:'' )}
         ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}
       </div>
       ${subsHtml}${prog(t)}
@@ -2630,9 +2674,9 @@ function applyFaqLang(){
   s('faqP2q',de?'Wie erstelle ich eine Pool-Aufgabe?':'How do I create a pool task?');
   sH('faqP2a',de?'Beim Erstellen einer Aufgabe den Typ <b>Pool</b> wählen. Optional: Voting aktivieren, damit die Gruppe den Aufwand bewertet.':'Select the type <b>Pool</b> when creating a task. Optional: enable voting so the group can rate the effort.');
   s('faqP3q',de?'Was ist der Scheißigkeitsscore?':'What is the Crappiness Score?');
-  sH('faqP3a',de?'Jede Pool-Aufgabe bekommt einen Score von <b>1–10</b>, der den Aufwand beschreibt:<br>1–3: leicht / angenehm<br>4–6: mittel<br>7–10: unangenehm / aufwändig<br><br>Jedes Mitglied bewertet jede Aufgabe. Der Durchschnittswert aller Stimmen ergibt den Score.':'Each pool task gets a score of <b>1–10</b> describing its effort:<br>1–3: easy / pleasant<br>4–6: medium<br>7–10: unpleasant / demanding<br><br>Every member rates every task. The average of all votes becomes the score.');
+  sH('faqP3a',de?'Jede Pool-Aufgabe bekommt einen Score von <b>1–10</b>, der die Schwierigkeit/den Aufwand aus Sicht jedes Mitglieds beschreibt:<br>1–3: leicht / angenehm<br>4–6: mittel<br>7–10: unangenehm / aufwändig<br><br><b>Fairness:</b> Jedes Mitglied bewertet jede Aufgabe <i>individuell</i> — dein persönlicher Score spiegelt wider, wie schwer du die Aufgabe findest. Im Pool-Tab siehst du daher immer deine eigene Bewertung als Badge. Beim Shuffle wird dein persönlicher Score verwendet, um die Verteilung gerecht für dich zu gestalten.<br><br><b>Durchschnitt:</b> Der angezeigte Gesamt-Score im Vote-Tab ist der Mittelwert aller Stimmen. Dort siehst du außerdem, wer wie bewertet hat.':'Each pool task gets a score of <b>1–10</b> describing its difficulty from each member\'s perspective:<br>1–3: easy / pleasant<br>4–6: medium<br>7–10: unpleasant / demanding<br><br><b>Fairness:</b> Every member rates every task <i>individually</i> — your personal score reflects how hard you find the task. In the Pool tab you always see your own rating as a badge. The shuffle uses your personal score to distribute tasks fairly for you.<br><br><b>Average:</b> The overall score shown in the Vote tab is the average of all votes. There you can also see who rated what.');
   s('faqP4q',de?'Nach welchen Kriterien wird verteilt?':'How is distribution decided?');
-  sH('faqP4a',de?'Der Shuffle-Algorithmus berücksichtigt:<br><b>1. Score-Balance</b> – niemand bekommt unverhältnismäßig viele schwere Aufgaben<br><b>2. Schulden-Score</b> – wer zuletzt viele schwere Aufgaben hatte, wird entlastet (der Schuldenstand sinkt wöchentlich automatisch ab)<br><b>3. Letzte Zuteilung</b> – dieselbe Aufgabe geht nicht zweimal hintereinander an dieselbe Person<br><br><i>Beispiel: Hat Anna letzte Woche Klo putzen (Score 8) und Müll rausbringen (Score 6) erledigt, bekommt sie beim nächsten Shuffle bevorzugt leichtere Aufgaben, bis der Score-Ausgleich wieder stimmt.</i>':'The shuffle algorithm considers:<br><b>1. Score balance</b> – nobody gets a disproportionate number of hard tasks<br><b>2. Debt score</b> – whoever had many hard tasks recently gets lighter ones next (debt decreases automatically each week)<br><b>3. Last assignment</b> – the same task never goes to the same person twice in a row<br><br><i>Example: If Anna cleaned the toilet (score 8) and took out the trash (score 6) last week, she gets preferably easier tasks next shuffle until the balance is restored.</i>');
+  sH('faqP4a',de?'Der Shuffle-Algorithmus berücksichtigt:<br><b>1. Persönlicher Score</b> – der Algorithmus verwendet deinen <i>eigenen</i> Vote (nicht den Durchschnitt), um zu berechnen, wie schwer die Aufgabe für dich persönlich ist. Das macht die Verteilung fairer: Wer eine Aufgabe als leicht empfindet, bekommt sie häufiger.<br><b>2. Score-Balance</b> – niemand bekommt unverhältnismäßig viele schwere Aufgaben (bezogen auf seine eigene Bewertung)<br><b>3. Schulden-Score</b> – wer zuletzt viele schwere Aufgaben hatte, wird entlastet (der Schuldenstand sinkt wöchentlich automatisch ab)<br><b>4. Letzte Zuteilung</b> – dieselbe Aufgabe geht nicht zweimal hintereinander an dieselbe Person<br><br><i>Beispiel: Anna findet "Klo putzen" extrem schlimm (Score 9), Bob findet es erträglich (Score 5). Beim nächsten Shuffle wird Bob diese Aufgabe häufiger bekommen — aus seiner Sicht ist sie weniger belastend.</i>':'The shuffle algorithm considers:<br><b>1. Personal score</b> – the algorithm uses your <i>own</i> vote (not the average) to calculate how hard the task is for you personally. This makes distribution fairer: whoever finds a task easy gets it more often.<br><b>2. Score balance</b> – nobody gets a disproportionate number of hard tasks (based on their personal ratings)<br><b>3. Debt score</b> – whoever had many hard tasks recently gets lighter ones next (debt decreases automatically each week)<br><b>4. Last assignment</b> – the same task never goes to the same person twice in a row<br><br><i>Example: Anna finds "cleaning the toilet" awful (score 9), Bob finds it tolerable (score 5). At the next shuffle Bob will get this task more often — from his perspective it\'s less of a burden.</i>');
   s('faqP5q',de?'Wann kommen Pool-Aufgaben in den Shuffle?':'When do pool tasks enter the shuffle?');
   sH('faqP5a',de?'<b>Einmalige Pool-Aufgaben</b> – immer beim nächsten Shuffle<br><b>Täglich / Wöchentlich</b> – bei jedem Shuffle<br><b>Monatlich</b> – ca. einmal pro Monat (nicht in den letzten 5 Tagen des Monats)<br><b>Jährlich</b> – ca. einmal pro Jahr (nicht in November / Dezember)':'<b>One-time pool tasks</b> – always at the next shuffle<br><b>Daily / Weekly</b> – at every shuffle<br><b>Monthly</b> – approx. once a month (not in the last 5 days of the month)<br><b>Yearly</b> – approx. once a year (not in November / December)');
   s('faqP6q',de?'Wann wird geshuffelt?':'When does the shuffle run?');
