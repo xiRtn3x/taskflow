@@ -175,16 +175,17 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 .conf{position:absolute;border-radius:2px;animation:fall linear forwards;}
 @keyframes bounce{from{transform:translateY(0) rotate(-6deg);}to{transform:translateY(-16px) rotate(6deg);}}
 @keyframes fall{0%{transform:translateY(-30px) rotate(0);opacity:1;}100%{transform:translateY(100vh) rotate(800deg);opacity:0;}}
-.slot-ov{position:fixed;inset:0;z-index:8500;background:rgba(0,0,0,.65);backdrop-filter:blur(16px);display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.slot-ov{position:fixed;inset:0;z-index:8500;background:rgba(5,5,20,.92);backdrop-filter:blur(24px);display:flex;flex-direction:column;align-items:center;justify-content:flex-start;opacity:0;pointer-events:none;transition:opacity .3s;}
 .slot-ov.show{opacity:1;pointer-events:all;}
 .slot-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:22px;padding:28px 24px;width:88%;max-width:340px;backdrop-filter:blur(24px);box-shadow:0 20px 60px rgba(0,0,0,.4);}
 .slot-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:20px;color:var(--text);}
-.slot-row{display:flex;align-items:center;gap:12px;margin-bottom:12px;background:rgba(0,0,0,.06);border-radius:12px;padding:10px 14px;border:1px solid var(--sep);overflow:hidden;}
-.slot-task{font-size:14px;font-weight:600;flex:1;color:var(--text);}
-.slot-name-wrap{width:80px;overflow:hidden;height:22px;position:relative;}
+.slot-row{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.07);border-radius:16px;padding:14px 16px;border:1px solid rgba(255,255,255,.12);overflow:hidden;transition:all .4s;position:relative;}
+.slot-row.slot-highlight{background:rgba(91,91,214,.25);border-color:rgba(91,91,214,.5);box-shadow:0 0 20px rgba(91,91,214,.3);}
+.slot-task{font-size:15px;font-weight:600;flex:1;color:#fff;}
+.slot-name-wrap{width:90px;overflow:hidden;height:24px;position:relative;}
 .slot-reel{display:flex;flex-direction:column;position:absolute;top:0;width:100%;}
-.slot-name-item{height:22px;font-size:13px;font-weight:700;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:22px;}
-.slot-sub{font-size:13px;color:var(--text3);text-align:center;margin-top:16px;}
+.slot-name-item{height:24px;font-size:14px;font-weight:700;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:24px;}
+.slot-sub{font-size:13px;color:rgba(255,255,255,.6);text-align:center;margin-top:8px;}
 .chlog-ov{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity .3s;}
 .chlog-ov.show{opacity:1;pointer-events:all;}
 .chlog-card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(28px);border-radius:22px;padding:28px 22px 22px;max-width:340px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:80dvh;overflow-y:auto;}
@@ -519,11 +520,18 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div class="celeb-txt" id="celebTxt"></div>
   <div class="celeb-sub"id="celebSub">Tippe um fortzufahren</div>
 </div>
-<div class="slot-ov" id="slotOv" onclick="closeSlot()">
-  <div class="slot-card" onclick="event.stopPropagation()">
-    <div class="slot-title">Aufgaben werden verteilt…</div>
-    <div id="slotRows"></div>
-    <div class="slot-sub" id="slotSub"id="slotSub">Die Würfel fallen…</div>
+<div class="slot-ov" id="slotOv">
+  <div id="slotInner" style="width:100%;max-width:430px;display:flex;flex-direction:column;height:100dvh;padding:env(safe-area-inset-top,20px) 0 0" onclick="event.stopPropagation()">
+    <div style="padding:16px 20px 10px;text-align:center;flex-shrink:0">
+      <div id="slotTitle" style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-.3px">🎰 Aufgaben werden verteilt…</div>
+      <div class="slot-sub" id="slotSub">Die Würfel fallen…</div>
+    </div>
+    <div id="slotRows" style="flex:1;overflow-y:auto;padding:0 16px 20px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="flex-shrink:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px))">
+      <button id="slotDismissBtn" style="display:none;width:100%;padding:14px;background:linear-gradient(135deg,#5B5BD6,#818CF8);color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(91,91,214,.35)" onclick="closeSlot()">
+        Verstanden – Los geht's! 🎯
+      </button>
+    </div>
   </div>
 </div>
 <div class="chlog-ov" id="chlogOv">
@@ -552,9 +560,16 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     </div>
     <div class="fg"><label class="fl"id="lbDeadline">Deadline</label><input class="fi" id="fDeadline" type="date" style="width:100%;max-width:100%;-webkit-appearance:none;appearance:none;"></div>
     <div class="fg"><label class="fl"id="lbRepeat">Wiederholt sich</label>
-      <select class="fsel" id="fRepeat">
+      <select class="fsel" id="fRepeat" onchange="toggleRepeatInterval(this.value)">
         <option>Nie</option><option>Täglich</option><option>Wöchentlich</option><option>Monatlich</option><option>Jährlich</option>
       </select>
+    </div>
+    <div class="fg" id="repeatIntervalWrap" style="display:none">
+      <label class="fl" id="lbRepeatInterval">Alle wie viele Monate?</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <input class="fi" id="fRepeatInterval" type="number" min="1" max="24" value="1" style="width:80px;text-align:center">
+        <span style="font-size:14px;color:var(--text2)" id="lbRepeatIntervalUnit">Monat(e)</span>
+      </div>
     </div>
     <div class="fg"><label class="fl"id="lbTyp">Typ</label>
       <div class="seg" id="typeSeg">
@@ -1486,7 +1501,7 @@ async function init(){
       try{
         [users,me]=await Promise.all([api('GET','/users'),api('GET','/users/me')]);
         const [t,g,as]=await Promise.all([api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
-        tasks=t;group=g;appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,...(as||{})};
+        tasks=t;group=g;appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],...(as||{})};
         processRecurring();
       }catch(e){localStorage.removeItem('tf_token');myToken=null;showOnboard();return;}
       return;
@@ -1509,6 +1524,13 @@ function showApp(){
       if(greet&&me?.name)greet.textContent=`Hallo, ${me.name}!`;
       document.getElementById('tutorialOv').classList.add('open');
     },600);
+    return;
+  }
+  // Show slot machine after loader if a shuffle happened since last open
+  if(appstate.pendingSlotShow&&appstate.poolAssigns&&appstate.poolTasks?.length){
+    setTimeout(()=>{
+      _showSlotMachine(appstate.poolTasks, appstate.poolAssigns, null);
+    },700);
   }
 }
 function closeTutorial(){
@@ -1518,7 +1540,7 @@ function closeTutorial(){
 async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
-  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,...appstate};
+  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],...appstate};
   processRecurring();
 }
 let _saveStateTimer=null;
@@ -1621,7 +1643,13 @@ function processRecurring(){
     let reset=false;
     if(t.repeat==='Täglich'&&last<today)reset=true;
     if(t.repeat==='Wöchentlich'&&weekStart(last)<weekStart(today))reset=true;
-    if(t.repeat==='Monatlich'&&monthStr(last)<monthStr(today))reset=true;
+    if(t.repeat==='Monatlich'){
+      const interval=t.repeatInterval||1;
+      const lastDate=new Date(last.slice(0,7)+'-01');
+      const now=new Date();const curMonth=new Date(now.getFullYear(),now.getMonth(),1);
+      const monthDiff=(curMonth.getFullYear()-lastDate.getFullYear())*12+(curMonth.getMonth()-lastDate.getMonth());
+      if(monthDiff>=interval)reset=true;
+    } else if(t.repeat==='Monatlich_old'){}// fallback handled above
     if(t.repeat==='Jährlich'&&yearStr(last)<yearStr(today))reset=true;
     if(reset){api('PATCH','/tasks/'+t._id,{done:false,subtasks:(t.subtasks||[]).map(s=>({...s,done:false}))}).catch(()=>{});t.done=false;if(t.subtasks)t.subtasks.forEach(s=>s.done=false);delete appstate.recurringLast[t._id?.toString()];changed=true;}
   });
@@ -1882,7 +1910,7 @@ function taskHTML(t,showBar=false){
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span>
         ${isSharedTask(t)?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.users} ${[(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'';}).filter(Boolean),(t.creatorId&&t.creatorId!==me._id?.toString()?[uById(t.creatorId)?.name].filter(Boolean):[])].flat().filter((v,i,a)=>a.indexOf(v)===i).join(', ')||'gemeinsam'}</span>`:''}
         ${t.deadline?`<span class="badge ${overdue?'b-red':'b-blu'}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span>`:''}
-        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}
+        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}${t.repeat==='Monatlich'&&(t.repeatInterval||1)>1?` (alle ${t.repeatInterval}M)`:''}</span>`:''}
         ${scoreBadge(t)}
         ${showBar&&aname?`<span class="badge" style="background:${col}22;color:${col};border:1px solid ${col}44;display:inline-flex;align-items:center;gap:3px">${I.user} ${aname}</span>`:''}
         ${creatorNote?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.user} ${creatorNote}</span>`:''}
@@ -1951,56 +1979,90 @@ function _roundRobinAssign(ids,startIdx){
 }
 function buildAssigns(ids){return _roundRobinAssign(ids);}
 
-// ── FAIR SHUFFLE: balance poop scores across users ──
-// debtScore[userId] = cumulative poop score assigned to them (carries over weeks)
+// ── FAIR SHUFFLE: probabilistic weighted algorithm with personalized vote scores ──
+// debtScore[userId] = cumulative personal poop score assigned to them (carries over)
+// Min weight 15% — preserves slot-machine feeling while trend-balancing
 function fairShuffleAssigns(ids){
   if(!users.length)return buildAssigns(ids);
   const uids=users.map(u=>u._id?.toString());
   if(uids.length===1)return buildAssigns(ids);
 
-  // Get current debt scores (carry-over from previous weeks)
+  // Get current debt scores (carry-over from previous shuffles)
   if(!appstate.shuffleDebtScore)appstate.shuffleDebtScore={};
   const debt={};uids.forEach(u=>{debt[u]=appstate.shuffleDebtScore[u]||0;});
 
   const a={};
-  // Separate tasks with known poop score vs without
-  const scoredIds=ids.filter(id=>{const t=tasks.find(t=>t._id?.toString()===id);return t&&t.poopScore!=null;});
-  const unscoredIds=ids.filter(id=>!scoredIds.includes(id));
 
-  // Sort scored tasks by score descending (worst first)
-  const scored=scoredIds.map(id=>({id,score:tasks.find(t=>t._id?.toString()===id)?.poopScore||0})).sort((x,y)=>y.score-x.score);
+  // Helper: get personalized score for a given user + task
+  // Uses user's own vote (not average) — falls back to poopScore, then 5
+  function getPersonalScore(t, uid){
+    if(t.votingEnabled){
+      const myVote=(t.votes||{})[uid];
+      if(myVote!=null)return myVote;
+    }
+    if(t.poopScore!=null)return t.poopScore;
+    return 5;
+  }
 
-  // Assign unscored via shared round-robin helper
-  const unscoredA=_roundRobinAssign(unscoredIds);
-  unscoredIds.forEach(id=>{if(unscoredA[id]){a[id]=unscoredA[id];debt[unscoredA[id].assignedUser]=(debt[unscoredA[id].assignedUser]||0)+5;}});
-
-  // Assign scored tasks to the user with lowest current debt
-  scored.forEach(({id,score})=>{
-    const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
-    const last=appstate.poolAssigns?.[id]?.assignedUser;
-    // Pick user with lowest debt (skip last assignee if possible)
-    const sorted=[...uids].sort((x,y)=>(debt[x]||0)-(debt[y]||0));
-    let pick=sorted[0];
-    if(uids.length>1&&pick===last&&sorted[1])pick=sorted[1];
-    const subA={};(t.subtasks||[]).forEach(s=>{
-      // Distribute subtasks to lowest-debt user
-      const srt=[...uids].sort((x,y)=>(debt[x]||0)-(debt[y]||0));
-      subA[s.id]=srt[0];
-      debt[srt[0]]=(debt[srt[0]]||0)+(score/2); // half score per subtask
-    });
-    a[id]={assignedUser:pick,subtaskAssignments:subA};
-    debt[pick]=(debt[pick]||0)+score;
+  // Sort tasks by average poop score descending (worst first, for stable ordering)
+  const sortedIds=[...ids].sort((a,b)=>{
+    const ta=tasks.find(t=>t._id?.toString()===a);
+    const tb=tasks.find(t=>t._id?.toString()===b);
+    const sa=ta?.poopScore??5;const sb=tb?.poopScore??5;
+    return sb-sa;
   });
 
-  // Save updated debt scores for next week
-  // Reduce debt over time (multiply by 0.5 each week for decay)
+  // Probabilistic weighted assignment
+  sortedIds.forEach(id=>{
+    const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+    const last=appstate.poolAssigns?.[id]?.assignedUser;
+
+    // Compute weights for each user based on debt saldo
+    // Normalization factor = max debt spread or fallback
+    const totalDebt=uids.reduce((s,u)=>s+(debt[u]||0),0);
+    const avgDebt=totalDebt/uids.length;
+    const maxSpread=Math.max(...uids.map(u=>Math.abs((debt[u]||0)-avgDebt)),1);
+
+    const weights=uids.map(u=>{
+      const saldo=(debt[u]||0)-avgDebt;
+      // If saldo positive → overloaded → lower weight
+      const w=Math.max(0.15, 1-(saldo/maxSpread)*0.7);
+      return w;
+    });
+
+    // Reduce weight of last assignee (anti-repetition), but keep ≥ 0.15
+    const wAdj=[...weights];
+    if(uids.length>1&&last){
+      const li=uids.indexOf(last);
+      if(li>=0)wAdj[li]=Math.max(0.15,wAdj[li]*0.3);
+    }
+
+    // Weighted random pick
+    const totalW=wAdj.reduce((s,w)=>s+w,0);
+    let r=Math.random()*totalW;let pick=uids[0];
+    for(let i=0;i<uids.length;i++){r-=wAdj[i];if(r<=0){pick=uids[i];break;}}
+
+    // Distribute subtasks with same weighted logic
+    const subA={};
+    (t.subtasks||[]).forEach(s=>{
+      // Re-pick for each subtask independently
+      let sr=Math.random()*totalW;let spick=uids[0];
+      for(let i=0;i<uids.length;i++){sr-=wAdj[i];if(sr<=0){spick=uids[i];break;}}
+      subA[s.id]=spick;
+      debt[spick]=(debt[spick]||0)+(getPersonalScore(t,spick)/2);
+    });
+
+    a[id]={assignedUser:pick,subtaskAssignments:subA};
+    debt[pick]=(debt[pick]||0)+getPersonalScore(t,pick);
+  });
+
+  // Save updated debt scores — decay factor 0.6 (more memory than 0.5)
   const thisWeek=weekStart(todayStr());
   if(appstate.lastShuffleWeek!==thisWeek){
-    // New week: apply decay to old debt, then add new
-    uids.forEach(u=>{appstate.shuffleDebtScore[u]=Math.round((appstate.shuffleDebtScore[u]||0)*0.5+debt[u]*0.5);});
+    // New week: apply 0.6 decay to old debt
+    uids.forEach(u=>{appstate.shuffleDebtScore[u]=Math.round((appstate.shuffleDebtScore[u]||0)*0.6+debt[u]*0.4);});
     appstate.lastShuffleWeek=thisWeek;
   } else {
-    // Same week: just update
     uids.forEach(u=>{appstate.shuffleDebtScore[u]=debt[u];});
   }
 
@@ -2087,7 +2149,7 @@ function renderPool(){
         <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span>
         ${t.cat?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${catIcon(allCats()[t.cat]||'')} ${t.cat}</span>`:''}
         ${(()=>{const ov=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();return t.deadline?`<span class="badge ${ov?'b-red':'b-blu'}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${ov?` ${I.alert}`:''}</span>`:''})()}
-        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}
+        ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}${t.repeat==='Monatlich'&&(t.repeatInterval||1)>1?` (alle ${t.repeatInterval}M)`:''}</span>`:''}
         ${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:''}
         ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}
       </div>
@@ -2105,13 +2167,20 @@ function poolTaskEligibleThisWeek(t){
   // If already assigned this period, skip
   const lastAssigned=appstate.recurringPoolShown?.[id];
   if(t.repeat==='Monatlich'){
+    const interval=t.repeatInterval||1;
     const monthKey=todayStr().slice(0,7); // YYYY-MM
     if(lastAssigned===monthKey)return false;
+    // Check if enough months have passed since last assigned
+    if(lastAssigned&&interval>1){
+      const lastDate=new Date(lastAssigned+'-01');
+      const now=new Date(today.getFullYear(),today.getMonth(),1);
+      const monthDiff=(now.getFullYear()-lastDate.getFullYear())*12+(now.getMonth()-lastDate.getMonth());
+      if(monthDiff<interval)return false;
+    }
     // Don't assign in last 5 days of month
     const lastDay=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
     if(today.getDate()>lastDay-5)return false;
     // Random chance: ~1 in 3 shuffles this month (roughly weekly shuffles)
-    // Use a deterministic seed per task+week so all users agree
     const weekKey=weekStart(todayStr());
     const seed=id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
     const weekNum=Math.floor((new Date(weekKey)-new Date(today.getFullYear(),0,1))/(7*86400000));
@@ -2177,11 +2246,9 @@ function shufflePool(){
   const allPool=tasks.filter(t=>isPoolTask(t)&&!t.done);
   const poolable=allPool.filter(t=>poolTaskEligibleThisWeek(t));
   if(!poolable.length){
-    // If there are tasks but none eligible this week, tell user
     if(allPool.length){showToast(lang==='en'?'No tasks due this week':'Keine Aufgaben für diese Woche fällig');return;}
     showToast(lang==='en'?'No pool tasks':'Keine Pool-Aufgaben');return;
   }
-  // Mark recurring tasks as shown for this period
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
   poolable.forEach(t=>{
     if(!t.repeat||t.repeat==='Nie')return;
@@ -2192,40 +2259,89 @@ function shufflePool(){
   appstate.poolTasks=poolable.map(t=>t._id?.toString());
   const finalAssigns=fairShuffleAssigns(appstate.poolTasks);
   appstate.poolFilter='all';
+  _showSlotMachine(appstate.poolTasks, finalAssigns, ()=>{
+    appstate.poolAssigns=finalAssigns;saveState();renderPool();renderMy();
+    appstate.poolTasks.forEach(id=>{
+      const asgn=finalAssigns[id];if(!asgn)return;
+      const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+      if(asgn.assignedUser!==me._id?.toString()){
+        const _st=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+        notifyUser(asgn.assignedUser,'Pool-Shuffle um '+_st+': Du bist jetzt zuständig für \u201e'+t.title+'"');
+      }
+    });
+  });
+  appstate.pendingSlotShow=true;
+  appstate.pendingSlotTaskIds=appstate.poolTasks;
+  saveState();
+}
+
+function _showSlotMachine(taskIds, finalAssigns, onReveal){
+  const sortedIds=[...taskIds].sort((a,b)=>{
+    const ta=tasks.find(t=>t._id?.toString()===a);
+    const tb=tasks.find(t=>t._id?.toString()===b);
+    return (tb?.poopScore??5)-(ta?.poopScore??5);
+  });
   const rows=document.getElementById('slotRows');
-  rows.innerHTML=appstate.poolTasks.map(id=>{
+  rows.innerHTML=sortedIds.map(id=>{
     const t=tasks.find(t=>t._id?.toString()===id);if(!t)return'';
-    const sc=getScore(t);const subCount=t.subtasks?.length||0;
-    return`<div class="slot-row"><div class="slot-task">${t.title.slice(0,20)}${t.title.length>20?'…':''}${sc!=null?` ${poopSVG(11)}${sc}`:''}${subCount?` <span style="font-size:10px;color:var(--text3)">(+${subCount})</span>`:''}</div><div class="slot-name-wrap" id="slot-${id}"><div class="slot-reel" id="reel-${id}"></div></div></div>`;
+    const sc=t.poopScore??null;const subCount=t.subtasks?.length||0;
+    return`<div class="slot-row" id="sr-${id}">
+      <div style="flex:1">
+        <div class="slot-task">${t.title.slice(0,28)}${t.title.length>28?'…':''}</div>
+        ${sc!=null?`<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">${poopSVG(10)} ${sc}${subCount?' \u00b7 '+subCount+' Unteraufg.':''}</div>`:(subCount?`<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">${subCount} Unteraufg.</div>`:'')}
+      </div>
+      <div class="slot-name-wrap" id="slot-${id}"><div class="slot-reel" id="reel-${id}"></div></div>
+    </div>`;
   }).join('');
+  document.getElementById('slotTitle').textContent=lang==='en'?'🎰 Shuffling…':'🎰 Aufgaben werden verteilt…';
   document.getElementById('slotSub').textContent=lang==='en'?'Rolling the dice…':'Die Würfel fallen…';
+  document.getElementById('slotDismissBtn').style.display='none';
   document.getElementById('slotOv').classList.add('show');
   const unames=users.map(u=>u.name);let ticker=0;
   const interval=setInterval(()=>{
     ticker++;
-    appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const nm=unames[Math.floor(Math.random()*unames.length)];const span=document.createElement('div');span.className='slot-name-item';span.style.color=me?.color||'var(--acc)';span.textContent=nm;reel.insertBefore(span,reel.firstChild);if(reel.children.length>6)reel.removeChild(reel.lastChild);});
-    if(ticker===1)document.getElementById('slotSub').textContent=lang==='en'?'Crappiness balancing…':'Scheißigkeits-Ausgleich läuft…';
+    sortedIds.forEach(id=>{
+      const reel=document.getElementById('reel-'+id);if(!reel)return;
+      const nm=unames[Math.floor(Math.random()*unames.length)];
+      const span=document.createElement('div');span.className='slot-name-item';
+      span.style.color=`hsl(${(ticker*37+sortedIds.indexOf(id)*53)%360},65%,72%)`;
+      span.textContent=nm;
+      reel.insertBefore(span,reel.firstChild);
+      if(reel.children.length>5)reel.removeChild(reel.lastChild);
+    });
+    if(ticker===5)document.getElementById('slotSub').textContent=lang==='en'?'Balancing crappiness…':'Scheißigkeits-Ausgleich läuft…';
     if(ticker===30){
-      clearInterval(interval);appstate.poolAssigns=finalAssigns;saveState();renderPool();renderMy();
-      // F6: notify each assigned user
-      appstate.poolTasks.forEach(id=>{
-        const asgn=finalAssigns[id];if(!asgn)return;
-        const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
-        const assignedUid=asgn.assignedUser;
-        if(assignedUid!==me._id?.toString()){
-          const _st=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});notifyUser(assignedUid,'Pool-Shuffle um '+_st+': Du bist jetzt zuständig für „'+t.title+'“');
-        }
+      clearInterval(interval);
+      if(onReveal)onReveal();
+      sortedIds.forEach(id=>{
+        const reel=document.getElementById('reel-'+id);if(!reel)return;
+        const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);
+        reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:15px;font-weight:800">${u?.name||'?'}</div>`;
       });
-      appstate.poolTasks.forEach(id=>{const reel=document.getElementById('reel-'+id);if(!reel)return;const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:14px;font-weight:800">${u?.name||'?'}</div>`;});
-      // Show balance info
+      document.getElementById('slotTitle').textContent=lang==='en'?'✅ Done!':'✅ Fertig!';
       const uids=users.map(u=>u._id?.toString());
-      const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=appstate.poolTasks.filter(id=>finalAssigns[id]?.assignedUser===uid);const totalScore=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: ${poopSVG(10)}${totalScore.toFixed(1)}`;}).join(' · ');
-      document.getElementById('slotSub').innerHTML=scoreInfo||(lang==='en'?'Done! Fairly distributed.':'Fertig! Ausgeglichen verteilt.');
-      setTimeout(closeSlot,2500);
+      const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=sortedIds.filter(id=>finalAssigns[id]?.assignedUser===uid);const total=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: ${poopSVG(10)}${total.toFixed(0)}`;}).join(' · ');
+      document.getElementById('slotSub').innerHTML=scoreInfo||(lang==='en'?'Fairly distributed.':'Ausgeglichen verteilt.');
+      const myId=me._id?.toString();
+      sortedIds.forEach(id=>{
+        const asgn=finalAssigns[id];const row=document.getElementById('sr-'+id);if(!row)return;
+        if(asgn?.assignedUser===myId)row.classList.add('slot-highlight');
+      });
+      setTimeout(()=>{
+        const myRow=document.getElementById('slotRows').querySelector('.slot-highlight');
+        if(myRow){myRow.scrollIntoView({behavior:'smooth',block:'center'});myRow.style.transition='transform .3s';myRow.style.transform='scale(1.03)';setTimeout(()=>{myRow.style.transform='scale(1)';},350);}
+        document.getElementById('slotTitle').textContent=lang==='en'?'🎯 Your tasks are highlighted':'🎯 Deine Aufgaben sind markiert';
+        document.getElementById('slotDismissBtn').style.display='block';
+      },3000);
     }
   },80);
 }
-function closeSlot(){document.getElementById('slotOv').classList.remove('show');}
+
+function closeSlot(){
+  document.getElementById('slotOv').classList.remove('show');
+  appstate.pendingSlotShow=false;
+  saveState();
+}
 
 // ── CALENDAR ──
 function renderCalendar(){
@@ -2273,7 +2389,7 @@ function openDetail(id){
       voteSection=`<div class="sec" style="display:flex;align-items:center;gap:5px">${poopSVG(13)} Voting</div><div class="glass-card cg"><div style="padding:14px;text-align:center;color:var(--text3);font-size:14px">${vCnt}/${vTotal} ${lang==='en'?'votes':'Stimmen'}${needsMyVote(t)?`<br><button class="btn btn-p" style="margin-top:10px;font-size:14px" onclick="closeDetail();switchTab(3)">${lang==='en'?'Vote now':'Jetzt abstimmen'} ${poopSVG(13)}</button>`:''}</div></div>`;
     }
   }
-  document.getElementById('detailContent').innerHTML=`<div style="padding:14px 14px 10px"><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
+  document.getElementById('detailContent').innerHTML=`<div style="padding:14px 14px 10px"><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}${t.repeat==='Monatlich'&&(t.repeatInterval||1)>1?` (alle ${t.repeatInterval}M)`:''}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
   <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Assigned to':'Zuständig'}</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">Deadline</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Pool':'Pool'}</span><span style="color:var(--green);font-size:14px">${I.check} ${lang==='en'?'Yes':'Ja'}</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Shared':'Gemeinsam'}</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
   </div>${subsH}${voteSection}
   <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?(lang==='en'?'Reopen':'Wieder öffnen'):(lang==='en'?'Mark as done':'Als erledigt markieren')}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">${lang==='en'?(isPoolTask(t)?'Only the assigned user can complete this task':'Only the task creator can complete this task'):(isPoolTask(t)?'Nur der zugewiesene Nutzer kann diese Aufgabe abschließen':'Nur der Aufgaben-Ersteller kann diese Aufgabe abschließen')}</div>`}</div>
@@ -2343,6 +2459,10 @@ function toggleVoting(el){selVoting=!selVoting;el.classList.toggle('on',selVotin
 function renderSharedUserPicker(){const others=users.filter(u=>u._id?.toString()!==me._id?.toString());document.getElementById('sharedUsersList').innerHTML=others.map(u=>`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--sep)">${avHTML(u,32)}<span style="flex:1;font-size:14px">${u.name}</span><div class="tog${sharedUsers.has(u._id?.toString())?' on':''}" onclick="toggleSharedUser('${u._id}',this)"></div></div>`).join('');}
 function toggleSharedUser(id,el){if(sharedUsers.has(id))sharedUsers.delete(id);else sharedUsers.add(id);el.classList.toggle('on',sharedUsers.has(id));}
 function setPrio(p,btn){selPrio=p;document.querySelectorAll('#prioSeg .seg-b').forEach(b=>b.classList.remove('on'));btn.classList.add('on');}
+function toggleRepeatInterval(val){
+  const wrap=document.getElementById('repeatIntervalWrap');
+  if(wrap)wrap.style.display=(val==='Monatlich')?'block':'none';
+}
 function refreshSubList(){
   const el=document.getElementById('newSubList');if(!el)return;
   el.innerHTML=newSubs.map((s,i)=>`<div class="sub-tag" data-idx="${i}"><span class="dragh">${I.grip}</span><span style="flex:1;font-size:13px">${s.title}</span><button onclick="rmSub(${i})" style="background:none;border:none;color:var(--text3);cursor:pointer;display:flex;align-items:center">${I.trash}</button></div>`).join('');
@@ -2403,6 +2523,9 @@ function showAddTask(editId=null, forceType=null){
   const repMapDE={Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'};
   const repVal=t?.repeat||'Nie';
   document.getElementById('fRepeat').value=lang==='en'?(repMapEN[repVal]||repVal):(repMapDE[repVal]||repVal);
+  // Load monthly interval
+  const intEl=document.getElementById('fRepeatInterval');if(intEl)intEl.value=t?.repeatInterval||1;
+  toggleRepeatInterval(repVal==='Monatlich'?'Monatlich':(repVal==='Monthly'?'Monatlich':'Nie'));
   selPrio=t?.prio||'Mittel';
   document.querySelectorAll('#prioSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',['Hoch','Mittel','Niedrig'][i]===selPrio));
   const tp=forceType||(t?.type||'mine');selType=tp;
@@ -2422,7 +2545,7 @@ async function saveTask(){
   const title=document.getElementById('fTitle').value.trim();if(!title){showToast(lang==='en'?'Please enter a title!':'Titel eingeben!');return;}
   const assignee=selType==='mine'?document.getElementById('fAssignee').value:me._id?.toString();
   const existingTask=editingId?tasks.find(t=>t._id?.toString()===editingId):null;
-  const data={title,desc:document.getElementById('fDesc').value,cat:(()=>{const v=document.getElementById('fCat').value;return lang==='en'?catKeyToDE(v):v;})(),prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:(()=>{const rv=document.getElementById('fRepeat').value;const back={Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'};return lang==='en'?(back[rv]||rv):rv;})(),type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:editingId?(existingTask?.done||false):false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
+  const data={title,desc:document.getElementById('fDesc').value,cat:(()=>{const v=document.getElementById('fCat').value;return lang==='en'?catKeyToDE(v):v;})(),prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:(()=>{const rv=document.getElementById('fRepeat').value;const back={Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'};return lang==='en'?(back[rv]||rv):rv;})(),repeatInterval:(()=>{const rv=document.getElementById('fRepeat').value;const rep=lang==='en'?({Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'}[rv]||rv):rv;if(rep==='Monatlich'){const v=parseInt(document.getElementById('fRepeatInterval')?.value||'1');return isNaN(v)||v<1?1:v;}return null;})(),type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:editingId?(existingTask?.done||false):false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
   if(editingId){
     const idx=tasks.findIndex(t=>t._id?.toString()===editingId);
     if(idx>=0)tasks[idx]={...tasks[idx],...data};
