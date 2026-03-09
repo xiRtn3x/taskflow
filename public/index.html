@@ -1526,8 +1526,11 @@ function showApp(){
     },600);
     // Fix P2: do NOT return early — still check pendingSlotShow below
   }
-  // Fix P2: show slot machine reliably after any shuffle (auto or manual)
+  // Show slot machine reliably after any shuffle (auto or manual) — only once per shuffle
   if(appstate.pendingSlotShow&&appstate.poolAssigns&&appstate.poolTasks?.length){
+    // Clear flag immediately so re-opens don't show it again
+    appstate.pendingSlotShow=false;
+    saveState();
     setTimeout(()=>{
       _showSlotMachine(appstate.poolTasks, appstate.poolAssigns, null);
     },700);
@@ -1541,7 +1544,7 @@ async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
   appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],...appstate};
-  // Fix P4: on very first load, stagger recurring pool tasks so they don't all appear at once.
+
   // Assign artificial lastAssigned dates spread evenly over each task's interval period.
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
   if(!appstate._staggerDone){
@@ -1623,8 +1626,13 @@ function startPolling(){
       if(document.visibilityState==='visible'){
         try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}}
         catch(e){}
-        // Fix P1: also check auto-shuffle when app comes to foreground
+        // Check auto-shuffle when app comes to foreground (todayKey prevents double-shuffle)
         checkAutoShuffle();
+        // Show pending slot machine result if a shuffle happened since last open
+        if(appstate.pendingSlotShow&&appstate.poolAssigns&&appstate.poolTasks?.length){
+          appstate.pendingSlotShow=false;saveState();
+          setTimeout(()=>{_showSlotMachine(appstate.poolTasks,appstate.poolAssigns,null);},700);
+        }
       }
     });
   }
@@ -2112,10 +2120,10 @@ function fairShuffleAssigns(ids){
 
   // Save updated debt scores — decay factor 0.6 (more memory than 0.5)
   const thisWeek=weekStart(todayStr());
-  if(appstate.lastShuffleWeek!==thisWeek){
+  if(appstate.lastDebtWeek!==thisWeek){
     // New week: apply 0.6 decay to old debt
     uids.forEach(u=>{appstate.shuffleDebtScore[u]=Math.round((appstate.shuffleDebtScore[u]||0)*0.6+debt[u]*0.4);});
-    appstate.lastShuffleWeek=thisWeek;
+    appstate.lastDebtWeek=thisWeek;
   } else {
     uids.forEach(u=>{appstate.shuffleDebtScore[u]=debt[u];});
   }
@@ -2266,12 +2274,14 @@ function checkAutoShuffle(){
   if(!group||!me||appstate.autoShuffleEnabled===false)return;
   const d=new Date(),dayOfWeek=d.getDay(),targetDay=appstate.autoShuffleDay??2;
   if(dayOfWeek!==targetDay)return;
-  // Fix P1: use date-based key so shuffle fires any time on the correct day
+  // Use date-based key so shuffle fires any time on the correct day
   const todayKey='autoShuf_'+todayStr();
   if(appstate.lastShuffleWeek===todayKey)return;
   const ready=tasks.filter(t=>isPoolTask(t)&&!t.done);
   if(!ready.length||ready.some(t=>t.votingEnabled&&!hasFullScore(t)))return;
-  appstate.lastShuffleWeek=todayKey;saveState();shufflePool();
+  appstate.lastShuffleWeek=todayKey;saveState();
+  // Auto-shuffle: compute + save results only, do NOT show animation now
+  shufflePool(true);
 }
 function toggleAutoShuffle(btn){
   const on=!btn.classList.contains('on');
@@ -2305,23 +2315,28 @@ function updatePoolPreview(){
   const dayStr=lang==='en'?dEN[day]:dDE[day];
   p.textContent=on?`Auto · ${dayStr}`:(lang==='en'?'Manual':'Manuell');
 }
-function shufflePool(){
+function shufflePool(autoOnly=false){
   const allPool=tasks.filter(t=>isPoolTask(t)&&!t.done);
   const poolable=allPool.filter(t=>poolTaskEligibleThisWeek(t));
   if(!poolable.length){
-    if(allPool.length){showToast(lang==='en'?'No tasks due this week':'Keine Aufgaben für diese Woche fällig');return;}
-    showToast(lang==='en'?'No pool tasks':'Keine Pool-Aufgaben');return;
+    if(!autoOnly){
+      if(allPool.length){showToast(lang==='en'?'No tasks due this week':'Keine Aufgaben für diese Woche fällig');return;}
+      showToast(lang==='en'?'No pool tasks':'Keine Pool-Aufgaben');return;
+    }
+    return;
   }
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
-  poolable.forEach(t=>{
-    // Fix P3: do NOT mark as shown here — trigger is task completion, not shuffle
-    // recurringPoolShown is set in toggleTask when the task is marked done
-  });
   appstate.poolTasks=poolable.map(t=>t._id?.toString());
   const finalAssigns=fairShuffleAssigns(appstate.poolTasks);
+  appstate.poolAssigns=finalAssigns;
   appstate.poolFilter='all';
-  _showSlotMachine(appstate.poolTasks, finalAssigns, ()=>{
-    appstate.poolAssigns=finalAssigns;saveState();renderPool();renderMy();
+  // Mark pending for all other group members (they see animation on next open)
+  appstate.pendingSlotShow=true;
+  appstate.pendingSlotTaskIds=appstate.poolTasks;
+  saveState();
+
+  if(autoOnly){
+    // Auto-shuffle: just save results, notify others — no animation for current user
     appstate.poolTasks.forEach(id=>{
       const asgn=finalAssigns[id];if(!asgn)return;
       const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
@@ -2330,10 +2345,21 @@ function shufflePool(){
         notifyUser(asgn.assignedUser,'Pool-Shuffle um '+_st+': Du bist jetzt zuständig für \u201e'+t.title+'"');
       }
     });
-  });
-  appstate.pendingSlotShow=true;
-  appstate.pendingSlotTaskIds=appstate.poolTasks;
-  saveState();
+    renderPool();renderMy();
+  } else {
+    // Manual shuffle: show animation immediately for the user who triggered it
+    _showSlotMachine(appstate.poolTasks, finalAssigns, ()=>{
+      renderPool();renderMy();
+      appstate.poolTasks.forEach(id=>{
+        const asgn=finalAssigns[id];if(!asgn)return;
+        const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+        if(asgn.assignedUser!==me._id?.toString()){
+          const _st=new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'});
+          notifyUser(asgn.assignedUser,'Pool-Shuffle um '+_st+': Du bist jetzt zuständig für \u201e'+t.title+'"');
+        }
+      });
+    });
+  }
 }
 
 function _showSlotMachine(taskIds, finalAssigns, onReveal){
