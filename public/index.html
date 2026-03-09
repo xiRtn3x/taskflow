@@ -1524,9 +1524,9 @@ function showApp(){
       if(greet&&me?.name)greet.textContent=`Hallo, ${me.name}!`;
       document.getElementById('tutorialOv').classList.add('open');
     },600);
-    return;
+    // Fix P2: do NOT return early — still check pendingSlotShow below
   }
-  // Show slot machine after loader if a shuffle happened since last open
+  // Fix P2: show slot machine reliably after any shuffle (auto or manual)
   if(appstate.pendingSlotShow&&appstate.poolAssigns&&appstate.poolTasks?.length){
     setTimeout(()=>{
       _showSlotMachine(appstate.poolTasks, appstate.poolAssigns, null);
@@ -1541,6 +1541,28 @@ async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
   appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],...appstate};
+  // Fix P4: on very first load, stagger recurring pool tasks so they don't all appear at once.
+  // Assign artificial lastAssigned dates spread evenly over each task's interval period.
+  if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
+  if(!appstate._staggerDone){
+    const recurringPool=tasks.filter(t=>isPoolTask(t)&&t.repeat==='Monatlich'&&!t.done);
+    if(recurringPool.length>0){
+      const now=new Date();
+      recurringPool.forEach((t,i)=>{
+        const id=t._id?.toString();
+        if(appstate.recurringPoolShown[id])return; // already has a marker, skip
+        const interval=t.repeatInterval||1;
+        // Spread tasks: task i gets a lastAssigned that is (i * interval/count) months ago
+        // so they trickle in over the coming interval months
+        const offsetMonths=Math.round((i/recurringPool.length)*interval);
+        const fakeDate=new Date(now.getFullYear(),now.getMonth()-offsetMonths,1);
+        const fakeKey=fakeDate.getFullYear()+'-'+String(fakeDate.getMonth()+1).padStart(2,'0');
+        appstate.recurringPoolShown[id]=fakeKey;
+      });
+      appstate._staggerDone=true;
+      saveState();
+    }
+  }
   processRecurring();
 }
 let _saveStateTimer=null;
@@ -1601,6 +1623,8 @@ function startPolling(){
       if(document.visibilityState==='visible'){
         try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}}
         catch(e){}
+        // Fix P1: also check auto-shuffle when app comes to foreground
+        checkAutoShuffle();
       }
     });
   }
@@ -2242,11 +2266,12 @@ function checkAutoShuffle(){
   if(!group||!me||appstate.autoShuffleEnabled===false)return;
   const d=new Date(),dayOfWeek=d.getDay(),targetDay=appstate.autoShuffleDay??2;
   if(dayOfWeek!==targetDay)return;
-  const weekKey='autoShuf_'+weekStart(todayStr());
-  if(appstate.lastShuffleWeek===weekKey)return;
+  // Fix P1: use date-based key so shuffle fires any time on the correct day
+  const todayKey='autoShuf_'+todayStr();
+  if(appstate.lastShuffleWeek===todayKey)return;
   const ready=tasks.filter(t=>isPoolTask(t)&&!t.done);
   if(!ready.length||ready.some(t=>t.votingEnabled&&!hasFullScore(t)))return;
-  appstate.lastShuffleWeek=weekKey;saveState();shufflePool();
+  appstate.lastShuffleWeek=todayKey;saveState();shufflePool();
 }
 function toggleAutoShuffle(btn){
   const on=!btn.classList.contains('on');
@@ -2289,10 +2314,8 @@ function shufflePool(){
   }
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
   poolable.forEach(t=>{
-    if(!t.repeat||t.repeat==='Nie')return;
-    const id=t._id?.toString();
-    if(t.repeat==='Monatlich')appstate.recurringPoolShown[id]=todayStr().slice(0,7);
-    if(t.repeat==='Jährlich')appstate.recurringPoolShown[id]=todayStr().slice(0,4);
+    // Fix P3: do NOT mark as shown here — trigger is task completion, not shuffle
+    // recurringPoolShown is set in toggleTask when the task is marked done
   });
   appstate.poolTasks=poolable.map(t=>t._id?.toString());
   const finalAssigns=fairShuffleAssigns(appstate.poolTasks);
@@ -2471,6 +2494,17 @@ async function toggleTask(id,withCeleb=false){
   const was=t.done;t.done=!t.done;
   if(!was&&t.repeat&&t.repeat!=='Nie'){if(!appstate.recurringLast)appstate.recurringLast={};appstate.recurringLast[id]=todayStr();saveState();}
   if(was&&t.repeat&&t.repeat!=='Nie'&&appstate.recurringLast){delete appstate.recurringLast[id];saveState();}
+  // Fix P3: track completion date for pool recurring tasks (used by poolTaskEligibleThisWeek)
+  if(!was&&isPoolTask(t)&&t.repeat&&t.repeat!=='Nie'){
+    if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
+    if(t.repeat==='Monatlich')appstate.recurringPoolShown[id]=todayStr().slice(0,7);
+    if(t.repeat==='Jährlich')appstate.recurringPoolShown[id]=todayStr().slice(0,4);
+    saveState();
+  }
+  // Fix P3: if task is reopened, remove the completion marker so it can enter shuffle again
+  if(was&&isPoolTask(t)&&t.repeat&&t.repeat!=='Nie'&&appstate.recurringPoolShown){
+    delete appstate.recurringPoolShown[id];saveState();
+  }
   if(!was){const el=document.getElementById('ti-'+id);if(el){el.classList.add('completing');setTimeout(()=>{render();},430);}else render();if(withCeleb)celebrate();}else render();
   try{
     await api('PATCH','/tasks/'+id,{done:t.done});
