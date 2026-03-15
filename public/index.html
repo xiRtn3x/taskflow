@@ -2161,13 +2161,11 @@ function renderPool(){
     appstate.poolTasks=[...(appstate.poolTasks||[]),...newIds];
     saveState();
   }
-  // F7: show tasks if:
-  // (a) voting not enabled, OR
-  // (b) already assigned via shuffle (poolAssigns entry exists) → always show, OR
-  // (c) voting fully done (hasFullScore)
-  const visibleInPool=poolable.filter(t=>{
+  // visibleInPool: all tasks shown in "Alle" — voting gate only restricts nextshuffle
+  const visibleInPool=poolable.slice(); // all non-done pool tasks
+  const shuffleReadyPool=poolable.filter(t=>{
     if(!t.votingEnabled)return true;
-    if(appstate.poolAssigns?.[t._id?.toString()])return true; // already shuffled → always visible
+    if(appstate.poolAssigns?.[t._id?.toString()])return true;
     return hasFullScore(t);
   });
   const pf=appstate.poolFilter||'all';
@@ -2175,15 +2173,15 @@ function renderPool(){
   pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">${lang==='en'?'All':'Alle'}</button><button class="seg-b${pf==='nextshuffle'?' on':''}" onclick="setPoolF('nextshuffle')">${lang==='en'?'Next':'Nächste'}</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
   let toShow=visibleInPool;
   if(pf==='nextshuffle'){
-    const unassignedIds=new Set(visibleInPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]).map(t=>t._id?.toString()));
+    const unassignedIds=new Set(shuffleReadyPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]).map(t=>t._id?.toString()));
     toShow=tasks.filter(t=>isPoolTask(t)&&!t.done).filter(t=>{
       const id=t._id?.toString();
       if(unassignedIds.has(id))return true;
-      if(appstate.manualDone?.[id])return true; // deferred tasks stay visible with badge
+      if(appstate.manualDone?.[id])return true;
       if(t.repeat&&t.repeat!=='Nie')return poolTaskEligibleThisWeek(t);
       return false;
     });
-  } else if(pf!=='all'){toShow=toShow.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});}
+  } else if(pf!=='all'){toShow=visibleInPool.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});}
   const c=document.getElementById('poolContainer');
   if(!toShow.length&&!poolable.length){
     const grpBtns=!group?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:0 8px">
@@ -2191,7 +2189,7 @@ function renderPool(){
       <button onclick="joinGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>${lang==='en'?'Join group':'Gruppe beitreten'}</button>
     </div>`:'';return;}
   // Show tasks waiting for shuffle
-  const unassigned=visibleInPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]);
+  const unassigned=shuffleReadyPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]);
   const waitingVote=poolable.filter(t=>t.votingEnabled&&!hasFullScore(t));
   if(!toShow.length){
     let msg='';
