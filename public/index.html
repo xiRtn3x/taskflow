@@ -674,6 +674,14 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </div>
     </div>
+    <!-- SEKTION: Statistik → Untermenü -->
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg> <span id="secStatLbl">Statistik</span></div></div>
+    <div class="fg" style="padding-top:4px">
+      <div onclick="openStatMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
+        <div id="statPreview" style="flex:1;font-size:13px;color:var(--text3)">Aufgaben · Fairness · Gruppe</div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
     <!-- SEKTION: FAQ -->
     <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <span id="secFaqLbl">FAQ</span></div></div>
     <div class="fg" style="padding-top:4px">
@@ -683,6 +691,21 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       </div>
     </div>
     <div style="height:8px"></div>
+  </div>
+</div>
+
+<!-- STATISTIK UNTERMENÜ -->
+<div class="ov" id="statOv">
+  <div class="sheet" style="max-height:92dvh">
+    <div class="handle"></div>
+    <div class="mhdr">
+      <div class="mtitle" style="display:flex;align-items:center;gap:8px">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span id="statMenuTitle">Statistik</span>
+      </div>
+      <span class="mclose" id="statCloseBtn" onclick="closeStatMenu()">Schließen</span>
+    </div>
+    <div id="statContent" style="padding:0 16px 32px"></div>
   </div>
 </div>
 
@@ -1200,6 +1223,10 @@ function applyLang() {
   renderCatList();
   renderOtherColors();
   {const _cp=document.getElementById('profCatPreview');if(_cp&&appstate){const _nc=Object.keys(appstate.customCats||{}).length;_cp.textContent=_nc?(de?`${_nc} eigene Kategorie${_nc===1?'':'n'}`:`${_nc} custom categor${_nc===1?'y':'ies'}`):(de?'Kategorien verwalten':'Manage categories');}}
+  s('secStatLbl', de?'Statistik':'Statistics');
+  s('statPreview', de?'Aufgaben · Fairness · Gruppe':'Tasks · Fairness · Group');
+  s('statMenuTitle', de?'Statistik':'Statistics');
+  s('statCloseBtn', de?'Schließen':'Close');
   s('accCloseBtn', de?'Schließen':'Close');
   s('kalCloseBtn', de?'Schließen':'Close');
   // Account submenu
@@ -2174,13 +2201,24 @@ function renderPool(){
   let toShow=visibleInPool;
   if(pf==='nextshuffle'){
     const unassignedIds=new Set(shuffleReadyPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]).map(t=>t._id?.toString()));
-    toShow=tasks.filter(t=>isPoolTask(t)&&!t.done).filter(t=>{
+    // Also include done recurring pool tasks completed this cycle — visible with "done" badge
+    const doneThisCycle=tasks.filter(t=>isPoolTask(t)&&t.done&&t.repeat&&t.repeat!=='Nie').filter(t=>{
+      const id=t._id?.toString();
+      const last=appstate.recurringLast?.[id];
+      if(!last)return false;
+      if(t.repeat==='Wöchentlich')return weekStart(last)===weekStart(todayStr());
+      if(t.repeat==='Monatlich')return last.slice(0,7)===todayStr().slice(0,7);
+      if(t.repeat==='Jährlich')return last.slice(0,4)===todayStr().slice(0,4);
+      return last===todayStr();
+    });
+    const doneThisCycleIds=new Set(doneThisCycle.map(t=>t._id?.toString()));
+    toShow=[...tasks.filter(t=>isPoolTask(t)&&!t.done).filter(t=>{
       const id=t._id?.toString();
       if(unassignedIds.has(id))return true;
       if(appstate.manualDone?.[id])return true;
       if(t.repeat&&t.repeat!=='Nie')return poolTaskEligibleThisWeek(t);
       return false;
-    });
+    }),...doneThisCycle];
   } else if(pf!=='all'){toShow=visibleInPool.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});}
   const c=document.getElementById('poolContainer');
   if(!toShow.length&&!poolable.length){
@@ -2239,7 +2277,7 @@ function renderPool(){
         ${(()=>{const ov=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();return t.deadline?`<span class="badge ${ov?'b-red':'b-blu'}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${ov?` ${I.alert}`:''}</span>`:''})()}
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}${t.repeat==='Monatlich'&&(t.repeatInterval||1)>1?` (alle ${t.repeatInterval}M)`:''}</span>`:''}
         ${myScoreBadge(t)||( sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:'' )}
-        ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}
+        ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done this cycle':'Diese Woche erledigt'}</span>`:''}
         ${manDone?`<span class="badge b-red" style="display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>${lang==='en'?'Deferred':'Zurückgestellt'}</span>`:''}
       </div>
       ${subsHtml}${prog(t)}
@@ -2974,7 +3012,76 @@ function buildIconPickerGrid(){
   g.innerHTML=Object.keys(CUSTOM_ICONS).map(k=>`<div class="icon-opt${selectedCatIcon===k?' sel':''}" onclick="pickCatIcon('${k}')" title="${k}">${renderCustomIcon(k,16)}</div>`).join('');
 }
 function rmCat(name){if(tasks.some(t=>t.cat===name)){showToast(lang==='en'?`"${name}" is still in use`:`"${name}" wird noch verwendet`);return;}if(appstate.customCats)delete appstate.customCats[name];saveState();renderCatList();populateCatSel();showToast(lang==='en'?'Deleted':'Gelöscht');const cp=document.getElementById('profCatPreview');if(cp){const nc=Object.keys(appstate.customCats||{}).length;cp.textContent=nc?(lang==='en'?`${nc} custom categor${nc===1?'y':'ies'}`:`${nc} eigene Kategorie${nc===1?'':'n'}`):lang==='en'?'Manage categories':'Kategorien verwalten';}}
-async function resetTasks(){
+async function openStatMenu(){renderStats();document.getElementById('statOv').classList.add('open');}
+function closeStatMenu(){document.getElementById('statOv').classList.remove('open');}
+function renderStats(){
+  const c=document.getElementById('statContent');if(!c)return;
+  const de=lang!=='en';
+  const allUsers=users.length?users:[me].filter(Boolean);
+  // Per-user stats
+  const rows=allUsers.map(u=>{
+    const uid=u._id?.toString();
+    const myTasks=tasks.filter(t=>visibleToMe2(t,uid));
+    const open=myTasks.filter(t=>!t.done).length;
+    const done=myTasks.filter(t=>t.done).length;
+    const debt=Math.round((appstate.shuffleDebtScore?.[uid]||0)*10)/10;
+    const isMe=uid===me._id?.toString();
+    const col=uColor(uid);
+    // Pool tasks assigned to this user
+    const poolDone=tasks.filter(t=>isPoolTask(t)&&t.done&&appstate.poolAssigns?.[t._id?.toString()]?.assignedUser===uid).length;
+    const poolOpen=tasks.filter(t=>isPoolTask(t)&&!t.done&&appstate.poolAssigns?.[t._id?.toString()]?.assignedUser===uid).length;
+    return`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:14px;margin-bottom:10px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+        ${avHTML(u,36)}
+        <div style="flex:1"><div style="font-size:15px;font-weight:700;color:var(--text)">${u.name}${isMe?` <span style="font-size:11px;font-weight:500;color:var(--text3)">(${de?'du':'you'})</span>`:''}</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+        <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.18);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:800;color:#16A34A">${done}</div>
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">${de?'Erledigt':'Done'}</div>
+        </div>
+        <div style="background:rgba(91,91,214,.08);border:1px solid rgba(91,91,214,.18);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:800;color:var(--acc)">${open}</div>
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">${de?'Offen':'Open'}</div>
+        </div>
+        <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);border-radius:12px;padding:10px;text-align:center">
+          <div style="font-size:22px;font-weight:800;color:#D97706">${debt}</div>
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">${de?'Fairness':'Fairness'}</div>
+        </div>
+      </div>
+      ${(poolOpen||poolDone)?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--sep);display:flex;gap:8px;flex-wrap:wrap">
+        ${poolOpen?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg> ${poolOpen} Pool ${de?'offen':'open'}</span>`:''}
+        ${poolDone?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ${poolDone} Pool ${de?'erledigt':'done'}</span>`:''}
+      </div>`:''}
+    </div>`;
+  });
+  // Fairness ranking if group
+  let rankHtml='';
+  if(allUsers.length>1&&appstate.shuffleDebtScore&&Object.keys(appstate.shuffleDebtScore).length){
+    const sorted=[...allUsers].sort((a,b)=>(appstate.shuffleDebtScore[b._id?.toString()]||0)-(appstate.shuffleDebtScore[a._id?.toString()]||0));
+    rankHtml=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin:16px 0 8px">${de?'Fairness-Rangliste (höher = mehr Arbeit erledigt)':'Fairness ranking (higher = more work done)'}</div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden">
+    ${sorted.map((u,i)=>{
+      const uid=u._id?.toString();
+      const debt=Math.round((appstate.shuffleDebtScore[uid]||0)*10)/10;
+      const maxDebt=Math.round((appstate.shuffleDebtScore[sorted[0]._id?.toString()]||1)*10)/10||1;
+      const pct=Math.round((debt/maxDebt)*100);
+      return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--sep)">
+        <div style="font-size:13px;font-weight:700;color:var(--text3);width:18px;text-align:center">${i+1}</div>
+        ${avHTML(u,28)}
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">${u.name}</div>
+          <div style="height:4px;background:var(--sep);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--acc);border-radius:2px;transition:width .4s"></div></div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--acc)">${debt}</div>
+      </div>`;
+    }).join('')}
+    </div>`;
+  }
+  c.innerHTML=`<div style="margin-top:4px">${rows.join('')}</div>${rankHtml}`;
+}
+// helper visible-to-user (for stats, not current user)
+function visibleToMe2(t,uid){if(isMyTask(t))return t.assignee===uid;if(isSharedTask(t))return(t.sharedWith||[]).includes(uid)||t.creatorId===uid;if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===uid||(a?.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(uid));}return false;}
   const myId=me._id?.toString();
   const myTasks=tasks.filter(t=>t.assignee===myId||(t.creatorId===myId&&!isPoolTask(t)));
   if(!myTasks.length){showToast(lang==='en'?'No personal tasks':'Keine eigenen Aufgaben');return;}
