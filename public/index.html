@@ -2347,10 +2347,11 @@ function manuallyCompletePoolTask(id){
   // Lock in recurringPoolShown so it can't enter shuffle this cycle
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
   appstate.recurringPoolShown[id]=cycleKey;
-  // Feed full debt score for fairness — this person did the work
+  // Feed full debt score for fairness — inline score calc (getPersonalScore is nested in fairShuffleAssigns)
   if(!appstate.shuffleDebtScore)appstate.shuffleDebtScore={};
-  const score=getPersonalScore(t,myId);
-  appstate.shuffleDebtScore[myId]=(appstate.shuffleDebtScore[myId]||0)+score;
+  const _vote=t.votingEnabled?(t.votes||{})[myId]:null;
+  const _score=_vote!=null?_vote:(t.poopScore!=null?t.poopScore:5);
+  appstate.shuffleDebtScore[myId]=(appstate.shuffleDebtScore[myId]||0)+_score;
   saveState();
   renderPool();
   showToast(lang==='en'?`"${t.title}" deferred ✓`:`„${t.title}" zurückgestellt ✓`);
