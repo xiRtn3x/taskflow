@@ -2179,6 +2179,7 @@ function renderPool(){
     toShow=tasks.filter(t=>isPoolTask(t)&&!t.done).filter(t=>{
       const id=t._id?.toString();
       if(unassignedIds.has(id))return true;
+      if(appstate.manualDone?.[id])return true; // deferred tasks stay visible with badge
       if(t.repeat&&t.repeat!=='Nie')return poolTaskEligibleThisWeek(t);
       return false;
     });
@@ -2241,7 +2242,7 @@ function renderPool(){
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}${t.repeat==='Monatlich'&&(t.repeatInterval||1)>1?` (alle ${t.repeatInterval}M)`:''}</span>`:''}
         ${myScoreBadge(t)||( sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:'' )}
         ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}
-        ${manDone?`<span class="badge" style="background:rgba(107,114,128,.14);color:#6B7280;border:1px solid rgba(107,114,128,.28);display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>${lang==='en'?'Deferred':'Zurückgestellt'}</span>`:''}
+        ${manDone?`<span class="badge b-red" style="display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>${lang==='en'?'Deferred':'Zurückgestellt'}</span>`:''}
       </div>
       ${subsHtml}${prog(t)}
       ${pf==='nextshuffle'&&!asgn&&!manDone?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--sep)"><button onclick="event.stopPropagation();manuallyCompletePoolTask('${id}')" style="width:100%;padding:9px 12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>${lang==='en'?'Already done — defer':'Bereits erledigt — zurückstellen'}</button></div>`:''}
