@@ -3082,6 +3082,7 @@ function renderStats(){
 }
 // helper visible-to-user (for stats, not current user)
 function visibleToMe2(t,uid){if(isMyTask(t))return t.assignee===uid;if(isSharedTask(t))return(t.sharedWith||[]).includes(uid)||t.creatorId===uid;if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===uid||(a?.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(uid));}return false;}
+async function resetTasks(){
   const myId=me._id?.toString();
   const myTasks=tasks.filter(t=>t.assignee===myId||(t.creatorId===myId&&!isPoolTask(t)));
   if(!myTasks.length){showToast(lang==='en'?'No personal tasks':'Keine eigenen Aufgaben');return;}
