@@ -244,6 +244,12 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 .score-bar{height:4px;border-radius:2px;margin-top:6px;overflow:hidden;background:var(--sep);}
 .score-fill{height:100%;border-radius:2px;transition:width .4s;}
 @keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes wgGlow{0%,100%{box-shadow:0 0 0 0 rgba(239,68,68,0),var(--glass-shadow)}50%{box-shadow:0 0 18px 4px rgba(239,68,68,.28),var(--glass-shadow)}}
+.wg-card-active{animation:wgGlow 2.2s ease-in-out infinite;}
+.wg-rotate-out{animation:wgRotateOut .38s cubic-bezier(.4,0,.2,1) forwards;}
+.wg-rotate-in{animation:wgRotateIn .38s cubic-bezier(.4,0,.2,1) forwards;}
+@keyframes wgRotateOut{0%{opacity:1;transform:translateX(0)}100%{opacity:0;transform:translateX(-48px)}}
+@keyframes wgRotateIn{0%{opacity:0;transform:translateX(48px)}100%{opacity:1;transform:translateX(0)}}
 </style>
 </head>
 <body class="th-dark">
@@ -575,11 +581,21 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <div class="seg" id="typeSeg">
         <button class="seg-b on" id="typeMine" onclick="setType('mine',this)">Eigene</button>
         <button class="seg-b" id="typePool" onclick="setType('pool',this)">Pool</button>
+        <button class="seg-b" id="typeWgpool" onclick="setType('wgpool',this)">WG-Pool</button>
         <button class="seg-b" id="typeShared" onclick="setType('shared',this)">Gemeinsam</button>
       </div>
     </div>
     <div class="fg" id="assigneeWrap" style="display:none"><label class="fl">Zuständig</label><select class="fsel" id="fAssignee"></select></div>
     <div class="fg" id="sharedUsersWrap" style="display:none"><label class="fl"id="lbVisible">Sichtbar für</label><div id="sharedUsersList"></div></div>
+    <!-- WG-POOL: Trigger threshold -->
+    <div class="fg" id="wgTriggerWrap" style="display:none">
+      <label class="fl" id="lbWgTrigger">Fällig nach Stimmen von</label>
+      <div style="display:flex;align-items:center;gap:10px">
+        <select class="fsel" id="fWgTrigger" style="width:100px"></select>
+        <span style="font-size:14px;color:var(--text2)" id="lbWgTriggerUnit">Mitglied(ern)</span>
+      </div>
+      <div style="font-size:12px;color:var(--text3);margin-top:6px" id="wgTriggerHint">Erst wenn genug Mitglieder sagen „soll erledigt werden", wird die Aufgabe aktiv.</div>
+    </div>
     <!-- VOTING TOGGLE — only shown for pool tasks -->
     <div class="fg" id="votingWrap" style="display:none">
       <label class="fl"id="lbVoting">Scheißigkeits-Voting</label>
@@ -1173,6 +1189,10 @@ function applyLang() {
   s('lbTyp', de?'Typ':'Type');
   s('typeMine', de?'Eigene':'Personal');
   s('typePool', 'Pool');
+  s('typeWgpool', de?'WG-Pool':'WG-Pool');
+  s('lbWgTrigger', de?'Fällig nach Stimmen von':'Active after votes from');
+  s('lbWgTriggerUnit', de?'Mitglied(ern)':'member(s)');
+  s('wgTriggerHint', de?'Erst wenn genug Mitglieder sagen „soll erledigt werden", wird die Aufgabe aktiv.':'Task becomes active once enough members say it should be done.');
   s('typeShared', de?'Gemeinsam':'Shared');
   s('lbVisible', de?'Sichtbar für':'Visible to');
   s('lbVoting', de?'Scheißigkeits-Voting':'Crappiness Score Voting');
@@ -1580,8 +1600,9 @@ function closeTutorial(){
 async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
-  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],manualDone:{},...appstate};
+  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],manualDone:{},wgPool:{},...appstate};
   if(!appstate.manualDone)appstate.manualDone={};
+  if(!appstate.wgPool)appstate.wgPool={};
 
   // Assign artificial lastAssigned dates spread evenly over each task's interval period.
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
@@ -1970,16 +1991,18 @@ function fmtD(d){if(!d)return'';return new Date(d+'T00:00:00').toLocaleDateStrin
 function uid(){return Math.random().toString(36).substr(2,9);}
 
 // TASK TYPE + VISIBILITY
-function isPoolTask(t){return t.type==='pool'||t.inPool;}
+function isPoolTask(t){return(t.type==='pool'||t.inPool)&&!t.isWgPool;}
+function isWgPoolTask(t){return t.type==='wgpool'||t.isWgPool===true;}
 function isSharedTask(t){return t.type==='shared';}
-function isMyTask(t){return t.type==='mine'||(!isPoolTask(t)&&!isSharedTask(t));}
-function visibleToMe(t){const myId=me._id?.toString();if(isMyTask(t))return t.assignee===myId;if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;if(isPoolTask(t))return true;return false;}
-function canComplete(t){const myId=me._id?.toString();if(isMyTask(t))return t.assignee===myId;if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===myId;}return false;}
+function isMyTask(t){return t.type==='mine'||(!isPoolTask(t)&&!isWgPoolTask(t)&&!isSharedTask(t));}
+function visibleToMe(t){const myId=me._id?.toString();if(isMyTask(t))return t.assignee===myId;if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;if(isPoolTask(t))return true;if(isWgPoolTask(t))return true;return false;}
+function canComplete(t){const myId=me._id?.toString();if(isMyTask(t))return t.assignee===myId;if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===myId;}if(isWgPoolTask(t)){const wg=appstate.wgPool?.[t._id?.toString()];if(!wg||wg.status!=='active')return false;return wg.queue[wg.currentIdx]===myId;}return false;}
 function showInMy(t){
   const myId=me._id?.toString();
   if(isMyTask(t))return t.assignee===myId;
   if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
   if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];if(a?.assignedUser===myId)return true;if(a?.subtaskAssignments)return Object.values(a.subtaskAssignments).some(uid=>uid===myId);return false;}
+  if(isWgPoolTask(t)){const wg=appstate.wgPool?.[t._id?.toString()];if(!wg)return false;return wg.queue[wg.currentIdx]===myId&&wg.status==='active';}
   return false;
 }
 
@@ -2181,6 +2204,7 @@ function renderPool(){
     return;
   }
   const poolable=tasks.filter(t=>isPoolTask(t)&&!t.done);
+  const wgPoolable=tasks.filter(t=>isWgPoolTask(t)&&!t.done);
   // F6: new pool tasks are NOT auto-assigned — only tracked, awaiting shuffle
   if(!appstate.poolTasks)appstate.poolTasks=[];
   const newIds=poolable.map(t=>t._id?.toString()).filter(id=>!(appstate.poolTasks||[]).includes(id));
@@ -2189,7 +2213,7 @@ function renderPool(){
     saveState();
   }
   // visibleInPool: all tasks shown in "Alle" — voting gate only restricts nextshuffle
-  const visibleInPool=poolable.slice(); // all non-done pool tasks
+  const visibleInPool=[...poolable,...wgPoolable]; // all non-done pool + wgpool tasks
   const shuffleReadyPool=poolable.filter(t=>{
     if(!t.votingEnabled)return true;
     if(appstate.poolAssigns?.[t._id?.toString()])return true;
@@ -2197,7 +2221,8 @@ function renderPool(){
   });
   const pf=appstate.poolFilter||'all';
   const pfBar=document.getElementById('poolFbar');pfBar.className='seg';
-  pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">${lang==='en'?'All':'Alle'}</button><button class="seg-b${pf==='nextshuffle'?' on':''}" onclick="setPoolF('nextshuffle')">${lang==='en'?'Next':'Nächste'}</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
+  const wgIcon=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+  pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">${lang==='en'?'All':'Alle'}</button><button class="seg-b${pf==='nextshuffle'?' on':''}" onclick="setPoolF('nextshuffle')">${lang==='en'?'Next':'Nächste'}</button><button class="seg-b${pf==='wgpool'?' on':''}" onclick="setPoolF('wgpool')" style="display:flex;align-items:center;gap:4px">${wgIcon} WG</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
   let toShow=visibleInPool;
   if(pf==='nextshuffle'){
     const unassignedIds=new Set(shuffleReadyPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]).map(t=>t._id?.toString()));
@@ -2219,9 +2244,11 @@ function renderPool(){
       if(t.repeat&&t.repeat!=='Nie')return poolTaskEligibleThisWeek(t);
       return false;
     }),...doneThisCycle];
+  } else if(pf==='wgpool'){
+    toShow=tasks.filter(t=>isWgPoolTask(t)&&!t.done);
   } else if(pf!=='all'){toShow=visibleInPool.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});}
   const c=document.getElementById('poolContainer');
-  if(!toShow.length&&!poolable.length){
+  if(!toShow.length&&!poolable.length&&!wgPoolable.length){
     const grpBtns=!group?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:0 8px">
       <button onclick="createGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Gruppe erstellen</button>
       <button onclick="joinGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>${lang==='en'?'Join group':'Gruppe beitreten'}</button>
@@ -2235,6 +2262,7 @@ function renderPool(){
     c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${lang==='en'?'No tasks':'Keine Aufgaben'}</div>${msg||`<div class="empty-s">${lang==='en'?'Change the filter':'Wechsle den Filter'}</div>`}</div>`;return;
   }
   c.innerHTML=toShow.map(t=>{
+    if(isWgPoolTask(t))return renderWgPoolCard(t);
     const id=t._id?.toString();const asgn=appstate.poolAssigns?.[id];const myId=me._id?.toString();
     const manDone=appstate.manualDone?.[id];
     const doneByUser=manDone?uById(manDone.doneBy):null;
@@ -2408,7 +2436,167 @@ function resetPool(){
   showToast(lang==='en'?'Pool reset ✓':'Pool zurückgesetzt ✓');
 }
 
+// ── WG-POOL ──
+function renderWgPoolCard(t){
+  const id=t._id?.toString();
+  const myId=me._id?.toString();
+  if(!appstate.wgPool)appstate.wgPool={};
+  // Init wgPool entry if missing (e.g. for tasks created before this update)
+  if(!appstate.wgPool[id]){
+    const uids=users.map(u=>u._id?.toString());
+    appstate.wgPool[id]={queue:uids,currentIdx:0,status:'sleeping',triggerVotes:[],activatedAt:null,lastNotified:null};
+    saveState();
+  }
+  const wg=appstate.wgPool[id];
+  const currentUid=wg.queue[wg.currentIdx%wg.queue.length];
+  const currentUser=uById(currentUid);
+  const col=uColor(currentUid);
+  const isActive=wg.status==='active';
+  const isMine=currentUid===myId;
+  const hasVoted=wg.triggerVotes?.includes(myId);
+  const threshold=t.wgTriggerThreshold||1;
+  const voteCount=wg.triggerVotes?.length||0;
+  const sc=getScore(t);
+  const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();
+  // Active since duration
+  let activeSince='';
+  if(isActive&&wg.activatedAt){
+    const diff=Math.floor((Date.now()-new Date(wg.activatedAt).getTime())/(1000*60*60*24));
+    activeSince=diff===0?(lang==='en'?'since today':'seit heute'):diff===1?(lang==='en'?'since yesterday':'seit gestern'):(lang==='en'?`since ${diff} days`:`seit ${diff} Tagen`);
+  }
+  // Sleep icon SVG
+  const sleepSVG=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+  // Alert icon SVG
+  const alertSVG=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  // Home icon SVG
+  const homeSVG=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+  return`<div class="pool-card${isActive?' wg-card-active':''}" id="wgc-${id}" style="border-left:3px solid ${isActive?'var(--red)':col};${isActive?'border-color:var(--red)':''}" onclick="openDetail('${id}')">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px">
+      <div style="flex:1">
+        <div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px">${t.title}</div>
+        ${t.desc?`<div style="font-size:12px;color:var(--text3);line-height:1.4">${t.desc.slice(0,60)}${t.desc.length>60?'…':''}</div>`:''}
+      </div>
+      <div style="display:flex;align-items:center;gap:5px;padding-left:10px;flex-shrink:0" id="wga-${id}">
+        ${avHTML(currentUser,28)}
+        <div style="text-align:right">
+          <div style="font-size:12px;font-weight:700;color:${isActive?'var(--red)':col}">${currentUser?.name||'–'}</div>
+          ${isActive?`<div style="font-size:10px;color:var(--text3)">${activeSince}</div>`:''}
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <span class="badge" style="background:rgba(91,91,214,.1);color:var(--acc);border:1px solid rgba(91,91,214,.2);display:inline-flex;align-items:center;gap:3px">${homeSVG} WG-Pool</span>
+      ${isActive
+        ?`<span class="badge b-red" style="display:inline-flex;align-items:center;gap:3px">${alertSVG} ${lang==='en'?'Due':'Fällig'}</span>`
+        :`<span class="badge" style="background:rgba(100,100,140,.1);color:var(--text3);border:1px solid var(--sep);display:inline-flex;align-items:center;gap:3px">${sleepSVG} ${lang==='en'?'Sleeping':'Ruhend'}</span>`
+      }
+      <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span>
+      ${t.cat?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${catIcon(allCats()[t.cat]||'')} ${t.cat}</span>`:''}
+    </div>
+    ${!isActive?`<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--sep)">
+      ${!hasVoted
+        ?`<button onclick="event.stopPropagation();wgVote('${id}')" style="width:100%;padding:9px 12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>${lang==='en'?'Should be done now':'Soll jetzt erledigt werden'} <span style="color:var(--text3);font-size:11px">${voteCount}/${threshold}</span></button>`
+        :`<div style="display:flex;align-items:center;gap:8px;padding:4px 2px"><div style="height:4px;flex:1;background:var(--sep);border-radius:2px;overflow:hidden"><div style="height:100%;width:${Math.round(voteCount/threshold*100)}%;background:var(--acc);border-radius:2px;transition:width .3s"></div></div><span style="font-size:12px;color:var(--text3);white-space:nowrap">${voteCount}/${threshold} ${lang==='en'?'votes':'Stimmen'}</span></div>`
+      }
+    </div>`:''}
+    ${isActive&&isMine?`<div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--sep)"><button onclick="event.stopPropagation();wgComplete('${id}')" style="width:100%;padding:10px 12px;background:var(--acc);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 3px 12px rgba(91,91,214,.3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>${lang==='en'?'Mark as done':'Als erledigt markieren'}</button></div>`:''}
+  </div>`;
+}
+
+async function wgVote(id){
+  const myId=me._id?.toString();
+  if(!appstate.wgPool)appstate.wgPool={};
+  const wg=appstate.wgPool[id];if(!wg)return;
+  if(wg.triggerVotes?.includes(myId)){showToast(lang==='en'?'Already voted':'Bereits abgestimmt');return;}
+  if(!wg.triggerVotes)wg.triggerVotes=[];
+  wg.triggerVotes.push(myId);
+  const t=tasks.find(t=>t._id?.toString()===id);
+  const threshold=t?.wgTriggerThreshold||1;
+  if(wg.triggerVotes.length>=threshold){
+    // Threshold reached → activate
+    wg.status='active';
+    wg.activatedAt=new Date().toISOString();
+    const currentUid=wg.queue[wg.currentIdx%wg.queue.length];
+    const currentUser=uById(currentUid);
+    if(currentUser){
+      const msg=lang==='en'
+        ?`"${t?.title}" has been marked as due — it's your turn!`
+        :`„${t?.title}" wurde als fällig markiert — du bist dran!`;
+      notifyUser(currentUid,msg);
+    }
+    // Also notify all others
+    users.filter(u=>u._id?.toString()!==currentUid).forEach(u=>{
+      notifyUser(u._id?.toString(),lang==='en'?`"${t?.title}" is now active — ${currentUser?.name||'?'} needs to do it`:`„${t?.title}" ist jetzt aktiv — ${currentUser?.name||'?'} muss ran`);
+    });
+    showToast(lang==='en'?'Task activated!':'Aufgabe aktiviert!');
+  } else {
+    showToast(lang==='en'?`Vote counted (${wg.triggerVotes.length}/${threshold})`:`Stimme gezählt (${wg.triggerVotes.length}/${threshold})`);
+  }
+  saveState();renderPool();
+}
+
+async function wgComplete(id){
+  const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+  const wg=appstate.wgPool?.[id];if(!wg)return;
+  const myId=me._id?.toString();
+  if(wg.queue[wg.currentIdx%wg.queue.length]!==myId){showToast(lang==='en'?'Not your turn':'Nicht dein Zug');return;}
+  // Animate avatar rotation
+  const wrap=document.getElementById('wga-'+id);
+  if(wrap){
+    wrap.classList.add('wg-rotate-out');
+    await new Promise(r=>setTimeout(r,380));
+  }
+  // Rotate queue
+  wg.currentIdx=(wg.currentIdx+1)%wg.queue.length;
+  wg.status='sleeping';
+  wg.triggerVotes=[];
+  wg.activatedAt=null;
+  // Mark task done temporarily for celebration, then reset
+  t.done=true;
+  try{await api('PATCH','/tasks/'+id,{done:true});}catch(e){}
+  saveState();
+  celebrate();
+  setTimeout(async()=>{
+    t.done=false;
+    try{await api('PATCH','/tasks/'+id,{done:false});}catch(e){}
+    render();
+  },1800);
+  // Notify next user
+  const nextUid=wg.queue[wg.currentIdx];
+  const nextUser=uById(nextUid);
+  if(nextUser){
+    notifyUser(nextUid,lang==='en'?`"${t.title}" is now yours — waiting for the group to activate it`:`„${t.title}" gehört jetzt dir — wartet auf Aktivierung durch die Gruppe`);
+  }
+  renderPool();
+}
+
+function checkWgPoolNotifications(){
+  if(!appstate.wgPool||!group)return;
+  const today=todayStr();
+  let changed=false;
+  Object.entries(appstate.wgPool).forEach(([id,wg])=>{
+    if(wg.status!=='active')return;
+    if(wg.lastNotified===today)return;
+    const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+    const currentUid=wg.queue[wg.currentIdx%wg.queue.length];
+    const currentUser=uById(currentUid);
+    // Notify responsible user
+    notifyUser(currentUid, lang==='en'
+      ?`Reminder: "${t.title}" is waiting for you to complete it`
+      :`Erinnerung: „${t.title}" wartet darauf, von dir erledigt zu werden`);
+    // Notify all others
+    users.filter(u=>u._id?.toString()!==currentUid).forEach(u=>{
+      notifyUser(u._id?.toString(), lang==='en'
+        ?`"${t.title}" still not done by ${currentUser?.name||'?'}`
+        :`„${t.title}" wurde von ${currentUser?.name||'?'} noch nicht erledigt`);
+    });
+    wg.lastNotified=today;changed=true;
+  });
+  if(changed)saveState();
+}
+
 function checkAutoShuffle(){
+  checkWgPoolNotifications();
   if(!group||!me||appstate.autoShuffleEnabled===false)return;
   const d=new Date(),dayOfWeek=d.getDay(),targetDay=appstate.autoShuffleDay??2;
   if(dayOfWeek!==targetDay)return;
@@ -2594,6 +2782,8 @@ function renderCalList(){
 // ── DETAIL ──
 function openDetail(id){
   const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;detailId=id;
+  // WG-Pool tasks get their own detail view
+  if(isWgPoolTask(t)){openWgDetail(t);return;}
   const asgn=isPoolTask(t)?appstate.poolAssigns?.[id]:null;const effId=asgn?.assignedUser||t.assignee;const col=uColor(effId);const u=uById(effId);const overdue=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();const aname=t.assignee==='all'?(lang==='en'?'All':'Alle'):(u?u.name:'');const myId=me._id?.toString();
   // subtask HTML
   let subsH='';
@@ -2624,6 +2814,79 @@ function openDetail(id){
   if(t.subtasks?.length)setTimeout(()=>initSubDrag(id),60);
 }
 function closeDetail(){document.getElementById('taskDetail').classList.remove('open');}
+
+function openWgDetail(t){
+  const id=t._id?.toString();
+  const myId=me._id?.toString();
+  if(!appstate.wgPool)appstate.wgPool={};
+  if(!appstate.wgPool[id]){
+    const uids=users.map(u=>u._id?.toString());
+    appstate.wgPool[id]={queue:uids,currentIdx:0,status:'sleeping',triggerVotes:[],activatedAt:null,lastNotified:null};
+    saveState();
+  }
+  const wg=appstate.wgPool[id];
+  const currentUid=wg.queue[wg.currentIdx%wg.queue.length];
+  const currentUser=uById(currentUid);
+  const col=uColor(currentUid);
+  const isActive=wg.status==='active';
+  const isMine=currentUid===myId;
+  const hasVoted=(wg.triggerVotes||[]).includes(myId);
+  const threshold=t.wgTriggerThreshold||1;
+  const voteCount=(wg.triggerVotes||[]).length;
+  const homeSVG=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
+  const sleepSVG=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>`;
+  const alertSVG=`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  // Rotation queue display
+  const queueHtml=wg.queue.map((uid,i)=>{
+    const u=uById(uid);const isCurrent=i===wg.currentIdx%wg.queue.length;
+    const c=uColor(uid);
+    return`<div style="display:flex;flex-direction:column;align-items:center;gap:3px;opacity:${isCurrent?1:.45}">
+      <div style="position:relative">${avHTML(u,isCurrent?34:26)}${isCurrent?`<div style="position:absolute;bottom:-2px;right:-2px;width:12px;height:12px;border-radius:50%;background:${isActive?'var(--red)':'var(--green)'};border:2px solid var(--glass)"></div>`:''}</div>
+      <span style="font-size:9px;font-weight:700;color:${isCurrent?c:'var(--text3)'};max-width:40px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;text-align:center">${u?.name||'?'}</span>
+    </div>`;
+  }).join(`<div style="color:var(--text3);align-self:center;padding-bottom:14px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></div>`);
+  // Voters list
+  const votersHtml=(wg.triggerVotes||[]).map(uid=>{const u=uById(uid);return avHTML(u,22);}).join('');
+  let activeSince='';
+  if(isActive&&wg.activatedAt){
+    const diff=Math.floor((Date.now()-new Date(wg.activatedAt).getTime())/(1000*60*60*24));
+    activeSince=diff===0?(lang==='en'?'Activated today':'Heute aktiviert'):diff===1?(lang==='en'?'Activated yesterday':'Gestern aktiviert'):(lang==='en'?`Activated ${diff} days ago`:`Vor ${diff} Tagen aktiviert`);
+  }
+  document.getElementById('detailContent').innerHTML=`
+    <div style="padding:14px 14px 10px">
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span class="badge" style="background:rgba(91,91,214,.1);color:var(--acc);border:1px solid rgba(91,91,214,.2);display:inline-flex;align-items:center;gap:3px">${homeSVG} WG-Pool</span>
+        ${isActive?`<span class="badge b-red" style="display:inline-flex;align-items:center;gap:3px">${alertSVG} ${lang==='en'?'Due':'Fällig'}</span>`:`<span class="badge" style="background:rgba(100,100,140,.1);color:var(--text3);border:1px solid var(--sep);display:inline-flex;align-items:center;gap:3px">${sleepSVG} ${lang==='en'?'Sleeping':'Ruhend'}</span>`}
+        <span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span>
+        ${t.cat?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${catIcon(allCats()[t.cat]||'')} ${t.cat}</span>`:''}
+      </div>
+      ${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}
+    </div>
+    <div class="sec">${lang==='en'?'Rotation Queue':'Reihenfolge'}</div>
+    <div class="glass-card cg">
+      <div style="padding:14px;display:flex;align-items:flex-start;gap:8px;flex-wrap:wrap">${queueHtml}</div>
+      ${isActive&&activeSince?`<div style="padding:0 14px 12px;font-size:12px;color:var(--text3)">${activeSince}</div>`:''}
+    </div>
+    <div class="sec">${lang==='en'?'Trigger Votes':'Fällig-Stimmen'}</div>
+    <div class="glass-card cg">
+      <div style="padding:12px 14px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="height:5px;flex:1;background:var(--sep);border-radius:3px;overflow:hidden"><div style="height:100%;width:${Math.round(voteCount/threshold*100)}%;background:${isActive?'var(--red)':'var(--acc)'};border-radius:3px;transition:width .3s"></div></div>
+          <span style="font-size:13px;font-weight:700;color:${isActive?'var(--red)':'var(--text2)'}">${voteCount}/${threshold}</span>
+        </div>
+        ${votersHtml?`<div style="display:flex;gap:4px;flex-wrap:wrap">${votersHtml}</div>`:`<div style="font-size:12px;color:var(--text3)">${lang==='en'?'No votes yet':'Noch keine Stimmen'}</div>`}
+      </div>
+    </div>
+    ${!isActive?`<div style="padding:8px 14px 4px">${!hasVoted
+      ?`<button class="btn btn-p" onclick="closeDetail();wgVote('${id}')">${lang==='en'?'Should be done now':'Soll jetzt erledigt werden'}</button>`
+      :`<button class="btn btn-out" style="cursor:not-allowed;opacity:.6" disabled>${lang==='en'?'Vote counted':'Stimme abgegeben'}</button>`
+    }</div>`:''}
+    ${isActive&&isMine?`<div style="padding:8px 14px 4px"><button class="btn btn-p" onclick="closeDetail();wgComplete('${id}')">${lang==='en'?'Mark as done — pass to next':'Als erledigt markieren — weitergeben'}</button></div>`:''}
+    ${isActive&&!isMine?`<div style="padding:8px 14px 4px;text-align:center;font-size:13px;color:var(--text3)">${lang==='en'?`Waiting for ${currentUser?.name||'?'} to complete this`:`Wartet auf ${currentUser?.name||'?'}`}</div>`:''}
+    <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} ${lang==='en'?'Delete':'Löschen'}</button></div>`;
+  const dt=document.getElementById('detailTitle');if(dt)dt.textContent=t.title;
+  document.getElementById('taskDetail').classList.add('open');
+}
 function editCurrent(){if(detailId){closeDetail();setTimeout(()=>showAddTask(detailId),250);}}
 function delDetail(id){if(!confirm(lang==='en'?'Delete task?':'Aufgabe löschen?'))return;api('DELETE','/tasks/'+id).then(()=>{tasks=tasks.filter(t=>t._id?.toString()!==id);saveState();render();closeDetail();showToast(lang==='en'?'Deleted':'Gelöscht');}).catch(e=>showToast('Fehler: '+e.message));}
 async function toggleSub(tid,sid){const t=tasks.find(t=>t._id?.toString()===tid);if(!t)return;const s=t.subtasks?.find(s=>s.id===sid);if(s)s.done=!s.done;try{await api('PATCH','/tasks/'+tid,{subtasks:t.subtasks});if(isPoolTask(t)&&t.subtasks?.length&&t.subtasks.every(s=>s.done)&&!t.done){t.done=true;await api('PATCH','/tasks/'+tid,{done:true});render();celebrate();}else{render();openDetail(tid);}}catch(e){showToast(lang==='en'?'Error':'Fehler');}}
@@ -2687,6 +2950,19 @@ function setType(tp,btn){
   document.getElementById('assigneeWrap').style.display=tp==='mine'?'block':'none';
   document.getElementById('sharedUsersWrap').style.display=tp==='shared'?'block':'none';
   document.getElementById('votingWrap').style.display=tp==='pool'?'block':'none';
+  document.getElementById('wgTriggerWrap').style.display=tp==='wgpool'?'block':'none';
+  // Hide repeat + deadline for wgpool — it has no interval logic
+  const repeatFg=document.getElementById('fRepeat')?.closest('.fg');
+  const repeatIntFg=document.getElementById('repeatIntervalWrap');
+  if(repeatFg)repeatFg.style.display=tp==='wgpool'?'none':'block';
+  if(repeatIntFg&&tp==='wgpool')repeatIntFg.style.display='none';
+  // Populate trigger threshold dropdown dynamically
+  if(tp==='wgpool'){
+    const sel=document.getElementById('fWgTrigger');
+    const n=users.length||1;
+    sel.innerHTML=Array.from({length:n},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+    sel.value=Math.max(1,Math.round(n/2)); // default: majority
+  }
   if(tp==='shared')renderSharedUserPicker();
   if(tp==='pool'&&!editingId){selVoting=true;const vtog=document.getElementById('fVotingTog');if(vtog)vtog.classList.add('on');}
   else if(tp!=='pool'){selVoting=false;const tog=document.getElementById('fVotingTog');if(tog)tog.classList.remove('on');}
@@ -2765,10 +3041,21 @@ function showAddTask(editId=null, forceType=null){
   selPrio=t?.prio||'Mittel';
   document.querySelectorAll('#prioSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',['Hoch','Mittel','Niedrig'][i]===selPrio));
   const tp=forceType||(t?.type||'mine');selType=tp;
-  document.querySelectorAll('#typeSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',['mine','pool','shared'][i]===tp));
+  document.querySelectorAll('#typeSeg .seg-b').forEach((b,i)=>b.classList.toggle('on',['mine','pool','wgpool','shared'][i]===tp));
   document.getElementById('assigneeWrap').style.display=tp==='mine'?'block':'none';
   document.getElementById('sharedUsersWrap').style.display=tp==='shared'?'block':'none';
   document.getElementById('votingWrap').style.display=tp==='pool'?'block':'none';
+  document.getElementById('wgTriggerWrap').style.display=tp==='wgpool'?'block':'none';
+  const repeatFg=document.getElementById('fRepeat')?.closest('.fg');
+  const repeatIntFg=document.getElementById('repeatIntervalWrap');
+  if(repeatFg)repeatFg.style.display=tp==='wgpool'?'none':'block';
+  if(repeatIntFg&&tp==='wgpool')repeatIntFg.style.display='none';
+  if(tp==='wgpool'){
+    const sel=document.getElementById('fWgTrigger');
+    const n=users.length||1;
+    sel.innerHTML=Array.from({length:n},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
+    sel.value=t?.wgTriggerThreshold||Math.max(1,Math.round(n/2));
+  }
   const vtog=document.getElementById('fVotingTog');if(vtog)vtog.classList.toggle('on',selVoting);
   const asel=document.getElementById('fAssignee');asel.innerHTML=users.map(u=>`<option value="${u._id}">${u.name}</option>`).join('');asel.value=t?.assignee||me._id?.toString()||'';
   if(tp==='shared')renderSharedUserPicker();
@@ -2784,7 +3071,7 @@ async function saveTask(){
   const title=document.getElementById('fTitle').value.trim();if(!title){showToast(lang==='en'?'Please enter a title!':'Titel eingeben!');return;}
   const assignee=selType==='mine'?document.getElementById('fAssignee').value:me._id?.toString();
   const existingTask=editingId?tasks.find(t=>t._id?.toString()===editingId):null;
-  const data={title,desc:document.getElementById('fDesc').value,cat:(()=>{const v=document.getElementById('fCat').value;return lang==='en'?catKeyToDE(v):v;})(),prio:selPrio,deadline:document.getElementById('fDeadline').value,repeat:(()=>{const rv=document.getElementById('fRepeat').value;const back={Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'};return lang==='en'?(back[rv]||rv):rv;})(),repeatInterval:(()=>{const rv=document.getElementById('fRepeat').value;const rep=lang==='en'?({Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'}[rv]||rv):rv;if(rep==='Monatlich'){const v=parseInt(document.getElementById('fRepeatInterval')?.value||'1');return isNaN(v)||v<1?1:v;}return null;})(),type:selType,assignee:selType==='pool'?'all':assignee,inPool:selType==='pool',sharedWith:selType==='shared'?[...sharedUsers]:[],done:editingId?(existingTask?.done||false):false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
+  const data={title,desc:document.getElementById('fDesc').value,cat:(()=>{const v=document.getElementById('fCat').value;return lang==='en'?catKeyToDE(v):v;})(),prio:selPrio,deadline:selType==='wgpool'?'':document.getElementById('fDeadline').value,repeat:selType==='wgpool'?'Nie':(()=>{const rv=document.getElementById('fRepeat').value;const back={Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'};return lang==='en'?(back[rv]||rv):rv;})(),repeatInterval:selType==='wgpool'?null:(()=>{const rv=document.getElementById('fRepeat').value;const rep=lang==='en'?({Never:'Nie',Daily:'Täglich',Weekly:'Wöchentlich',Monthly:'Monatlich',Yearly:'Jährlich'}[rv]||rv):rv;if(rep==='Monatlich'){const v=parseInt(document.getElementById('fRepeatInterval')?.value||'1');return isNaN(v)||v<1?1:v;}return null;})(),type:selType,assignee:(selType==='pool'||selType==='wgpool')?'all':assignee,inPool:selType==='pool',isWgPool:selType==='wgpool',wgTriggerThreshold:selType==='wgpool'?parseInt(document.getElementById('fWgTrigger')?.value||'1'):null,sharedWith:selType==='shared'?[...sharedUsers]:[],done:editingId?(existingTask?.done||false):false,subtasks:[...newSubs],votingEnabled:selType==='pool'?selVoting:false};
   if(editingId){
     const idx=tasks.findIndex(t=>t._id?.toString()===editingId);
     if(idx>=0)tasks[idx]={...tasks[idx],...data};
@@ -2795,7 +3082,21 @@ async function saveTask(){
     const tmpId='tmp-'+uid();
     tasks.push({...data,_id:tmpId,createdAt:new Date().toISOString()});
     newSubs=[];render();closeTaskModal();showToast(lang==='en'?'Created':'Erstellt');
-    api('POST','/tasks',data).then(created=>{const idx=tasks.findIndex(t=>t._id===tmpId);if(idx>=0)tasks[idx]=created;render();}).catch(e=>{tasks=tasks.filter(t=>t._id!==tmpId);render();showToast('Fehler: '+e.message);});
+    api('POST','/tasks',data).then(created=>{
+      const idx=tasks.findIndex(t=>t._id===tmpId);
+      if(idx>=0)tasks[idx]=created;
+      // Init wgPool entry for new wg-pool tasks
+      if(data.isWgPool&&created._id){
+        const realId=created._id?.toString();
+        if(!appstate.wgPool)appstate.wgPool={};
+        if(!appstate.wgPool[realId]){
+          const uids=users.map(u=>u._id?.toString());
+          appstate.wgPool[realId]={queue:uids,currentIdx:0,status:'sleeping',triggerVotes:[],activatedAt:null,lastNotified:null};
+          saveState();
+        }
+      }
+      render();
+    }).catch(e=>{tasks=tasks.filter(t=>t._id!==tmpId);render();showToast('Fehler: '+e.message);});
     saveState();
   }
 }
