@@ -254,7 +254,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div id="ob1" class="ob-glass">
     <div class="ob-logo">
       <div style="margin-bottom:16px">
-        <div style="width:72px;height:72px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(91,91,214,.4),inset 0 1px 0 rgba(255,255,255,.25);margin:0 auto;position:relative;overflow:hidden">
+        <div style="width:72px;height:72px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(91,91,214,.4),inset 0 1px 0 rgba(255,255,255,.25);margin:0 auto;position:relative;overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0);isolation:isolate;-webkit-backface-visibility:hidden;backface-visibility:hidden">
           <div style="position:absolute;top:-30%;left:-20%;width:80%;height:60%;background:rgba(255,255,255,.15);border-radius:50%;filter:blur(10px)"></div>
           <svg width="36" height="36" viewBox="0 0 42 42" fill="none"><rect x="8" y="14" width="5" height="20" rx="2.5" fill="white" opacity=".9"/><rect x="18.5" y="8" width="5" height="26" rx="2.5" fill="white"/><rect x="29" y="18" width="5" height="16" rx="2.5" fill="white" opacity=".75"/><path d="M9 10 Q21 4 33 10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity=".35"/></svg>
         </div>
@@ -358,7 +358,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a0a18,#12102a);z-index:0"></div>
   <div style="display:flex;flex-direction:column;align-items:center;opacity:0;animation:lsIn .5s ease .15s forwards;position:relative;z-index:2">
     <!-- Logo mark — animated bars -->
-    <div style="width:80px;height:80px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(91,91,214,.35),0 2px 8px rgba(91,91,214,.2),inset 0 1px 0 rgba(255,255,255,.25);margin-bottom:18px;position:relative;overflow:hidden">
+    <div style="width:80px;height:80px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(91,91,214,.35),0 2px 8px rgba(91,91,214,.2),inset 0 1px 0 rgba(255,255,255,.25);margin-bottom:18px;position:relative;overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0);isolation:isolate;-webkit-backface-visibility:hidden;backface-visibility:hidden">
       <div style="position:absolute;top:-30%;left:-20%;width:80%;height:60%;background:rgba(255,255,255,.15);border-radius:50%;filter:blur(12px)"></div>
       <svg width="42" height="42" viewBox="0 0 42 42" fill="none" style="overflow:visible">
         <rect class="sbar sbar1" x="8"    y="14" width="5" height="20" rx="2.5" fill="white" opacity=".9"/>
@@ -843,6 +843,14 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           <option value="0" id="sdSo">Sonntag</option>
         </select>
       </div>
+      <div style="height:1px;background:var(--sep)"></div>
+      <div style="padding:16px 0 4px">
+        <button id="poolResetBtn" class="btn btn-d" style="gap:8px;font-size:14px" onclick="resetPool()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+          <span id="poolResetLbl">Pool zurücksetzen</span>
+        </button>
+        <div id="poolResetDesc" style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5">Alle Zuteilungen löschen — Aufgaben werden beim nächsten Shuffle neu verteilt. Fairness-Punkte bleiben erhalten.</div>
+      </div>
     </div>
   </div>
 </div>
@@ -1250,6 +1258,8 @@ function applyLang() {
   s('poolMenuTitle', de?'Pool-Einstellungen':'Pool Settings');
   s('poolCloseBtn', de?'Schließen':'Close');
   updatePoolPreview();
+  s('poolResetLbl', de?'Pool zurücksetzen':'Reset pool');
+  s('poolResetDesc', de?'Alle Zuteilungen löschen — Aufgaben werden beim nächsten Shuffle neu verteilt. Fairness-Punkte bleiben erhalten.':'Clear all assignments — tasks will be redistributed at the next shuffle. Fairness points are kept.');
   s('autoShuffleLbl', de?'Automatisch neu mischen':'Auto Reshuffle');
   s('autoShuffleSub', de?'Jede Woche automatisch um 0:01 Uhr':'Every week automatically at 00:01');
   s('shuffleDayLbl', de?'Wochentag':'Day of week');
@@ -1543,7 +1553,8 @@ function closeTutorial(){
 async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
-  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],...appstate};
+  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],manualDone:{},...appstate};
+  if(!appstate.manualDone)appstate.manualDone={};
 
   // Assign artificial lastAssigned dates spread evenly over each task's interval period.
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
@@ -1686,6 +1697,7 @@ function processRecurring(){
     if(reset){api('PATCH','/tasks/'+t._id,{done:false,subtasks:(t.subtasks||[]).map(s=>({...s,done:false}))}).catch(()=>{});t.done=false;if(t.subtasks)t.subtasks.forEach(s=>s.done=false);delete appstate.recurringLast[t._id?.toString()];changed=true;}
   });
   if(changed)saveState();
+  cleanupManualDone();
 }
 
 // ══════════════════════════════════════════
@@ -2187,6 +2199,8 @@ function renderPool(){
   }
   c.innerHTML=toShow.map(t=>{
     const id=t._id?.toString();const asgn=appstate.poolAssigns?.[id];const myId=me._id?.toString();
+    const manDone=appstate.manualDone?.[id];
+    const doneByUser=manDone?uById(manDone.doneBy):null;
     const hasSubAssigns=t.subtasks?.length&&asgn?.subtaskAssignments;
     let cardColor,userHeaderHtml;
     if(hasSubAssigns){
@@ -2194,6 +2208,11 @@ function renderPool(){
       const subUsers=subUids.map(uid=>uById(uid)).filter(Boolean);
       cardColor=subUsers[0]?uColor(subUsers[0]._id?.toString()):'#9CA3AF';
       userHeaderHtml=`<div style="display:flex;flex-wrap:wrap;gap:4px;padding-left:10px;flex-shrink:0;max-width:110px;justify-content:flex-end">${subUsers.map(u=>`<div style="display:flex;flex-direction:column;align-items:center;gap:1px">${avHTML(u,22)}<span style="font-size:9px;font-weight:700;color:${uColor(u._id?.toString())};max-width:32px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${u.name}</span></div>`).join('')}</div>`;
+    } else if(manDone&&!asgn){
+      // Manually completed — show done-by user in header
+      const col=uColor(doneByUser?._id?.toString());
+      cardColor=col;
+      userHeaderHtml=`<div style="display:flex;align-items:center;gap:5px;padding-left:10px;flex-shrink:0">${avHTML(doneByUser,28)}<div style="text-align:right"><div style="font-size:12px;font-weight:700;color:${col}">${doneByUser?.name||'–'}</div></div></div>`;
     } else {
       const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);
       cardColor=col;
@@ -2222,8 +2241,10 @@ function renderPool(){
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}${t.repeat==='Monatlich'&&(t.repeatInterval||1)>1?` (alle ${t.repeatInterval}M)`:''}</span>`:''}
         ${myScoreBadge(t)||( sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:'' )}
         ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}
+        ${manDone?`<span class="badge" style="background:rgba(107,114,128,.14);color:#6B7280;border:1px solid rgba(107,114,128,.28);display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>${lang==='en'?'Deferred':'Zurückgestellt'}</span>`:''}
       </div>
       ${subsHtml}${prog(t)}
+      ${pf==='nextshuffle'&&!asgn&&!manDone?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--sep)"><button onclick="event.stopPropagation();manuallyCompletePoolTask('${id}')" style="width:100%;padding:9px 12px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22);color:#16A34A;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>${lang==='en'?'Mark as manually done':'Manuell erledigt'}</button></div>`:''}
     </div>`;
   }).join('');
 }
@@ -2233,6 +2254,8 @@ function setPoolF(id){appstate.poolFilter=id;saveState();renderPool();}
 function poolTaskEligibleThisWeek(t){
   if(!t.repeat||t.repeat==='Nie'||t.repeat==='Täglich'||t.repeat==='Wöchentlich')return true;
   const id=t._id?.toString();
+  // Block if manually completed this cycle
+  if(appstate.manualDone?.[id])return false;
   const today=new Date();today.setHours(0,0,0,0);
   // If already assigned this period, skip
   const lastAssigned=appstate.recurringPoolShown?.[id];
@@ -2268,6 +2291,77 @@ function poolTaskEligibleThisWeek(t){
     return((seed+weekNum)%12)===0;
   }
   return true;
+}
+
+// ── MANUAL DONE / POOL RESET ──
+function cleanupManualDone(){
+  if(!appstate.manualDone)return;
+  let changed=false;
+  Object.keys(appstate.manualDone).forEach(id=>{
+    const md=appstate.manualDone[id];
+    const t=tasks.find(t=>t._id?.toString()===id);
+    if(!t){delete appstate.manualDone[id];changed=true;return;}
+    let expired=false;
+    const repeat=md.repeat||t.repeat;
+    if(repeat==='Monatlich'){
+      const interval=t.repeatInterval||1;
+      const doneDate=new Date((md.doneAt||'2000-01')+'-01');
+      const now=new Date();
+      const monthDiff=(now.getFullYear()-doneDate.getFullYear())*12+(now.getMonth()-doneDate.getMonth());
+      if(monthDiff>=interval)expired=true;
+    } else if(repeat==='Jährlich'){
+      if(new Date().getFullYear()>parseInt(md.doneAt||'2000'))expired=true;
+    } else if(repeat==='Wöchentlich'){
+      if(weekStart(todayStr())!==md.doneAt)expired=true;
+    } else {
+      expired=true; // daily / non-recurring: clear immediately
+    }
+    if(expired){
+      delete appstate.manualDone[id];
+      // Also unblock recurringPoolShown so task enters shuffle again
+      if(appstate.recurringPoolShown?.[id]===md.doneAt)delete appstate.recurringPoolShown[id];
+      changed=true;
+    }
+  });
+  if(changed)saveState();
+}
+
+function manuallyCompletePoolTask(id){
+  const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
+  const myId=me._id?.toString();
+  if(!appstate.manualDone)appstate.manualDone={};
+  // Determine cycle key for locking
+  let cycleKey;
+  if(t.repeat==='Monatlich')cycleKey=todayStr().slice(0,7);
+  else if(t.repeat==='Jährlich')cycleKey=todayStr().slice(0,4);
+  else if(t.repeat==='Wöchentlich')cycleKey=weekStart(todayStr());
+  else cycleKey=todayStr();
+  appstate.manualDone[id]={doneBy:myId,doneAt:cycleKey,repeat:t.repeat||'Nie'};
+  // Lock in recurringPoolShown to block from next shuffle
+  if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
+  if(t.repeat&&t.repeat!=='Nie'&&t.repeat!=='Täglich')appstate.recurringPoolShown[id]=cycleKey;
+  // Feed full debt score for fairness
+  const score=getPersonalScore(t,myId);
+  if(!appstate.shuffleDebtScore)appstate.shuffleDebtScore={};
+  appstate.shuffleDebtScore[myId]=(appstate.shuffleDebtScore[myId]||0)+score;
+  saveState();
+  renderPool();renderMy();
+  showToast(lang==='en'?`Marked as done by you — deferred until next cycle`:`Von dir erledigt — bis nächsten Zyklus zurückgestellt`);
+}
+
+function resetPool(){
+  const msg=lang==='en'
+    ?'Reset the pool? All assignments will be cleared and tasks shown as unassigned. Fairness points and task settings are kept.'
+    :'Pool zurücksetzen? Alle Zuteilungen werden gelöscht und Aufgaben wieder als nicht zugeteilt angezeigt. Fairness-Punkte und Aufgaben-Einstellungen bleiben erhalten.';
+  if(!confirm(msg))return;
+  appstate.poolAssigns={};
+  appstate.poolTasks=[];
+  appstate.recurringPoolShown={};
+  appstate.manualDone={};
+  appstate._staggerDone=false;
+  saveState();
+  renderPool();renderMy();
+  showToast(lang==='en'?'Pool reset ✓':'Pool zurückgesetzt ✓');
 }
 
 function checkAutoShuffle(){
@@ -2640,6 +2734,9 @@ function showAddTask(editId=null, forceType=null){
 }
 function closeTaskModal(){document.getElementById('taskModal').classList.remove('open');}
 async function saveTask(){
+  // Auto-add subtask if input has value but + wasn't pressed
+  const subInp=document.getElementById('newSubInp');
+  if(subInp&&subInp.value.trim())addNewSub();
   const title=document.getElementById('fTitle').value.trim();if(!title){showToast(lang==='en'?'Please enter a title!':'Titel eingeben!');return;}
   const assignee=selType==='mine'?document.getElementById('fAssignee').value:me._id?.toString();
   const existingTask=editingId?tasks.find(t=>t._id?.toString()===editingId):null;
@@ -2885,7 +2982,13 @@ async function resetTasks(){
 }
 
 // ── ADMIN ──
-function openAdmin(){document.getElementById('adminPin').value='';document.getElementById('adminModal').classList.add('open');}
+function openAdmin(){
+  adminPin=null;
+  // Always reset to PIN-entry form — fixes bug where second call skipped PIN
+  document.getElementById('adminContent').innerHTML=`<div class="fg"><label class="fl">PIN</label><input class="fi" id="adminPin" type="password" placeholder="${lang==='en'?'Enter PIN…':'PIN eingeben…'}" inputmode="numeric" maxlength="12"><div style="margin-top:10px"><button class="btn btn-p" onclick="verifyAdmin()">${lang==='en'?'Confirm':'Bestätigen'}</button></div></div>`;
+  document.getElementById('adminModal').classList.add('open');
+  setTimeout(()=>{const p=document.getElementById('adminPin');if(p)p.focus();},200);
+}
 function closeAdmin(){document.getElementById('adminModal').classList.remove('open');adminPin=null;}
 async function verifyAdmin(){const pin=document.getElementById('adminPin').value.trim();if(!pin){showToast(lang==='en'?'Please enter PIN':'PIN eingeben');return;}try{await api('POST','/admin/verify',{pin});adminPin=pin;const d=await api('GET',`/admin/data?pin=${encodeURIComponent(pin)}`);renderAdminDash(d);}catch(e){showToast(lang==='en'?'Wrong PIN':'Falscher PIN');}}
 function renderAdminDash(d){document.getElementById('adminContent').innerHTML=`<div style="padding:0 16px 8px"><div style="display:flex;gap:8px;margin-bottom:18px"><div style="flex:1;background:rgba(91,91,214,.1);border-radius:12px;padding:12px;text-align:center;border:1px solid rgba(91,91,214,.15)"><div style="font-size:22px;font-weight:700;color:var(--acc)">${d.users.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Nutzer</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.groups.length}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Gruppen</div></div><div style="flex:1;background:var(--glass);border-radius:12px;padding:12px;text-align:center;border:1px solid var(--glass-border)"><div style="font-size:22px;font-weight:700">${d.totalTasks}</div><div style="font-size:10px;color:var(--text3);font-weight:700;text-transform:uppercase;letter-spacing:.5px">Aufgaben</div></div></div><div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin-bottom:8px">Gruppen</div>${d.groups.map(g=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px;display:flex;align-items:center;gap:10px"><div style="flex:1"><div style="font-size:14px;font-weight:600">${g.name}</div><div style="font-size:11px;color:var(--text3)">${g.memberCount} Mitglieder · ${g.taskCount} Aufgaben · Code: ${g.inviteCode}</div></div><button onclick="adminDelGroup('${g._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button></div>`).join('')}<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text3);margin:14px 0 8px">Nutzer</div>${d.users.map(u=>`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:12px;margin-bottom:8px"><div style="display:flex;align-items:center;gap:10px"><div class="av" style="width:34px;height:34px;background:${u.color||'#9CA3AF'};font-size:13px">${u.name?.[0]||'?'}</div><div style="flex:1"><div style="font-size:14px;font-weight:600">${u.name}</div><div style="font-size:11px;color:var(--text3)">${u.groupName} · ${u.taskCount} Aufgaben</div></div><button onclick="adminDelUser('${u._id}')" style="background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit">Löschen</button></div></div>`).join('')}</div>`;}
@@ -2901,6 +3004,21 @@ let toastT;
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>t.classList.remove('show'),2800);}
 
 // ── SHEET DRAG TO DISMISS ──
+function hasUnsavedTaskChanges(){
+  if(!document.getElementById('taskModal')?.classList.contains('open'))return false;
+  const title=document.getElementById('fTitle')?.value.trim()||'';
+  const subInpVal=document.getElementById('newSubInp')?.value.trim()||'';
+  if(!editingId){
+    // New task: any entered content counts as unsaved
+    return title.length>0||subInpVal.length>0||newSubs.length>0;
+  }
+  const t=tasks.find(t=>t._id?.toString()===editingId);
+  if(!t)return false;
+  const desc=document.getElementById('fDesc')?.value||'';
+  const deadline=document.getElementById('fDeadline')?.value||'';
+  return title!==(t.title||'')||desc!==(t.desc||'')||deadline!==(t.deadline||'')||subInpVal.length>0;
+}
+
 function initSheetDismiss(){
   document.querySelectorAll('.ov .sheet, #taskDetail .det-sheet').forEach(sheet=>{
     let sy=null;
@@ -2923,9 +3041,19 @@ function initSheetDismiss(){
       sheet.style.transform='';
       sheet.style.opacity='';
       if(dy>80&&sheet.scrollTop<=0){
-        // Close: check if it's the taskDetail sheet or a regular .ov
         const detailWrap=sheet.closest('#taskDetail');
         if(detailWrap){closeDetail();return;}
+        const taskMod=sheet.closest('#taskModal');
+        if(taskMod){
+          if(hasUnsavedTaskChanges()){
+            const save=confirm(lang==='en'?'Save changes before closing?':'Änderungen speichern?');
+            if(save){saveTask();}
+            else{taskMod.classList.remove('open');}
+          } else {
+            taskMod.classList.remove('open');
+          }
+          sy=null;return;
+        }
         const ov=sheet.closest('.ov');
         if(ov)ov.classList.remove('open');
       }
