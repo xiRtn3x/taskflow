@@ -254,7 +254,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div id="ob1" class="ob-glass">
     <div class="ob-logo">
       <div style="margin-bottom:16px">
-        <div style="width:72px;height:72px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(91,91,214,.4),inset 0 1px 0 rgba(255,255,255,.25);margin:0 auto;position:relative;overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0);isolation:isolate;-webkit-backface-visibility:hidden;backface-visibility:hidden">
+        <div style="width:72px;height:72px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 28px rgba(91,91,214,.4),inset 0 1px 0 rgba(255,255,255,.25);margin:0 auto;position:relative;overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-mask-image:-webkit-radial-gradient(white,black);mask-image:radial-gradient(white,black);clip-path:inset(0 round 20px);isolation:isolate;-webkit-backface-visibility:hidden;backface-visibility:hidden">
           <div style="position:absolute;top:-30%;left:-20%;width:80%;height:60%;background:rgba(255,255,255,.15);border-radius:50%;filter:blur(10px)"></div>
           <svg width="36" height="36" viewBox="0 0 42 42" fill="none"><rect x="8" y="14" width="5" height="20" rx="2.5" fill="white" opacity=".9"/><rect x="18.5" y="8" width="5" height="26" rx="2.5" fill="white"/><rect x="29" y="18" width="5" height="16" rx="2.5" fill="white" opacity=".75"/><path d="M9 10 Q21 4 33 10" stroke="white" stroke-width="2" stroke-linecap="round" fill="none" opacity=".35"/></svg>
         </div>
@@ -358,7 +358,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   <div style="position:absolute;inset:0;background:linear-gradient(135deg,#0a0a18,#12102a);z-index:0"></div>
   <div style="display:flex;flex-direction:column;align-items:center;opacity:0;animation:lsIn .5s ease .15s forwards;position:relative;z-index:2">
     <!-- Logo mark — animated bars -->
-    <div style="width:80px;height:80px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(91,91,214,.35),0 2px 8px rgba(91,91,214,.2),inset 0 1px 0 rgba(255,255,255,.25);margin-bottom:18px;position:relative;overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0);isolation:isolate;-webkit-backface-visibility:hidden;backface-visibility:hidden">
+    <div style="width:80px;height:80px;background:linear-gradient(145deg,#5B5BD6,#818CF8);border-radius:24px;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 32px rgba(91,91,214,.35),0 2px 8px rgba(91,91,214,.2),inset 0 1px 0 rgba(255,255,255,.25);margin-bottom:18px;position:relative;overflow:hidden;-webkit-transform:translateZ(0);transform:translateZ(0);-webkit-mask-image:-webkit-radial-gradient(white,black);mask-image:radial-gradient(white,black);clip-path:inset(0 round 24px);isolation:isolate;-webkit-backface-visibility:hidden;backface-visibility:hidden">
       <div style="position:absolute;top:-30%;left:-20%;width:80%;height:60%;background:rgba(255,255,255,.15);border-radius:50%;filter:blur(12px)"></div>
       <svg width="42" height="42" viewBox="0 0 42 42" fill="none" style="overflow:visible">
         <rect class="sbar sbar1" x="8"    y="14" width="5" height="20" rx="2.5" fill="white" opacity=".9"/>
@@ -2244,7 +2244,7 @@ function renderPool(){
         ${manDone?`<span class="badge" style="background:rgba(107,114,128,.14);color:#6B7280;border:1px solid rgba(107,114,128,.28);display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>${lang==='en'?'Deferred':'Zurückgestellt'}</span>`:''}
       </div>
       ${subsHtml}${prog(t)}
-      ${pf==='nextshuffle'&&!asgn&&!manDone?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--sep)"><button onclick="event.stopPropagation();manuallyCompletePoolTask('${id}')" style="width:100%;padding:9px 12px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.22);color:#16A34A;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>${lang==='en'?'Mark as manually done':'Manuell erledigt'}</button></div>`:''}
+      ${pf==='nextshuffle'&&!asgn&&!manDone?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--sep)"><button onclick="event.stopPropagation();manuallyCompletePoolTask('${id}')" style="width:100%;padding:9px 12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>${lang==='en'?'Already done — defer':'Bereits erledigt — zurückstellen'}</button></div>`:''}
     </div>`;
   }).join('');
 }
@@ -2329,6 +2329,11 @@ function cleanupManualDone(){
 function manuallyCompletePoolTask(id){
   const t=tasks.find(t=>t._id?.toString()===id);if(!t)return;
   const myId=me._id?.toString();
+  // Confirmation dialog
+  const msg=lang==='en'
+    ?`You completed "${t.title}" outside the pool this week?\nIt will be deferred and won't appear in the next shuffle.`
+    :`Du hast „${t.title}" diese Woche im echten Leben erledigt?\nSie wird zurückgestellt und nicht mehr in den nächsten Shuffle aufgenommen.`;
+  if(!confirm(msg))return;
   if(!appstate.manualDone)appstate.manualDone={};
   // Determine cycle key for locking
   let cycleKey;
@@ -2336,17 +2341,18 @@ function manuallyCompletePoolTask(id){
   else if(t.repeat==='Jährlich')cycleKey=todayStr().slice(0,4);
   else if(t.repeat==='Wöchentlich')cycleKey=weekStart(todayStr());
   else cycleKey=todayStr();
+  // Store who deferred it and when — task stays visible (not marked done)
   appstate.manualDone[id]={doneBy:myId,doneAt:cycleKey,repeat:t.repeat||'Nie'};
-  // Lock in recurringPoolShown to block from next shuffle
+  // Lock in recurringPoolShown so it can't enter shuffle this cycle
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
-  if(t.repeat&&t.repeat!=='Nie'&&t.repeat!=='Täglich')appstate.recurringPoolShown[id]=cycleKey;
-  // Feed full debt score for fairness
-  const score=getPersonalScore(t,myId);
+  appstate.recurringPoolShown[id]=cycleKey;
+  // Feed full debt score for fairness — this person did the work
   if(!appstate.shuffleDebtScore)appstate.shuffleDebtScore={};
+  const score=getPersonalScore(t,myId);
   appstate.shuffleDebtScore[myId]=(appstate.shuffleDebtScore[myId]||0)+score;
   saveState();
-  renderPool();renderMy();
-  showToast(lang==='en'?`Marked as done by you — deferred until next cycle`:`Von dir erledigt — bis nächsten Zyklus zurückgestellt`);
+  renderPool();
+  showToast(lang==='en'?`"${t.title}" deferred ✓`:`„${t.title}" zurückgestellt ✓`);
 }
 
 function resetPool(){
