@@ -1102,6 +1102,25 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
   </div>
 </div>
 
+<!-- TASK TYPE HINT OVERLAY -->
+<div class="ov" id="taskTypeHintOv" style="z-index:1600;align-items:flex-end">
+  <div class="sheet">
+    <div class="handle" style="margin-top:10px"></div>
+    <div style="padding:20px 20px 0">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <div id="taskTypeHintIcon" style="width:40px;height:40px;background:rgba(91,91,214,.15);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--acc);flex-shrink:0"></div>
+        <div style="font-size:17px;font-weight:800;letter-spacing:-.3px" id="taskTypeHintTitle"></div>
+      </div>
+      <div style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:20px" id="taskTypeHintBody"></div>
+    </div>
+    <div style="padding:0 16px 32px">
+      <button onclick="closeTaskTypeHint()" style="width:100%;padding:14px;background:linear-gradient(135deg,#5B5BD6,#818CF8);color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(91,91,214,.35)" id="taskTypeHintBtn">
+        Verstanden
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ══════════════════════════════════════════
 // I18N
@@ -1593,6 +1612,39 @@ function showApp(){
     },700);
   }
 }
+function closeTaskTypeHint(){document.getElementById('taskTypeHintOv').classList.remove('open');}
+function showTaskTypeHint(type){
+  const de=lang!=='en';
+  const configs={
+    task:{
+      icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>`,
+      title:de?'Aufgaben':'Tasks',
+      body:de?'Eine <b>eigene Aufgabe</b> gehört nur dir — niemand sonst sieht sie. Eine <b>gemeinsame Aufgabe</b> teilst du mit ausgewählten Mitgliedern eurer Gruppe, alle Beteiligten können sie sehen und abhaken.':'A <b>personal task</b> belongs only to you. A <b>shared task</b> is visible to selected group members — everyone involved can check it off.',
+      key:'tf_hint_task'
+    },
+    pool:{
+      icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>`,
+      title:de?'Pool-Aufgaben':'Pool Tasks',
+      body:de?'Pool-Aufgaben werden in der Gruppe <b>automatisch verteilt</b> — nach Wiederholungsrate (täglich, wöchentlich, monatlich) und Fairness. Der Shuffle sorgt dafür, dass niemand dauerhaft die gleichen Aufgaben bekommt. Optional bewertet die Gruppe den Aufwand jeder Aufgabe mit einem Score.':'Pool tasks are <b>automatically distributed</b> in the group — based on repeat rate (daily, weekly, monthly) and fairness. The shuffle ensures nobody always gets the same tasks. Optionally the group can rate each task\'s effort with a score.',
+      key:'tf_hint_pool'
+    },
+    wgpool:{
+      icon:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`,
+      title:de?'WG-Pool-Aufgaben':'WG-Pool Tasks',
+      body:de?'Eine WG-Pool-Aufgabe wird erledigt, wenn <b>genug Mitglieder</b> finden, dass sie jetzt dran ist. Sobald der Schwellenwert erreicht ist, wird die aktuell zuständige Person benachrichtigt. Nach dem Erledigen rotiert die Aufgabe automatisch zur nächsten Person.':'A WG-Pool task gets done when <b>enough members</b> agree it\'s time. Once the threshold is reached, the currently responsible person gets notified. After completion, the task automatically rotates to the next person.',
+      key:'tf_hint_wgpool'
+    }
+  };
+  const cfg=configs[type];if(!cfg)return;
+  if(localStorage.getItem(cfg.key))return; // already seen
+  localStorage.setItem(cfg.key,'1');
+  document.getElementById('taskTypeHintIcon').innerHTML=cfg.icon;
+  document.getElementById('taskTypeHintTitle').textContent=cfg.title;
+  document.getElementById('taskTypeHintBody').innerHTML=cfg.body;
+  document.getElementById('taskTypeHintBtn').textContent=de?'Verstanden':'Got it';
+  document.getElementById('taskTypeHintOv').classList.add('open');
+}
+
 function closeTutorial(){
   localStorage.setItem('tf_tutorial_done','1');
   document.getElementById('tutorialOv').classList.remove('open');
@@ -2219,14 +2271,37 @@ function renderPool(){
     if(appstate.poolAssigns?.[t._id?.toString()])return true;
     return hasFullScore(t);
   });
-  const pf=appstate.poolFilter||'all';
+  const pf=appstate.poolFilter||'me';
+  const myId=me._id?.toString();
   const pfBar=document.getElementById('poolFbar');pfBar.className='seg';
-  const wgIcon=`<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`;
-  pfBar.innerHTML=`<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">${lang==='en'?'All':'Alle'}</button><button class="seg-b${pf==='nextshuffle'?' on':''}" onclick="setPoolF('nextshuffle')">${lang==='en'?'Next':'Nächste'}</button><button class="seg-b${pf==='wgpool'?' on':''}" onclick="setPoolF('wgpool')" style="display:flex;align-items:center;gap:4px">${wgIcon} WG</button>`+users.map(u=>`<button class="seg-b${pf===u._id?.toString()?' on':''}" onclick="setPoolF('${u._id}')">${u.name}</button>`).join('');
+  pfBar.innerHTML=
+    `<button class="seg-b${pf==='me'?' on':''}" onclick="setPoolF('me')">${me?.name||'Ich'}</button>`+
+    `<button class="seg-b${pf==='all'?' on':''}" onclick="setPoolF('all')">Pool</button>`+
+    `<button class="seg-b${pf==='nextshuffle'?' on':''}" onclick="setPoolF('nextshuffle')">${lang==='en'?'Next':'Nächste'}</button>`+
+    `<button class="seg-b${pf==='wgpool'?' on':''}" onclick="setPoolF('wgpool')">WG</button>`;
+
   let toShow=visibleInPool;
-  if(pf==='nextshuffle'){
+  if(pf==='me'){
+    // My assigned pool tasks (any week) + WG-pool tasks where I am current user
+    toShow=tasks.filter(t=>{
+      if(isPoolTask(t)&&!t.done){
+        const a=appstate.poolAssigns?.[t._id?.toString()];
+        if(a?.assignedUser===myId)return true;
+        if(a?.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(myId))return true;
+        return false;
+      }
+      if(isWgPoolTask(t)&&!t.done){
+        const wg=appstate.wgPool?.[t._id?.toString()];
+        if(!wg)return false;
+        return wg.queue[wg.currentIdx%wg.queue.length]===myId;
+      }
+      return false;
+    });
+  } else if(pf==='all'){
+    // All classic pool tasks only (not wgpool)
+    toShow=poolable.slice();
+  } else if(pf==='nextshuffle'){
     const unassignedIds=new Set(shuffleReadyPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]).map(t=>t._id?.toString()));
-    // Also include done recurring pool tasks completed this cycle — visible with "done" badge
     const doneThisCycle=tasks.filter(t=>isPoolTask(t)&&t.done&&t.repeat&&t.repeat!=='Nie').filter(t=>{
       const id=t._id?.toString();
       const last=appstate.recurringLast?.[id];
@@ -2236,7 +2311,6 @@ function renderPool(){
       if(t.repeat==='Jährlich')return last.slice(0,4)===todayStr().slice(0,4);
       return last===todayStr();
     });
-    const doneThisCycleIds=new Set(doneThisCycle.map(t=>t._id?.toString()));
     toShow=[...tasks.filter(t=>isPoolTask(t)&&!t.done).filter(t=>{
       const id=t._id?.toString();
       if(unassignedIds.has(id))return true;
@@ -2246,7 +2320,7 @@ function renderPool(){
     }),...doneThisCycle];
   } else if(pf==='wgpool'){
     toShow=tasks.filter(t=>isWgPoolTask(t)&&!t.done);
-  } else if(pf!=='all'){toShow=visibleInPool.filter(t=>{const a=appstate.poolAssigns?.[t._id?.toString()];if(!a)return false;if(a.assignedUser===pf)return true;if(a.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(pf))return true;return false;});}
+  }
   const c=document.getElementById('poolContainer');
   if(!toShow.length&&!poolable.length&&!wgPoolable.length){
     const grpBtns=!group?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:0 8px">
@@ -2655,7 +2729,7 @@ function shufflePool(autoOnly=false){
   appstate.poolTasks=poolable.map(t=>t._id?.toString());
   const finalAssigns=fairShuffleAssigns(appstate.poolTasks);
   appstate.poolAssigns=finalAssigns;
-  appstate.poolFilter='all';
+  appstate.poolFilter='me';
   // Mark pending for all other group members (they see animation on next open)
   appstate.pendingSlotShow=true;
   appstate.pendingSlotTaskIds=appstate.poolTasks;
@@ -2963,6 +3037,8 @@ function setType(tp,btn){
     sel.innerHTML=Array.from({length:n},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
     sel.value=Math.max(1,Math.round(n/2)); // default: majority
   }
+  if(tp==='pool'&&!localStorage.getItem('tf_hint_pool'))setTimeout(()=>showTaskTypeHint('pool'),200);
+  if(tp==='wgpool'&&!localStorage.getItem('tf_hint_wgpool'))setTimeout(()=>showTaskTypeHint('wgpool'),200);
   if(tp==='shared')renderSharedUserPicker();
   if(tp==='pool'&&!editingId){selVoting=true;const vtog=document.getElementById('fVotingTog');if(vtog)vtog.classList.add('on');}
   else if(tp!=='pool'){selVoting=false;const tog=document.getElementById('fVotingTog');if(tog)tog.classList.remove('on');}
@@ -3022,6 +3098,8 @@ function addNewSub(){const inp=document.getElementById('newSubInp');const v=inp.
 function rmSub(i){newSubs.splice(i,1);refreshSubList();}
 
 function showAddTask(editId=null, forceType=null){
+  // Show task type tutorial on first ever task creation
+  if(!editId&&!localStorage.getItem('tf_hint_task'))setTimeout(()=>showTaskTypeHint('task'),350);
   editingId=editId;const t=editId?tasks.find(t=>t._id?.toString()===editId):null;
   newSubs=t?[...(t.subtasks||[])].map(s=>({...s})):[];sharedUsers=new Set(t?.sharedWith||[]);
   selVoting=t?.votingEnabled||(forceType==='pool'&&!editId)||false;
