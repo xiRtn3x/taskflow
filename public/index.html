@@ -1652,9 +1652,10 @@ function closeTutorial(){
 async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
-  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],manualDone:{},wgPool:{},...appstate};
+  appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],manualDone:{},wgPool:{},poolScheduled:{},...appstate};
   if(!appstate.manualDone)appstate.manualDone={};
   if(!appstate.wgPool)appstate.wgPool={};
+  if(!appstate.poolScheduled)appstate.poolScheduled={};
 
   // Assign artificial lastAssigned dates spread evenly over each task's interval period.
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
@@ -2442,39 +2443,62 @@ function setPoolF(id){appstate.poolFilter=id;saveState();renderPool();}
 
 // Returns true if a recurring pool task should appear in this week's shuffle
 function poolTaskEligibleThisWeek(t){
-  if(!t.repeat||t.repeat==='Nie'||t.repeat==='Täglich'||t.repeat==='Wöchentlich')return true;
   const id=t._id?.toString();
   // Block if manually completed this cycle
   if(appstate.manualDone?.[id])return false;
+
+  // ── ONE-TIME tasks with deadline ──
+  // Schedule them randomly within the window [today … deadline - 14 days]
+  // Once assigned, they stay with that user until done (handled in shufflePool).
+  if(!t.repeat||t.repeat==='Nie'){
+    if(t.deadline){
+      const deadlineMs=new Date(t.deadline+'T00:00:00').getTime();
+      const todayMs=new Date(todayStr()+'T00:00:00').getTime();
+      const cutoffMs=deadlineMs-(14*24*60*60*1000); // 2 weeks before deadline
+      if(todayMs>cutoffMs)return true; // inside puffer — always eligible
+      // Calculate or retrieve scheduled date
+      if(!appstate.poolScheduled)appstate.poolScheduled={};
+      if(!appstate.poolScheduled[id]){
+        // Pick a random date between today and cutoff
+        const range=cutoffMs-todayMs;
+        const randOffset=Math.floor(Math.random()*range);
+        const scheduledDate=new Date(todayMs+randOffset);
+        // Round to nearest Monday (shuffle day)
+        appstate.poolScheduled[id]=weekStart(scheduledDate.toISOString().split('T')[0]);
+        saveState();
+      }
+      const scheduled=new Date(appstate.poolScheduled[id]+'T00:00:00').getTime();
+      return todayMs>=scheduled;
+    }
+    // No deadline — always eligible immediately
+    return true;
+  }
+
   const today=new Date();today.setHours(0,0,0,0);
   // If already assigned this period, skip
   const lastAssigned=appstate.recurringPoolShown?.[id];
+  if(t.repeat==='Täglich'||t.repeat==='Wöchentlich')return true;
   if(t.repeat==='Monatlich'){
     const interval=t.repeatInterval||1;
-    const monthKey=todayStr().slice(0,7); // YYYY-MM
+    const monthKey=todayStr().slice(0,7);
     if(lastAssigned===monthKey)return false;
-    // Check if enough months have passed since last assigned
     if(lastAssigned&&interval>1){
       const lastDate=new Date(lastAssigned+'-01');
       const now=new Date(today.getFullYear(),today.getMonth(),1);
       const monthDiff=(now.getFullYear()-lastDate.getFullYear())*12+(now.getMonth()-lastDate.getMonth());
       if(monthDiff<interval)return false;
     }
-    // Don't assign in last 5 days of month
     const lastDay=new Date(today.getFullYear(),today.getMonth()+1,0).getDate();
     if(today.getDate()>lastDay-5)return false;
-    // Random chance: ~1 in 3 shuffles this month (roughly weekly shuffles)
     const weekKey=weekStart(todayStr());
     const seed=id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
     const weekNum=Math.floor((new Date(weekKey)-new Date(today.getFullYear(),0,1))/(7*86400000));
     return((seed+weekNum)%3)===0;
   }
   if(t.repeat==='Jährlich'){
-    const yearKey=todayStr().slice(0,4); // YYYY
+    const yearKey=todayStr().slice(0,4);
     if(lastAssigned===yearKey)return false;
-    // Don't assign in last 2 months of year (Nov, Dec)
     if(today.getMonth()>=10)return false;
-    // Random chance: ~1 in 12 shuffles per year
     const weekKey=weekStart(todayStr());
     const seed=id.split('').reduce((a,c)=>a+c.charCodeAt(0),0);
     const weekNum=Math.floor((new Date(weekKey)-new Date(today.getFullYear(),0,1))/(7*86400000));
@@ -2775,7 +2799,11 @@ function updatePoolPreview(){
 }
 function shufflePool(autoOnly=false){
   const allPool=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  const poolable=allPool.filter(t=>poolTaskEligibleThisWeek(t));
+  const poolable=allPool.filter(t=>{
+    // One-time tasks already assigned stay with their user — skip in shuffle
+    if((!t.repeat||t.repeat==='Nie')&&appstate.poolAssigns?.[t._id?.toString()])return false;
+    return poolTaskEligibleThisWeek(t);
+  });
   if(!poolable.length){
     if(!autoOnly){
       if(allPool.length){showToast(lang==='en'?'No tasks due this week':'Keine Aufgaben für diese Woche fällig');return;}
@@ -3053,6 +3081,11 @@ async function toggleTask(id,withCeleb=false){
   const was=t.done;t.done=!t.done;
   if(!was&&t.repeat&&t.repeat!=='Nie'){if(!appstate.recurringLast)appstate.recurringLast={};appstate.recurringLast[id]=todayStr();saveState();}
   if(was&&t.repeat&&t.repeat!=='Nie'&&appstate.recurringLast){delete appstate.recurringLast[id];saveState();}
+  if(!was&&isPoolTask(t)&&(!t.repeat||t.repeat==='Nie')){
+    // One-time task done — clear scheduled date so it won't re-enter shuffle
+    if(appstate.poolScheduled?.[id])delete appstate.poolScheduled[id];
+    saveState();
+  }
   // Fix P3: track completion date for pool recurring tasks (used by poolTaskEligibleThisWeek)
   if(!was&&isPoolTask(t)&&t.repeat&&t.repeat!=='Nie'){
     if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
