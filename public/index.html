@@ -1729,6 +1729,17 @@ function startPolling(){
   pollTimer=setInterval(async()=>{
     try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}document.getElementById('notifDot').style.display=r.hasNotifications?'block':'none';document.getElementById('notifBtn').style.display=r.hasNotifications?'flex':'none';}catch(e){}
   },15000);
+
+  // ── Minutely shuffle timer ──
+  // Checks every 60s whether it's the right day to shuffle.
+  // This runs even if the 15s poll hasn't fired yet, and catches cases
+  // where the app stays open across midnight.
+  if(!window._shuffleTimer){
+    window._shuffleTimer=setInterval(()=>{
+      if(document.visibilityState==='visible')checkAutoShuffle();
+    },60000);
+  }
+
   checkAutoShuffle();
   // Immediate refresh when app comes back to foreground
   if(!window._visListenerAdded){
@@ -2298,10 +2309,30 @@ function renderPool(){
       return false;
     });
   } else if(pf==='all'){
-    // All classic pool tasks only (not wgpool)
-    toShow=poolable.slice();
+    // Only assigned tasks — no unassigned shown here
+    // Sort: 1. my tasks 2. other users grouped
+    const assigned=poolable.filter(t=>appstate.poolAssigns?.[t._id?.toString()]);
+    const myTasks=assigned.filter(t=>{
+      const a=appstate.poolAssigns[t._id?.toString()];
+      return a?.assignedUser===myId||(a?.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(myId));
+    });
+    const otherTasks=assigned.filter(t=>{
+      const a=appstate.poolAssigns[t._id?.toString()];
+      return a?.assignedUser!==myId&&!(a?.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(myId));
+    });
+    // Group other tasks by assigned user, in user-list order
+    const otherByUser={};
+    otherTasks.forEach(t=>{
+      const uid=appstate.poolAssigns[t._id?.toString()]?.assignedUser||'?';
+      if(!otherByUser[uid])otherByUser[uid]=[];
+      otherByUser[uid].push(t);
+    });
+    toShow={_poolGrouped:true,myTasks,otherByUser};
   } else if(pf==='nextshuffle'){
-    const unassignedIds=new Set(shuffleReadyPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]).map(t=>t._id?.toString()));
+    // ALL unassigned pool tasks — no interval filter here, everything without a current assignment
+    const unassignedAll=new Set(poolable.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]).map(t=>t._id?.toString()));
+    // Tasks with completed voting but old poolAssigns — treat as unassigned
+    const votingCompleteOld=new Set(poolable.filter(t=>t.votingEnabled&&hasFullScore(t)&&appstate.poolAssigns?.[t._id?.toString()]).map(t=>t._id?.toString()));
     const doneThisCycle=tasks.filter(t=>isPoolTask(t)&&t.done&&t.repeat&&t.repeat!=='Nie').filter(t=>{
       const id=t._id?.toString();
       const last=appstate.recurringLast?.[id];
@@ -2313,16 +2344,16 @@ function renderPool(){
     });
     toShow=[...tasks.filter(t=>isPoolTask(t)&&!t.done).filter(t=>{
       const id=t._id?.toString();
-      if(unassignedIds.has(id))return true;
-      if(appstate.manualDone?.[id])return true;
-      if(t.repeat&&t.repeat!=='Nie')return poolTaskEligibleThisWeek(t);
+      if(unassignedAll.has(id))return true;       // not assigned at all
+      if(votingCompleteOld.has(id))return true;   // voting done, old assignment
+      if(appstate.manualDone?.[id])return true;   // manually deferred
       return false;
     }),...doneThisCycle];
   } else if(pf==='wgpool'){
     toShow=tasks.filter(t=>isWgPoolTask(t)&&!t.done);
   }
   const c=document.getElementById('poolContainer');
-  if(!toShow.length&&!poolable.length&&!wgPoolable.length){
+  if(!toShow.length&&!poolable.length&&!wgPoolable.length&&!toShow._poolGrouped){
     const grpBtns=!group?`<div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;padding:0 8px">
       <button onclick="createGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Gruppe erstellen</button>
       <button onclick="joinGroup()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>${lang==='en'?'Join group':'Gruppe beitreten'}</button>
@@ -2335,8 +2366,30 @@ function renderPool(){
     if(waitingVote.length)msg=`<div class="empty-s" style="margin-top:6px">${poopSVG(12)} ${waitingVote.length} ${lang==='en'?`task${waitingVote.length>1?'s':''} waiting for votes`:`Aufgabe${waitingVote.length>1?'n':''} warte${waitingVote.length===1?'t':''} auf Voting-Abschluss`}</div>`;
     c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${lang==='en'?'No tasks':'Keine Aufgaben'}</div>${msg||`<div class="empty-s">${lang==='en'?'Change the filter':'Wechsle den Filter'}</div>`}</div>`;return;
   }
+
+  // Grouped Pool view
+  if(toShow._poolGrouped){
+    let html='';
+    const renderCard=t=>renderPoolCard(t,pf);
+    if(toShow.myTasks.length){
+      html+=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.user} ${me?.name}</div>`;
+      html+=toShow.myTasks.map(renderCard).join('');
+    }
+    Object.entries(toShow.otherByUser).forEach(([uid,uTasks])=>{
+      const u=uById(uid);
+      const col=uColor(uid);
+      html+=`<div class="sec" style="display:flex;align-items:center;gap:6px"><span style="color:${col}">${avHTML(u,16)}</span><span style="color:${col}">${u?.name||'?'}</span></div>`;
+      html+=uTasks.map(renderCard).join('');
+    });
+    if(!html)html=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${lang==='en'?'No assigned tasks':'Keine zugeteilten Aufgaben'}</div><div class="empty-s">${lang==='en'?'Trigger a shuffle first':'Zuerst Shuffle ausführen'}</div></div>`;
+    c.innerHTML=html;return;
+  }
   c.innerHTML=toShow.map(t=>{
     if(isWgPoolTask(t))return renderWgPoolCard(t);
+    return renderPoolCard(t,pf);
+  }).join('');
+}
+function renderPoolCard(t,pf){
     const id=t._id?.toString();const asgn=appstate.poolAssigns?.[id];const myId=me._id?.toString();
     const manDone=appstate.manualDone?.[id];
     const doneByUser=manDone?uById(manDone.doneBy):null;
@@ -2348,7 +2401,6 @@ function renderPool(){
       cardColor=subUsers[0]?uColor(subUsers[0]._id?.toString()):'#9CA3AF';
       userHeaderHtml=`<div style="display:flex;flex-wrap:wrap;gap:4px;padding-left:10px;flex-shrink:0;max-width:110px;justify-content:flex-end">${subUsers.map(u=>`<div style="display:flex;flex-direction:column;align-items:center;gap:1px">${avHTML(u,22)}<span style="font-size:9px;font-weight:700;color:${uColor(u._id?.toString())};max-width:32px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${u.name}</span></div>`).join('')}</div>`;
     } else if(manDone&&!asgn){
-      // Manually completed — show done-by user in header
       const col=uColor(doneByUser?._id?.toString());
       cardColor=col;
       userHeaderHtml=`<div style="display:flex;align-items:center;gap:5px;padding-left:10px;flex-shrink:0">${avHTML(doneByUser,28)}<div style="text-align:right"><div style="font-size:12px;font-weight:700;color:${col}">${doneByUser?.name||'–'}</div></div></div>`;
@@ -2378,14 +2430,13 @@ function renderPool(){
         ${t.cat?`<span class="badge b-blu" style="display:inline-flex;align-items:center;gap:3px">${catIcon(allCats()[t.cat]||'')} ${t.cat}</span>`:''}
         ${(()=>{const ov=t.deadline&&!t.done&&new Date(t.deadline+'T00:00:00')<new Date();return t.deadline?`<span class="badge ${ov?'b-red':'b-blu'}" style="display:inline-flex;align-items:center;gap:3px">${I.cal} ${fmtD(t.deadline)}${ov?` ${I.alert}`:''}</span>`:''})()}
         ${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}${t.repeat==='Monatlich'&&(t.repeatInterval||1)>1?` (alle ${t.repeatInterval}M)`:''}</span>`:''}
-        ${myScoreBadge(t)||( sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora">💩 ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:'' )}
+        ${myScoreBadge(t)||( sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:t.votingEnabled?`<span class="badge b-ora" style="display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${lang==='en'?'Voting…':'Voting läuft…'}</span>`:'' )}
         ${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done this cycle':'Diese Woche erledigt'}</span>`:''}
         ${manDone?`<span class="badge b-red" style="display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>${lang==='en'?'Deferred':'Zurückgestellt'}</span>`:''}
       </div>
       ${subsHtml}${prog(t)}
       ${pf==='nextshuffle'&&!asgn&&!manDone?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--sep)"><button onclick="event.stopPropagation();manuallyCompletePoolTask('${id}')" style="width:100%;padding:9px 12px;background:var(--glass);border:1px solid var(--glass-border);color:var(--text2);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:5px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>${lang==='en'?'Already done — defer':'Bereits erledigt — zurückstellen'}</button></div>`:''}
     </div>`;
-  }).join('');
 }
 function setPoolF(id){appstate.poolFilter=id;saveState();renderPool();}
 
@@ -2672,15 +2723,22 @@ function checkWgPoolNotifications(){
 function checkAutoShuffle(){
   checkWgPoolNotifications();
   if(!group||!me||appstate.autoShuffleEnabled===false)return;
-  const d=new Date(),dayOfWeek=d.getDay(),targetDay=appstate.autoShuffleDay??2;
+  const d=new Date();
+  const dayOfWeek=d.getDay();
+  const targetDay=appstate.autoShuffleDay??2;
   if(dayOfWeek!==targetDay)return;
-  // Use date-based key so shuffle fires any time on the correct day
+  // todayKey is stored in shared appstate (server) so all group members share the same state.
+  // Format: 'autoShuf_YYYY-MM-DD' — fires any time on the correct day, not only at 0:01.
   const todayKey='autoShuf_'+todayStr();
   if(appstate.lastShuffleWeek===todayKey)return;
+  // Only shuffle if there are eligible pool tasks
   const ready=tasks.filter(t=>isPoolTask(t)&&!t.done);
-  if(!ready.length||ready.some(t=>t.votingEnabled&&!hasFullScore(t)))return;
-  appstate.lastShuffleWeek=todayKey;saveState();
-  // Auto-shuffle: compute + save results only, do NOT show animation now
+  if(!ready.length)return;
+  // If any pool task is awaiting votes — skip until votes are done
+  if(ready.some(t=>t.votingEnabled&&!hasFullScore(t)))return;
+  // Mark immediately to prevent double-shuffle across group members
+  appstate.lastShuffleWeek=todayKey;
+  saveState();
   shufflePool(true);
 }
 function toggleAutoShuffle(btn){
