@@ -2361,7 +2361,7 @@ function renderPool(){
   // Show tasks waiting for shuffle
   const unassigned=shuffleReadyPool.filter(t=>!appstate.poolAssigns?.[t._id?.toString()]);
   const waitingVote=poolable.filter(t=>t.votingEnabled&&!hasFullScore(t));
-  if(!toShow.length){
+  if(!toShow.length&&!toShow._poolGrouped){
     let msg='';
     if(waitingVote.length)msg=`<div class="empty-s" style="margin-top:6px">${poopSVG(12)} ${waitingVote.length} ${lang==='en'?`task${waitingVote.length>1?'s':''} waiting for votes`:`Aufgabe${waitingVote.length>1?'n':''} warte${waitingVote.length===1?'t':''} auf Voting-Abschluss`}</div>`;
     c.innerHTML=`<div class="empty"><div>${I.inbox}</div><div class="empty-t">${lang==='en'?'No tasks':'Keine Aufgaben'}</div>${msg||`<div class="empty-s">${lang==='en'?'Change the filter':'Wechsle den Filter'}</div>`}</div>`;return;
