@@ -1237,15 +1237,7 @@ function applyLang() {
   s('secProfilLbl', de?'Profil':'Profile');
   s('myFarbeLbl', de?'Meine Farbe':'My color');
   s('secLangLbl', de?'Sprache':'Language');
-  // Group section header
-  const grpHdr = document.querySelector('.prof-sec-hdr svg[viewBox="0 0 24 24"]+*');
-  document.querySelectorAll('.prof-sec-hdr').forEach(hdr=>{
-    const txt=hdr.textContent.trim();
-    if(txt.includes('Gruppe')||txt.includes('Group')){const sp=hdr.querySelector('span')||hdr;if(sp.tagName==='SPAN')sp.textContent=de?'Gruppe':'Group';}
-    if(txt.includes('Kategorien')||txt.includes('Categor')){const sp=hdr.querySelector('#secKatLbl');if(sp)sp.textContent=de?'Kategorien':'Categories';}
-    if(txt.includes('Kalenderintegration')||txt.includes('Calendar')){const sp=hdr.querySelector('#secKalLbl');if(sp)sp.textContent=de?'Kalenderintegration':'Calendar integration';}
-    if(txt.includes('Account')){const sp=hdr.querySelector('span');if(sp)sp.textContent='Account';}
-  });
+  // Group section header (secGrpLbl, secKatLbl, secKalLbl set below via s())
   s('secKatLbl', de?'Kategorien':'Categories');
   s('secKalLbl', de?'Kalenderintegration':'Calendar integration');
   s('kalPreview', de?'iCal-Link · Outlook · Apple · Android':'iCal link · Outlook · Apple · Android');
@@ -1577,7 +1569,7 @@ async function init(){
       try{
         [users,me]=await Promise.all([api('GET','/users'),api('GET','/users/me')]);
         const [t,g,as]=await Promise.all([api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
-        tasks=t;group=g;appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],...(as||{})};
+        tasks=t;group=g;appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],manualDone:{},wgPool:{},poolScheduled:{},...(as||{})};
         processRecurring();
       }catch(e){localStorage.removeItem('tf_token');myToken=null;showOnboard();return;}
       return;
@@ -1653,9 +1645,6 @@ async function loadAll(){
   const [u,t,g,as]=await Promise.all([api('GET','/users'),api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
   users=u;tasks=t;group=g;appstate=as||{};
   appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],manualDone:{},wgPool:{},poolScheduled:{},...appstate};
-  if(!appstate.manualDone)appstate.manualDone={};
-  if(!appstate.wgPool)appstate.wgPool={};
-  if(!appstate.poolScheduled)appstate.poolScheduled={};
 
   // Assign artificial lastAssigned dates spread evenly over each task's interval period.
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
