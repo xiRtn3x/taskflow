@@ -1920,7 +1920,7 @@ function renderVote(){
     let html='';
     // Tasks waiting for other users to vote
     if(waitingForOthers.length){
-      html+=`<div class="sec">⏳ Warte auf andere</div>`+waitingForOthers.map(t=>{
+      html+=`<div class="sec" style="display:flex;align-items:center;gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h14"/><path d="M5 21h14"/><path d="M5 3l7 9 7-9"/><path d="M5 21l7-9 7 9"/></svg> ${lang==='en'?'Waiting for others':'Warte auf andere'}</div>`+waitingForOthers.map(t=>{
         const vCnt=t.subtasks?.length?t.subtasks.reduce((s,sub)=>{const sv=t.subtaskVotes?.[sub.id]||{};return s+Object.keys(sv).length;},0):Object.keys(t.votes||{}).length;
         const vTotal=t.subtasks?.length?t.subtasks.length*users.length:users.length;
         const missing=users.filter(u=>{const uid=u._id?.toString();if(t.subtasks?.length)return t.subtasks.some(s=>!(t.subtaskVotes?.[s.id]||{})[uid]);return!(t.votes||{})[uid];}).map(u=>u.name).join(', ');
@@ -2397,7 +2397,7 @@ function renderPool(){
     const mineTasks=toShow.filter(t=>!isWgPoolTask(t)&&appstate.poolAssigns?.[t._id?.toString()]&&appstate.poolAssigns[t._id?.toString()].assignedUser===myId);
     let html='';
     if(unassignedTasks.length){
-      html+=`<div class="sec" style="display:flex;align-items:center;gap:5px">${I.inbox} ${lang==='en'?'Unassigned':'Nicht zugeordnet'}</div>`;
+      html+=`<div class="sec" style="display:flex;align-items:center;gap:5px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> ${lang==='en'?'Unassigned':'Nicht zugeordnet'}</div>`;
       html+=unassignedTasks.map(t=>renderPoolCard(t,pf)).join('');
     }
     if(othersTasks.length){
@@ -3509,16 +3509,16 @@ function renderStats(){
   const c=document.getElementById('statContent');if(!c)return;
   const de=lang!=='en';
   const allUsers=users.length?users:[me].filter(Boolean);
-  // Per-user stats
+  const myId=me._id?.toString();
+
+  // ── Per-user cards ──
   const rows=allUsers.map(u=>{
     const uid=u._id?.toString();
     const myTasks=tasks.filter(t=>visibleToMe2(t,uid));
     const open=myTasks.filter(t=>!t.done).length;
     const done=myTasks.filter(t=>t.done).length;
     const debt=Math.round((appstate.shuffleDebtScore?.[uid]||0)*10)/10;
-    const isMe=uid===me._id?.toString();
-    const col=uColor(uid);
-    // Pool tasks assigned to this user
+    const isMe=uid===myId;
     const poolDone=tasks.filter(t=>isPoolTask(t)&&t.done&&appstate.poolAssigns?.[t._id?.toString()]?.assignedUser===uid).length;
     const poolOpen=tasks.filter(t=>isPoolTask(t)&&!t.done&&appstate.poolAssigns?.[t._id?.toString()]?.assignedUser===uid).length;
     return`<div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:16px;padding:14px;margin-bottom:10px">
@@ -3537,39 +3537,189 @@ function renderStats(){
         </div>
         <div style="background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);border-radius:12px;padding:10px;text-align:center">
           <div style="font-size:22px;font-weight:800;color:#D97706">${debt}</div>
-          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">${de?'Fairness':'Fairness'}</div>
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px">${de?'Aufwand':'Workload'}</div>
         </div>
       </div>
       ${(poolOpen||poolDone)?`<div style="margin-top:8px;padding-top:8px;border-top:1px solid var(--sep);display:flex;gap:8px;flex-wrap:wrap">
-        ${poolOpen?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg> ${poolOpen} Pool ${de?'offen':'open'}</span>`:''}
-        ${poolDone?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> ${poolDone} Pool ${de?'erledigt':'done'}</span>`:''}
+        ${poolOpen?`<span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.shuf} ${poolOpen} Pool ${de?'offen':'open'}</span>`:''}
+        ${poolDone?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${poolDone} Pool ${de?'erledigt':'done'}</span>`:''}
       </div>`:''}
     </div>`;
   });
-  // Fairness ranking if group
+
+  // ── 1. FAIRNESS-METER: assigned poop score this cycle per user ──
+  let fairnessHtml='';
+  if(allUsers.length>1&&appstate.poolAssigns){
+    const poolAssigned=tasks.filter(t=>isPoolTask(t)&&appstate.poolAssigns?.[t._id?.toString()]);
+    const scorePerUser={};
+    allUsers.forEach(u=>scorePerUser[u._id?.toString()]=0);
+    poolAssigned.forEach(t=>{
+      const id=t._id?.toString();
+      const uid=appstate.poolAssigns[id]?.assignedUser;
+      if(uid)scorePerUser[uid]=(scorePerUser[uid]||0)+(t.poopScore||5);
+    });
+    const totalScore=Object.values(scorePerUser).reduce((a,b)=>a+b,0);
+    const avgScore=allUsers.length?Math.round(totalScore/allUsers.length):0;
+    const maxScore=Math.max(...Object.values(scorePerUser),1);
+    const sortedU=[...allUsers].sort((a,b)=>(scorePerUser[b._id?.toString()]||0)-(scorePerUser[a._id?.toString()]||0));
+    fairnessHtml=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin:20px 0 8px;display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>${de?'Fairness-Meter':'Fairness Meter'}</div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden;padding:4px 0">
+    ${sortedU.map(u=>{
+      const uid=u._id?.toString();
+      const sc=scorePerUser[uid]||0;
+      const pct=Math.round((sc/maxScore)*100);
+      const col=uColor(uid);
+      const isMe=uid===myId;
+      const diff=sc-avgScore;
+      const diffStr=diff===0?'∅':(diff>0?`+${diff}`:`${diff}`);
+      const diffCol=diff>5?'var(--red)':diff<-5?'var(--green)':'var(--text3)';
+      return`<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--sep)">
+        ${avHTML(u,26)}
+        <div style="flex:1">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:13px;font-weight:${isMe?'700':'500'};color:var(--text)">${u.name}</span>
+            <span style="font-size:11px;font-weight:700;color:${diffCol}">${diffStr} ${de?'vs Ø':'vs avg'}</span>
+          </div>
+          <div style="height:5px;background:var(--sep);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${col};border-radius:3px;transition:width .5s"></div>
+          </div>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:${col};min-width:24px;text-align:right">${sc}</div>
+      </div>`;
+    }).join('')}
+    <div style="padding:8px 12px;display:flex;align-items:center;gap:5px"><span style="font-size:11px;color:var(--text3)">${de?`Ø pro Person: ${avgScore}`:`Avg per person: ${avgScore}`}</span></div>
+    </div>`;
+  }
+
+  // ── 2. ERLEDIGUNGSQUOTE: % of assigned pool tasks completed this cycle ──
+  let completionHtml='';
+  if(allUsers.length>=1&&appstate.poolAssigns){
+    const assigned=tasks.filter(t=>isPoolTask(t)&&appstate.poolAssigns?.[t._id?.toString()]);
+    const total=assigned.length;
+    const done=assigned.filter(t=>t.done).length;
+    const pct=total?Math.round((done/total)*100):0;
+    const barCol=pct>=80?'#16A34A':pct>=50?'#D97706':'#DC2626';
+    // Per-user completion
+    const userComp=allUsers.map(u=>{
+      const uid=u._id?.toString();
+      const uAssigned=assigned.filter(t=>appstate.poolAssigns[t._id?.toString()]?.assignedUser===uid);
+      const uDone=uAssigned.filter(t=>t.done).length;
+      return{u,uid,total:uAssigned.length,done:uDone,pct:uAssigned.length?Math.round((uDone/uAssigned.length)*100):null};
+    }).filter(x=>x.total>0);
+    completionHtml=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin:20px 0 8px;display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>${de?'Erledigungsquote':'Completion Rate'}</div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px">
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px">
+        <div style="font-size:36px;font-weight:800;color:${barCol};line-height:1">${pct}%</div>
+        <div style="flex:1">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:6px">${done}/${total} ${de?'Pool-Aufgaben erledigt':'pool tasks done'}</div>
+          <div style="height:8px;background:var(--sep);border-radius:4px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:${barCol};border-radius:4px;transition:width .5s"></div>
+          </div>
+        </div>
+      </div>
+      ${userComp.length>1?`<div style="display:flex;flex-direction:column;gap:6px;padding-top:10px;border-top:1px solid var(--sep)">
+      ${userComp.map(x=>{const col=uColor(x.uid);const isMe=x.uid===myId;return`<div style="display:flex;align-items:center;gap:8px">
+        ${avHTML(x.u,20)}
+        <span style="font-size:12px;font-weight:${isMe?'700':'400'};color:var(--text);flex:1">${x.u.name}</span>
+        <span style="font-size:11px;color:var(--text3)">${x.done}/${x.total}</span>
+        <div style="width:60px;height:4px;background:var(--sep);border-radius:2px;overflow:hidden"><div style="height:100%;width:${x.pct}%;background:${col};border-radius:2px"></div></div>
+        <span style="font-size:11px;font-weight:700;color:${col};min-width:28px;text-align:right">${x.pct}%</span>
+      </div>`;}).join('')}
+      </div>`:''}
+    </div>`;
+  }
+
+  // ── 3. TOP 3 schwerste Aufgaben nach Poop-Score ──
+  let topHtml='';
+  const scoredTasks=tasks.filter(t=>isPoolTask(t)&&!t.done&&(t.poopScore!=null||getScore(t)!=null));
+  if(scoredTasks.length){
+    const top=[...scoredTasks].sort((a,b)=>(getScore(b)||b.poopScore||0)-(getScore(a)||a.poopScore||0)).slice(0,3);
+    topHtml=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin:20px 0 8px;display:flex;align-items:center;gap:6px">${poopSVG(12)} ${de?'Schwerste Aufgaben':'Hardest Tasks'}</div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden">
+    ${top.map((t,i)=>{
+      const sc=getScore(t)||t.poopScore;
+      const col=poopColor(sc);
+      const asgn=appstate.poolAssigns?.[t._id?.toString()];
+      const u=asgn?uById(asgn.assignedUser):null;
+      const uCol=u?uColor(asgn.assignedUser):'var(--text3)';
+      return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--sep)">
+        <div style="font-size:15px;font-weight:800;color:var(--text3);width:16px;text-align:center">${i+1}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600;color:var(--text)">${t.title}</div>
+          ${u?`<div style="font-size:11px;color:${uCol};margin-top:2px;font-weight:600">${I.user} ${u.name}</div>`:`<div style="font-size:11px;color:var(--text3);margin-top:2px">${de?'Nicht zugeteilt':'Unassigned'}</div>`}
+        </div>
+        <span class="badge b-poop" style="color:${col};border-color:${col}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>
+      </div>`;
+    }).join('')}
+    </div>`;
+  }
+
+  // ── 4. PERSÖNLICHER SCORE-SALDO: my current cycle load vs group avg ──
+  let myScoreHtml='';
+  if(allUsers.length>1&&appstate.poolAssigns){
+    const poolAssigned=tasks.filter(t=>isPoolTask(t)&&appstate.poolAssigns?.[t._id?.toString()]);
+    const scorePerUser={};
+    allUsers.forEach(u=>scorePerUser[u._id?.toString()]=0);
+    poolAssigned.forEach(t=>{
+      const uid=appstate.poolAssigns[t._id?.toString()]?.assignedUser;
+      if(uid)scorePerUser[uid]=(scorePerUser[uid]||0)+(t.poopScore||5);
+    });
+    const myScore=scorePerUser[myId]||0;
+    const avgScore=Math.round(allUsers.reduce((s,u)=>s+(scorePerUser[u._id?.toString()]||0),0)/allUsers.length);
+    const diff=myScore-avgScore;
+    const diffLabel=diff===0?(de?'genau Durchschnitt':'exactly average'):diff>0?(de?`${diff} über Durchschnitt`:`${diff} above avg`):(de?`${Math.abs(diff)} unter Durchschnitt`:`${Math.abs(diff)} below avg`);
+    const statusCol=diff>5?'var(--red)':diff<-5?'var(--green)':'#D97706';
+    const statusIcon=diff>5?`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>`:diff<-5?`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>`:`<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>`;
+    const myDone=tasks.filter(t=>isPoolTask(t)&&t.done&&appstate.poolAssigns?.[t._id?.toString()]?.assignedUser===myId).length;
+    const myOpen=tasks.filter(t=>isPoolTask(t)&&!t.done&&appstate.poolAssigns?.[t._id?.toString()]?.assignedUser===myId).length;
+    myScoreHtml=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin:20px 0 8px;display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${de?'Dein Saldo':'Your Balance'}</div>
+    <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="text-align:center">
+          <div style="font-size:34px;font-weight:800;color:${statusCol};line-height:1">${myScore}</div>
+          <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px">${de?'Aufwand':'Workload'}</div>
+        </div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:5px;margin-bottom:6px">
+            <span style="color:${statusCol}">${statusIcon}</span>
+            <span style="font-size:13px;font-weight:600;color:${statusCol}">${diffLabel}</span>
+          </div>
+          <div style="display:flex;gap:8px">
+            <span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${myDone} ${de?'erledigt':'done'}</span>
+            <span class="badge b-pur" style="display:inline-flex;align-items:center;gap:3px">${I.shuf} ${myOpen} ${de?'offen':'open'}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── Fairness-Rangliste (bestehend, leicht überarbeitet) ──
   let rankHtml='';
   if(allUsers.length>1&&appstate.shuffleDebtScore&&Object.keys(appstate.shuffleDebtScore).length){
     const sorted=[...allUsers].sort((a,b)=>(appstate.shuffleDebtScore[b._id?.toString()]||0)-(appstate.shuffleDebtScore[a._id?.toString()]||0));
-    rankHtml=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin:16px 0 8px">${de?'Fairness-Rangliste (höher = mehr Arbeit erledigt)':'Fairness ranking (higher = more work done)'}</div>
+    rankHtml=`<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text3);margin:20px 0 8px;display:flex;align-items:center;gap:6px"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>${de?'Gesamt-Aufwand (kumuliert)':'Total Workload (cumulated)'}</div>
     <div style="background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;overflow:hidden">
     ${sorted.map((u,i)=>{
       const uid=u._id?.toString();
       const debt=Math.round((appstate.shuffleDebtScore[uid]||0)*10)/10;
       const maxDebt=Math.round((appstate.shuffleDebtScore[sorted[0]._id?.toString()]||1)*10)/10||1;
       const pct=Math.round((debt/maxDebt)*100);
+      const col=uColor(uid);
+      const isMe=uid===myId;
       return`<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid var(--sep)">
         <div style="font-size:13px;font-weight:700;color:var(--text3);width:18px;text-align:center">${i+1}</div>
         ${avHTML(u,28)}
         <div style="flex:1">
-          <div style="font-size:13px;font-weight:600;color:var(--text);margin-bottom:3px">${u.name}</div>
-          <div style="height:4px;background:var(--sep);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:var(--acc);border-radius:2px;transition:width .4s"></div></div>
+          <div style="font-size:13px;font-weight:${isMe?'700':'500'};color:var(--text);margin-bottom:3px">${u.name}</div>
+          <div style="height:4px;background:var(--sep);border-radius:2px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${col};border-radius:2px;transition:width .4s"></div></div>
         </div>
-        <div style="font-size:14px;font-weight:700;color:var(--acc)">${debt}</div>
+        <div style="font-size:14px;font-weight:700;color:${col}">${debt}</div>
       </div>`;
     }).join('')}
     </div>`;
   }
-  c.innerHTML=`<div style="margin-top:4px">${rows.join('')}</div>${rankHtml}`;
+
+  c.innerHTML=`<div style="margin-top:4px">${rows.join('')}</div>${fairnessHtml}${completionHtml}${topHtml}${myScoreHtml}${rankHtml}`;
 }
 // helper visible-to-user (for stats, not current user)
 function visibleToMe2(t,uid){if(isMyTask(t))return t.assignee===uid;if(isSharedTask(t))return(t.sharedWith||[]).includes(uid)||t.creatorId===uid;if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===uid||(a?.subtaskAssignments&&Object.values(a.subtaskAssignments).includes(uid));}return false;}
