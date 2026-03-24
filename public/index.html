@@ -4833,11 +4833,12 @@ async function saveShopItem(){
     repeat:getRepeatValue(),
     photo:pendingShopPhoto!==null?pendingShopPhoto:(shopPhotoRemoved?null:undefined),
   };
+  const savingId=editingShopId; // capture BEFORE closeShopItemModal nulls it
   closeShopItemModal();
   try{
-    if(editingShopId){
-      const updated=await apiShopPatch(editingShopId,payload);
-      const idx=shopItems.findIndex(i=>(i.id||i._id)===editingShopId);
+    if(savingId){
+      const updated=await apiShopPatch(savingId,payload);
+      const idx=shopItems.findIndex(i=>(i.id||i._id)===savingId);
       if(idx>-1)shopItems[idx]={...shopItems[idx],...updated};
       showToast('Gespeichert');
     }else{
