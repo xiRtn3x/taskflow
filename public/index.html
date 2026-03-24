@@ -4262,7 +4262,7 @@ function renderMealGrid(){
   });
   const filled=WEEKDAY_KEYS.filter(k=>mealPlan[k]&&mealPlan[k].trim());
   const area=document.getElementById('recipeArea');
-  if(area&&false){
+  if(area){
     area.style.display=filled.length>0?'':'none';
     if(filled.length>0)loadRecipeSuggestions(filled.map(k=>mealPlan[k]));
   }
@@ -4275,8 +4275,8 @@ function openMealModal(key,day,current){
   document.getElementById('mealModal').classList.add('open');
   // Show recipes immediately if meal already filled
   if(current&&current.trim()){
-    // recipe suggestions disabled
-    // document.getElementById('mealRecipeArea').style.display='';
+    document.getElementById('mealRecipeArea').style.display='';
+    loadMealRecipes(current.trim());
   } else {
     document.getElementById('mealRecipeArea').style.display='none';
     document.getElementById('mealRecipeList').innerHTML='';
@@ -4287,7 +4287,9 @@ function onMealTextInput(){
   const val=document.getElementById('mealFText').value.trim();
   clearTimeout(mealRecipeTimer);
   if(!val){document.getElementById('mealRecipeArea').style.display='none';return;}
-  // recipe suggestions disabled
+  document.getElementById('mealRecipeArea').style.display='';
+  document.getElementById('mealRecipeList').innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Lade Vorschläge…</div>';
+  mealRecipeTimer=setTimeout(()=>loadMealRecipes(val),700);
 }
 async function loadMealRecipes(meal){
   const list=document.getElementById('mealRecipeList');
@@ -6929,7 +6931,7 @@ async function seedShopItemsFromNote(){
     {title:'Mottenfallen',category:'Drogerie'},
     {title:'Nagellackentferner',category:'Drogerie'},
     {title:'Obstfliegenfalle',category:'Drogerie'},
-    {title:'Ob's normale',category:'Drogerie'},
+    {title:'Obs normale',category:'Drogerie'},
     {title:'Rasierklingen',category:'Drogerie',comment:'oder neuer Rasierer mit 4 Klingen'},
     {title:'Rohrreiniger',category:'Drogerie'},
     {title:'Silverfischzeug',category:'Drogerie'},
