@@ -49,10 +49,69 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .fab{position:fixed;bottom:calc(76px + var(--sb));right:16px;width:52px;height:52px;border-radius:50%;background:var(--acc);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 24px rgba(91,91,214,.45),0 0 0 1px rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;z-index:150;transition:transform .18s,box-shadow .18s;}
 .fab:active{transform:scale(.9);}
 
-/* PAGES — 4 tabs → 25% each */
-.pages-wrap{display:flex;width:400%;transition:transform .32s cubic-bezier(.32,.72,0,1);}
+/* PAGES — 5 tabs → 20% each */
+.pages-wrap{display:flex;width:500%;transition:transform .32s cubic-bezier(.32,.72,0,1);}
 .pages-wrap.no-anim{transition:none;}
-.page{width:25%;min-height:calc(100dvh - 53px - 58px - var(--sb));padding-bottom:84px;flex-shrink:0;}
+.page{width:20%;min-height:calc(100dvh - 53px - 58px - var(--sb));padding-bottom:84px;flex-shrink:0;}
+/* Shopping tab styles */
+.shop-filter{display:flex;background:rgba(150,150,200,.12);border:1px solid var(--sep);border-radius:12px;padding:3px;gap:2px;margin:10px 14px 4px;}
+.shop-fb{flex:1;padding:8px 4px;border:none;background:transparent;border-radius:9px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .18s;font-family:inherit;}
+.shop-fb.on{background:var(--glass);color:var(--text);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.5);border:1px solid var(--glass-border);}
+.meal-grid{display:grid;grid-template-columns:auto 1fr;gap:0;margin:0 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--r);overflow:hidden;backdrop-filter:blur(20px);}
+.meal-row{display:contents;}
+.meal-day{padding:11px 10px 11px 14px;font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid var(--sep);display:flex;align-items:center;}
+.meal-inp{width:100%;background:transparent;border:none;border-bottom:1px solid var(--sep);padding:11px 14px 11px 8px;font-size:14px;color:var(--text);font-family:inherit;outline:none;}
+.meal-inp::placeholder{color:var(--text3);}
+.meal-row:last-child .meal-day,.meal-row:last-child .meal-inp{border-bottom:none;}
+.recipe-area{margin:12px 14px 0;background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--r);padding:14px;backdrop-filter:blur(20px);}
+.recipe-hdr{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.recipe-card{background:rgba(91,91,214,.08);border:1px solid rgba(91,91,214,.15);border-radius:12px;padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:all .15s;}
+.recipe-card:last-child{margin-bottom:0;}
+.recipe-card:active{opacity:.75;}
+.recipe-title{font-size:14px;font-weight:600;color:var(--text);}
+.recipe-sub{font-size:12px;color:var(--text3);margin-top:2px;}
+.shop-cat-hdr{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.7px;color:var(--acc);padding:14px 14px 6px;display:flex;align-items:center;justify-content:space-between;}
+.shop-item{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-bottom:1px solid var(--sep);cursor:pointer;transition:background .12s;}
+.shop-item:last-child{border-bottom:none;}
+.shop-item:active{background:rgba(255,255,255,.2);}
+.shop-chk{width:22px;height:22px;border-radius:6px;border:2px solid rgba(150,150,200,.4);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .2s;color:#fff;background:rgba(255,255,255,.2);}
+.shop-chk.done{background:var(--green);border-color:var(--green);}
+.shop-body{flex:1;min-width:0;}
+.shop-title{font-size:15px;font-weight:500;color:var(--text);transition:color .2s;}
+.shop-title.done{text-decoration:line-through;color:var(--text3);}
+.shop-meta{font-size:11px;color:var(--text2);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.shop-comment{font-size:12px;color:var(--text3);margin-top:2px;font-style:italic;}
+.shop-price{margin-left:auto;font-size:13px;font-weight:600;color:var(--text2);flex-shrink:0;padding-left:6px;}
+.shop-section{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--r);margin:0 14px 10px;overflow:hidden;backdrop-filter:blur(20px);}
+.shop-prog-bar{height:3px;background:var(--sep);}
+.shop-prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
+.shop-total-bar{margin:0 14px;padding:10px 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.shop-add-btn{margin:0 14px 10px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1.5px dashed var(--acc);background:rgba(91,91,214,.06);border-radius:14px;font-size:14px;font-weight:600;color:var(--acc);cursor:pointer;transition:all .15s;font-family:inherit;width:calc(100% - 28px);}
+.shop-add-btn:active{opacity:.7;}
+.shop-clear-btn{display:flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.08);border-radius:9px;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.shop-clear-btn:active{opacity:.7;}
+.shop-photo-badge{position:relative;flex-shrink:0;width:36px;height:36px;border-radius:9px;overflow:hidden;border:1px solid var(--glass-border);background:var(--glass);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.shop-photo-badge img{width:100%;height:100%;object-fit:cover;}
+.shop-photo-badge.empty{color:var(--text3);}
+.shop-photo-badge .cam-dot{position:absolute;bottom:2px;right:2px;width:10px;height:10px;background:var(--acc);border-radius:50%;border:1.5px solid white;display:none;}
+.shop-photo-badge.has-photo .cam-dot{display:block;}
+.photo-preview-wrap{position:relative;width:72px;height:72px;border-radius:12px;overflow:hidden;border:1px solid var(--glass-border);flex-shrink:0;}
+.photo-preview-wrap img{width:100%;height:100%;object-fit:cover;}
+.photo-preview-wrap .del-photo{position:absolute;top:3px;right:3px;width:18px;height:18px;background:rgba(0,0,0,.55);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;}
+.photo-placeholder{width:72px;height:72px;border-radius:12px;border:1.5px dashed var(--sep);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;cursor:pointer;color:var(--text3);font-size:10px;font-weight:600;flex-shrink:0;transition:border-color .15s;}
+.photo-placeholder:active{border-color:var(--acc);color:var(--acc);}
+.repeat-type-seg{display:flex;background:rgba(150,150,200,.12);border:1px solid var(--sep);border-radius:10px;padding:2px;gap:2px;margin-bottom:10px;}
+.repeat-type-btn{flex:1;padding:7px 4px;border:none;background:transparent;border-radius:8px;font-size:12px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .15s;font-family:inherit;}
+.repeat-type-btn.on{background:var(--glass);color:var(--text);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.10);border:1px solid var(--glass-border);}
+.repeat-interval-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.repeat-n-btn{width:34px;height:34px;border-radius:9px;border:1px solid var(--glass-border);background:var(--glass);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s;font-family:inherit;}
+.repeat-n-btn.on{background:var(--acc);color:#fff;border-color:var(--acc);}
+.shop-finish-btn{margin:16px 14px 20px;display:flex;align-items:center;justify-content:center;gap:8px;padding:15px 16px;background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;width:calc(100% - 28px);box-shadow:0 4px 20px rgba(34,197,94,.35);transition:opacity .15s;}
+.shop-finish-btn:active{opacity:.8;}
+.shop-finish-confirm{position:fixed;inset:0;z-index:700;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s;}
+.shop-finish-confirm.open{opacity:1;pointer-events:all;}
+.shop-finish-sheet{background:var(--glass);backdrop-filter:blur(32px) saturate(2);-webkit-backdrop-filter:blur(32px) saturate(2);border:1px solid var(--glass-border);border-radius:22px 22px 0 0;width:100%;padding:20px 20px calc(20px + env(safe-area-inset-bottom,0));transform:translateY(100%);transition:transform .28s cubic-bezier(.32,.72,0,1);}
+.shop-finish-confirm.open .shop-finish-sheet{transform:translateY(0);}
 
 .cg{margin:0 14px 12px;}
 .sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--text2);padding:16px 14px 6px;display:flex;align-items:center;gap:6px;}
@@ -478,6 +537,52 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <div id="voteContainer"></div>
     </div>
 
+    <!-- PAGE 4: EINKAUFEN -->
+    <div class="page" id="pgShop">
+      <div class="shop-filter">
+        <button class="shop-fb on" id="shopFbPlan" onclick="setShopFilter('plan',this)">🍽 Essensplan</button>
+        <button class="shop-fb" id="shopFbList" onclick="setShopFilter('list',this)">🛒 Einkaufsliste</button>
+      </div>
+      <!-- ESSENSPLAN -->
+      <div id="shopPlanView">
+        <div style="padding:4px 14px 6px;display:flex;align-items:center;gap:6px">
+          <div style="font-size:12px;color:var(--text3);font-weight:500">Tippe um ein Gericht einzutragen</div>
+        </div>
+        <div class="meal-grid" id="mealGrid"></div>
+        <div id="recipeArea" style="display:none" class="recipe-area">
+          <div class="recipe-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg> Rezeptvorschläge</div>
+          <div id="recipeList"></div>
+        </div>
+        <div style="height:12px"></div>
+      </div>
+      <!-- EINKAUFSLISTE -->
+      <div id="shopListView" style="display:none">
+        <div style="padding:6px 14px 0;display:flex;align-items:center;justify-content:space-between;gap:8px">
+          <div id="shopTotalInfo" style="font-size:12px;color:var(--text3);flex:1"></div>
+          <button id="shopCheckedFilterBtn" onclick="toggleShopCheckedFilter()" style="display:flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid var(--glass-border);background:var(--glass);border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .15s;backdrop-filter:blur(10px);flex-shrink:0">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Abgehakte
+          </button>
+          <button class="shop-clear-btn" onclick="clearCheckedShop()">
+            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            Löschen
+          </button>
+        </div>
+        <div id="shopProgress" style="margin:6px 14px 8px;height:4px;background:var(--sep);border-radius:2px;overflow:hidden">
+          <div id="shopProgressFill" style="height:100%;background:var(--green);border-radius:2px;transition:width .3s"></div>
+        </div>
+        <div id="shopListContainer"></div>
+        <button class="shop-add-btn" onclick="openAddShopItem()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Artikel hinzufügen
+        </button>
+        <button class="shop-finish-btn" id="shopFinishBtn" onclick="openFinishShopping()" style="display:none">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Einkauf erledigt
+        </button>
+      </div>
+    </div>
+
   </div><!-- end pages-wrap -->
 
   <!-- TABS: 4 tabs -->
@@ -502,8 +607,14 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       </div>
       <span class="tab-lbl"id="tLbl3">Vote</span>
     </div>
-  </div>
-  <button class="fab" id="fabBtn" onclick="if(curTab===1&&(!group||users.length<2)){showToast(lang==='en'?'Pool requires a group with at least 2 members':'Pool benötigt eine Gruppe mit mind. 2 Mitgliedern');}else{showAddTask(null, curTab===1?'pool':null);}">
+    <div class="tab" onclick="switchTab(4)" id="t4" style="display:none">
+      <div class="tab-iw">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+      </div>
+      <span class="tab-lbl" id="tLbl4">Einkaufen</span>
+    </div>
+  </div><!-- end tabs -->
+  <button class="fab" id="fabBtn" onclick="if(curTab===1&&(!group||users.length<2)){showToast(lang==='en'?'Pool requires a group with at least 2 members':'Pool benötigt eine Gruppe mit mind. 2 Mitgliedern');}else if(curTab===4){openAddShopItem();}else{showAddTask(null, curTab===1?'pool':null);}">
     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   </button>
 </div>
@@ -704,6 +815,18 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <div onclick="openFaqMenu()" style="display:flex;align-items:center;gap:12px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;cursor:pointer;transition:opacity .15s" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
         <div id="profFaqPreview" style="flex:1;font-size:13px;color:var(--text3)">Aufgaben · Gruppen · Pool · App</div>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color:var(--text3);flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+      </div>
+    </div>
+
+    <!-- SEKTION: Tabs / Ansicht -->
+    <div style="padding:0 16px 4px"><div class="prof-sec-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg> <span>Tabs &amp; Ansicht</span></div></div>
+    <div class="fg" style="padding-top:4px">
+      <div style="display:flex;align-items:center;gap:14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:14px;padding:14px 16px;">
+        <div style="flex:1">
+          <div style="font-size:15px;font-weight:600;display:flex;align-items:center;gap:7px"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg> Einkaufen-Tab anzeigen</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:3px">Einkaufsliste &amp; Essensplan im Hauptmenü</div>
+        </div>
+        <button class="tog" id="shopTabTog" onclick="toggleShopTab(this)"></button>
       </div>
     </div>
     <div style="height:8px"></div>
@@ -1455,8 +1578,8 @@ const ALL_COLORS=['#5B5BD6','#7C3AED','#DB2777','#DC2626','#EA580C','#CA8A04','#
 const PRIO_CLS={Hoch:'b-red',Mittel:'b-ora',Niedrig:'b-grn',High:'b-red',Medium:'b-ora',Low:'b-grn'};
 const CELEB_DE=['Jawoll! Top gemacht!','Erledigt! Du bist ein Star!','Einfach top, weiter so!','Gecrusht! Champion!','Diese Aufgabe hatte keine Chance!'];
 const CELEB_EN=['Well done!','Nailed it! You\'re a star!','Awesome, keep it up!','Crushed it!','That task never stood a chance!'];
-const NAV_TITLES_DE=['Meine','Pool','Kalender','Scheißigkeitsscore'];
-const NAV_TITLES_EN=['Mine','Pool','Calendar','Crappiness Score'];
+const NAV_TITLES_DE=['Meine','Pool','Kalender','Scheißigkeitsscore','Einkaufen'];
+const NAV_TITLES_EN=['Mine','Pool','Calendar','Crappiness Score','Shopping'];
 // poop colors by score range
 function poopColor(s){if(!s)return'#9CA3AF';if(s<=3)return'#16A34A';if(s<=6)return'#D97706';return'#DC2626';}
 
@@ -3874,17 +3997,21 @@ function initSheetDismiss(){
   },{passive:true});
 })();
 
-// ── TABS + SWIPE (4 tabs, but vote tab may be hidden) ──
+// ── TABS + SWIPE (5 tabs, vote and shop tabs may be hidden) ──
 function switchTab(i,anim=true){
   // If vote tab is hidden and we try to go to 3, skip
   const t3=document.getElementById('t3');if(i===3&&t3?.style.display==='none')return;
+  const t4=document.getElementById('t4');if(i===4&&t4?.style.display==='none')return;
   curTab=i;window.scrollTo(0,0);const wrap=document.getElementById('pgwrap');
   if(!anim)wrap.classList.add('no-anim');
-  wrap.style.transform=`translateX(-${i*25}%)`;
+  wrap.style.transform=`translateX(-${i*20}%)`;
   if(!anim)requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove('no-anim')));
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
   document.getElementById('navTitle').textContent=(lang==='en'?NAV_TITLES_EN:NAV_TITLES_DE)[i]||'';
-  if(i===1)renderPool();if(i===2)renderCalendar();if(i===3)renderVote();
+  if(i===1)renderPool();if(i===2)renderCalendar();if(i===3)renderVote();if(i===4)renderShopTab();
+  // Show/hide FAB on shopping tab
+  const fab=document.getElementById('fabBtn');
+  if(fab)fab.style.display=(i===4)?'flex':'flex';
   // Auto-refresh on tab switch
   api('GET','/poll').then(r=>{if(r.hash!==pollHash){pollHash=r.hash;loadAll().then(()=>render());}}).catch(()=>{});
 }
@@ -3893,7 +4020,9 @@ document.addEventListener('touchstart',e=>{swX=e.touches[0].clientX;swY=e.touche
 document.addEventListener('touchend',e=>{
   if(swX===null)return;const dx=e.changedTouches[0].clientX-swX,dy=e.changedTouches[0].clientY-swY;
   if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>50){if([...document.querySelectorAll('.ov.open'),document.getElementById('taskDetail')].some(el=>el?.classList?.contains('open')))return;
-    const maxTab=document.getElementById('t3')?.style.display!=='none'?3:2;
+    const t3vis=document.getElementById('t3')?.style.display!=='none';
+    const t4vis=document.getElementById('t4')?.style.display!=='none';
+    const maxTab=t4vis?4:t3vis?3:2;
     if(dx<0&&curTab<maxTab)switchTab(curTab+1);else if(dx>0&&curTab>0)switchTab(curTab-1);}
   swX=null;swY=null;
 },{passive:true});
@@ -4000,7 +4129,508 @@ async function obJoin(){const code=document.getElementById('ob-code').value.trim
   try{group=await api('POST','/groups/join',{inviteCode:code});me=await api('GET','/users/me');await loadAll();showApp();startPolling();showToast(lang==='en'?'Joined!':'Beigetreten!');}catch(e){showToast('Fehler: '+e.message);}
 }
 
+// ══════════════════════════════════════════
+// EINKAUFEN / ESSENSPLAN  –  Server-synced
+// ══════════════════════════════════════════
+const SHOP_TAB_KEY='tf_shop_tab_enabled';
+const WEEKDAYS=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+const WEEKDAY_KEYS=['mo','di','mi','do','fr','sa','so'];
+const SHOP_CATS=['Nudeln, Backware','Soßen & Gewürze','Öl & Essig','Obst','Gemüse','Kräuter','Alkohol','Asia & Sonstiges','Dosen & Kaffee','Brot & Wurst','TK','Fleisch','Süßkram','Käse & Kühlregal','Getränke','Drogerie','Kassenbereich'];
+
+let shopItems=[];
+let mealPlan={};
+let shopFilter='plan';
+let shopCheckedOnly=false;
+let editingShopId=null;
+let editingMealKey=null;
+let shopRecipeLoading=false;
+let currentRepeatType='none';
+let currentRepeatN=1;
+let pendingShopPhoto=null;
+let shopLoading=false;
+
+// ─ repeat helpers ─
+function repeatLabel(r){
+  if(!r)return'';
+  if(typeof r==='string'){const m={weekly:'Wöchentlich',biweekly:'2-wöchig',monthly:'Monatlich',always:'Immer'};return m[r]||'';}
+  if(r.type==='none'||!r.type)return'';
+  if(r.type==='always')return'Immer';
+  if(r.type==='weekly')return r.n===1?'Wöchentlich':'Alle '+r.n+' Wochen';
+  if(r.type==='monthly')return r.n===1?'Monatlich':'Alle '+r.n+' Monate';
+  return'';
+}
+function hasRepeat(r){
+  if(!r)return false;
+  if(typeof r==='string')return r!=='';
+  return r.type&&r.type!=='none';
+}
+
+// ═══ API calls ═══
+async function apiShopLoad(){
+  try{
+    const [items,plan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
+    shopItems=items||[];mealPlan=plan||{};
+  }catch(e){showToast('Einkaufsliste konnte nicht geladen werden');shopItems=[];mealPlan={};}
+}
+async function apiShopAdd(item){return api('POST','/shopping',item);}
+async function apiShopPatch(id,patch){return api('PATCH','/shopping/'+id,patch);}
+async function apiShopDelete(id){return api('DELETE','/shopping/'+id);}
+async function apiShopFinish(resetRepeating){return api('POST','/shopping/finish',{resetRepeating});}
+async function apiMealSave(){return api('PUT','/mealplan',mealPlan);}
+
+// ─ Settings toggle ─
+function toggleShopTab(btn){
+  btn.classList.toggle('on');
+  const on=btn.classList.contains('on');
+  localStorage.setItem(SHOP_TAB_KEY,on?'1':'0');
+  const t4=document.getElementById('t4');
+  if(t4)t4.style.display=on?'':'none';
+  if(!on&&curTab===4)switchTab(0);
+  showToast(on?'Einkaufen-Tab aktiviert':'Einkaufen-Tab ausgeblendet');
+}
+function initShopTabVisibility(){
+  const on=localStorage.getItem(SHOP_TAB_KEY)==='1';
+  const t4=document.getElementById('t4');
+  const tog=document.getElementById('shopTabTog');
+  if(t4)t4.style.display=on?'':'none';
+  if(tog)tog.classList.toggle('on',on);
+}
+
+// ─ Filter switch ─
+function setShopFilter(f,btn){
+  shopFilter=f;
+  document.querySelectorAll('.shop-fb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.getElementById('shopPlanView').style.display=f==='plan'?'':'none';
+  document.getElementById('shopListView').style.display=f==='list'?'':'none';
+  if(f==='list')renderShopList();
+  if(f==='plan')renderMealGrid();
+}
+
+// ─ Main render ─
+async function renderShopTab(){
+  if(shopLoading)return;
+  shopLoading=true;
+  // Show skeleton while loading
+  const container=document.getElementById('shopListContainer');
+  if(container&&shopFilter==='list')container.innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite;display:block;margin:0 auto 8px"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Lade…</div>';
+  await apiShopLoad();
+  shopLoading=false;
+  if(shopFilter==='plan')renderMealGrid();
+  else renderShopList();
+}
+
+// ══ ESSENSPLAN ══
+function renderMealGrid(){
+  const grid=document.getElementById('mealGrid');
+  if(!grid)return;
+  grid.innerHTML='';
+  WEEKDAYS.forEach((day,i)=>{
+    const key=WEEKDAY_KEYS[i];
+    const val=mealPlan[key]||'';
+    const dayEl=document.createElement('div');
+    dayEl.className='meal-day';
+    dayEl.textContent=day.slice(0,2).toUpperCase();
+    const inpEl=document.createElement('input');
+    inpEl.className='meal-inp';
+    inpEl.placeholder='Gericht eintragen…';
+    inpEl.value=val;
+    inpEl.readOnly=true;
+    inpEl.onclick=()=>openMealModal(key,day,val);
+    grid.appendChild(dayEl);
+    grid.appendChild(inpEl);
+  });
+  const filled=WEEKDAY_KEYS.filter(k=>mealPlan[k]&&mealPlan[k].trim());
+  const area=document.getElementById('recipeArea');
+  if(area){
+    area.style.display=filled.length>0?'':'none';
+    if(filled.length>0)loadRecipeSuggestions(filled.map(k=>mealPlan[k]));
+  }
+}
+function openMealModal(key,day,current){
+  editingMealKey=key;
+  document.getElementById('mealModalDay').textContent=day;
+  document.getElementById('mealFText').value=current||'';
+  document.getElementById('mealModal').classList.add('open');
+  setTimeout(()=>document.getElementById('mealFText').focus(),320);
+}
+function closeMealModal(){document.getElementById('mealModal').classList.remove('open');editingMealKey=null;}
+async function saveMeal(){
+  if(!editingMealKey)return;
+  mealPlan[editingMealKey]=document.getElementById('mealFText').value.trim();
+  closeMealModal();
+  renderMealGrid();
+  try{await apiMealSave();}catch(e){showToast('Speichern fehlgeschlagen');}
+}
+async function deleteMeal(){
+  if(!editingMealKey)return;
+  delete mealPlan[editingMealKey];
+  closeMealModal();
+  renderMealGrid();
+  try{await apiMealSave();}catch(e){showToast('Speichern fehlgeschlagen');}
+}
+
+// ─ Rezeptvorschläge ─
+async function loadRecipeSuggestions(meals){
+  if(shopRecipeLoading)return;
+  const list=document.getElementById('recipeList');
+  if(!list)return;
+  list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Lade Rezeptvorschläge…</div>';
+  shopRecipeLoading=true;
+  try{
+    const prompt=`Für folgende Gerichte dieser Woche: ${meals.join(', ')}. Schlage je 1 Rezept vor. Antworte NUR als JSON-Array (kein Markdown): [{"meal":"Name","recipe":"Rezeptname","time":"30 Min","difficulty":"Einfach","tip":"kurzer Tipp"}]`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const recipes=JSON.parse(text.replace(/```json|```/g,'').trim());
+    list.innerHTML='';
+    recipes.forEach(r=>{
+      const card=document.createElement('div');card.className='recipe-card';
+      card.innerHTML=`<div class="recipe-title">${r.recipe}<span style="font-weight:400;color:var(--text3)"> · für ${r.meal}</span></div><div class="recipe-sub">⏱ ${r.time} · ${r.difficulty}${r.tip?' · 💡 '+r.tip:''}</div>`;
+      list.appendChild(card);
+    });
+  }catch(e){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Vorschläge verfügbar</div>';}
+  finally{shopRecipeLoading=false;}
+}
+
+// ══ EINKAUFSLISTE ══
+function renderShopList(){
+  const container=document.getElementById('shopListContainer');
+  if(!container)return;
+  container.innerHTML='';
+
+  const total=shopItems.length;
+  const checked=shopItems.filter(i=>i.checked).length;
+  const pct=total?Math.round(checked/total*100):0;
+  const fill=document.getElementById('shopProgressFill');
+  if(fill)fill.style.width=pct+'%';
+  const info=document.getElementById('shopTotalInfo');
+  if(info){
+    const sum=shopItems.filter(i=>i.price&&!i.checked).reduce((a,b)=>a+(parseFloat(b.price)||0),0);
+    info.textContent=`${checked}/${total} abgehakt${sum>0?' · ca. '+sum.toFixed(2)+' €':''}`;
+  }
+  const finBtn=document.getElementById('shopFinishBtn');
+  if(finBtn)finBtn.style.display=checked>0?'':'none';
+
+  // Update filter button active state
+  const filterBtn=document.getElementById('shopCheckedFilterBtn');
+  if(filterBtn){
+    filterBtn.style.background=shopCheckedOnly?'var(--acc)':'var(--glass)';
+    filterBtn.style.color=shopCheckedOnly?'#fff':'var(--text2)';
+    filterBtn.style.borderColor=shopCheckedOnly?'var(--acc)':'var(--glass-border)';
+  }
+
+  const byCat={};
+  SHOP_CATS.forEach(c=>{byCat[c]=[];});
+  shopItems.forEach(item=>{const cat=item.category||SHOP_CATS[0];if(!byCat[cat])byCat[cat]=[];byCat[cat].push(item);});
+
+  let anyVisible=false;
+  SHOP_CATS.forEach(cat=>{
+    const allItems=byCat[cat];
+    if(!allItems||!allItems.length)return;
+    // In filter mode: only checked items shown, but category header still appears
+    const visibleItems=shopCheckedOnly?allItems.filter(i=>i.checked):allItems;
+    if(!visibleItems.length)return;
+    anyVisible=true;
+    const sec=document.createElement('div');
+    const countLabel=shopCheckedOnly
+      ?`${visibleItems.length} abgehakt`
+      :`${allItems.filter(i=>!i.checked).length} offen`;
+    sec.innerHTML=`<div class="shop-cat-hdr">${cat}<span style="font-size:11px;color:var(--text3)">${countLabel}</span></div>`;
+    const wrap=document.createElement('div');wrap.className='shop-section';
+    visibleItems.forEach(item=>{
+      const row=document.createElement('div');row.className='shop-item';
+      const rl=repeatLabel(item.repeat);
+      const sid=item.id||item._id;
+      row.innerHTML=`
+        <div class="shop-chk${item.checked?' done':''}" onclick="toggleShopItem('${sid}',event)">
+          ${item.checked?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}
+        </div>
+        ${item.photo?`<div class="shop-photo-badge has-photo" onclick="openEditShopItem('${sid}')"><img src="${item.photo}" style="width:36px;height:36px;object-fit:cover;border-radius:8px"><div class="cam-dot"></div></div>`:''}
+        <div class="shop-body" onclick="openEditShopItem('${sid}')">
+          <div class="shop-title${item.checked?' done':''}">${item.title}${item.qty?`<span style="font-size:12px;color:var(--text3);font-weight:400"> · ${item.qty}</span>`:''}</div>
+          ${item.comment?`<div class="shop-comment">${item.comment}</div>`:''}
+          ${rl?`<div class="shop-meta"><span class="badge b-blu">${rl}</span></div>`:''}
+        </div>
+        ${item.price?`<div class="shop-price">${parseFloat(item.price).toFixed(2)} €</div>`:''}`;
+      wrap.appendChild(row);
+    });
+    sec.appendChild(wrap);container.appendChild(sec);
+  });
+
+  if(!shopItems.length){
+    container.innerHTML='<div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><div class="empty-t">Keine Artikel</div><div class="empty-s">Füge Artikel über + hinzu</div></div>';
+  } else if(shopCheckedOnly&&!anyVisible){
+    container.innerHTML='<div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><div class="empty-t">Noch nichts abgehakt</div><div class="empty-s">Hake Artikel ab um sie hier zu sehen</div></div>';
+  }
+}
+
+function toggleShopCheckedFilter(){
+  shopCheckedOnly=!shopCheckedOnly;
+  renderShopList();
+}
+
+async function toggleShopItem(id,e){
+  if(e)e.stopPropagation();
+  const item=shopItems.find(i=>(i.id||i._id)===id);
+  if(!item)return;
+  item.checked=!item.checked;
+  renderShopList(); // optimistic UI
+  try{await apiShopPatch(id,{checked:item.checked});}
+  catch(ex){item.checked=!item.checked;renderShopList();showToast('Fehler beim Speichern');}
+}
+
+// Nur manuell ausgewählte einmalige Artikel entfernen
+async function clearCheckedShop(){
+  const toRemove=shopItems.filter(i=>i.checked&&!hasRepeat(i.repeat));
+  if(!toRemove.length){showToast('Keine einmaligen Artikel abgehakt');return;}
+  shopItems=shopItems.filter(i=>!(i.checked&&!hasRepeat(i.repeat)));
+  renderShopList();
+  try{await Promise.all(toRemove.map(i=>apiShopDelete(i.id||i._id)));}
+  catch(ex){showToast('Fehler beim Löschen');await renderShopTab();}
+  showToast(`${toRemove.length} Artikel entfernt`);
+}
+
+// ─ Finish shopping ─
+function openFinishShopping(){
+  const rc=shopItems.filter(i=>i.checked&&hasRepeat(i.repeat)).length;
+  const oc=shopItems.filter(i=>i.checked&&!hasRepeat(i.repeat)).length;
+  let desc='';
+  if(rc>0)desc+=`${rc} Wiederholungsartikel können zurückgesetzt werden. `;
+  if(oc>0)desc+=`${oc} einmalige Artikel werden entfernt.`;
+  if(!desc)desc='Keine abgehakten Artikel vorhanden.';
+  document.getElementById('shopFinishDesc').textContent=desc;
+  document.getElementById('shopFinishConfirm').classList.add('open');
+}
+function closeFinishShopping(){document.getElementById('shopFinishConfirm').classList.remove('open');}
+async function confirmFinishShopping(resetRepeating){
+  try{
+    const r=await apiShopFinish(resetRepeating);
+    closeFinishShopping();
+    await renderShopTab();
+    showToast(resetRepeating
+      ?`Abgeschlossen · ${r.reset} zurückgesetzt · ${r.deleted} entfernt`
+      :`Abgeschlossen · ${r.deleted} Artikel entfernt`);
+  }catch(e){showToast('Fehler: '+e.message);}
+}
+
+// ══ SHOP ITEM MODAL ══
+
+// ─ Photo ─
+function handleShopPhoto(inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{pendingShopPhoto=e.target.result;showShopPhotoPreview(pendingShopPhoto);};
+  reader.readAsDataURL(file);
+}
+function showShopPhotoPreview(src){
+  document.getElementById('shopPhotoPlaceholder').style.display='none';
+  const prev=document.getElementById('shopPhotoPreview');
+  prev.style.display='';
+  document.getElementById('shopPhotoImg').src=src;
+}
+function removeShopPhoto(){
+  pendingShopPhoto=null;
+  document.getElementById('shopPhotoPreview').style.display='none';
+  document.getElementById('shopPhotoPlaceholder').style.display='';
+  document.getElementById('shopPhotoImg').src='';
+  document.getElementById('shopPhotoInp').value='';
+}
+
+// ─ Repeat UI ─
+function setRepeatType(type){
+  currentRepeatType=type;
+  ['none','always','weekly','monthly'].forEach(t=>{
+    const btn=document.getElementById('rTyp'+t.charAt(0).toUpperCase()+t.slice(1));
+    if(btn)btn.classList.toggle('on',t===type);
+  });
+  const wrap=document.getElementById('repeatIntervalWrap');
+  if(type==='weekly'||type==='monthly'){
+    wrap.style.display='';
+    const max=type==='weekly'?4:12;
+    document.getElementById('repeatIntervalLabel').textContent=type==='weekly'?'Alle wie viele Wochen?':'Alle wie viele Monate?';
+    buildRepeatBtns(max);
+  }else{wrap.style.display='none';}
+}
+function buildRepeatBtns(max){
+  const row=document.getElementById('repeatIntervalBtns');row.innerHTML='';
+  if(currentRepeatN>max)currentRepeatN=1;
+  for(let i=1;i<=max;i++){
+    const btn=document.createElement('button');
+    btn.className='repeat-n-btn'+(i===currentRepeatN?' on':'');
+    btn.textContent=i;
+    btn.onclick=(n=>()=>{currentRepeatN=n;buildRepeatBtns(max);})(i);
+    row.appendChild(btn);
+  }
+}
+function getRepeatValue(){
+  if(currentRepeatType==='none')return null;
+  if(currentRepeatType==='always')return{type:'always',n:0};
+  return{type:currentRepeatType,n:currentRepeatN};
+}
+function applyRepeatToUI(repeat){
+  if(!repeat||!hasRepeat(repeat)){setRepeatType('none');return;}
+  const t=typeof repeat==='string'?'always':repeat.type;
+  const n=typeof repeat==='object'?repeat.n:1;
+  currentRepeatN=n||1;setRepeatType(t);
+}
+
+function openAddShopItem(){
+  editingShopId=null;pendingShopPhoto=null;
+  document.getElementById('shopItemModalTitle').textContent='Artikel hinzufügen';
+  document.getElementById('shopFTitle').value='';
+  document.getElementById('shopFCat').value=SHOP_CATS[0];
+  document.getElementById('shopFQty').value='';
+  document.getElementById('shopFPrice').value='';
+  document.getElementById('shopFComment').value='';
+  document.getElementById('delShopItemWrap').innerHTML='';
+  removeShopPhoto();currentRepeatType='none';currentRepeatN=1;setRepeatType('none');
+  document.getElementById('shopItemModal').classList.add('open');
+  setTimeout(()=>document.getElementById('shopFTitle').focus(),320);
+}
+function openEditShopItem(id){
+  const item=shopItems.find(i=>(i.id||i._id)===id);if(!item)return;
+  editingShopId=id;pendingShopPhoto=item.photo||null;
+  document.getElementById('shopItemModalTitle').textContent='Artikel bearbeiten';
+  document.getElementById('shopFTitle').value=item.title||'';
+  document.getElementById('shopFCat').value=item.category||SHOP_CATS[0];
+  document.getElementById('shopFQty').value=item.qty||'';
+  document.getElementById('shopFPrice').value=item.price||'';
+  document.getElementById('shopFComment').value=item.comment||'';
+  if(item.photo)showShopPhotoPreview(item.photo);else removeShopPhoto();
+  currentRepeatN=1;applyRepeatToUI(item.repeat);
+  document.getElementById('delShopItemWrap').innerHTML=`<button class="btn btn-d" style="margin-top:4px" onclick="deleteShopItem()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg> Artikel löschen</button>`;
+  document.getElementById('shopItemModal').classList.add('open');
+}
+function closeShopItemModal(){document.getElementById('shopItemModal').classList.remove('open');editingShopId=null;}
+
+async function saveShopItem(){
+  const title=document.getElementById('shopFTitle').value.trim();
+  if(!title){showToast('Titel eingeben');return;}
+  const payload={
+    title,
+    category:document.getElementById('shopFCat').value,
+    qty:document.getElementById('shopFQty').value.trim(),
+    price:document.getElementById('shopFPrice').value,
+    comment:document.getElementById('shopFComment').value.trim(),
+    repeat:getRepeatValue(),
+    photo:pendingShopPhoto||null,
+  };
+  closeShopItemModal();
+  try{
+    if(editingShopId){
+      const updated=await apiShopPatch(editingShopId,payload);
+      const idx=shopItems.findIndex(i=>(i.id||i._id)===editingShopId);
+      if(idx>-1)shopItems[idx]={...shopItems[idx],...updated};
+      showToast('Gespeichert');
+    }else{
+      const created=await apiShopAdd(payload);
+      shopItems.push(created);
+      showToast('Artikel hinzugefügt');
+    }
+    renderShopList();
+  }catch(e){showToast('Fehler: '+e.message);}
+}
+
+async function deleteShopItem(){
+  if(!editingShopId)return;
+  const id=editingShopId;
+  closeShopItemModal();
+  shopItems=shopItems.filter(i=>(i.id||i._id)!==id);
+  renderShopList();
+  try{await apiShopDelete(id);showToast('Artikel gelöscht');}
+  catch(e){showToast('Fehler: '+e.message);await renderShopTab();}
+}
+
+// ─ Init ─
+document.addEventListener('DOMContentLoaded',()=>initShopTabVisibility());
+window.addEventListener('load',()=>initShopTabVisibility());
+const WEEKDAYS=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+const WEEKDAY_KEYS=['mo','di','mi','do','fr','sa','so'];
+const SHOP_CATS=['Nudeln, Backware','Soßen & Gewürze','Öl & Essig','Obst','Gemüse','Kräuter','Alkohol','Asia & Sonstiges','Dosen & Kaffee','Brot & Wurst','TK','Fleisch','Süßkram','Käse & Kühlregal','Getränke','Drogerie','Kassenbereich'];
+
+let shopItems=[];
+let mealPlan={};
+let shopFilter='plan';
 init();
 </script>
+
+<!-- SHOP ITEM MODAL -->
+<div class="ov" id="shopItemModal" style="z-index:600">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr"><div class="mtitle" id="shopItemModalTitle">Artikel hinzufügen</div><span class="mclose" onclick="closeShopItemModal()">Abbrechen</span></div>
+    <div class="fg" style="padding-bottom:10px">
+      <label class="fl">Foto &amp; Titel</label>
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div id="shopPhotoWrap">
+          <div class="photo-placeholder" id="shopPhotoPlaceholder" onclick="document.getElementById('shopPhotoInp').click()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            Foto
+          </div>
+          <div class="photo-preview-wrap" id="shopPhotoPreview" style="display:none">
+            <img id="shopPhotoImg" src="" alt="">
+            <div class="del-photo" onclick="removeShopPhoto()">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </div>
+          </div>
+        </div>
+        <input type="file" id="shopPhotoInp" accept="image/*" style="display:none" onchange="handleShopPhoto(this)">
+        <input class="fi" id="shopFTitle" placeholder="Artikelname…" style="flex:1">
+      </div>
+    </div>
+    <div class="fg"><label class="fl">Kategorie</label>
+      <select class="fsel" id="shopFCat">
+        <option>Nudeln, Backware</option><option>Soßen &amp; Gewürze</option><option>Öl &amp; Essig</option><option>Obst</option><option>Gemüse</option><option>Kräuter</option><option>Alkohol</option><option>Asia &amp; Sonstiges</option><option>Dosen &amp; Kaffee</option><option>Brot &amp; Wurst</option><option>TK</option><option>Fleisch</option><option>Süßkram</option><option>Käse &amp; Kühlregal</option><option>Getränke</option><option>Drogerie</option><option>Kassenbereich</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:10px;padding:0 16px 14px">
+      <div style="flex:1"><label class="fl">Menge</label><input class="fi" id="shopFQty" placeholder="z.B. 2x, 500g…"></div>
+      <div style="flex:1"><label class="fl">Preis (€)</label><input class="fi" id="shopFPrice" type="number" step="0.01" placeholder="0.00" inputmode="decimal"></div>
+    </div>
+    <div class="fg"><label class="fl">Kommentar</label><input class="fi" id="shopFComment" placeholder="Optional: Hinweis, Marke…"></div>
+    <div class="fg">
+      <label class="fl">Wiederholung</label>
+      <div class="repeat-type-seg">
+        <button class="repeat-type-btn on" id="rTypNone"   onclick="setRepeatType('none')">Einmalig</button>
+        <button class="repeat-type-btn"    id="rTypAlways" onclick="setRepeatType('always')">Immer</button>
+        <button class="repeat-type-btn"    id="rTypWeekly" onclick="setRepeatType('weekly')">Wöchentl.</button>
+        <button class="repeat-type-btn"    id="rTypMonthly" onclick="setRepeatType('monthly')">Monatlich</button>
+      </div>
+      <div id="repeatIntervalWrap" style="display:none">
+        <div style="font-size:11px;color:var(--text3);margin-bottom:8px" id="repeatIntervalLabel">Alle wie viele Wochen?</div>
+        <div class="repeat-interval-row" id="repeatIntervalBtns"></div>
+      </div>
+    </div>
+    <div style="padding:0 16px 8px"><button class="btn btn-p" onclick="saveShopItem()">Speichern</button></div>
+    <div style="padding:0 16px 8px" id="delShopItemWrap"></div>
+  </div>
+</div>
+
+<!-- FINISH SHOPPING CONFIRM -->
+<div class="shop-finish-confirm" id="shopFinishConfirm">
+  <div class="shop-finish-sheet">
+    <div style="font-size:19px;font-weight:800;margin-bottom:6px">Einkauf abschließen?</div>
+    <div style="font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:18px" id="shopFinishDesc"></div>
+    <button class="btn btn-p" style="margin-bottom:10px" onclick="confirmFinishShopping(true)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      Ja, Wiederholungsartikel zurücksetzen
+    </button>
+    <button class="btn btn-out" style="margin-bottom:10px" onclick="confirmFinishShopping(false)">Nein, nur abhaken lassen</button>
+    <button class="btn btn-g" onclick="closeFinishShopping()">Abbrechen</button>
+  </div>
+</div>
+
+<!-- MEAL EDIT MODAL -->
+<div class="ov" id="mealModal" style="z-index:600">
+  <div class="sheet">
+    <div class="handle"></div>
+    <div class="mhdr"><div class="mtitle" id="mealModalDay">Montag</div><span class="mclose" onclick="closeMealModal()">Abbrechen</span></div>
+    <div class="fg"><label class="fl">Gericht / Mahlzeit</label><input class="fi" id="mealFText" placeholder="Was gibt es zu essen?…"></div>
+    <div style="padding:0 16px 8px"><button class="btn btn-p" onclick="saveMeal()">Speichern</button></div>
+    <div style="padding:0 16px 8px"><button class="btn btn-d" onclick="deleteMeal()">Leeren</button></div>
+  </div>
+</div>
+
 </body>
 </html>
