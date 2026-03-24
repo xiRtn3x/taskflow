@@ -4017,12 +4017,14 @@ function initSheetDismiss(){
 
   document.addEventListener('touchstart',e=>{
     // Only trigger if no sheet/overlay is open and we're at the top of the page
+    // Disabled on shop tab (it has its own live sync)
+    if(curTab===4){pulling=false;return;}
     const anyOpen=[...document.querySelectorAll('.ov.open')].length>0||
       document.getElementById('taskDetail')?.classList?.contains('open');
     if(anyOpen)return;
     const page=document.querySelector('.page:not([style*="display:none"])');
     const scrollEl=page||document.scrollingElement;
-    if((scrollEl?.scrollTop||0)>2)return;
+    if((scrollEl?.scrollTop||window.scrollY||0)>2)return;
     startY=e.touches[0].clientY;
     pulling=true;
   },{passive:true});
@@ -4221,6 +4223,7 @@ let shopRecipeLoading=false;
 let currentRepeatType='none';
 let currentRepeatN=1;
 let pendingShopPhoto=null;
+let shopPhotoRemoved=false;
 let shopLoading=false;
 
 
@@ -4281,7 +4284,11 @@ async function apiShopLoad(){
   }catch(e){showToast('Einkaufsliste konnte nicht geladen werden');shopItems=[];mealPlan={};}
 }
 async function apiShopAdd(item){return api('POST','/shopping',item);}
-async function apiShopPatch(id,patch){return api('PATCH','/shopping/'+id,patch);}
+async function apiShopPatch(id,patch){
+  // Strip undefined values so we don't overwrite server fields we didn't mean to touch
+  const clean=Object.fromEntries(Object.entries(patch).filter(([,v])=>v!==undefined));
+  return api('PATCH','/shopping/'+id,clean);
+}
 async function apiShopDelete(id){return api('DELETE','/shopping/'+id);}
 async function apiShopFinish(resetRepeating){return api('POST','/shopping/finish',{resetRepeating});}
 async function apiMealSave(){return api('PUT','/mealplan',mealPlan);}
@@ -4706,7 +4713,7 @@ async function confirmFinishShopping(resetRepeating){
 function handleShopPhoto(inp){
   const file=inp.files[0];if(!file)return;
   const reader=new FileReader();
-  reader.onload=e=>{pendingShopPhoto=e.target.result;showShopPhotoPreview(pendingShopPhoto);};
+  reader.onload=e=>{pendingShopPhoto=e.target.result;shopPhotoRemoved=false;showShopPhotoPreview(pendingShopPhoto);};
   reader.readAsDataURL(file);
 }
 function showShopPhotoPreview(src){
@@ -4717,6 +4724,7 @@ function showShopPhotoPreview(src){
 }
 function removeShopPhoto(){
   pendingShopPhoto=null;
+  shopPhotoRemoved=true;
   document.getElementById('shopPhotoPreview').style.display='none';
   document.getElementById('shopPhotoPlaceholder').style.display='';
   document.getElementById('shopPhotoImg').src='';
@@ -4793,13 +4801,13 @@ function openAddShopItem(){
   document.getElementById('shopFPrice').value='';
   document.getElementById('shopFComment').value='';
   document.getElementById('delShopItemWrap').innerHTML='';
-  removeShopPhoto();currentRepeatType='none';currentRepeatN=1;setRepeatType('none');
+  removeShopPhoto();shopPhotoRemoved=false;currentRepeatType='none';currentRepeatN=1;setRepeatType('none');
   document.getElementById('shopItemModal').classList.add('open');
   setTimeout(()=>document.getElementById('shopFTitle').focus(),320);
 }
 function openEditShopItem(id){
   const item=shopItems.find(i=>(i.id||i._id)===id);if(!item)return;
-  editingShopId=id;pendingShopPhoto=item.photo||null;
+  editingShopId=id;pendingShopPhoto=item.photo||null;shopPhotoRemoved=false;
   document.getElementById('shopItemModalTitle').textContent='Artikel bearbeiten';
   document.getElementById('shopFTitle').value=item.title||'';
   document.getElementById('shopFCat').value=item.category||SHOP_CATS[0];
@@ -4823,7 +4831,7 @@ async function saveShopItem(){
     price:document.getElementById('shopFPrice').value,
     comment:document.getElementById('shopFComment').value.trim(),
     repeat:getRepeatValue(),
-    photo:pendingShopPhoto||null,
+    photo:pendingShopPhoto!==null?pendingShopPhoto:(shopPhotoRemoved?null:undefined),
   };
   closeShopItemModal();
   try{
