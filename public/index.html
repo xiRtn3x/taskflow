@@ -1925,7 +1925,7 @@ function startPolling(){
     window._visListenerAdded=true;
     document.addEventListener('visibilitychange',async()=>{
       if(document.visibilityState==='visible'){
-        try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}}
+        try{const r=await api('GET','/poll');if(r.hash!==pollHash){pollHash=r.hash;await loadAll();render();}if(r.hasNotifications){checkNotifs();}if(curTab===4)await pollShopItems();}
         catch(e){}
         // Check auto-shuffle when app comes to foreground (todayKey prevents double-shuffle)
         checkAutoShuffle();
@@ -4073,7 +4073,8 @@ function switchTab(i,anim=true){
   if(!anim)requestAnimationFrame(()=>requestAnimationFrame(()=>wrap.classList.remove('no-anim')));
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
   document.getElementById('navTitle').textContent=(lang==='en'?NAV_TITLES_EN:NAV_TITLES_DE)[i]||'';
-  if(i===1)renderPool();if(i===2)renderCalendar();if(i===3)renderVote();if(i===4)renderShopTab();
+  if(i===1)renderPool();if(i===2)renderCalendar();if(i===3)renderVote();
+  if(i===4){renderShopTab();startShopPolling();}else{stopShopPolling();}
   // Show correct sticky sub-filter
   for(let j=0;j<=4;j++){const sf=document.getElementById('sf'+j);if(sf)sf.classList.toggle('active',j===i);}
   // Show/hide FAB on shopping tab
@@ -4205,6 +4206,8 @@ const WEEKDAY_KEYS=['mo','di','mi','do','fr','sa','so'];
 const SHOP_CATS=['Nudeln, Backware','Soßen & Gewürze','Öl & Essig','Obst','Gemüse','Kräuter','Alkohol','Asia & Sonstiges','Dosen & Kaffee','Brot & Wurst','TK','Fleisch','Süßkram','Käse & Kühlregal','Getränke','Drogerie','Kassenbereich'];
 
 let shopItems=[];
+let shopPollHash=null;
+let shopPollTimer=null;
 let mealPlan={};
 let shopFilter='plan';
 let shopCheckedOnly=false;
@@ -4215,6 +4218,39 @@ let currentRepeatType='none';
 let currentRepeatN=1;
 let pendingShopPhoto=null;
 let shopLoading=false;
+
+
+// ── Shop live-sync ──
+function shopItemsHash(){
+  // Quick fingerprint: count + sum of ids + checked states
+  if(!shopItems.length)return'0';
+  return shopItems.length+'|'+shopItems.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
+}
+
+async function pollShopItems(){
+  if(curTab!==4)return; // only poll when shop tab is active
+  try{
+    const fresh=await api('GET','/shopping');
+    const newHash=fresh.length+'|'+fresh.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
+    if(newHash!==shopPollHash){
+      shopPollHash=newHash;
+      // Merge: keep local state for items user is actively editing, update rest
+      shopItems=fresh;
+      // Re-dedup silently if needed
+      const titleCats=shopItems.map(i=>(i.title||'').toLowerCase().trim()+'|'+(i.category||''));
+      if(titleCats.length!==new Set(titleCats).size)await deduplicateShopItems();
+      if(shopFilter!=='plan')renderShopList();
+    }
+  }catch(e){}
+}
+
+function startShopPolling(){
+  if(shopPollTimer)clearInterval(shopPollTimer);
+  shopPollTimer=setInterval(pollShopItems, 5000);
+}
+function stopShopPolling(){
+  if(shopPollTimer){clearInterval(shopPollTimer);shopPollTimer=null;}
+}
 
 // ─ repeat helpers ─
 function repeatLabel(r){
@@ -4237,6 +4273,7 @@ async function apiShopLoad(){
   try{
     const [items,plan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
     shopItems=items||[];mealPlan=plan||{};
+    shopPollHash=shopItems.length+'|'+shopItems.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
   }catch(e){showToast('Einkaufsliste konnte nicht geladen werden');shopItems=[];mealPlan={};}
 }
 async function apiShopAdd(item){return api('POST','/shopping',item);}
@@ -6610,7 +6647,7 @@ const DEFAULT_SHOP_ITEMS = [
 ];
 
 async function seedDefaultItems() {
-  if(shopItems.length > 0) return; // Only seed if empty
+  if(shopItems.length > 0) return; // Only seed if server is empty
   showToast('Liste wird geladen…');
   let added = 0;
   for(const item of DEFAULT_SHOP_ITEMS) {
@@ -6631,6 +6668,47 @@ async function seedDefaultItems() {
   showToast(added + ' Artikel hinzugefügt ✓');
 }
 
+
+// ─ Remove duplicate items (same title + category) from server ─
+async function deduplicateShopItems(){
+  const seen = new Map(); // key: "title|category" -> first item id
+  const toDelete = [];
+  // Sort by id ascending so we keep the first-created item
+  const sorted = [...shopItems].sort((a,b)=>{
+    const ia = a.id||a._id||''; const ib = b.id||b._id||'';
+    return ia < ib ? -1 : ia > ib ? 1 : 0;
+  });
+  for(const item of sorted){
+    const key = (item.title||'').toLowerCase().trim() + '|' + (item.category||'');
+    if(seen.has(key)){
+      toDelete.push(item.id||item._id);
+    } else {
+      seen.set(key, item.id||item._id);
+    }
+  }
+  if(!toDelete.length) return 0;
+  // Delete from server
+  let deleted = 0;
+  for(const id of toDelete){
+    try{ await apiShopDelete(id); deleted++; }catch(e){}
+  }
+  // Remove from local list
+  shopItems = shopItems.filter(i => !toDelete.includes(i.id||i._id));
+  return deleted;
+}
+
+async function runDedup(){
+  if(shopItems.length === 0) return;
+  showToast('Prüfe auf Duplikate…');
+  const n = await deduplicateShopItems();
+  if(n > 0){
+    renderShopList();
+    showToast(n + ' Duplikat' + (n>1?'e':'') + ' entfernt ✓');
+  } else {
+    showToast('Keine Duplikate gefunden ✓');
+  }
+}
+
 // ─ Init ─
 document.addEventListener('DOMContentLoaded',()=>initShopTabVisibility());
 window.addEventListener('load',()=>initShopTabVisibility());
@@ -6640,6 +6718,8 @@ window.addEventListener('load',()=>initShopTabVisibility());
 async function seedShopItemsFromNote(){
   const SEED_KEY='tf_shop_seed_v1';
   if(localStorage.getItem(SEED_KEY))return;
+  // Also skip if server already has items (another group member seeded already)
+  if(shopItems.length>0){localStorage.setItem(SEED_KEY,'1');return;}
   const items=[
     // Nudeln, Backware
     {title:'Backpulver',category:'Nudeln, Backware'},
