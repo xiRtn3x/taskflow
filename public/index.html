@@ -35,6 +35,14 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .nav-btn:active{transform:scale(.92);}
 .notif-dot{position:absolute;top:1px;right:1px;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--glass-nav);}
 
+
+/* ─ Sticky sub-filter bars ─ */
+#stickyFilters{position:sticky;top:53px;z-index:95;background:var(--glass-nav);backdrop-filter:blur(28px) saturate(2);-webkit-backdrop-filter:blur(28px) saturate(2);border-bottom:1px solid var(--glass-border);}
+.sf-bar{display:none;padding:6px 14px;}
+.sf-bar.active{display:block;}
+/* cal-nav lives inside sf-bar now */
+.cal-nav{display:flex;align-items:center;justify-content:space-between;padding:4px 0;}
+
 /* TABS — 4 tabs */
 .tabs{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;z-index:200;background:var(--glass-nav);backdrop-filter:blur(28px) saturate(2);-webkit-backdrop-filter:blur(28px) saturate(2);border-top:1px solid var(--glass-border);display:flex;padding:6px 4px calc(6px + var(--sb));box-shadow:0 -4px 24px rgba(91,91,214,.08);}
 .tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;padding:4px 2px;}
@@ -513,54 +521,39 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     </div>
   </div>
 
-  <!-- PAGES: 4 tabs, 25% each -->
-  <div id="pgwrap" class="pages-wrap">
+  <!-- STICKY SUB-FILTERS (outside pages-wrap so sticky works) -->
+  <div id="stickyFilters">
 
-    <!-- PAGE 0: MEINE -->
-    <div class="page" id="pgMy">
-      <div style="padding:10px 14px 4px">
-        <div class="seg" id="myFilterSeg">
-          <button class="seg-b on" id="fBtnOpen" onclick="setMyFilter('open',this)">Offen</button>
-          <button class="seg-b" id="fBtnDone" onclick="setMyFilter('done',this)">Erledigt</button>
-          <button class="seg-b" id="fBtnAll" onclick="setMyFilter('all',this)">Alle</button>
-          <button class="seg-b" id="fBtnCats" onclick="setMyFilter('cats',this)">Kategorien</button>
-        </div>
+    <!-- sf0: Meine -->
+    <div class="sf-bar active" id="sf0">
+      <div class="seg" id="myFilterSeg">
+        <button class="seg-b on" id="fBtnOpen" onclick="setMyFilter('open',this)">Offen</button>
+        <button class="seg-b" id="fBtnDone" onclick="setMyFilter('done',this)">Erledigt</button>
+        <button class="seg-b" id="fBtnAll" onclick="setMyFilter('all',this)">Alle</button>
+        <button class="seg-b" id="fBtnCats" onclick="setMyFilter('cats',this)">Kategorien</button>
       </div>
-      <div id="myContainer"></div>
     </div>
 
-    <!-- PAGE 1: POOL -->
-    <div class="page" id="pgPool">
-      <div style="padding:10px 14px 4px"><div class="seg" id="poolFbar"></div></div>
-      <div id="shuffleWrap" style="padding:0 14px 10px;display:none">
-        <button onclick="shufflePool()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
-          <span id="shuffleLbl">Neu mischen</span>
-        </button>
-      </div>
-      <div id="poolContainer"></div>
+    <!-- sf1: Pool (poolFbar rendered dynamically) -->
+    <div class="sf-bar" id="sf1">
+      <div class="seg" id="poolFbar"></div>
     </div>
 
-    <!-- PAGE 2: KALENDER -->
-    <div class="page" id="pgCal">
+    <!-- sf2: Kalender nav -->
+    <div class="sf-bar" id="sf2">
       <div class="cal-nav">
         <button class="cal-btn" onclick="calPrev()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
         <div class="cal-month" id="calMonth"></div>
         <button class="cal-btn" onclick="calNext()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
       </div>
-      <div class="cal-grid" id="calGrid"></div>
-      <div id="calList"></div>
     </div>
 
-    <!-- PAGE 3: VOTE -->
-    <div class="page" id="pgVote">
-      <div style="padding:10px 14px 4px"></div>
-      <div id="voteContainer"></div>
-    </div>
+    <!-- sf3: Vote (empty) -->
+    <div class="sf-bar" id="sf3"></div>
 
-    <!-- PAGE 4: EINKAUFEN -->
-    <div class="page" id="pgShop" style="padding-top:0">
-      <div class="shop-filter" id="shopFilterInline" style="display:none">
+    <!-- sf4: Einkaufen 3-way -->
+    <div class="sf-bar" id="sf4">
+      <div class="shop-filter" style="margin:0">
         <button class="shop-fb on" id="shopFbPlan" onclick="setShopFilter('plan',this)" style="display:flex;align-items:center;justify-content:center;gap:5px">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
           Essensplan
@@ -574,6 +567,43 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           Einkauf
         </button>
       </div>
+    </div>
+
+  </div><!-- end stickyFilters -->
+
+  <!-- PAGES: 4 tabs, 25% each -->
+  <div id="pgwrap" class="pages-wrap">
+
+    <!-- PAGE 0: MEINE -->
+    <div class="page" id="pgMy">
+      <div id="myContainer"></div>
+    </div>
+
+    <!-- PAGE 1: POOL -->
+    <div class="page" id="pgPool">
+      <div id="shuffleWrap" style="padding:0 14px 10px;display:none">
+        <button onclick="shufflePool()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1px solid var(--glass-border);background:var(--glass);border-radius:16px;font-size:14px;font-weight:600;color:var(--text);cursor:pointer;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);box-shadow:0 2px 10px rgba(0,0,0,.07),inset 0 1px 0 rgba(255,255,255,.5);transition:all .18s;font-family:inherit" ontouchstart="this.style.opacity='.7'" ontouchend="this.style.opacity='1'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>
+          <span id="shuffleLbl">Neu mischen</span>
+        </button>
+      </div>
+      <div id="poolContainer"></div>
+    </div>
+
+    <!-- PAGE 2: KALENDER -->
+    <div class="page" id="pgCal">
+      <div class="cal-grid" id="calGrid"></div>
+      <div id="calList"></div>
+    </div>
+
+    <!-- PAGE 3: VOTE -->
+    <div class="page" id="pgVote">
+      <div style="padding:10px 14px 4px"></div>
+      <div id="voteContainer"></div>
+    </div>
+
+    <!-- PAGE 4: EINKAUFEN -->
+    <div class="page" id="pgShop">
       <!-- ESSENSPLAN -->
       <div id="shopPlanView">
         <div style="padding:4px 14px 6px;display:flex;align-items:center;gap:6px">
@@ -4029,7 +4059,8 @@ function switchTab(i,anim=true){
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
   document.getElementById('navTitle').textContent=(lang==='en'?NAV_TITLES_EN:NAV_TITLES_DE)[i]||'';
   if(i===1)renderPool();if(i===2)renderCalendar();if(i===3)renderVote();if(i===4)renderShopTab();
-  const ssn=document.getElementById('shopSubNav');if(ssn)ssn.style.display=(i===4)?'block':'none';
+  // Show correct sticky sub-filter
+  for(let j=0;j<=4;j++){const sf=document.getElementById('sf'+j);if(sf)sf.classList.toggle('active',j===i);}
   // Show/hide FAB on shopping tab
   const fab=document.getElementById('fabBtn');
   if(fab)fab.style.display=(i===4)?'flex':'flex';
@@ -4222,9 +4253,6 @@ function setShopFilter(f,btn){
   shopFilter=f;
   shopCheckedOnly=(f==='shop');
   document.querySelectorAll('.shop-fb').forEach(b=>b.classList.remove('on'));
-  // Sync sticky subnav buttons
-  const map={plan:['shopFbPlanS'],list:['shopFbListS'],shop:['shopFbShopS']};
-  (map[f]||[]).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('on');});
   if(btn)btn.classList.add('on');
   document.getElementById('shopPlanView').style.display=f==='plan'?'':'none';
   document.getElementById('shopListView').style.display=(f==='list'||f==='shop')?'':'none';
@@ -4299,28 +4327,58 @@ function onMealTextInput(){
   document.getElementById('mealRecipeList').innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Lade Vorschläge…</div>';
   mealRecipeTimer=setTimeout(()=>loadMealRecipes(val),700);
 }
+const DE_EN={
+  'lachs':'salmon','hähnchen':'chicken','huhn':'chicken','rind':'beef','schwein':'pork',
+  'pasta':'pasta','nudeln':'pasta','pizza':'pizza','suppe':'soup','salat':'salad',
+  'reis':'rice','kartoffeln':'potato','tomate':'tomato','fisch':'fish','garnelen':'shrimp',
+  'lamm':'lamb','ente':'duck','thunfisch':'tuna','spinat':'spinach','zucchini':'zucchini',
+  'pilze':'mushroom','linsen':'lentil','kichererbsen':'chickpea','brokkoli':'broccoli',
+  'curry':'curry','burger':'burger','steak':'steak','omelett':'omelette','spätzle':'pasta',
+  'schnitzel':'schnitzel','gnocchi':'gnocchi','risotto':'risotto','lasagne':'lasagna',
+  'wrap':'wrap','chili':'chili','tacos':'tacos','wok':'stir fry','auflauf':'casserole',
+};
+function deToEn(word){return DE_EN[word.toLowerCase()]||word;}
+async function mealDbSearch(q){
+  const r=await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(q)}`);
+  const d=await r.json();
+  return d.meals||[];
+}
+function renderMealCards(meals,list){
+  list.innerHTML='';
+  meals.slice(0,4).forEach(m=>{
+    const card=document.createElement('div');card.className='recipe-card';
+    const src=m.strSource?`<a href="${m.strSource}" target="_blank" style="color:var(--acc);font-size:11px;text-decoration:none">Rezept ↗</a>`:'';
+    const yt=m.strYoutube?`<a href="${m.strYoutube}" target="_blank" style="color:#ef4444;font-size:11px;text-decoration:none;margin-left:8px">▶ YouTube</a>`:'';
+    const sub=[m.strCategory,m.strArea].filter(Boolean).join(' · ');
+    card.innerHTML=`<div style="display:flex;gap:10px;align-items:center"><img src="${m.strMealThumb}/preview" style="width:52px;height:52px;border-radius:8px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div class="recipe-title">${m.strMeal}</div>${sub?`<div class="recipe-sub">${sub}</div>`:''}<div style="margin-top:4px;display:flex;gap:4px">${src}${yt}</div></div></div>`;
+    list.appendChild(card);
+  });
+}
+function chefkochLink(meal,list){
+  const extra=document.createElement('div');
+  extra.style.cssText='margin-top:8px;padding-top:8px;border-top:1px solid var(--sep)';
+  extra.innerHTML=`<a href="https://www.chefkoch.de/rs/s0/${encodeURIComponent(meal)}/Rezepte.html" target="_blank" style="display:flex;align-items:center;gap:6px;color:var(--acc);font-size:13px;font-weight:600;text-decoration:none">Auf Chefkoch.de suchen ↗</a>`;
+  list.appendChild(extra);
+}
 async function loadMealRecipes(meal){
   const list=document.getElementById('mealRecipeList');
   if(!list)return;
   list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Suche Rezepte…</div>';
   try{
-    // Search TheMealDB for recipes
-    const q=encodeURIComponent(meal.split(' ')[0]);
-    const r=await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${q}`);
-    const d=await r.json();
-    const meals=(d.meals||[]).slice(0,4);
-    if(!meals.length){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Rezepte gefunden</div>';return;}
-    list.innerHTML='';
-    meals.forEach(m=>{
-      const card=document.createElement('div');card.className='recipe-card';
-      const src=m.strSource?`<a href="${m.strSource}" target="_blank" style="color:var(--acc);font-size:11px;text-decoration:none">Rezept öffnen ↗</a>`:'';
-      const yt=m.strYoutube?`<a href="${m.strYoutube}" target="_blank" style="color:#ef4444;font-size:11px;text-decoration:none;margin-left:8px">▶ YouTube</a>`:'';
-      const cat=m.strCategory||'';const area=m.strArea||'';
-      const sub=[cat,area].filter(Boolean).join(' · ');
-      card.innerHTML=`<div style="display:flex;gap:10px;align-items:center"><img src="${m.strMealThumb}/preview" style="width:52px;height:52px;border-radius:8px;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><div class="recipe-title">${m.strMeal}</div>${sub?`<div class="recipe-sub">${sub}</div>`:''}<div style="margin-top:4px">${src}${yt}</div></div></div>`;
-      list.appendChild(card);
-    });
-  }catch(e){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Rezeptsuche nicht verfügbar</div>';}
+    const words=meal.trim().split(/\s+/);
+    let found=[];
+    // Try each word, translated if possible
+    for(const w of words){
+      const en=deToEn(w);
+      found=await mealDbSearch(en);
+      if(found.length)break;
+      if(en!==w){found=await mealDbSearch(w);if(found.length)break;}
+    }
+    if(found.length){renderMealCards(found,list);}
+    else{list.innerHTML='';}
+    // Always show Chefkoch link
+    chefkochLink(meal,list);
+  }catch(e){list.innerHTML='';chefkochLink(meal,list);}
 }
 function closeMealModal(){document.getElementById('mealModal').classList.remove('open');editingMealKey=null;}
 async function saveMeal(){
@@ -4338,7 +4396,7 @@ async function deleteMeal(){
   try{await apiMealSave();}catch(e){showToast('Speichern fehlgeschlagen');}
 }
 
-// ─ Rezeptvorschläge (TheMealDB) ─
+// ─ Rezeptvorschläge (TheMealDB + Chefkoch) ─
 async function loadRecipeSuggestions(meals){
   if(shopRecipeLoading)return;
   const list=document.getElementById('recipeList');
@@ -4346,24 +4404,31 @@ async function loadRecipeSuggestions(meals){
   list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Suche Rezepte…</div>';
   shopRecipeLoading=true;
   try{
-    const results=[];
-    for(const meal of meals.slice(0,4)){
-      const q=encodeURIComponent(meal.split(' ')[0]);
-      try{
-        const r=await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${q}`);
-        const d=await r.json();
-        if(d.meals&&d.meals[0])results.push({meal,data:d.meals[0]});
-      }catch(e){}
-    }
-    if(!results.length){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Rezepte gefunden</div>';return;}
     list.innerHTML='';
-    results.forEach(({meal,data:m})=>{
-      const card=document.createElement('div');card.className='recipe-card';
-      const src=m.strSource?`<a href="${m.strSource}" target="_blank" style="color:var(--acc);font-size:11px;text-decoration:none">Rezept ↗</a>`:'';
-      const yt=m.strYoutube?`<a href="${m.strYoutube}" target="_blank" style="color:#ef4444;font-size:11px;text-decoration:none;margin-left:8px">▶ YouTube</a>`:'';
-      card.innerHTML=`<div style="display:flex;gap:10px;align-items:center"><img src="${m.strMealThumb}/preview" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><div class="recipe-title">${m.strMeal}<span style="font-weight:400;color:var(--text3)"> · für ${meal}</span></div><div style="margin-top:4px">${src}${yt}</div></div></div>`;
-      list.appendChild(card);
-    });
+    for(const meal of meals.slice(0,4)){
+      const words=meal.trim().split(/\s+/);
+      let found=[];
+      for(const w of words){
+        const en=deToEn(w);
+        found=await mealDbSearch(en);
+        if(found.length)break;
+        if(en!==w){found=await mealDbSearch(w);if(found.length)break;}
+      }
+      if(found.length&&found[0]){
+        const m=found[0];
+        const card=document.createElement('div');card.className='recipe-card';
+        const src=m.strSource?`<a href="${m.strSource}" target="_blank" style="color:var(--acc);font-size:11px;text-decoration:none">Rezept ↗</a>`:'';
+        const yt=m.strYoutube?`<a href="${m.strYoutube}" target="_blank" style="color:#ef4444;font-size:11px;text-decoration:none;margin-left:8px">▶ YouTube</a>`:'';
+        card.innerHTML=`<div style="display:flex;gap:10px;align-items:center"><img src="${m.strMealThumb}/preview" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0" onerror="this.style.display='none'"><div style="flex:1;min-width:0"><div class="recipe-title">${m.strMeal}<span style="font-weight:400;color:var(--text3)"> · für ${meal}</span></div><div style="margin-top:4px;display:flex;gap:4px">${src}${yt}</div></div></div>`;
+        list.appendChild(card);
+      } else {
+        // Chefkoch fallback per meal
+        const fb=document.createElement('div');fb.className='recipe-card';
+        fb.innerHTML=`<a href="https://www.chefkoch.de/rs/s0/${encodeURIComponent(meal)}/Rezepte.html" target="_blank" style="display:flex;align-items:center;gap:8px;color:var(--acc);font-size:13px;font-weight:600;text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>${meal} auf Chefkoch.de ↗</a>`;
+        list.appendChild(fb);
+      }
+    }
+    if(!list.children.length)list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Rezepte gefunden</div>';
   }catch(e){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Rezeptsuche nicht verfügbar</div>';}
   finally{shopRecipeLoading=false;}
 }
