@@ -89,11 +89,12 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .shop-chk.done{background:var(--green);border-color:var(--green);}
 .shop-body{flex:1;min-width:0;}
 .shop-title{font-size:15px;font-weight:500;color:var(--text);transition:color .2s;}
-.shop-title.done{text-decoration:line-through;color:var(--text3);}
+.shop-title.done{color:var(--text3);}
 .shop-meta{font-size:11px;color:var(--text2);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
 .shop-qty-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(150,150,200,.12);border:1px solid var(--sep);border-radius:6px;padding:1px 6px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .12s;margin-top:3px;}
 .shop-qty-chip:active{background:rgba(91,91,214,.12);border-color:var(--acc);color:var(--acc);}
 .shop-qty-inp{width:70px;background:var(--glass);border:1.5px solid var(--acc);border-radius:6px;padding:2px 6px;font-size:12px;font-weight:600;color:var(--text);font-family:inherit;outline:none;}
+.shop-comment-inline{font-style:italic;color:var(--text3);font-size:0.88em;font-weight:400;margin-left:5px;opacity:.85;}
 .shop-price{font-size:13px;font-weight:600;color:var(--text2);flex-shrink:0;padding-left:6px;}
 .shop-photo-thumb{flex-shrink:0;width:44px;height:44px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border);cursor:pointer;position:relative;}
 .shop-photo-thumb img{width:100%;height:100%;object-fit:cover;}
@@ -582,10 +583,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           <div id="shopTotalInfo" style="font-size:12px;color:var(--text3);flex:1"></div>
           <button id="shopCheckedFilterBtn" onclick="toggleShopCheckedFilter()" style="display:flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid var(--glass-border);background:var(--glass);border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .15s;backdrop-filter:blur(10px);flex-shrink:0">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Abgehakte
-          <button class="shop-clear-btn" onclick="clearCheckedShop()">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
-            Löschen
+            Aktuelle Einkaufsliste
           </button>
         </div>
         <div id="shopProgress" style="margin:6px 14px 8px;height:4px;background:var(--sep);border-radius:2px;overflow:hidden">
@@ -4234,7 +4232,10 @@ async function renderShopTab(){
   const container=document.getElementById('shopListContainer');
   if(container&&shopFilter==='list')container.innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite;display:block;margin:0 auto 8px"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Lade…</div>';
   await apiShopLoad();
+  // Seed items from note on first run
+  if(!localStorage.getItem('tf_shop_seed_v1'))await seedShopItemsFromNote();
   shopLoading=false;
+  if(shopItems.length===0) await seedDefaultItems();
   if(shopFilter==='plan')renderMealGrid();
   else renderShopList();
 }
@@ -4261,7 +4262,7 @@ function renderMealGrid(){
   });
   const filled=WEEKDAY_KEYS.filter(k=>mealPlan[k]&&mealPlan[k].trim());
   const area=document.getElementById('recipeArea');
-  if(area){
+  if(area&&false){
     area.style.display=filled.length>0?'':'none';
     if(filled.length>0)loadRecipeSuggestions(filled.map(k=>mealPlan[k]));
   }
@@ -4274,8 +4275,8 @@ function openMealModal(key,day,current){
   document.getElementById('mealModal').classList.add('open');
   // Show recipes immediately if meal already filled
   if(current&&current.trim()){
-    document.getElementById('mealRecipeArea').style.display='';
-    loadMealRecipes(current.trim());
+    // recipe suggestions disabled
+    // document.getElementById('mealRecipeArea').style.display='';
   } else {
     document.getElementById('mealRecipeArea').style.display='none';
     document.getElementById('mealRecipeList').innerHTML='';
@@ -4286,9 +4287,7 @@ function onMealTextInput(){
   const val=document.getElementById('mealFText').value.trim();
   clearTimeout(mealRecipeTimer);
   if(!val){document.getElementById('mealRecipeArea').style.display='none';return;}
-  document.getElementById('mealRecipeArea').style.display='';
-  document.getElementById('mealRecipeList').innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Lade Vorschläge…</div>';
-  mealRecipeTimer=setTimeout(()=>loadMealRecipes(val),700);
+  // recipe suggestions disabled
 }
 async function loadMealRecipes(meal){
   const list=document.getElementById('mealRecipeList');
@@ -4402,8 +4401,7 @@ function renderShopList(){
           ${item.checked?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}
         </div>
         <div class="shop-body" onclick="openEditShopItem('${sid}')">
-          <div class="shop-title${item.checked?' done':''}">${item.title}</div>
-          ${item.comment?`<div class="shop-comment">${item.comment}</div>`:''}
+          <div class="shop-title${item.checked?' done':''}">${item.title}${item.comment?` <em class="shop-comment-inline">${item.comment}</em>`:''}</div>
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;align-items:center">
             <div class="shop-qty-chip" id="${qtyId}" onclick="event.stopPropagation();startQtyEdit('${sid}','${qtyId}')">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -4437,22 +4435,49 @@ function startQtyEdit(id,chipId){
   if(!chip)return;
   const item=shopItems.find(i=>(i.id||i._id)===id);
   if(!item)return;
-  const inp=document.createElement('input');
-  inp.className='shop-qty-inp';
-  inp.value=item.qty||'';
-  inp.placeholder='Menge…';
-  inp.onclick=e=>e.stopPropagation();
-  chip.replaceWith(inp);
-  inp.focus();
-  inp.select();
-  async function commit(){
-    const val=inp.value.trim();
-    item.qty=val;
-    renderShopList();
+  // Parse current qty to detect if it's a pure number ≥6 or custom
+  const currentQty=item.qty||'';
+  const currentNum=parseInt(currentQty);
+  const isLargeNum=!isNaN(currentNum)&&currentNum>5;
+  // Build dropdown wrapper
+  const wrap=document.createElement('div');
+  wrap.style.cssText='display:inline-flex;align-items:center;gap:4px;';
+  wrap.onclick=e=>e.stopPropagation();
+  const sel=document.createElement('select');
+  sel.className='shop-qty-inp';
+  sel.style.cssText='width:auto;min-width:58px;padding:2px 4px;cursor:pointer;';
+  [1,2,3,4,5].forEach(n=>{
+    const opt=document.createElement('option');
+    opt.value=n+'x';opt.textContent=n+'x';
+    if(currentQty===n+'x'||(n===1&&!currentQty))opt.selected=true;
+    sel.appendChild(opt);
+  });
+  const moreOpt=document.createElement('option');
+  moreOpt.value='__more__';moreOpt.textContent='Mehr…';
+  if(isLargeNum||(!['1x','2x','3x','4x','5x',''].includes(currentQty)&&currentQty))moreOpt.selected=true;
+  sel.appendChild(moreOpt);
+  async function commitVal(val){
+    item.qty=val;renderShopList();
     try{await apiShopPatch(id,{qty:val});}catch(e){showToast('Fehler beim Speichern');}
   }
-  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();}if(e.key==='Escape'){renderShopList();}});
-  inp.addEventListener('blur',commit);
+  function showManual(){
+    const inp=document.createElement('input');
+    inp.className='shop-qty-inp';inp.value=currentQty;inp.placeholder='z.B. 500g…';
+    inp.style.width='80px';inp.onclick=e=>e.stopPropagation();
+    wrap.replaceWith(inp);inp.focus();inp.select();
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commitVal(inp.value.trim());}if(e.key==='Escape'){renderShopList();}});
+    inp.addEventListener('blur',()=>commitVal(inp.value.trim()));
+  }
+  sel.addEventListener('change',()=>{
+    if(sel.value==='__more__'){showManual();}
+    else{commitVal(sel.value);}
+  });
+  // If current is not in preset options, show manual right away
+  if(moreOpt.selected){showManual();return;}
+  sel.addEventListener('blur',()=>{if(sel.value!=='__more__')commitVal(sel.value);});
+  wrap.appendChild(sel);
+  chip.replaceWith(wrap);
+  sel.focus();
 }
 function openLightbox(src){
   document.getElementById('lightboxImg').src=src;
@@ -4530,6 +4555,29 @@ function removeShopPhoto(){
 }
 
 // ─ Repeat UI ─
+
+function handleQtySelectChange(){
+  const sel=document.getElementById('shopFQtySelect');
+  const inp=document.getElementById('shopFQty');
+  if(sel.value==='custom'){inp.style.display='';inp.value='';inp.focus();}
+  else{inp.style.display='none';}
+}
+function getShopFQty(){
+  const sel=document.getElementById('shopFQtySelect');
+  const inp=document.getElementById('shopFQty');
+  if(!sel||!inp)return'';
+  if(sel.value==='custom'||sel.value==='')return inp.value.trim()||sel.value.replace('custom','');
+  return sel.value;
+}
+function setShopFQty(val){
+  const sel=document.getElementById('shopFQtySelect');
+  const inp=document.getElementById('shopFQty');
+  if(!sel||!inp)return;
+  const presets=['','1x','2x','3x','4x','5x'];
+  if(presets.includes(val||'')){sel.value=val||'';inp.style.display='none';}
+  else{sel.value='custom';inp.style.display='';inp.value=val||'';}
+}
+
 function setRepeatType(type){
   currentRepeatType=type;
   ['none','always','weekly','monthly'].forEach(t=>{
@@ -4572,7 +4620,7 @@ function openAddShopItem(){
   document.getElementById('shopItemModalTitle').textContent='Artikel hinzufügen';
   document.getElementById('shopFTitle').value='';
   document.getElementById('shopFCat').value=SHOP_CATS[0];
-  document.getElementById('shopFQty').value='';
+  setShopFQty('');
   document.getElementById('shopFPrice').value='';
   document.getElementById('shopFComment').value='';
   document.getElementById('delShopItemWrap').innerHTML='';
@@ -4586,7 +4634,7 @@ function openEditShopItem(id){
   document.getElementById('shopItemModalTitle').textContent='Artikel bearbeiten';
   document.getElementById('shopFTitle').value=item.title||'';
   document.getElementById('shopFCat').value=item.category||SHOP_CATS[0];
-  document.getElementById('shopFQty').value=item.qty||'';
+  setShopFQty(item.qty||'');
   document.getElementById('shopFPrice').value=item.price||'';
   document.getElementById('shopFComment').value=item.comment||'';
   if(item.photo)showShopPhotoPreview(item.photo);else removeShopPhoto();
@@ -4602,7 +4650,7 @@ async function saveShopItem(){
   const payload={
     title,
     category:document.getElementById('shopFCat').value,
-    qty:document.getElementById('shopFQty').value.trim(),
+    qty:getShopFQty(),
     price:document.getElementById('shopFPrice').value,
     comment:document.getElementById('shopFComment').value.trim(),
     repeat:getRepeatValue(),
@@ -4634,9 +4682,2313 @@ async function deleteShopItem(){
   catch(e){showToast('Fehler: '+e.message);await renderShopTab();}
 }
 
+
+// ─ Seed default items ─
+const DEFAULT_SHOP_ITEMS = [
+  {
+    "title": "Backpulver",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Backmischung",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Backkakao",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Brotbackmischung",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Bechamelsoße",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Bulgur",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Buchweizen",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Couscous",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Cashews",
+    "category": "Nudeln, Backware",
+    "comment": "beim Trockenobst/Nüssen"
+  },
+  {
+    "title": "Chiasamen",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Datteln",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Gnocchi",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Getrocknete Pflaumen",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Hartweizengrieß",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Kakaonibs",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Haferflocken Dinkel",
+    "category": "Nudeln, Backware",
+    "comment": "gleich nach dem Eingang links (lila)"
+  },
+  {
+    "title": "Hirse",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Kuvertüre weiß",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Kornflakes",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Kapern",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Krokant",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Lebensmittelfarbe",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Linsen rot & braun",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Leinsamen",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Macadamianüsse",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Maisgrieß Polenta",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Mandeln gemahlen",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Mehl Weizen",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Mohn",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Natron",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Nudeln Dinkel",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Puderzucker",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Pistazien gehackt",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Perlgraupen",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Rohrzucker",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Reis Risotto",
+    "category": "Nudeln, Backware",
+    "comment": "Onkel Ben's 2x"
+  },
+  {
+    "title": "Risottoreis",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Paniermehl",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Pudding Vanille",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Porridge",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Polenta",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Pesto Grünkohl",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Salatgewürze",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Semola",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Sesam schwarz",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Sahnesteif",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Schokodrops Vollmilch",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Soßenbinder dunkel",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Sonnenblumenkerne",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Quinoa",
+    "category": "Nudeln, Backware",
+    "comment": "in der Nähe vom Jodsalz und Backzeug"
+  },
+  {
+    "title": "Vanilleschote",
+    "category": "Nudeln, Backware",
+    "comment": "wenn vorhanden"
+  },
+  {
+    "title": "Vanillezucker",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Vanillepudding",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Weichweizengrieß",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Zucker weiß",
+    "category": "Nudeln, Backware",
+    "comment": "2x"
+  },
+  {
+    "title": "Zitronenabrieb",
+    "category": "Nudeln, Backware"
+  },
+  {
+    "title": "Aprikose Trockenobst",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Asiagewürz",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Avocadogewürz",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Balsamicocreme",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Barillasoße",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Chili",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Pfeffer",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Gewürznelken",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Getrocknete Steinpilze",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Salz",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Paprika edelsüß",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Pekannüsse",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Pesto",
+    "category": "Soßen & Gewürze",
+    "comment": "eines von beiden"
+  },
+  {
+    "title": "Lorbeerblätter",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Kurkuma",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Ingwer",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Muskatnuss",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Koriander",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Kreuzkümmel",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Kürbiskerne",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Oregano",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Zimtstange",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Walnüsse",
+    "category": "Soßen & Gewürze"
+  },
+  {
+    "title": "Apfelessig",
+    "category": "Öl & Essig",
+    "comment": "am Eingang gleich rechts"
+  },
+  {
+    "title": "Chilliöl",
+    "category": "Öl & Essig"
+  },
+  {
+    "title": "Rapsöl",
+    "category": "Öl & Essig"
+  },
+  {
+    "title": "Salatfix",
+    "category": "Öl & Essig"
+  },
+  {
+    "title": "Olivenöl",
+    "category": "Öl & Essig"
+  },
+  {
+    "title": "Kokosöl",
+    "category": "Öl & Essig"
+  },
+  {
+    "title": "Öl neutral",
+    "category": "Öl & Essig"
+  },
+  {
+    "title": "Weißweinessig",
+    "category": "Öl & Essig"
+  },
+  {
+    "title": "Ananas",
+    "category": "Obst"
+  },
+  {
+    "title": "Apfel pink Lady",
+    "category": "Obst",
+    "comment": "4er Paket"
+  },
+  {
+    "title": "Bananen",
+    "category": "Obst",
+    "comment": "möglichst noch grüne"
+  },
+  {
+    "title": "Beeren",
+    "category": "Obst"
+  },
+  {
+    "title": "Birnen",
+    "category": "Obst"
+  },
+  {
+    "title": "Erdbeeren",
+    "category": "Obst"
+  },
+  {
+    "title": "Feigen",
+    "category": "Obst"
+  },
+  {
+    "title": "Granatapfel",
+    "category": "Obst"
+  },
+  {
+    "title": "Limetten",
+    "category": "Obst",
+    "comment": "3x"
+  },
+  {
+    "title": "Mandarine",
+    "category": "Obst",
+    "comment": "Netz"
+  },
+  {
+    "title": "Mango",
+    "category": "Obst"
+  },
+  {
+    "title": "Melone",
+    "category": "Obst"
+  },
+  {
+    "title": "Orangen",
+    "category": "Obst"
+  },
+  {
+    "title": "Papaya",
+    "category": "Obst",
+    "comment": "wenn im Angebot"
+  },
+  {
+    "title": "Passionsfrucht",
+    "category": "Obst",
+    "comment": "3er Paket wenn vorhanden"
+  },
+  {
+    "title": "Pflaumen",
+    "category": "Obst"
+  },
+  {
+    "title": "Pfirsich",
+    "category": "Obst",
+    "comment": "Bergpfirsich, flach und haarig"
+  },
+  {
+    "title": "Wassermelone",
+    "category": "Obst"
+  },
+  {
+    "title": "Weintrauben weiß",
+    "category": "Obst"
+  },
+  {
+    "title": "Zitronen",
+    "category": "Obst",
+    "comment": "Netz"
+  },
+  {
+    "title": "Avocado",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Brokkoli",
+    "category": "Gemüse",
+    "comment": "wenn nicht frisch dann TK"
+  },
+  {
+    "title": "Blumenkohl",
+    "category": "Gemüse",
+    "comment": "wenn nicht frisch dann TK"
+  },
+  {
+    "title": "Chillischoten",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Champignons braun",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Chinakohl",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Feldsalat",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Fenchel",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Frühlingszwiebeln",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Gurke",
+    "category": "Gemüse",
+    "comment": "1x"
+  },
+  {
+    "title": "Grüne Bohnen",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Ingwer",
+    "category": "Gemüse",
+    "comment": "große Knolle"
+  },
+  {
+    "title": "Kartoffeln festkochend",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Knoblauch",
+    "category": "Gemüse",
+    "comment": "Netz mit mehreren Knollen"
+  },
+  {
+    "title": "Butternutkürbis",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Lauch",
+    "category": "Gemüse",
+    "comment": "1x"
+  },
+  {
+    "title": "Möhren",
+    "category": "Gemüse",
+    "comment": "3x"
+  },
+  {
+    "title": "Paprika rot",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Pakchoi",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Radieschen",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Rote Beete eingelegt",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Rosenkohl",
+    "category": "Gemüse",
+    "comment": "wenn nicht frisch dann TK"
+  },
+  {
+    "title": "Rucola",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Schalotten",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Sellerie Staude",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Salat",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Salatherzen Romana",
+    "category": "Gemüse",
+    "comment": "3er"
+  },
+  {
+    "title": "Süßkartoffeln",
+    "category": "Gemüse",
+    "comment": "5 Stück"
+  },
+  {
+    "title": "Spargel grün",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Spinat",
+    "category": "Gemüse",
+    "comment": "TK wenns keinen frischen gibt"
+  },
+  {
+    "title": "Spitzkohl",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Suppengrün",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Tomaten",
+    "category": "Gemüse",
+    "comment": "groß + cherry"
+  },
+  {
+    "title": "Wirsing",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Zwiebeln rot",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Zucchini",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Zuckerschoten",
+    "category": "Gemüse"
+  },
+  {
+    "title": "Beifuß",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Petersilie",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Koriander",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Thymian",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Rosmarin",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Salbei",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Minze",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Schnittlauch",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Kresse",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Lorbeerblätter",
+    "category": "Kräuter"
+  },
+  {
+    "title": "Vodka",
+    "category": "Alkohol"
+  },
+  {
+    "title": "Sekt",
+    "category": "Alkohol"
+  },
+  {
+    "title": "Limoncello",
+    "category": "Alkohol"
+  },
+  {
+    "title": "Weißwein",
+    "category": "Alkohol"
+  },
+  {
+    "title": "Rotwein trocken",
+    "category": "Alkohol"
+  },
+  {
+    "title": "Glühwein",
+    "category": "Alkohol",
+    "comment": "2 Flaschen, nicht das ganz billige"
+  },
+  {
+    "title": "Ingwershot",
+    "category": "Alkohol"
+  },
+  {
+    "title": "Asia Soßen/Gewürze",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Brühe Gemüse/Huhn",
+    "category": "Asia & Sonstiges",
+    "comment": "klare Brühe im Glas"
+  },
+  {
+    "title": "Croissants",
+    "category": "Asia & Sonstiges",
+    "comment": "2x für Schinken Käse"
+  },
+  {
+    "title": "Currypaste",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Glasnudeln",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Fond Geflügel",
+    "category": "Asia & Sonstiges",
+    "comment": "2x Geflügel, 1x Gemüse"
+  },
+  {
+    "title": "Fischsauce",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Jalapeños",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Kimchi",
+    "category": "Asia & Sonstiges",
+    "comment": "kleines rotes Döschen beim Asiazeug"
+  },
+  {
+    "title": "Kokosmilch",
+    "category": "Asia & Sonstiges",
+    "comment": "2x"
+  },
+  {
+    "title": "Kräcker",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Noriblätter",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Mie-Nudeln",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Meerrettich",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Harissa",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Hoisinsoße",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Honigsenf",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Kräutersoße",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Pankow-Paniermehl",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Reisnudeln",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Sambal Oelek",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Senf",
+    "category": "Asia & Sonstiges",
+    "comment": "normal"
+  },
+  {
+    "title": "Sesamöl",
+    "category": "Asia & Sonstiges",
+    "comment": "beim Asiazeug"
+  },
+  {
+    "title": "Sojasoße",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Sweet-Chilli-Thai-Soße",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Soßenfix dunkle Soße",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Soßenbinder hell/dunkel",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Tacosoßen hell",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Tahini",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Reisessig",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Reisbandnudeln",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Reispapier",
+    "category": "Asia & Sonstiges",
+    "comment": "für Sommerrollen"
+  },
+  {
+    "title": "Wraps glutenfrei",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Wasabipaste",
+    "category": "Asia & Sonstiges"
+  },
+  {
+    "title": "Ahornsirup",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Apfelmus",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Artischocken",
+    "category": "Dosen & Kaffee",
+    "comment": "Dose, ganz hinten rechts wo die Wurstheke anfängt"
+  },
+  {
+    "title": "Ananas Dose",
+    "category": "Dosen & Kaffee",
+    "comment": "Ringe, beim Obst/Gemüse"
+  },
+  {
+    "title": "Baked Beans",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Cappuccino",
+    "category": "Dosen & Kaffee",
+    "comment": "für Oma"
+  },
+  {
+    "title": "Cornichons",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Dosenchampignons",
+    "category": "Dosen & Kaffee",
+    "comment": "ganze"
+  },
+  {
+    "title": "Dosenspargel",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Dosentomaten",
+    "category": "Dosen & Kaffee",
+    "comment": "Flasche + Dose"
+  },
+  {
+    "title": "Dosensuppe",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Dicke Bohnen",
+    "category": "Dosen & Kaffee",
+    "comment": "2x Dose"
+  },
+  {
+    "title": "Erdnussbutter",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Getrocknete Tomaten",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Honig",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Kichererbsen",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Kidneybohnen",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Mais",
+    "category": "Dosen & Kaffee",
+    "comment": "kleine Dose"
+  },
+  {
+    "title": "Majo",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Mandarinendose",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Marmelade Himbeeren",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Mischgemüse",
+    "category": "Dosen & Kaffee",
+    "comment": "Dose groß oder Glas"
+  },
+  {
+    "title": "Lemoncurd",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Sauerkraut",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Schokocreme Milka",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Rotkraut",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Röstzwiebeln",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Oliven schwarz Kalamata",
+    "category": "Dosen & Kaffee",
+    "comment": "mit oder ohne Stein"
+  },
+  {
+    "title": "Preiselbeeren",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Passierte Tomaten",
+    "category": "Dosen & Kaffee",
+    "comment": "Glasflasche"
+  },
+  {
+    "title": "Tomatenmark",
+    "category": "Dosen & Kaffee",
+    "comment": "Tube"
+  },
+  {
+    "title": "Tee",
+    "category": "Dosen & Kaffee"
+  },
+  {
+    "title": "Bacon",
+    "category": "Brot & Wurst",
+    "comment": "2x"
+  },
+  {
+    "title": "Baguettebrötchen",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Bratwürstchen",
+    "category": "Brot & Wurst",
+    "comment": "1 Paket"
+  },
+  {
+    "title": "Burgerbrötchen",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Brot Pita",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Chorizo",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Fleischwurst",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Laugenstangen",
+    "category": "Brot & Wurst",
+    "comment": "4x"
+  },
+  {
+    "title": "Leberwurst Geflügel",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Kochschinken",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Knäckebrot",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Hähnchen für Wraps",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Salsiccia",
+    "category": "Brot & Wurst",
+    "comment": "2x"
+  },
+  {
+    "title": "Schinken Serrano",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Salami",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Schinkenwürfel",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Serranoschinken",
+    "category": "Brot & Wurst",
+    "comment": "2x"
+  },
+  {
+    "title": "Reiswaffeln",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Toastis Dinkel",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Toast",
+    "category": "Brot & Wurst",
+    "comment": "kleines Dinkelpaket + große normale Pakete"
+  },
+  {
+    "title": "Wurst Marie Putenwurst Gutfried",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Würstchen",
+    "category": "Brot & Wurst"
+  },
+  {
+    "title": "Beeren TK",
+    "category": "TK"
+  },
+  {
+    "title": "Bohnen TK",
+    "category": "TK"
+  },
+  {
+    "title": "Brötchen Eric & Roggenbrötchen",
+    "category": "TK"
+  },
+  {
+    "title": "Burgerpatties",
+    "category": "TK"
+  },
+  {
+    "title": "Chickennuggets",
+    "category": "TK"
+  },
+  {
+    "title": "Dill TK",
+    "category": "TK"
+  },
+  {
+    "title": "Erbsen",
+    "category": "TK",
+    "comment": "kleine Tüte 220g"
+  },
+  {
+    "title": "Edamame",
+    "category": "TK",
+    "comment": "grüne Pappverpackung"
+  },
+  {
+    "title": "Entenbrust",
+    "category": "TK",
+    "comment": "4x"
+  },
+  {
+    "title": "Fisch Schlemmerfilet",
+    "category": "TK",
+    "comment": "Rosmarin-Zitrone"
+  },
+  {
+    "title": "Fischstäbchen",
+    "category": "TK"
+  },
+  {
+    "title": "Früchte TK",
+    "category": "TK"
+  },
+  {
+    "title": "Frosta-TK",
+    "category": "TK",
+    "comment": "was gut aussieht"
+  },
+  {
+    "title": "Garnelen",
+    "category": "TK",
+    "comment": "1x, bitte unmariniert"
+  },
+  {
+    "title": "Himbeeren TK",
+    "category": "TK"
+  },
+  {
+    "title": "Kabeljau",
+    "category": "TK"
+  },
+  {
+    "title": "Lachs TK",
+    "category": "TK"
+  },
+  {
+    "title": "Laugengebäck TK",
+    "category": "TK"
+  },
+  {
+    "title": "Schnitzel TK",
+    "category": "TK"
+  },
+  {
+    "title": "Spinat TK",
+    "category": "TK",
+    "comment": "kleine Packung"
+  },
+  {
+    "title": "Suppenhuhn",
+    "category": "TK"
+  },
+  {
+    "title": "Pommes",
+    "category": "TK"
+  },
+  {
+    "title": "Pizza für Eric",
+    "category": "TK",
+    "comment": "eine ist noch da"
+  },
+  {
+    "title": "Rosenkohl TK",
+    "category": "TK",
+    "comment": "kleine Tüte"
+  },
+  {
+    "title": "Hack vegan",
+    "category": "Fleisch"
+  },
+  {
+    "title": "Hähnchen",
+    "category": "Fleisch"
+  },
+  {
+    "title": "Pute",
+    "category": "Fleisch"
+  },
+  {
+    "title": "Rinderfleisch",
+    "category": "Fleisch"
+  },
+  {
+    "title": "Brezeln",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Butterkekse/Haferkekse",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Chips",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Knabberzeug",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Erdnüsse gesalzen",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Müsliriegel",
+    "category": "Süßkram",
+    "comment": "je eins von den Sorten"
+  },
+  {
+    "title": "Kekse",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Hitschi Saure Zungen",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Pistazien",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Popcorn",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Schokolade",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Milka für Eric",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Salzstangen",
+    "category": "Süßkram"
+  },
+  {
+    "title": "Blätterteig aufgerollt",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Butter",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Buttermilch",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Burrata",
+    "category": "Käse & Kühlregal",
+    "comment": "beim Mozzarella"
+  },
+  {
+    "title": "Camembert",
+    "category": "Käse & Kühlregal",
+    "comment": "5 Stück"
+  },
+  {
+    "title": "Creme fraiche",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Dicker Burgerkäse",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Gnocchi",
+    "category": "Käse & Kühlregal",
+    "comment": "große Packung oder 2x klein"
+  },
+  {
+    "title": "Griechischer Joghurt 2%",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Eier",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Feta",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Frischkäse natur",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Flammkuchenteig",
+    "category": "Käse & Kühlregal",
+    "comment": "3x"
+  },
+  {
+    "title": "Hefe",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Hafersahne",
+    "category": "Käse & Kühlregal",
+    "comment": "5x"
+  },
+  {
+    "title": "Hafermilch Vanille",
+    "category": "Käse & Kühlregal",
+    "comment": "1x"
+  },
+  {
+    "title": "Halloumi/Grillkäse",
+    "category": "Käse & Kühlregal",
+    "comment": "natur"
+  },
+  {
+    "title": "Hummus",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Joghurt natur",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Klosteig",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Krümelkäse",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Knack- & Backbrötchen",
+    "category": "Käse & Kühlregal",
+    "comment": "1x + Croissant 1x"
+  },
+  {
+    "title": "Körniger Frischkäse",
+    "category": "Käse & Kühlregal",
+    "comment": "1x"
+  },
+  {
+    "title": "Kräuterquark",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Kondensmilch",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Kokosmilch ungesüßt",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Mandelmilch ungesüßt",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Mascarpone",
+    "category": "Käse & Kühlregal",
+    "comment": "500g"
+  },
+  {
+    "title": "Milch 1,5%",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Mozzarella",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Magerquark",
+    "category": "Käse & Kühlregal",
+    "comment": "250g"
+  },
+  {
+    "title": "Lachs",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Proteingrieß",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Parmesan",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Pizzateig",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Ricotta",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Schmalz",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Spätzle",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Schlagsahne",
+    "category": "Käse & Kühlregal",
+    "comment": "200g"
+  },
+  {
+    "title": "Schmand",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Saure Sahne",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Sanella",
+    "category": "Käse & Kühlregal",
+    "comment": "2x"
+  },
+  {
+    "title": "Sourcream",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Schupfnudeln",
+    "category": "Käse & Kühlregal",
+    "comment": "großes Paket"
+  },
+  {
+    "title": "Schmelzkäse Eric",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Quark",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Tarteteig",
+    "category": "Käse & Kühlregal",
+    "comment": "1x"
+  },
+  {
+    "title": "Tofu",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Tortellini",
+    "category": "Käse & Kühlregal"
+  },
+  {
+    "title": "Veganes Schnitzel",
+    "category": "Käse & Kühlregal",
+    "comment": "Mühlen-Dings"
+  },
+  {
+    "title": "Apfelsaft",
+    "category": "Getränke"
+  },
+  {
+    "title": "Bier Radler",
+    "category": "Getränke"
+  },
+  {
+    "title": "Schweppes White Peach",
+    "category": "Getränke"
+  },
+  {
+    "title": "Wasser",
+    "category": "Getränke"
+  },
+  {
+    "title": "Cranberrysaft",
+    "category": "Getränke"
+  },
+  {
+    "title": "Schwarzbier",
+    "category": "Getränke"
+  },
+  {
+    "title": "Holunderblütensirup",
+    "category": "Getränke"
+  },
+  {
+    "title": "Wildberry / White Peach",
+    "category": "Getränke"
+  },
+  {
+    "title": "Cola",
+    "category": "Getränke"
+  },
+  {
+    "title": "Abschminktücher",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Alufolie",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Allzweckreiniger",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Batterien Mini",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Backofenreiniger",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Backpapier Zuschnitte",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Badreinigerspray",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Britafilter",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Binden",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Bodylotion",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Bodyöl",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Einwegbecher",
+    "category": "Drogerie",
+    "comment": "kleinere Größe"
+  },
+  {
+    "title": "Elektrolyte",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Eiswürfel",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Enthaarungscreme",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Einmachgläser groß",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Enteiser 5L",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Deo Eric",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Duschgel",
+    "category": "Drogerie",
+    "comment": "was günstig ist, DuschDas oder Fa"
+  },
+  {
+    "title": "Geschirrspülertabs",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Geschirrspülersalz",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Geschirrspülerreiniger",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Geschenkpapier",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Glasreiniger",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Hygienespray",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Haargummis",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Frischhaltefolie",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Fit",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Feuchttücher",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Haarspray",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Lappen",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Klospray",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Klostein",
+    "category": "Drogerie",
+    "comment": "2x"
+  },
+  {
+    "title": "Kukident",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Klopapier",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Klopulver",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Kuchenform",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Kondome",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Mundwasser",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Mizellenwasser",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Mottenfallen",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Nagellackentferner",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Obstfliegenfalle",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Rasierklingen",
+    "category": "Drogerie",
+    "comment": "oder neuer Rasierer mit 4 Klingen"
+  },
+  {
+    "title": "Rohrreiniger",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Schaumfestiger",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Schwämme",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Seifennachfüller",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Shampoo Eric",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Scheuermilch",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Sonnencreme",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Pflaster",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Pickelpatches",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Taschentücher + Box",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Teelichter",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Trockenshampoo",
+    "category": "Drogerie",
+    "comment": "2x"
+  },
+  {
+    "title": "WC-Ente",
+    "category": "Drogerie",
+    "comment": "2x"
+  },
+  {
+    "title": "Vitamin Brennessel",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Vitamin Frauengesundheit",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Vitamin Eisen",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Vitamin Magnesium",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Vitaminpaste Katze",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Wärmepflaster",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Wattestäbchen",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Waschmittel",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Waschmaschinenreiniger + Schwärzer",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Wäscheparfüm",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Wischwasser Auto",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Zipp-Beutel",
+    "category": "Drogerie",
+    "comment": "1 Liter"
+  },
+  {
+    "title": "Zahnseide",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Zahnbürsten weich",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Zewa",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Zahnpasta Marie",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Zinksalbe",
+    "category": "Drogerie"
+  },
+  {
+    "title": "Feuerzeug",
+    "category": "Kassenbereich"
+  },
+  {
+    "title": "Kaugummi",
+    "category": "Kassenbereich"
+  },
+  {
+    "title": "Kopfhörer mit Kabel",
+    "category": "Kassenbereich"
+  }
+];
+
+async function seedDefaultItems() {
+  if(shopItems.length > 0) return; // Only seed if empty
+  showToast('Liste wird geladen…');
+  let added = 0;
+  for(const item of DEFAULT_SHOP_ITEMS) {
+    try {
+      const created = await apiShopAdd({
+        title: item.title,
+        category: item.category,
+        qty: item.qty||'',
+        comment: item.comment||'',
+        repeat: null,
+        photo: null
+      });
+      shopItems.push(created);
+      added++;
+    } catch(e) { /* skip */ }
+  }
+  renderShopList();
+  showToast(added + ' Artikel hinzugefügt ✓');
+}
+
 // ─ Init ─
 document.addEventListener('DOMContentLoaded',()=>initShopTabVisibility());
 window.addEventListener('load',()=>initShopTabVisibility());
+
+
+// ══ SEED: Einkaufsliste aus Notiz ══
+async function seedShopItemsFromNote(){
+  const SEED_KEY='tf_shop_seed_v1';
+  if(localStorage.getItem(SEED_KEY))return;
+  const items=[
+    // Nudeln, Backware
+    {title:'Backpulver',category:'Nudeln, Backware'},
+    {title:'Backmischung',category:'Nudeln, Backware'},
+    {title:'Backkakao',category:'Nudeln, Backware'},
+    {title:'Brotbackmischung',category:'Nudeln, Backware'},
+    {title:'Bechamelsoße',category:'Nudeln, Backware'},
+    {title:'Bulgur',category:'Nudeln, Backware'},
+    {title:'Buchweizen',category:'Nudeln, Backware'},
+    {title:'Couscous',category:'Nudeln, Backware'},
+    {title:'Cashews',category:'Nudeln, Backware',comment:'beim Trockenobst/Nüssen'},
+    {title:'Chiasamen',category:'Nudeln, Backware'},
+    {title:'Datteln',category:'Nudeln, Backware'},
+    {title:'Gnocchi',category:'Nudeln, Backware'},
+    {title:'Getrocknete Pflaumen',category:'Nudeln, Backware'},
+    {title:'Hartweizengrieß',category:'Nudeln, Backware'},
+    {title:'Kakaonibs',category:'Nudeln, Backware'},
+    {title:'Haferflocken Dinkel',category:'Nudeln, Backware',comment:'gleich nach dem Eingang links (lila)'},
+    {title:'Hirse',category:'Nudeln, Backware'},
+    {title:'Kuvertüre weiß',category:'Nudeln, Backware'},
+    {title:'Kornflakes',category:'Nudeln, Backware'},
+    {title:'Kapern',category:'Nudeln, Backware'},
+    {title:'Krokant',category:'Nudeln, Backware'},
+    {title:'Lebensmittelfarbe',category:'Nudeln, Backware'},
+    {title:'Linsen rot & braun',category:'Nudeln, Backware'},
+    {title:'Leinsamen',category:'Nudeln, Backware'},
+    {title:'Macadamianüsse',category:'Nudeln, Backware'},
+    {title:'Maisgrieß Polenta',category:'Nudeln, Backware'},
+    {title:'Mandeln gemahlen',category:'Nudeln, Backware'},
+    {title:'Mehl Weizen',category:'Nudeln, Backware'},
+    {title:'Mohn',category:'Nudeln, Backware'},
+    {title:'Natron',category:'Nudeln, Backware'},
+    {title:'Nudeln Dinkel',category:'Nudeln, Backware'},
+    {title:'Puderzucker',category:'Nudeln, Backware'},
+    {title:'Pistazien gehackt',category:'Nudeln, Backware'},
+    {title:'Perlgraupen',category:'Nudeln, Backware'},
+    {title:'Rohrzucker',category:'Nudeln, Backware'},
+    {title:'Reis Onkel Benz Risotto',category:'Nudeln, Backware',qty:'2x'},
+    {title:'Risottoreis',category:'Nudeln, Backware'},
+    {title:'Paniermehl',category:'Nudeln, Backware'},
+    {title:'Pudding Vanille',category:'Nudeln, Backware'},
+    {title:'Porridge',category:'Nudeln, Backware'},
+    {title:'Polenta',category:'Nudeln, Backware'},
+    {title:'Pesto Grünkohl',category:'Nudeln, Backware'},
+    {title:'Salatgewürze',category:'Nudeln, Backware'},
+    {title:'Semola',category:'Nudeln, Backware'},
+    {title:'Sesam schwarz',category:'Nudeln, Backware'},
+    {title:'Sahnesteif',category:'Nudeln, Backware'},
+    {title:'Schokodrops Vollmilch',category:'Nudeln, Backware'},
+    {title:'Soßenbinder dunkel',category:'Nudeln, Backware'},
+    {title:'Sonnenblumenkerne',category:'Nudeln, Backware'},
+    {title:'Quinoa',category:'Nudeln, Backware',comment:'steht in der Nähe vom Jodsalz und Backzeug'},
+    {title:'Vanilleschote',category:'Nudeln, Backware',comment:'wenn es gibt'},
+    {title:'Vanillezucker',category:'Nudeln, Backware'},
+    {title:'Vanillepudding',category:'Nudeln, Backware'},
+    {title:'Weichweizengrieß',category:'Nudeln, Backware'},
+    {title:'Zucker Weiß',category:'Nudeln, Backware',qty:'2x'},
+    {title:'Zitronenabrieb',category:'Nudeln, Backware'},
+    // Soßen & Gewürze
+    {title:'Aprikose Trockenobst',category:'Soßen & Gewürze'},
+    {title:'Asiagewürz',category:'Soßen & Gewürze'},
+    {title:'Avocadogewürz',category:'Soßen & Gewürze'},
+    {title:'Balsamicocreme',category:'Soßen & Gewürze'},
+    {title:'Barillasoße',category:'Soßen & Gewürze'},
+    {title:'Chilli',category:'Soßen & Gewürze'},
+    {title:'Pfeffer',category:'Soßen & Gewürze'},
+    {title:'Gewürznelken',category:'Soßen & Gewürze'},
+    {title:'Getrocknete Steinpilze',category:'Soßen & Gewürze'},
+    {title:'Salz',category:'Soßen & Gewürze'},
+    {title:'Paprika edelsüß',category:'Soßen & Gewürze'},
+    {title:'Pekannüsse',category:'Soßen & Gewürze'},
+    {title:'Pesto',category:'Soßen & Gewürze'},
+    {title:'Lorbeerblätter',category:'Soßen & Gewürze'},
+    {title:'Kurkuma',category:'Soßen & Gewürze'},
+    {title:'Ingwer',category:'Soßen & Gewürze'},
+    {title:'Muskatnuss',category:'Soßen & Gewürze'},
+    {title:'Koriander',category:'Soßen & Gewürze'},
+    {title:'Kreuzkümmel',category:'Soßen & Gewürze'},
+    {title:'Kürbiskerne',category:'Soßen & Gewürze'},
+    {title:'Oregano',category:'Soßen & Gewürze'},
+    {title:'Zimtstange',category:'Soßen & Gewürze'},
+    {title:'Walnüsse',category:'Soßen & Gewürze'},
+    // Öl & Essig
+    {title:'Apfelessig',category:'Öl & Essig',comment:'am Eingang gleich rechts'},
+    {title:'Chilliöl',category:'Öl & Essig'},
+    {title:'Rapsöl',category:'Öl & Essig'},
+    {title:'Salatfix',category:'Öl & Essig'},
+    {title:'Kokosöl',category:'Öl & Essig'},
+    {title:'Öl neutral',category:'Öl & Essig'},
+    {title:'Weißweinessig',category:'Öl & Essig'},
+    // Obst
+    {title:'Ananas',category:'Obst'},
+    {title:'Apfel pink Lady',category:'Obst',comment:'4er Paket'},
+    {title:'Bananen',category:'Obst',comment:'möglichst noch grüne'},
+    {title:'Beeren',category:'Obst'},
+    {title:'Birnen',category:'Obst'},
+    {title:'Erdbeeren',category:'Obst'},
+    {title:'Feigen',category:'Obst'},
+    {title:'Granatapfel',category:'Obst'},
+    {title:'Limetten',category:'Obst',qty:'3x'},
+    {title:'Mandarine Netz',category:'Obst'},
+    {title:'Mango',category:'Obst'},
+    {title:'Melone',category:'Obst'},
+    {title:'Orangen',category:'Obst'},
+    {title:'Papaya',category:'Obst',comment:'Angebot'},
+    {title:'Passionsfrucht',category:'Obst',comment:'3er Paket, wenn es gibt'},
+    {title:'Pflaumen',category:'Obst'},
+    {title:'Pfirsich Bergpfirsich',category:'Obst',comment:'flach und haarig – wenns noch welche gibt'},
+    {title:'Wassermelone',category:'Obst'},
+    {title:'Weintrauben weiß',category:'Obst'},
+    {title:'Zitronen Netz',category:'Obst'},
+    // Gemüse
+    {title:'Avocado',category:'Gemüse'},
+    {title:'Brokkoli',category:'Gemüse',comment:'wenn nicht frisch dann TK'},
+    {title:'Blumenkohl',category:'Gemüse',comment:'wenn nicht frisch dann TK'},
+    {title:'Chillischoten',category:'Gemüse'},
+    {title:'Champignons braun',category:'Gemüse'},
+    {title:'Chinakohl',category:'Gemüse'},
+    {title:'Feldsalat',category:'Gemüse'},
+    {title:'Fenchel',category:'Gemüse'},
+    {title:'Frühlingszwiebeln',category:'Gemüse'},
+    {title:'Gurke',category:'Gemüse',qty:'1x'},
+    {title:'Grüne Bohnen',category:'Gemüse'},
+    {title:'Ingwer große Knolle',category:'Gemüse'},
+    {title:'Kartoffeln festkochend',category:'Gemüse'},
+    {title:'Knoblauch Netz',category:'Gemüse',comment:'mit mehreren Knollen'},
+    {title:'Butternutkürbis',category:'Gemüse'},
+    {title:'Lauch',category:'Gemüse',qty:'1x'},
+    {title:'Möhren',category:'Gemüse',qty:'3x'},
+    {title:'Paprika rot',category:'Gemüse'},
+    {title:'Pilze Champignons',category:'Gemüse'},
+    {title:'Pakchoi',category:'Gemüse'},
+    {title:'Radieschen',category:'Gemüse'},
+    {title:'Rote Beete eingelegt',category:'Gemüse'},
+    {title:'Rosenkohl',category:'Gemüse',comment:'wenn nicht frisch dann TK'},
+    {title:'Rucola',category:'Gemüse'},
+    {title:'Schalotten',category:'Gemüse'},
+    {title:'Sellerie Staude',category:'Gemüse'},
+    {title:'Salat',category:'Gemüse'},
+    {title:'Salatherzen Romana',category:'Gemüse',qty:'3er'},
+    {title:'Süßkartoffeln',category:'Gemüse',qty:'5 Stück'},
+    {title:'Spargel grün',category:'Gemüse'},
+    {title:'Spinat',category:'Gemüse',comment:'TK wenns keinen frischen gibt'},
+    {title:'Spitzkohl',category:'Gemüse'},
+    {title:'Suppengrün',category:'Gemüse'},
+    {title:'Tomaten groß + Cherry',category:'Gemüse'},
+    {title:'Wirsing',category:'Gemüse'},
+    {title:'Zwiebeln rot',category:'Gemüse'},
+    {title:'Zucchini',category:'Gemüse'},
+    {title:'Zuckerschoten',category:'Gemüse'},
+    // Kräuter
+    {title:'Beifuß',category:'Kräuter'},
+    {title:'Petersilie',category:'Kräuter'},
+    {title:'Koriander',category:'Kräuter'},
+    {title:'Thymian',category:'Kräuter'},
+    {title:'Rosmarin',category:'Kräuter'},
+    {title:'Salbei',category:'Kräuter'},
+    {title:'Minze',category:'Kräuter'},
+    {title:'Schnittlauch',category:'Kräuter'},
+    {title:'Kresse',category:'Kräuter'},
+    // Alkohol
+    {title:'Vodka',category:'Alkohol'},
+    {title:'Sekt',category:'Alkohol'},
+    {title:'Limoncello',category:'Alkohol'},
+    {title:'Weißwein',category:'Alkohol'},
+    {title:'Rotwein trocken',category:'Alkohol'},
+    {title:'Glühwein',category:'Alkohol',qty:'2 Flaschen',comment:'nicht das ganz billige'},
+    {title:'Ingwershot',category:'Alkohol'},
+    // Asia & Sonstiges
+    {title:'Asia Soßen/Gewürz',category:'Asia & Sonstiges'},
+    {title:'Brühe Gemüse/Huhn',category:'Asia & Sonstiges',comment:'klare Brühe im Glas'},
+    {title:'Croissants',category:'Asia & Sonstiges',qty:'2x',comment:'für Schinken Käse'},
+    {title:'Currypaste',category:'Asia & Sonstiges'},
+    {title:'Glasnudeln',category:'Asia & Sonstiges'},
+    {title:'Fond Geflügel',category:'Asia & Sonstiges',qty:'2x',comment:'/1x Gemüse'},
+    {title:'Fischsauce',category:'Asia & Sonstiges'},
+    {title:'Jalapeños',category:'Asia & Sonstiges'},
+    {title:'Kimchi',category:'Asia & Sonstiges',comment:'kleines rotes Döschen beim Asiazeug'},
+    {title:'Kokosmilch',category:'Asia & Sonstiges',qty:'2x'},
+    {title:'Kräcker',category:'Asia & Sonstiges'},
+    {title:'Noriblätter',category:'Asia & Sonstiges'},
+    {title:'Mie-Nudeln',category:'Asia & Sonstiges'},
+    {title:'Meerrettich',category:'Asia & Sonstiges'},
+    {title:'Harissa',category:'Asia & Sonstiges'},
+    {title:'Hoisinsoße',category:'Asia & Sonstiges'},
+    {title:'Honigsenf',category:'Asia & Sonstiges'},
+    {title:'Kräutersoße',category:'Asia & Sonstiges'},
+    {title:'Pankow-Paniermehl',category:'Asia & Sonstiges'},
+    {title:'Reisnudeln',category:'Asia & Sonstiges'},
+    {title:'Sambal Oelek',category:'Asia & Sonstiges'},
+    {title:'Senf normal',category:'Asia & Sonstiges'},
+    {title:'Sesamöl',category:'Asia & Sonstiges',comment:'beim Asiazeug'},
+    {title:'Sojasoße',category:'Asia & Sonstiges'},
+    {title:'Sweet-Chilli-Thai Soße',category:'Asia & Sonstiges'},
+    {title:'Soßenfix dunkle Soße',category:'Asia & Sonstiges'},
+    {title:'Soßenbinder hell/dunkel',category:'Asia & Sonstiges'},
+    {title:'Tacosoßen hell',category:'Asia & Sonstiges'},
+    {title:'Tahin',category:'Asia & Sonstiges'},
+    {title:'Reisessig',category:'Asia & Sonstiges'},
+    {title:'Reisbandnudeln',category:'Asia & Sonstiges'},
+    {title:'Reispapier für Sommerrollen',category:'Asia & Sonstiges'},
+    {title:'Wraps Glutenfrei',category:'Asia & Sonstiges'},
+    {title:'Wasabipaste',category:'Asia & Sonstiges'},
+    // Dosen & Kaffee
+    {title:'Ahornsirup',category:'Dosen & Kaffee'},
+    {title:'Apfelmus',category:'Dosen & Kaffee'},
+    {title:'Artischocken',category:'Dosen & Kaffee',comment:'Dosen stehen ganz hinten rechts, wo die Wurstheke anfängt'},
+    {title:'Ananas Dose Ringe',category:'Dosen & Kaffee',comment:'beim Obst/Gemüse'},
+    {title:'BakedBeans',category:'Dosen & Kaffee'},
+    {title:'Cappuccino für Oma',category:'Dosen & Kaffee'},
+    {title:'Cornichons',category:'Dosen & Kaffee'},
+    {title:'Dosenchampignons ganze',category:'Dosen & Kaffee'},
+    {title:'Dosenspargel',category:'Dosen & Kaffee'},
+    {title:'Dosentomaten',category:'Dosen & Kaffee',comment:'Flasche + Dose'},
+    {title:'Dosensuppe',category:'Dosen & Kaffee'},
+    {title:'Dicke Bohnen Dose',category:'Dosen & Kaffee',qty:'2x'},
+    {title:'Erdnussbutter',category:'Dosen & Kaffee'},
+    {title:'Getrocknete Tomaten',category:'Dosen & Kaffee'},
+    {title:'Honig',category:'Dosen & Kaffee'},
+    {title:'Kichererbsen',category:'Dosen & Kaffee'},
+    {title:'Kidneybohnen',category:'Dosen & Kaffee'},
+    {title:'Mais kleine Dose',category:'Dosen & Kaffee'},
+    {title:'Majo',category:'Dosen & Kaffee'},
+    {title:'Mandarinendose',category:'Dosen & Kaffee'},
+    {title:'Marmelade Himbeeren',category:'Dosen & Kaffee'},
+    {title:'Mischgemüse',category:'Dosen & Kaffee',comment:'Dose groß oder Glas'},
+    {title:'Lemoncurd',category:'Dosen & Kaffee'},
+    {title:'Sauerkraut',category:'Dosen & Kaffee'},
+    {title:'Schokocreme Milka',category:'Dosen & Kaffee'},
+    {title:'Rotkraut',category:'Dosen & Kaffee'},
+    {title:'Röstzwiebeln',category:'Dosen & Kaffee'},
+    {title:'Oliven schwarz Kalamata',category:'Dosen & Kaffee',comment:'mit oder ohne Stein'},
+    {title:'Preiselbeeren',category:'Dosen & Kaffee'},
+    {title:'Passierte Tomaten Glasflasche',category:'Dosen & Kaffee'},
+    {title:'Tomatenmark Tube',category:'Dosen & Kaffee'},
+    {title:'Tee',category:'Dosen & Kaffee'},
+    // Brot & Wurst
+    {title:'Bacon',category:'Brot & Wurst',qty:'2x'},
+    {title:'Baguettebrötchen',category:'Brot & Wurst'},
+    {title:'Bratwürstchen',category:'Brot & Wurst',qty:'1 Paket'},
+    {title:'Burgerbrötchen',category:'Brot & Wurst'},
+    {title:'Brot Pita',category:'Brot & Wurst'},
+    {title:'Chorizo',category:'Brot & Wurst'},
+    {title:'Fleischwurst',category:'Brot & Wurst'},
+    {title:'Laugenstangen',category:'Brot & Wurst',qty:'4x'},
+    {title:'Leberwurst Geflügel',category:'Brot & Wurst'},
+    {title:'Kochschinken',category:'Brot & Wurst'},
+    {title:'Knäckebrot',category:'Brot & Wurst'},
+    {title:'Hähnchen für Wraps',category:'Brot & Wurst'},
+    {title:'Salsiccia',category:'Brot & Wurst',qty:'2x'},
+    {title:'Schinken Serrano',category:'Brot & Wurst'},
+    {title:'Salami',category:'Brot & Wurst'},
+    {title:'Schinkenwürfel',category:'Brot & Wurst'},
+    {title:'Serranoschinken',category:'Brot & Wurst',qty:'2x'},
+    {title:'Reiswaffeln',category:'Brot & Wurst'},
+    {title:'Toastis Dinkel',category:'Brot & Wurst'},
+    {title:'Toast',category:'Brot & Wurst',comment:'kleines Paket Dinkel + normale große Pakete'},
+    {title:'Wurst Marie Putenwurst Gutfried',category:'Brot & Wurst'},
+    {title:'Würstchen',category:'Brot & Wurst'},
+    // TK
+    {title:'Beeren TK',category:'TK'},
+    {title:'Bohnen TK',category:'TK'},
+    {title:'Brötchen Eric und Roggenbrötchen',category:'TK'},
+    {title:'Burgerpatties',category:'TK'},
+    {title:'Brokkoli TK',category:'TK',comment:'wenn nicht frisch'},
+    {title:'Blumenkohl TK',category:'TK',comment:'wenn nicht frisch'},
+    {title:'Chickennuggets',category:'TK'},
+    {title:'Dill TK',category:'TK'},
+    {title:'Erbsen kleine Tüte',category:'TK',qty:'220g'},
+    {title:'Edamame',category:'TK',comment:'etwas versteckt – grüne Pappverpackung'},
+    {title:'Entenbrust',category:'TK',qty:'4x'},
+    {title:'Fisch Frosta-Schlemmerfilet',category:'TK',comment:'Rosmarin-Zitrone'},
+    {title:'Fischstäbchen',category:'TK'},
+    {title:'Früchte TK',category:'TK'},
+    {title:'Frosta-TK',category:'TK',comment:'was gut aussieht, wenn noch was da ist'},
+    {title:'Garnelen',category:'TK',qty:'1x',comment:'bitte unmariniert'},
+    {title:'Himbeeren TK',category:'TK'},
+    {title:'Kabeljau TK',category:'TK'},
+    {title:'Lachs TK',category:'TK'},
+    {title:'Laugengebäck TK',category:'TK'},
+    {title:'Schnitzel TK',category:'TK'},
+    {title:'Spinat TK',category:'TK',comment:'kleine Packung, wenns keinen frischen gibt'},
+    {title:'Suppenhuhn TK',category:'TK'},
+    {title:'Pommes',category:'TK'},
+    {title:'Pizza für Eric',category:'TK',comment:'eine ist noch da'},
+    {title:'Rosenkohl TK',category:'TK',comment:'wenns keinen frischen gibt – kleine Tüte'},
+    // Fleisch
+    {title:'Hack vegan',category:'Fleisch'},
+    {title:'Hähnchen',category:'Fleisch'},
+    {title:'Pute',category:'Fleisch'},
+    {title:'Rinderfleisch',category:'Fleisch'},
+    // Süßkram
+    {title:'Brezeln',category:'Süßkram'},
+    {title:'Butterkekse/Haferkekse',category:'Süßkram'},
+    {title:'Chips',category:'Süßkram'},
+    {title:'Knabberzeug',category:'Süßkram'},
+    {title:'Erdnüsse gesalzen',category:'Süßkram'},
+    {title:'Müsliriegel',category:'Süßkram',comment:'jeweils eins von den Sorten'},
+    {title:'Kekse',category:'Süßkram'},
+    {title:'Hitschi Saure Zungen',category:'Süßkram'},
+    {title:'Pistazien',category:'Süßkram'},
+    {title:'Popcorn',category:'Süßkram'},
+    {title:'Schoki',category:'Süßkram'},
+    {title:'Milka Eric',category:'Süßkram'},
+    {title:'Salzstangen',category:'Süßkram'},
+    // Käse & Kühlregal
+    {title:'Blätterteig aufgerollt',category:'Käse & Kühlregal'},
+    {title:'Butter',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Buttermilch',category:'Käse & Kühlregal'},
+    {title:'Burrata',category:'Käse & Kühlregal',comment:'beim Mozzarella'},
+    {title:'Camembert',category:'Käse & Kühlregal',qty:'5 Stück'},
+    {title:'Creme fraiche',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Kaviar schwarz und Forelle, Wildlachs',category:'Käse & Kühlregal'},
+    {title:'Dicker Burgerkäse',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Gnocchi Kühlregal',category:'Käse & Kühlregal',comment:'große Packung oder 2x klein'},
+    {title:'Griechischer Joghurt 2%',category:'Käse & Kühlregal'},
+    {title:'Eier',category:'Käse & Kühlregal'},
+    {title:'Feta',category:'Käse & Kühlregal'},
+    {title:'Frischkäse natur',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Flammkuchenteig',category:'Käse & Kühlregal',qty:'3x'},
+    {title:'Hefe',category:'Käse & Kühlregal'},
+    {title:'Hafersahne',category:'Käse & Kühlregal',qty:'5x'},
+    {title:'Hafermilch Vanille',category:'Käse & Kühlregal',qty:'1x'},
+    {title:'Halumi oder Grillkäse natur',category:'Käse & Kühlregal'},
+    {title:'Humus',category:'Käse & Kühlregal'},
+    {title:'Joghurt natur',category:'Käse & Kühlregal'},
+    {title:'Klosteig',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Krümelkäse',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Körniger Frischkäse',category:'Käse & Kühlregal',qty:'1x'},
+    {title:'Kräuterquark',category:'Käse & Kühlregal'},
+    {title:'Kondensmilch',category:'Käse & Kühlregal'},
+    {title:'Kokosmilch ungesüßt',category:'Käse & Kühlregal'},
+    {title:'Mandelmilch ungesüßt',category:'Käse & Kühlregal'},
+    {title:'Mascarpone',category:'Käse & Kühlregal',qty:'500g'},
+    {title:'Milch 1,5%',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Mozzarella',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Magerquark',category:'Käse & Kühlregal',qty:'250g'},
+    {title:'Lachs Kühlregal',category:'Käse & Kühlregal'},
+    {title:'Proteingrieß',category:'Käse & Kühlregal'},
+    {title:'Parmesan',category:'Käse & Kühlregal'},
+    {title:'Pizzateig',category:'Käse & Kühlregal'},
+    {title:'Ricotta',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Schmalz',category:'Käse & Kühlregal'},
+    {title:'Spätzle',category:'Käse & Kühlregal'},
+    {title:'Schlagsahne',category:'Käse & Kühlregal',qty:'200g'},
+    {title:'Schmand',category:'Käse & Kühlregal'},
+    {title:'Saure Sahne',category:'Käse & Kühlregal'},
+    {title:'Sanella',category:'Käse & Kühlregal',qty:'2x'},
+    {title:'Sourcream',category:'Käse & Kühlregal'},
+    {title:'Schupfnudeln',category:'Käse & Kühlregal',comment:'großes Paket'},
+    {title:'Quark',category:'Käse & Kühlregal'},
+    {title:'Tarteteig',category:'Käse & Kühlregal',qty:'1x'},
+    {title:'Tofu',category:'Käse & Kühlregal'},
+    {title:'Tortellini',category:'Käse & Kühlregal'},
+    {title:'Veganes Schnitzel Mühlen-Dings',category:'Käse & Kühlregal'},
+    // Getränke
+    {title:'Apfelsaft',category:'Getränke'},
+    {title:'Bier Radler',category:'Getränke'},
+    {title:'Schweppes White Peach',category:'Getränke'},
+    {title:'Wasser',category:'Getränke'},
+    {title:'Cranberrysaft',category:'Getränke'},
+    {title:'Schwarzbier',category:'Getränke'},
+    {title:'Holunderblütensirup',category:'Getränke'},
+    {title:'Wildberry / White Peach',category:'Getränke'},
+    {title:'Cola',category:'Getränke'},
+    // Drogerie
+    {title:'Abschminktücher',category:'Drogerie'},
+    {title:'Alufolie',category:'Drogerie'},
+    {title:'Allzweckreiniger',category:'Drogerie'},
+    {title:'Batterien Mini',category:'Drogerie'},
+    {title:'Backofenreiniger',category:'Drogerie'},
+    {title:'Backpapier Zuschnitte',category:'Drogerie'},
+    {title:'Badreinigerspray',category:'Drogerie'},
+    {title:'Britafilter',category:'Drogerie'},
+    {title:'Binden',category:'Drogerie'},
+    {title:'Bodylotion',category:'Drogerie'},
+    {title:'Bodyöl',category:'Drogerie'},
+    {title:'Einwegbecher',category:'Drogerie',comment:'kleinere Größe'},
+    {title:'Elektrolyte',category:'Drogerie'},
+    {title:'Eiswürfel',category:'Drogerie'},
+    {title:'Enthaarungscreme',category:'Drogerie'},
+    {title:'Einmachgläser groß',category:'Drogerie'},
+    {title:'Enteiser',category:'Drogerie',qty:'5L'},
+    {title:'Deo Eric',category:'Drogerie'},
+    {title:'Duschgel',category:'Drogerie',comment:'schau mal was günstig ist – DuschDas oder Fa'},
+    {title:'Geschirrspülertabs',category:'Drogerie'},
+    {title:'Geschirrspülersalz',category:'Drogerie'},
+    {title:'Geschirrspülerreiniger',category:'Drogerie'},
+    {title:'Geschenkpapier',category:'Drogerie'},
+    {title:'Glasreiniger Allzweck',category:'Drogerie'},
+    {title:'Hygienespray',category:'Drogerie'},
+    {title:'Haargummis',category:'Drogerie'},
+    {title:'Frischhaltefolie',category:'Drogerie'},
+    {title:'Fit',category:'Drogerie'},
+    {title:'Feuchttücher',category:'Drogerie'},
+    {title:'Haarspray',category:'Drogerie'},
+    {title:'Lappen',category:'Drogerie'},
+    {title:'Katzenschleckerzeug',category:'Drogerie'},
+    {title:'Klospray',category:'Drogerie'},
+    {title:'Klostein',category:'Drogerie',qty:'2x'},
+    {title:'Kukident',category:'Drogerie'},
+    {title:'Klopapier',category:'Drogerie'},
+    {title:'Klopulver',category:'Drogerie'},
+    {title:'Kuchenform',category:'Drogerie'},
+    {title:'Kondome',category:'Drogerie'},
+    {title:'Mundwasser',category:'Drogerie'},
+    {title:'Minizahnbürsten',category:'Drogerie'},
+    {title:'Mizellenwasser',category:'Drogerie'},
+    {title:'Mottenfallen',category:'Drogerie'},
+    {title:'Nagellackentferner',category:'Drogerie'},
+    {title:'Obstfliegenfalle',category:'Drogerie'},
+    {title:'Ob's normale',category:'Drogerie'},
+    {title:'Rasierklingen',category:'Drogerie',comment:'oder neuer Rasierer mit 4 Klingen'},
+    {title:'Rohrreiniger',category:'Drogerie'},
+    {title:'Silverfischzeug',category:'Drogerie'},
+    {title:'Schaumfestiger',category:'Drogerie'},
+    {title:'Schwämme',category:'Drogerie'},
+    {title:'Seifennachfüller',category:'Drogerie'},
+    {title:'Shampoo Eric',category:'Drogerie'},
+    {title:'Scheuermilch',category:'Drogerie'},
+    {title:'Sonnencreme',category:'Drogerie'},
+    {title:'Staubdinger',category:'Drogerie'},
+    {title:'Pflanzenmückenzeug',category:'Drogerie'},
+    {title:'Pflaster',category:'Drogerie'},
+    {title:'Pinzetten',category:'Drogerie'},
+    {title:'Pickelpatches',category:'Drogerie'},
+    {title:'Taschentücher + Box',category:'Drogerie'},
+    {title:'Teelichter',category:'Drogerie'},
+    {title:'Trockenshampoo',category:'Drogerie',qty:'2x'},
+    {title:'WC-Ente',category:'Drogerie',qty:'2x'},
+    {title:'Vitamin Brennessel',category:'Drogerie'},
+    {title:'Vitamin Frauengesundheit',category:'Drogerie'},
+    {title:'Vitamin Magnesium',category:'Drogerie'},
+    {title:'Vitaminpaste Katze',category:'Drogerie'},
+    {title:'Wärmepflaster',category:'Drogerie'},
+    {title:'Wattestäbchen',category:'Drogerie'},
+    {title:'Waschmittel',category:'Drogerie'},
+    {title:'Waschmaschinenreiniger + Schwärzer',category:'Drogerie'},
+    {title:'Wäscheparfüm',category:'Drogerie'},
+    {title:'Wischwasser Auto',category:'Drogerie'},
+    {title:'Zipp Beutel',category:'Drogerie',qty:'1 Liter'},
+    {title:'Zahnseide',category:'Drogerie'},
+    {title:'Zahnbürsten weich',category:'Drogerie'},
+    {title:'Zewa',category:'Drogerie'},
+    {title:'Zahnpasta Marie',category:'Drogerie'},
+    {title:'Zinksalbe',category:'Drogerie'},
+    // Kassenbereich
+    {title:'Feuerzeug',category:'Kassenbereich'},
+    {title:'Kaugummi',category:'Kassenbereich'},
+    {title:'Kopfhörer mit Kabel',category:'Kassenbereich'},
+  ];
+  // Add all items via API
+  let added=0;
+  for(const item of items){
+    try{
+      const created=await apiShopAdd({
+        title:item.title,
+        category:item.category,
+        qty:item.qty||'',
+        comment:item.comment||'',
+        price:'',
+        repeat:null,
+        photo:null,
+      });
+      shopItems.push(created);
+      added++;
+    }catch(e){}
+  }
+  localStorage.setItem(SEED_KEY,'1');
+  if(added>0){renderShopList();showToast(added+' Artikel aus deiner Liste importiert ✓');}
+}
 
 init();
 </script>
@@ -4671,7 +7023,19 @@ init();
       </select>
     </div>
     <div style="display:flex;gap:10px;padding:0 16px 14px">
-      <div style="flex:1"><label class="fl">Menge</label><input class="fi" id="shopFQty" placeholder="z.B. 2x, 500g…"></div>
+      <div style="flex:1"><label class="fl">Menge</label>
+      <div style="display:flex;gap:6px">
+        <select class="fsel" id="shopFQtySelect" onchange="handleQtySelectChange()" style="flex:0 0 auto;width:72px">
+          <option value="">–</option>
+          <option value="1x">1x</option>
+          <option value="2x">2x</option>
+          <option value="3x">3x</option>
+          <option value="4x">4x</option>
+          <option value="5x">5x</option>
+          <option value="custom">…</option>
+        </select>
+        <input class="fi" id="shopFQty" placeholder="z.B. 500g, 3 Stk…" style="display:none;flex:1">
+      </div></div>
       <div style="flex:1"><label class="fl">Preis (€)</label><input class="fi" id="shopFPrice" type="number" step="0.01" placeholder="0.00" inputmode="decimal"></div>
     </div>
     <div class="fg"><label class="fl">Kommentar</label><input class="fi" id="shopFComment" placeholder="Optional: Hinweis, Marke…"></div>
