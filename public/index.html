@@ -65,6 +65,10 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .pages-wrap.no-anim{transition:none;}
 .page{width:20%;min-height:calc(100dvh - 53px - 58px - var(--sb));padding-bottom:84px;flex-shrink:0;}
 /* Shopping tab styles */
+
+.shop-sub-nav{position:sticky;top:53px;z-index:90;background:var(--glass-nav);backdrop-filter:blur(28px) saturate(2);-webkit-backdrop-filter:blur(28px) saturate(2);border-bottom:1px solid var(--glass-border);padding:6px 14px 6px;box-shadow:0 2px 12px rgba(91,91,214,.06);}
+.shop-sub-nav .shop-filter{margin:0;}
+
 .shop-filter{display:flex;background:rgba(150,150,200,.12);border:1px solid var(--sep);border-radius:12px;padding:3px;gap:2px;margin:10px 14px 4px;}
 .shop-fb{flex:1;padding:8px 4px;border:none;background:transparent;border-radius:9px;font-size:13px;font-weight:500;color:var(--text3);cursor:pointer;transition:all .18s;font-family:inherit;}
 .shop-fb.on{background:var(--glass);color:var(--text);font-weight:700;box-shadow:0 1px 4px rgba(0,0,0,.10),inset 0 1px 0 rgba(255,255,255,.5);border:1px solid var(--glass-border);}
@@ -89,7 +93,8 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .shop-chk.done{background:var(--green);border-color:var(--green);}
 .shop-body{flex:1;min-width:0;}
 .shop-title{font-size:15px;font-weight:500;color:var(--text);transition:color .2s;}
-.shop-title.done{color:var(--text3);}
+.shop-title{color:var(--text);opacity:.55;}
+.shop-title.done{color:var(--text);opacity:1;}
 .shop-meta{font-size:11px;color:var(--text2);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
 .shop-qty-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(150,150,200,.12);border:1px solid var(--sep);border-radius:6px;padding:1px 6px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .12s;margin-top:3px;}
 .shop-qty-chip:active{background:rgba(91,91,214,.12);border-color:var(--acc);color:var(--acc);}
@@ -554,15 +559,19 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     </div>
 
     <!-- PAGE 4: EINKAUFEN -->
-    <div class="page" id="pgShop">
-      <div class="shop-filter">
+    <div class="page" id="pgShop" style="padding-top:0">
+      <div class="shop-filter" id="shopFilterInline" style="display:none">
         <button class="shop-fb on" id="shopFbPlan" onclick="setShopFilter('plan',this)" style="display:flex;align-items:center;justify-content:center;gap:5px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
           Essensplan
         </button>
         <button class="shop-fb" id="shopFbList" onclick="setShopFilter('list',this)" style="display:flex;align-items:center;justify-content:center;gap:5px">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
           Einkaufsliste
+        </button>
+        <button class="shop-fb" id="shopFbShop" onclick="setShopFilter('shop',this)" style="display:flex;align-items:center;justify-content:center;gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Einkauf
         </button>
       </div>
       <!-- ESSENSPLAN -->
@@ -579,13 +588,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       </div>
       <!-- EINKAUFSLISTE -->
       <div id="shopListView" style="display:none">
-        <div style="padding:6px 14px 0;display:flex;align-items:center;justify-content:space-between;gap:8px">
-          <div id="shopTotalInfo" style="font-size:12px;color:var(--text3);flex:1"></div>
-          <button id="shopCheckedFilterBtn" onclick="toggleShopCheckedFilter()" style="display:flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid var(--glass-border);background:var(--glass);border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .15s;backdrop-filter:blur(10px);flex-shrink:0">
-            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-            Aktuelle Einkaufsliste
-          </button>
-        </div>
+        <div id="shopTotalInfo" style="font-size:12px;color:var(--text3);padding:6px 14px 0"></div>
         <div id="shopProgress" style="margin:6px 14px 8px;height:4px;background:var(--sep);border-radius:2px;overflow:hidden">
           <div id="shopProgressFill" style="height:100%;background:var(--green);border-radius:2px;transition:width .3s"></div>
         </div>
@@ -4026,6 +4029,7 @@ function switchTab(i,anim=true){
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
   document.getElementById('navTitle').textContent=(lang==='en'?NAV_TITLES_EN:NAV_TITLES_DE)[i]||'';
   if(i===1)renderPool();if(i===2)renderCalendar();if(i===3)renderVote();if(i===4)renderShopTab();
+  const ssn=document.getElementById('shopSubNav');if(ssn)ssn.style.display=(i===4)?'block':'none';
   // Show/hide FAB on shopping tab
   const fab=document.getElementById('fabBtn');
   if(fab)fab.style.display=(i===4)?'flex':'flex';
@@ -4216,11 +4220,15 @@ function initShopTabVisibility(){
 // ─ Filter switch ─
 function setShopFilter(f,btn){
   shopFilter=f;
+  shopCheckedOnly=(f==='shop');
   document.querySelectorAll('.shop-fb').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
+  // Sync sticky subnav buttons
+  const map={plan:['shopFbPlanS'],list:['shopFbListS'],shop:['shopFbShopS']};
+  (map[f]||[]).forEach(id=>{const el=document.getElementById(id);if(el)el.classList.add('on');});
+  if(btn)btn.classList.add('on');
   document.getElementById('shopPlanView').style.display=f==='plan'?'':'none';
-  document.getElementById('shopListView').style.display=f==='list'?'':'none';
-  if(f==='list')renderShopList();
+  document.getElementById('shopListView').style.display=(f==='list'||f==='shop')?'':'none';
+  if(f==='list'||f==='shop')renderShopList();
   if(f==='plan')renderMealGrid();
 }
 
@@ -4237,7 +4245,7 @@ async function renderShopTab(){
   shopLoading=false;
   if(shopItems.length===0) await seedDefaultItems();
   if(shopFilter==='plan')renderMealGrid();
-  else renderShopList();
+  else{shopCheckedOnly=(shopFilter==='shop');renderShopList();}
 }
 
 // ══ ESSENSPLAN ══
@@ -4294,20 +4302,25 @@ function onMealTextInput(){
 async function loadMealRecipes(meal){
   const list=document.getElementById('mealRecipeList');
   if(!list)return;
-  list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Lade Rezeptvorschläge…</div>';
+  list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Suche Rezepte…</div>';
   try{
-    const prompt=`Für das Gericht "${meal}": Schlage 3 konkrete Rezeptvarianten vor. Antworte NUR als JSON-Array (kein Markdown): [{"recipe":"Rezeptname","time":"30 Min","difficulty":"Einfach","tip":"kurzer Tipp"}]`;
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
-    const data=await res.json();
-    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-    const recipes=JSON.parse(text.replace(/```json|```/g,'').trim());
+    // Search TheMealDB for recipes
+    const q=encodeURIComponent(meal.split(' ')[0]);
+    const r=await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${q}`);
+    const d=await r.json();
+    const meals=(d.meals||[]).slice(0,4);
+    if(!meals.length){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Rezepte gefunden</div>';return;}
     list.innerHTML='';
-    recipes.forEach(r=>{
+    meals.forEach(m=>{
       const card=document.createElement('div');card.className='recipe-card';
-      card.innerHTML=`<div class="recipe-title">${r.recipe}</div><div class="recipe-sub">⏱ ${r.time} · ${r.difficulty}${r.tip?' · 💡 '+r.tip:''}</div>`;
+      const src=m.strSource?`<a href="${m.strSource}" target="_blank" style="color:var(--acc);font-size:11px;text-decoration:none">Rezept öffnen ↗</a>`:'';
+      const yt=m.strYoutube?`<a href="${m.strYoutube}" target="_blank" style="color:#ef4444;font-size:11px;text-decoration:none;margin-left:8px">▶ YouTube</a>`:'';
+      const cat=m.strCategory||'';const area=m.strArea||'';
+      const sub=[cat,area].filter(Boolean).join(' · ');
+      card.innerHTML=`<div style="display:flex;gap:10px;align-items:center"><img src="${m.strMealThumb}/preview" style="width:52px;height:52px;border-radius:8px;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><div class="recipe-title">${m.strMeal}</div>${sub?`<div class="recipe-sub">${sub}</div>`:''}<div style="margin-top:4px">${src}${yt}</div></div></div>`;
       list.appendChild(card);
     });
-  }catch(e){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Vorschläge verfügbar</div>';}
+  }catch(e){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Rezeptsuche nicht verfügbar</div>';}
 }
 function closeMealModal(){document.getElementById('mealModal').classList.remove('open');editingMealKey=null;}
 async function saveMeal(){
@@ -4325,26 +4338,33 @@ async function deleteMeal(){
   try{await apiMealSave();}catch(e){showToast('Speichern fehlgeschlagen');}
 }
 
-// ─ Rezeptvorschläge ─
+// ─ Rezeptvorschläge (TheMealDB) ─
 async function loadRecipeSuggestions(meals){
   if(shopRecipeLoading)return;
   const list=document.getElementById('recipeList');
   if(!list)return;
-  list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Lade Rezeptvorschläge…</div>';
+  list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Suche Rezepte…</div>';
   shopRecipeLoading=true;
   try{
-    const prompt=`Für folgende Gerichte dieser Woche: ${meals.join(', ')}. Schlage je 1 Rezept vor. Antworte NUR als JSON-Array (kein Markdown): [{"meal":"Name","recipe":"Rezeptname","time":"30 Min","difficulty":"Einfach","tip":"kurzer Tipp"}]`;
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
-    const data=await res.json();
-    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
-    const recipes=JSON.parse(text.replace(/```json|```/g,'').trim());
+    const results=[];
+    for(const meal of meals.slice(0,4)){
+      const q=encodeURIComponent(meal.split(' ')[0]);
+      try{
+        const r=await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${q}`);
+        const d=await r.json();
+        if(d.meals&&d.meals[0])results.push({meal,data:d.meals[0]});
+      }catch(e){}
+    }
+    if(!results.length){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Rezepte gefunden</div>';return;}
     list.innerHTML='';
-    recipes.forEach(r=>{
+    results.forEach(({meal,data:m})=>{
       const card=document.createElement('div');card.className='recipe-card';
-      card.innerHTML=`<div class="recipe-title">${r.recipe}<span style="font-weight:400;color:var(--text3)"> · für ${r.meal}</span></div><div class="recipe-sub">⏱ ${r.time} · ${r.difficulty}${r.tip?' · 💡 '+r.tip:''}</div>`;
+      const src=m.strSource?`<a href="${m.strSource}" target="_blank" style="color:var(--acc);font-size:11px;text-decoration:none">Rezept ↗</a>`:'';
+      const yt=m.strYoutube?`<a href="${m.strYoutube}" target="_blank" style="color:#ef4444;font-size:11px;text-decoration:none;margin-left:8px">▶ YouTube</a>`:'';
+      card.innerHTML=`<div style="display:flex;gap:10px;align-items:center"><img src="${m.strMealThumb}/preview" style="width:48px;height:48px;border-radius:8px;object-fit:cover;flex-shrink:0"><div style="flex:1;min-width:0"><div class="recipe-title">${m.strMeal}<span style="font-weight:400;color:var(--text3)"> · für ${meal}</span></div><div style="margin-top:4px">${src}${yt}</div></div></div>`;
       list.appendChild(card);
     });
-  }catch(e){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Vorschläge verfügbar</div>';}
+  }catch(e){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Rezeptsuche nicht verfügbar</div>';}
   finally{shopRecipeLoading=false;}
 }
 
@@ -4367,17 +4387,12 @@ function renderShopList(){
   const finBtn=document.getElementById('shopFinishBtn');
   if(finBtn)finBtn.style.display=checked>0?'':'none';
 
-  // Update filter button active state
-  const filterBtn=document.getElementById('shopCheckedFilterBtn');
-  if(filterBtn){
-    filterBtn.style.background=shopCheckedOnly?'var(--acc)':'var(--glass)';
-    filterBtn.style.color=shopCheckedOnly?'#fff':'var(--text2)';
-    filterBtn.style.borderColor=shopCheckedOnly?'var(--acc)':'var(--glass-border)';
-  }
+  // filter mode handled by setShopFilter
 
   const byCat={};
   SHOP_CATS.forEach(c=>{byCat[c]=[];});
   shopItems.forEach(item=>{const cat=item.category||SHOP_CATS[0];if(!byCat[cat])byCat[cat]=[];byCat[cat].push(item);});
+  Object.keys(byCat).forEach(cat=>{byCat[cat].sort((a,b)=>a.title.localeCompare(b.title,'de'));});
 
   let anyVisible=false;
   SHOP_CATS.forEach(cat=>{
@@ -4407,7 +4422,7 @@ function renderShopList(){
           <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;align-items:center">
             <div class="shop-qty-chip" id="${qtyId}" onclick="event.stopPropagation();startQtyEdit('${sid}','${qtyId}')">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-              ${item.qty||'Menge'}
+              ${item.qty||'1'}
             </div>
             ${item.price?`<span style="font-size:12px;font-weight:600;color:var(--text2)">${parseFloat(item.price).toFixed(2)} €</span>`:''}
             ${rl?`<span class="badge b-blu">${rl}</span>`:''}
