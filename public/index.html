@@ -107,7 +107,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .shop-qty-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(150,150,200,.12);border:1px solid var(--sep);border-radius:6px;padding:1px 6px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .12s;margin-top:3px;}
 .shop-qty-chip:active{background:rgba(91,91,214,.12);border-color:var(--acc);color:var(--acc);}
 .shop-qty-inp{width:70px;background:var(--glass);border:1.5px solid var(--acc);border-radius:6px;padding:2px 6px;font-size:12px;font-weight:600;color:var(--text);font-family:inherit;outline:none;}
-.shop-comment-inline{font-style:italic;color:var(--text3);font-size:0.88em;font-weight:400;margin-left:5px;opacity:.85;}
+.shop-comment-inline{font-style:italic;color:var(--text2);font-size:0.88em;font-weight:400;margin-left:5px;opacity:.7;}
 .shop-price{font-size:13px;font-weight:600;color:var(--text2);flex-shrink:0;padding-left:6px;}
 .shop-photo-thumb{flex-shrink:0;width:44px;height:44px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border);cursor:pointer;position:relative;}
 .shop-photo-thumb img{width:100%;height:100%;object-fit:cover;}
@@ -115,6 +115,13 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .shop-prog-bar{height:3px;background:var(--sep);}
 .shop-prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
 .shop-total-bar{margin:0 14px;padding:10px 14px;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.shop-search-wrap{padding:6px 14px 4px;position:relative;}
+.shop-search-inp{width:100%;background:var(--glass);border:1.5px solid var(--glass-border);border-radius:11px;padding:9px 12px 9px 34px;font-size:14px;color:var(--text);font-family:inherit;outline:none;backdrop-filter:blur(12px);transition:border-color .15s;}
+.shop-search-inp:focus{border-color:var(--acc);}
+.shop-search-inp::placeholder{color:var(--text3);}
+.shop-search-icon{position:absolute;left:24px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
+.shop-search-clear{position:absolute;right:24px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;padding:4px;display:none;}
+
 .shop-add-btn{margin:0 14px 10px;display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 16px;border:1.5px dashed var(--acc);background:rgba(91,91,214,.06);border-radius:14px;font-size:14px;font-weight:600;color:var(--acc);cursor:pointer;transition:all .15s;font-family:inherit;width:calc(100% - 28px);}
 .shop-add-btn:active{opacity:.7;}
 .shop-clear-btn{display:flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid rgba(239,68,68,.25);background:rgba(239,68,68,.08);border-radius:9px;color:var(--red);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity .15s;}
@@ -619,11 +626,19 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
       <!-- EINKAUFSLISTE -->
       <div id="shopListView" style="display:none">
         <div id="shopTotalInfo" style="font-size:12px;color:var(--text3);padding:6px 14px 0"></div>
-        <div id="shopProgress" style="margin:6px 14px 8px;height:4px;background:var(--sep);border-radius:2px;overflow:hidden">
+        <!-- Search bar (hidden in 'shop' mode) -->
+        <div class="shop-search-wrap" id="shopSearchWrap">
+          <svg class="shop-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="shop-search-inp" id="shopSearchInp" placeholder="Artikel suchen…" oninput="onShopSearch(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+          <button class="shop-search-clear" id="shopSearchClear" onclick="clearShopSearch()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <div id="shopProgress" style="margin:2px 14px 8px;height:4px;background:var(--sep);border-radius:2px;overflow:hidden">
           <div id="shopProgressFill" style="height:100%;background:var(--green);border-radius:2px;transition:width .3s"></div>
         </div>
         <div id="shopListContainer"></div>
-        <button class="shop-add-btn" onclick="openAddShopItem()">
+        <button class="shop-add-btn" id="shopAddBtn" onclick="openAddShopItem()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
           Artikel hinzufügen
         </button>
@@ -4249,6 +4264,23 @@ function initShopTabVisibility(){
 }
 
 // ─ Filter switch ─
+
+let shopSearchQuery = '';
+function onShopSearch(val){
+  shopSearchQuery = val.trim().toLowerCase();
+  const cl = document.getElementById('shopSearchClear');
+  if(cl) cl.style.display = shopSearchQuery ? 'block' : 'none';
+  renderShopList();
+}
+function clearShopSearch(){
+  const inp = document.getElementById('shopSearchInp');
+  if(inp) inp.value = '';
+  shopSearchQuery = '';
+  const cl = document.getElementById('shopSearchClear');
+  if(cl) cl.style.display = 'none';
+  renderShopList();
+}
+
 function setShopFilter(f,btn){
   shopFilter=f;
   shopCheckedOnly=(f==='shop');
@@ -4256,6 +4288,13 @@ function setShopFilter(f,btn){
   if(btn)btn.classList.add('on');
   document.getElementById('shopPlanView').style.display=f==='plan'?'':'none';
   document.getElementById('shopListView').style.display=(f==='list'||f==='shop')?'':'none';
+  // search bar + add btn only in list mode
+  const sw=document.getElementById('shopSearchWrap');
+  const ab=document.getElementById('shopAddBtn');
+  if(sw)sw.style.display=f==='shop'?'none':'';
+  if(ab)ab.style.display=f==='shop'?'none':'';
+  // reset search when entering shop mode
+  if(f==='shop'){clearShopSearch();}
   if(f==='list'||f==='shop')renderShopList();
   if(f==='plan')renderMealGrid();
 }
@@ -4464,7 +4503,8 @@ function renderShopList(){
     const allItems=byCat[cat];
     if(!allItems||!allItems.length)return;
     // In filter mode: only checked items shown, but category header still appears
-    const visibleItems=shopCheckedOnly?allItems.filter(i=>i.checked):allItems;
+    let visibleItems=shopCheckedOnly?allItems.filter(i=>i.checked):allItems;
+    if(shopSearchQuery)visibleItems=visibleItems.filter(i=>i.title.toLowerCase().includes(shopSearchQuery));
     if(!visibleItems.length)return;
     anyVisible=true;
     const sec=document.createElement('div');
