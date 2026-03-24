@@ -36,6 +36,27 @@ async function auth(req, res, next) {
   next();
 }
 
+// Scope für Tasks (Gruppe oder Solo-User)
+function scope(user) {
+  return user.groupId
+    ? { groupId: user.groupId }
+    : { groupId: null, ownerId: user._id.toString() };
+}
+
+// Scope für Shopping (Gruppe oder Solo-User)
+function shopScope(user) {
+  return user.groupId
+    ? { groupId: user.groupId }
+    : { groupId: null, userId: user._id.toString() };
+}
+
+// Hilfsfunktion: hat ein Artikel eine Wiederholung?
+function isRepeating(repeat) {
+  if (!repeat) return false;
+  if (typeof repeat === 'string') return repeat !== '';
+  return repeat.type && repeat.type !== 'none';
+}
+
 // ── CHANGELOG ────────────────────────────────────
 app.get('/api/changelog', (req, res) => {
   try {
@@ -131,7 +152,6 @@ app.post('/api/users/login', async (req, res) => {
 
 app.get('/api/users/me', auth, async (req, res) => {
   const { token: _t, ...user } = req.user;
-  // Update lastVisit
   await db.collection('users').updateOne({ _id: req.user._id }, { $set: { lastVisit: new Date() } });
   res.json({ ...user, _id: user._id.toString() });
 });
@@ -155,7 +175,10 @@ app.delete('/api/users/me', auth, async (req, res) => {
       const g = await db.collection('groups').findOne({ _id: new ObjectId(u.groupId) });
       if (g?.creatorId === u._id.toString() && g.memberIds.length > 1)
         return res.status(400).json({ error: 'Gruppe erst löschen.' });
-      if (g) await db.collection('groups').updateOne({ _id: new ObjectId(u.groupId) }, { $pull: { memberIds: u._id.toString() } });
+      if (g) await db.collection('groups').updateOne(
+        { _id: new ObjectId(u.groupId) },
+        { $pull: { memberIds: u._id.toString() } }
+      );
     }
     await db.collection('tasks').deleteMany({ assignee: u._id.toString() });
     await db.collection('users').deleteOne({ _id: u._id });
@@ -168,7 +191,10 @@ app.get('/api/users', auth, async (req, res) => {
     let list = [];
     if (req.user.groupId) {
       const g = await db.collection('groups').findOne({ _id: new ObjectId(req.user.groupId) });
-      if (g) list = await db.collection('users').find({ _id: { $in: g.memberIds.map(id => new ObjectId(id)) } }).project({ token: 0 }).toArray();
+      if (g) list = await db.collection('users')
+        .find({ _id: { $in: g.memberIds.map(id => new ObjectId(id)) } })
+        .project({ token: 0 })
+        .toArray();
     } else {
       list = [{ ...req.user }];
     }
@@ -177,6 +203,7 @@ app.get('/api/users', auth, async (req, res) => {
 });
 
 app.get('/api/users/notifications', auth, async (req, res) => res.json(req.user.notifications || []));
+
 app.delete('/api/users/notifications', auth, async (req, res) => {
   await db.collection('users').updateOne({ _id: req.user._id }, { $set: { notifications: [] } });
   res.json({ ok: true });
@@ -210,7 +237,10 @@ app.post('/api/groups', auth, async (req, res) => {
       createdAt: new Date()
     });
     const g = await db.collection('groups').findOne({ _id: r.insertedId });
-    await db.collection('users').updateOne({ _id: req.user._id }, { $set: { groupId: r.insertedId.toString(), solo: false } });
+    await db.collection('users').updateOne(
+      { _id: req.user._id },
+      { $set: { groupId: r.insertedId.toString(), solo: false } }
+    );
     res.json({ ...g, _id: g._id.toString() });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -222,7 +252,10 @@ app.post('/api/groups/join', auth, async (req, res) => {
     const uid = req.user._id.toString();
     if (!g.memberIds.includes(uid))
       await db.collection('groups').updateOne({ _id: g._id }, { $push: { memberIds: uid } });
-    await db.collection('users').updateOne({ _id: req.user._id }, { $set: { groupId: g._id.toString(), solo: false } });
+    await db.collection('users').updateOne(
+      { _id: req.user._id },
+      { $set: { groupId: g._id.toString(), solo: false } }
+    );
     res.json({ ...g, _id: g._id.toString() });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
@@ -238,7 +271,8 @@ app.get('/api/groups/mine', auth, async (req, res) => {
 app.patch('/api/groups/mine', auth, async (req, res) => {
   try {
     const g = await db.collection('groups').findOne({ _id: new ObjectId(req.user.groupId) });
-    if (!g || g.creatorId !== req.user._id.toString()) return res.status(403).json({ error: 'Kein Zugriff' });
+    if (!g || g.creatorId !== req.user._id.toString())
+      return res.status(403).json({ error: 'Kein Zugriff' });
     const update = {};
     if (req.body.name) update.name = req.body.name.trim();
     if (req.body.photo !== undefined) update.photo = req.body.photo;
@@ -250,10 +284,17 @@ app.patch('/api/groups/mine', auth, async (req, res) => {
 app.delete('/api/groups/mine', auth, async (req, res) => {
   try {
     const g = await db.collection('groups').findOne({ _id: new ObjectId(req.user.groupId) });
-    if (!g || g.creatorId !== req.user._id.toString()) return res.status(403).json({ error: 'Kein Zugriff' });
-    await db.collection('users').updateMany({ _id: { $in: g.memberIds.map(id => new ObjectId(id)) } }, { $set: { groupId: null } });
+    if (!g || g.creatorId !== req.user._id.toString())
+      return res.status(403).json({ error: 'Kein Zugriff' });
+    await db.collection('users').updateMany(
+      { _id: { $in: g.memberIds.map(id => new ObjectId(id)) } },
+      { $set: { groupId: null } }
+    );
     await db.collection('tasks').deleteMany({ groupId: g._id.toString() });
     await db.collection('appstate').deleteOne({ _id: g._id.toString() });
+    // Auch Shopping-Daten der Gruppe löschen
+    await db.collection('shopping').deleteMany({ groupId: g._id.toString() });
+    await db.collection('mealplans').deleteOne({ groupId: g._id.toString() });
     await db.collection('groups').deleteOne({ _id: g._id });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -266,17 +307,16 @@ app.post('/api/groups/leave', auth, async (req, res) => {
     const g = await db.collection('groups').findOne({ _id: new ObjectId(u.groupId) });
     if (g?.creatorId === u._id.toString() && g.memberIds.length > 1)
       return res.status(400).json({ error: 'Zuerst Gruppe löschen.' });
-    await db.collection('groups').updateOne({ _id: new ObjectId(u.groupId) }, { $pull: { memberIds: u._id.toString() } });
+    await db.collection('groups').updateOne(
+      { _id: new ObjectId(u.groupId) },
+      { $pull: { memberIds: u._id.toString() } }
+    );
     await db.collection('users').updateOne({ _id: u._id }, { $set: { groupId: null } });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── TASKS ─────────────────────────────────────────
-function scope(user) {
-  return user.groupId ? { groupId: user.groupId } : { groupId: null, ownerId: user._id.toString() };
-}
-
 app.get('/api/tasks', auth, async (req, res) => {
   try {
     const tasks = await db.collection('tasks').find(scope(req.user)).toArray();
@@ -288,14 +328,16 @@ app.post('/api/tasks', auth, async (req, res) => {
   try {
     const task = { ...req.body, ...scope(req.user), creatorId: req.user._id.toString(), createdAt: new Date() };
     const r = await db.collection('tasks').insertOne(task);
-    // Notify assignee if different user
     const assignee = task.assignee;
     if (assignee && assignee !== 'all' && assignee !== req.user._id.toString()) {
-      await db.collection('users').updateOne({ _id: new ObjectId(assignee) }, { $push: { notifications: {
-        id: genToken().slice(0,8), type: 'task_assigned',
-        text: `${req.user.name} hat dir eine neue Aufgabe zugewiesen: „${task.title}"`,
-        taskId: r.insertedId.toString(), createdAt: new Date()
-      }}});
+      await db.collection('users').updateOne(
+        { _id: new ObjectId(assignee) },
+        { $push: { notifications: {
+          id: genToken().slice(0,8), type: 'task_assigned',
+          text: `${req.user.name} hat dir eine neue Aufgabe zugewiesen: „${task.title}"`,
+          taskId: r.insertedId.toString(), createdAt: new Date()
+        }}}
+      );
     }
     res.json({ ...task, _id: r.insertedId.toString() });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -308,11 +350,14 @@ app.patch('/api/tasks/:id', auth, async (req, res) => {
     const update = { ...req.body }; delete update._id;
     await db.collection('tasks').updateOne({ _id: new ObjectId(req.params.id) }, { $set: update });
     if (update.done === true && task.creatorId && task.creatorId !== req.user._id.toString()) {
-      await db.collection('users').updateOne({ _id: new ObjectId(task.creatorId) }, { $push: { notifications: {
-        id: genToken().slice(0,8), type: 'task_done',
-        text: `${req.user.name} hat „${task.title}" erledigt!`,
-        taskId: req.params.id, createdAt: new Date()
-      }}});
+      await db.collection('users').updateOne(
+        { _id: new ObjectId(task.creatorId) },
+        { $push: { notifications: {
+          id: genToken().slice(0,8), type: 'task_done',
+          text: `${req.user.name} hat „${task.title}" erledigt!`,
+          taskId: req.params.id, createdAt: new Date()
+        }}}
+      );
     }
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -339,8 +384,131 @@ app.get('/api/appstate', auth, async (req, res) => {
 app.post('/api/appstate', auth, async (req, res) => {
   try {
     const key = req.user.groupId || req.user._id.toString();
-    await db.collection('appstate').replaceOne({ _id: key }, { _id: key, ...req.body }, { upsert: true });
+    await db.collection('appstate').replaceOne(
+      { _id: key },
+      { _id: key, ...req.body },
+      { upsert: true }
+    );
     res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── SHOPPING ──────────────────────────────────────
+
+// Alle Artikel der Gruppe/des Users laden
+app.get('/api/shopping', auth, async (req, res) => {
+  try {
+    const items = await db.collection('shopping')
+      .find(shopScope(req.user))
+      .sort({ createdAt: 1 })
+      .toArray();
+    res.json(items.map(i => ({ ...i, _id: i._id.toString() })));
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Neuen Artikel anlegen
+app.post('/api/shopping', auth, async (req, res) => {
+  try {
+    const { title, category, qty, price, comment, repeat, photo } = req.body;
+    if (!title?.trim()) return res.status(400).json({ error: 'Titel fehlt' });
+    const doc = {
+      ...shopScope(req.user),
+      title:     title.trim(),
+      category:  category  || 'Sonstiges',
+      qty:       qty       || '',
+      price:     price     || '',
+      comment:   comment   || '',
+      repeat:    repeat    || null,
+      photo:     photo     || null,
+      checked:   false,
+      createdAt: new Date(),
+    };
+    const r = await db.collection('shopping').insertOne(doc);
+    res.status(201).json({ ...doc, _id: r.insertedId.toString() });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Artikel aktualisieren (einzelne Felder oder alle)
+app.patch('/api/shopping/:id', auth, async (req, res) => {
+  try {
+    const filter = { _id: new ObjectId(req.params.id), ...shopScope(req.user) };
+    const allowed = ['title','category','qty','price','comment','repeat','photo','checked'];
+    const update = {};
+    allowed.forEach(f => { if (req.body[f] !== undefined) update[f] = req.body[f]; });
+    const r = await db.collection('shopping').findOneAndUpdate(
+      filter,
+      { $set: update },
+      { returnDocument: 'after' }
+    );
+    if (!r) return res.status(404).json({ error: 'Nicht gefunden' });
+    res.json({ ...r, _id: r._id.toString() });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Artikel löschen
+app.delete('/api/shopping/:id', auth, async (req, res) => {
+  try {
+    await db.collection('shopping').deleteOne({
+      _id: new ObjectId(req.params.id),
+      ...shopScope(req.user)
+    });
+    res.json({ ok: true });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Einkauf abschließen
+// Body: { resetRepeating: true | false }
+//  → Einmalige abgehakte Artikel  → werden gelöscht
+//  → Wiederholende abgehakte Artikel:
+//      resetRepeating=true  → checked auf false (wiederherstellen)
+//      resetRepeating=false → bleiben als abgehakt stehen
+app.post('/api/shopping/finish', auth, async (req, res) => {
+  try {
+    const { resetRepeating } = req.body;
+    const checked = await db.collection('shopping')
+      .find({ ...shopScope(req.user), checked: true })
+      .toArray();
+
+    const toDelete = checked.filter(i => !isRepeating(i.repeat)).map(i => i._id);
+    const toReset  = checked.filter(i =>  isRepeating(i.repeat)).map(i => i._id);
+
+    if (toDelete.length)
+      await db.collection('shopping').deleteMany({ _id: { $in: toDelete } });
+    if (toReset.length && resetRepeating)
+      await db.collection('shopping').updateMany(
+        { _id: { $in: toReset } },
+        { $set: { checked: false } }
+      );
+
+    res.json({ deleted: toDelete.length, reset: resetRepeating ? toReset.length : 0 });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── ESSENSPLAN ────────────────────────────────────
+
+// Essensplan laden
+app.get('/api/mealplan', auth, async (req, res) => {
+  try {
+    const doc = await db.collection('mealplans').findOne(shopScope(req.user));
+    res.json(doc?.plan || {});
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// Essensplan speichern (Upsert)
+// Body: { mo, di, mi, do, fr, sa, so }
+app.put('/api/mealplan', auth, async (req, res) => {
+  try {
+    const sc = shopScope(req.user);
+    const plan = {};
+    ['mo','di','mi','do','fr','sa','so'].forEach(d => {
+      plan[d] = (req.body[d] || '').trim();
+    });
+    await db.collection('mealplans').updateOne(
+      sc,
+      { $set: { plan, updatedAt: new Date() } },
+      { upsert: true }
+    );
+    res.json(plan);
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -350,12 +518,35 @@ app.get('/api/poll', auth, async (req, res) => {
     const tasks = await db.collection('tasks').find(scope(req.user)).toArray();
     const users = await db.collection('users')
       .find(req.user.groupId ? { groupId: req.user.groupId } : { _id: req.user._id })
-      .project({ token: 0, notifications: 0 }).toArray();
+      .project({ token: 0, notifications: 0 })
+      .toArray();
     const stateKey = req.user.groupId || req.user._id.toString();
     const appstate = await db.collection('appstate').findOne({ _id: stateKey });
-    const hash = crypto.createHash('md5').update(JSON.stringify(tasks)+JSON.stringify(users)+JSON.stringify(appstate||{})).digest('hex');
+
+    // Shopping-Änderungen im Hash miteinbeziehen → andere Mitglieder
+    // bekommen Änderungen automatisch ohne manuelles Reload
+    const shopLast = await db.collection('shopping')
+      .find(shopScope(req.user))
+      .sort({ createdAt: -1 })
+      .limit(1)
+      .toArray();
+    const shopStamp = shopLast[0]?.createdAt?.getTime() || 0;
+
+    const hash = crypto.createHash('md5')
+      .update(
+        JSON.stringify(tasks) +
+        JSON.stringify(users) +
+        JSON.stringify(appstate || {}) +
+        shopStamp
+      )
+      .digest('hex');
+
     const me = await db.collection('users').findOne({ _id: req.user._id });
-    res.json({ hash, hasNotifications: (me?.notifications||[]).length > 0, taskCount: tasks.filter(t=>!t.done).length });
+    res.json({
+      hash,
+      hasNotifications: (me?.notifications || []).length > 0,
+      taskCount: tasks.filter(t => !t.done).length
+    });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
@@ -368,50 +559,27 @@ app.get('/api/calendar/feed.ics', async (req, res) => {
     if (!user) return res.status(401).send('Ungültiger Token');
 
     const uid = user._id.toString();
-
-    // Load all tasks in scope
     const sc = user.groupId
       ? { groupId: user.groupId }
       : { groupId: null, ownerId: uid };
     const allTasks = await db.collection('tasks').find(sc).toArray();
-
-    // Load appstate to get pool assignments
     const stateKey = user.groupId || uid;
     const stateDoc = await db.collection('appstate').findOne({ _id: stateKey });
     const poolAssigns = stateDoc?.poolAssigns || {};
 
-    // Helper: get monday of a given date (YYYY-MM-DD)
     function getMondayOf(dateStr) {
       const d = new Date(dateStr + 'T00:00:00');
-      const day = d.getDay(); // 0=Sun,1=Mon,...
+      const day = d.getDay();
       const diff = (day === 0 ? -6 : 1 - day);
       d.setDate(d.getDate() + diff);
       return d;
     }
-    function toDateStr(d) {
-      return d.toISOString().slice(0, 10).replace(/-/g, '');
-    }
+    function toDateStr(d) { return d.toISOString().slice(0, 10).replace(/-/g, ''); }
     function icalEscape(s) {
       return (s || '').replace(/\\/g, '\\\\').replace(/;/g, '\\;').replace(/,/g, '\\,').replace(/\n/g, '\\n');
     }
-    // Fold long lines per RFC 5545 (max 75 octets)
-    function fold(line) {
-      const bytes = Buffer.from(line, 'utf8');
-      if (bytes.length <= 75) return line;
-      const parts = [];
-      let start = 0;
-      while (start < bytes.length) {
-        const chunk = bytes.slice(start, start + (start === 0 ? 75 : 74));
-        parts.push((start === 0 ? '' : ' ') + chunk.toString('utf8'));
-        start += (start === 0 ? 75 : 74);
-      }
-      return parts.join('\r\n');
-    }
 
-    // ── Build personal task list ──────────────────
-    // Each entry: { title, label, deadline, startDate, prio, cat, done }
     const myEntries = [];
-
     for (const t of allTasks) {
       if (t.done) continue;
       const tid = t._id.toString();
@@ -420,80 +588,28 @@ app.get('/api/calendar/feed.ics', async (req, res) => {
       const isMine = !isPool && !isShared;
 
       if (isMine) {
-        // Own task: only if assigned to me
-        if (t.assignee !== uid) continue;
-        if (!t.deadline) continue;
-        myEntries.push({
-          uid: tid,
-          title: t.title,
-          label: '✓',
-          deadline: t.deadline,
-          startDate: t.createdAt ? new Date(t.createdAt).toISOString().slice(0,10) : t.deadline,
-          prio: t.prio || '–',
-          cat: t.cat || '–',
-        });
-
+        if (t.assignee !== uid || !t.deadline) continue;
+        myEntries.push({ uid: tid, title: t.title, label: '✓', deadline: t.deadline, prio: t.prio || '–', cat: t.cat || '–' });
       } else if (isShared) {
-        // Shared task: only if I am in sharedWith or creator
         const involved = (t.sharedWith || []).includes(uid) || t.creatorId === uid;
-        if (!involved) continue;
-        if (!t.deadline) continue;
-        myEntries.push({
-          uid: tid,
-          title: t.title,
-          label: '👥',
-          deadline: t.deadline,
-          startDate: t.createdAt ? new Date(t.createdAt).toISOString().slice(0,10) : t.deadline,
-          prio: t.prio || '–',
-          cat: t.cat || '–',
-        });
-
+        if (!involved || !t.deadline) continue;
+        myEntries.push({ uid: tid, title: t.title, label: '👥', deadline: t.deadline, prio: t.prio || '–', cat: t.cat || '–' });
       } else if (isPool) {
         const assign = poolAssigns[tid];
-        if (!assign) continue;
-
-        if (t.subtasks && t.subtasks.length > 0 && assign.subtaskAssignments) {
-          // Has subtasks: only include subtasks assigned to me
-          const mySubs = t.subtasks.filter(s =>
-            !s.done && assign.subtaskAssignments[s.id] === uid
-          );
-          if (!mySubs.length) continue;
-          if (!t.deadline) continue;
-          // One entry per subtask
-          for (const sub of mySubs) {
-            myEntries.push({
-              uid: `${tid}-${sub.id}`,
-              title: `${t.title}: ${sub.title}`,
-              label: '🔄',
-              deadline: t.deadline,
-              startDate: t.createdAt ? new Date(t.createdAt).toISOString().slice(0,10) : t.deadline,
-              prio: t.prio || '–',
-              cat: t.cat || '–',
-            });
-          }
+        if (!assign || !t.deadline) continue;
+        if (t.subtasks?.length > 0 && assign.subtaskAssignments) {
+          const mySubs = t.subtasks.filter(s => !s.done && assign.subtaskAssignments[s.id] === uid);
+          for (const sub of mySubs)
+            myEntries.push({ uid: `${tid}-${sub.id}`, title: `${t.title}: ${sub.title}`, label: '🔄', deadline: t.deadline, prio: t.prio || '–', cat: t.cat || '–' });
         } else {
-          // No subtasks: only if main assignee is me
           if (assign.assignedUser !== uid) continue;
-          if (!t.deadline) continue;
-          myEntries.push({
-            uid: tid,
-            title: t.title,
-            label: '🔄',
-            deadline: t.deadline,
-            startDate: t.createdAt ? new Date(t.createdAt).toISOString().slice(0,10) : t.deadline,
-            prio: t.prio || '–',
-            cat: t.cat || '–',
-          });
+          myEntries.push({ uid: tid, title: t.title, label: '🔄', deadline: t.deadline, prio: t.prio || '–', cat: t.cat || '–' });
         }
       }
     }
 
-    // ── Build "TaskFlow - Poolaufgaben" week block ────────────────
-    // Find all pool tasks assigned to this user this week (no deadline required)
-    const todayD = new Date();
-    todayD.setHours(0, 0, 0, 0);
-    const todayDay = todayD.getDay(); // 0=Sun
-    const diffToMon = todayDay === 0 ? -6 : 1 - todayDay;
+    const todayD = new Date(); todayD.setHours(0,0,0,0);
+    const diffToMon = todayD.getDay() === 0 ? -6 : 1 - todayD.getDay();
     const thisMonday = new Date(todayD);
     thisMonday.setDate(todayD.getDate() + diffToMon);
 
@@ -503,127 +619,77 @@ app.get('/api/calendar/feed.ics', async (req, res) => {
       const tid = t._id.toString();
       const assign = poolAssigns[tid];
       if (!assign) continue;
-
-      if (t.subtasks && t.subtasks.length > 0 && assign.subtaskAssignments) {
-        const mySubs = t.subtasks.filter(s =>
-          !s.done && assign.subtaskAssignments[s.id] === uid
-        );
-        for (const sub of mySubs) {
-          myPoolTitles.push(`${t.title}: ${sub.title}`);
-        }
+      if (t.subtasks?.length > 0 && assign.subtaskAssignments) {
+        t.subtasks.filter(s => !s.done && assign.subtaskAssignments[s.id] === uid)
+          .forEach(s => myPoolTitles.push(`${t.title}: ${s.title}`));
       } else {
-        if (assign.assignedUser !== uid) continue;
-        if (!t.done) myPoolTitles.push(t.title);
+        if (assign.assignedUser === uid && !t.done) myPoolTitles.push(t.title);
       }
     }
 
-    // ── Build iCal lines ──────────────────────────
     const lines = [
-      'BEGIN:VCALENDAR',
-      'VERSION:2.0',
-      'PRODID:-//TaskFlow//DE',
-      'CALSCALE:GREGORIAN',
+      'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//TaskFlow//DE', 'CALSCALE:GREGORIAN',
       'X-WR-CALNAME:TaskFlow – ' + (user.name || 'Meine Aufgaben'),
       'X-WR-CALDESC:Persönliche Aufgaben aus TaskFlow',
-      'REFRESH-INTERVAL;VALUE=DURATION:PT1H',
-      'X-PUBLISHED-TTL:PT1H',
+      'REFRESH-INTERVAL;VALUE=DURATION:PT1H', 'X-PUBLISHED-TTL:PT1H',
     ];
 
-    // Group entries by calendar week (Mon–Sun of deadline)
     const byWeek = {};
     for (const e of myEntries) {
       const mon = getMondayOf(e.deadline);
-      const key = toDateStr(mon); // YYYYMMDD of monday
+      const key = toDateStr(mon);
       if (!byWeek[key]) byWeek[key] = { mon, entries: [] };
       byWeek[key].entries.push(e);
     }
 
-    // 1. Weekly digest events (one all-day event Mon→Sun per week)
     for (const [weekKey, { mon, entries }] of Object.entries(byWeek)) {
-      const sun = new Date(mon);
-      sun.setDate(sun.getDate() + 7); // DTEND is exclusive, so +7 = next Monday = full week
-
-      // Build description
-      const poolLines = entries.filter(e => e.label === '🔄').map(e =>
-        `  🔄 ${e.title} (fällig ${e.deadline.slice(8)}.${e.deadline.slice(5,7)}.)`
-      );
-      const ownLines = entries.filter(e => e.label === '✓').map(e =>
-        `  ✓ ${e.title} (fällig ${e.deadline.slice(8)}.${e.deadline.slice(5,7)}.)`
-      );
-      const sharedLines = entries.filter(e => e.label === '👥').map(e =>
-        `  👥 ${e.title} (fällig ${e.deadline.slice(8)}.${e.deadline.slice(5,7)}.)`
-      );
-
+      const sun = new Date(mon); sun.setDate(sun.getDate() + 7);
+      const poolLines   = entries.filter(e => e.label==='🔄').map(e=>`  🔄 ${e.title} (fällig ${e.deadline.slice(8)}.${e.deadline.slice(5,7)}.)`);
+      const ownLines    = entries.filter(e => e.label==='✓' ).map(e=>`  ✓ ${e.title} (fällig ${e.deadline.slice(8)}.${e.deadline.slice(5,7)}.)`);
+      const sharedLines = entries.filter(e => e.label==='👥').map(e=>`  👥 ${e.title} (fällig ${e.deadline.slice(8)}.${e.deadline.slice(5,7)}.)`);
       let desc = '';
-      if (poolLines.length) desc += 'POOL-AUFGABEN:\n' + poolLines.join('\n') + '\n\n';
-      if (ownLines.length) desc += 'EIGENE AUFGABEN:\n' + ownLines.join('\n') + '\n\n';
+      if (poolLines.length)   desc += 'POOL-AUFGABEN:\n'       + poolLines.join('\n')   + '\n\n';
+      if (ownLines.length)    desc += 'EIGENE AUFGABEN:\n'     + ownLines.join('\n')    + '\n\n';
       if (sharedLines.length) desc += 'GEMEINSAME AUFGABEN:\n' + sharedLines.join('\n');
-      desc = desc.trim();
-
-      const totalDone = entries.filter(e => e.done).length;
-      const summary = `📋 Meine Aufgaben (${entries.length})`;
-
-      lines.push(
-        'BEGIN:VEVENT',
-        `UID:week-${weekKey}-${uid}@taskflow`,
-        `SUMMARY:${icalEscape(summary)}`,
-        `DTSTART;VALUE=DATE:${toDateStr(mon)}`,
-        `DTEND;VALUE=DATE:${toDateStr(sun)}`,
-        `DESCRIPTION:${icalEscape(desc)}`,
-        'TRANSP:TRANSPARENT',
-        'STATUS:CONFIRMED',
-        'END:VEVENT'
-      );
+      lines.push('BEGIN:VEVENT', `UID:week-${weekKey}-${uid}@taskflow`,
+        `SUMMARY:${icalEscape('📋 Meine Aufgaben (' + entries.length + ')')}`,
+        `DTSTART;VALUE=DATE:${toDateStr(mon)}`, `DTEND;VALUE=DATE:${toDateStr(sun)}`,
+        `DESCRIPTION:${icalEscape(desc.trim())}`, 'TRANSP:TRANSPARENT', 'STATUS:CONFIRMED', 'END:VEVENT');
     }
 
-    // 2. "TaskFlow - Poolaufgaben" — 7 individual all-day events Mon–Sun (current week)
     if (myPoolTitles.length > 0) {
       const poolDesc = myPoolTitles.map(t => `• ${t}`).join('\n');
       for (let i = 0; i < 7; i++) {
-        const day = new Date(thisMonday);
-        day.setDate(thisMonday.getDate() + i);
-        const nextDay = new Date(day);
-        nextDay.setDate(day.getDate() + 1);
-        lines.push(
-          'BEGIN:VEVENT',
-          `UID:pool-week-${toDateStr(thisMonday)}-day${i}-${uid}@taskflow`,
+        const day = new Date(thisMonday); day.setDate(thisMonday.getDate() + i);
+        const nextDay = new Date(day); nextDay.setDate(day.getDate() + 1);
+        lines.push('BEGIN:VEVENT', `UID:pool-week-${toDateStr(thisMonday)}-day${i}-${uid}@taskflow`,
           `SUMMARY:${icalEscape('TaskFlow - Poolaufgaben')}`,
-          `DTSTART;VALUE=DATE:${toDateStr(day)}`,
-          `DTEND;VALUE=DATE:${toDateStr(nextDay)}`,
-          `DESCRIPTION:${icalEscape(poolDesc)}`,
-          'TRANSP:TRANSPARENT',
-          'STATUS:CONFIRMED',
-          'END:VEVENT'
-        );
+          `DTSTART;VALUE=DATE:${toDateStr(day)}`, `DTEND;VALUE=DATE:${toDateStr(nextDay)}`,
+          `DESCRIPTION:${icalEscape(poolDesc)}`, 'TRANSP:TRANSPARENT', 'STATUS:CONFIRMED', 'END:VEVENT');
       }
     }
 
-    // 3. Individual deadline markers (single-day, transparent)
     for (const e of myEntries) {
-      const nextDay = new Date(e.deadline + 'T00:00:00');
-      nextDay.setDate(nextDay.getDate() + 1);
-      lines.push(
-        'BEGIN:VEVENT',
-        `UID:dl-${e.uid}@taskflow`,
+      const nextDay = new Date(e.deadline + 'T00:00:00'); nextDay.setDate(nextDay.getDate() + 1);
+      lines.push('BEGIN:VEVENT', `UID:dl-${e.uid}@taskflow`,
         `SUMMARY:${icalEscape(e.label + ' ' + e.title)}`,
-        `DTSTART;VALUE=DATE:${e.deadline.replace(/-/g, '')}`,
-        `DTEND;VALUE=DATE:${toDateStr(nextDay)}`,
+        `DTSTART;VALUE=DATE:${e.deadline.replace(/-/g,'')}`, `DTEND;VALUE=DATE:${toDateStr(nextDay)}`,
         `DESCRIPTION:${icalEscape('Kategorie: ' + e.cat + '\nPriorität: ' + e.prio)}`,
-        'TRANSP:TRANSPARENT',
-        'STATUS:CONFIRMED',
-        'END:VEVENT'
-      );
+        'TRANSP:TRANSPARENT', 'STATUS:CONFIRMED', 'END:VEVENT');
     }
 
     lines.push('END:VCALENDAR');
-
     res.setHeader('Content-Type', 'text/calendar; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="taskflow.ics"');
     res.send(lines.join('\r\n'));
   } catch(e) { res.status(500).send('Fehler: ' + e.message); }
 });
 
+// ── CATCH-ALL (SPA) ───────────────────────────────
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
+// ── START ─────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-connectDB().then(() => app.listen(PORT, () => console.log(`🚀 http://localhost:${PORT}`))).catch(err => { console.error('❌', err.message); process.exit(1); });
+connectDB()
+  .then(() => app.listen(PORT, () => console.log(`🚀 http://localhost:${PORT}`)))
+  .catch(err => { console.error('❌', err.message); process.exit(1); });
