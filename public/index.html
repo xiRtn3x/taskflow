@@ -45,6 +45,17 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 /* vote tab badge */
 .vote-badge{position:absolute;top:-2px;right:-2px;width:8px;height:8px;background:var(--orange);border-radius:50%;border:2px solid var(--glass-nav);display:none;}
 #t3.has-votes .vote-badge{display:block;}
+/* Photo lightbox */
+.photo-lightbox{position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;backdrop-filter:blur(12px);}
+.photo-lightbox.open{opacity:1;pointer-events:all;}
+.photo-lightbox img{max-width:92vw;max-height:88dvh;border-radius:16px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.5);}
+.photo-lightbox-close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 14px);right:18px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;color:#fff;cursor:pointer;font-size:18px;}
+/* Recipe card in modal */
+.recipe-card{background:rgba(91,91,214,.08);border:1px solid rgba(91,91,214,.15);border-radius:12px;padding:10px 12px;margin-bottom:7px;cursor:pointer;transition:all .15s;}
+.recipe-card:last-child{margin-bottom:0;}
+.recipe-card:active{opacity:.75;}
+.recipe-title{font-size:14px;font-weight:600;color:var(--text);}
+.recipe-sub{font-size:12px;color:var(--text3);margin-top:2px;}
 
 .fab{position:fixed;bottom:calc(76px + var(--sb));right:16px;width:52px;height:52px;border-radius:50%;background:var(--acc);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 24px rgba(91,91,214,.45),0 0 0 1px rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;z-index:150;transition:transform .18s,box-shadow .18s;}
 .fab:active{transform:scale(.9);}
@@ -80,8 +91,12 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .shop-title{font-size:15px;font-weight:500;color:var(--text);transition:color .2s;}
 .shop-title.done{text-decoration:line-through;color:var(--text3);}
 .shop-meta{font-size:11px;color:var(--text2);margin-top:3px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-.shop-comment{font-size:12px;color:var(--text3);margin-top:2px;font-style:italic;}
-.shop-price{margin-left:auto;font-size:13px;font-weight:600;color:var(--text2);flex-shrink:0;padding-left:6px;}
+.shop-qty-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(150,150,200,.12);border:1px solid var(--sep);border-radius:6px;padding:1px 6px;font-size:12px;font-weight:600;color:var(--text2);cursor:pointer;transition:all .12s;margin-top:3px;}
+.shop-qty-chip:active{background:rgba(91,91,214,.12);border-color:var(--acc);color:var(--acc);}
+.shop-qty-inp{width:70px;background:var(--glass);border:1.5px solid var(--acc);border-radius:6px;padding:2px 6px;font-size:12px;font-weight:600;color:var(--text);font-family:inherit;outline:none;}
+.shop-price{font-size:13px;font-weight:600;color:var(--text2);flex-shrink:0;padding-left:6px;}
+.shop-photo-thumb{flex-shrink:0;width:44px;height:44px;border-radius:10px;overflow:hidden;border:1px solid var(--glass-border);cursor:pointer;position:relative;}
+.shop-photo-thumb img{width:100%;height:100%;object-fit:cover;}
 .shop-section{background:var(--glass);border:1px solid var(--glass-border);border-radius:var(--r);margin:0 14px 10px;overflow:hidden;backdrop-filter:blur(20px);}
 .shop-prog-bar{height:3px;background:var(--sep);}
 .shop-prog-fill{height:100%;background:var(--green);border-radius:2px;transition:width .3s;}
@@ -540,8 +555,14 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
     <!-- PAGE 4: EINKAUFEN -->
     <div class="page" id="pgShop">
       <div class="shop-filter">
-        <button class="shop-fb on" id="shopFbPlan" onclick="setShopFilter('plan',this)">🍽 Essensplan</button>
-        <button class="shop-fb" id="shopFbList" onclick="setShopFilter('list',this)">🛒 Einkaufsliste</button>
+        <button class="shop-fb on" id="shopFbPlan" onclick="setShopFilter('plan',this)" style="display:flex;align-items:center;justify-content:center;gap:5px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 0 0 2-2V2"/><path d="M7 2v20"/><path d="M21 15V2a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/></svg>
+          Essensplan
+        </button>
+        <button class="shop-fb" id="shopFbList" onclick="setShopFilter('list',this)" style="display:flex;align-items:center;justify-content:center;gap:5px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+          Einkaufsliste
+        </button>
       </div>
       <!-- ESSENSPLAN -->
       <div id="shopPlanView">
@@ -562,7 +583,6 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
           <button id="shopCheckedFilterBtn" onclick="toggleShopCheckedFilter()" style="display:flex;align-items:center;gap:5px;padding:6px 10px;border:1px solid var(--glass-border);background:var(--glass);border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;color:var(--text2);font-family:inherit;transition:all .15s;backdrop-filter:blur(10px);flex-shrink:0">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
             Abgehakte
-          </button>
           <button class="shop-clear-btn" onclick="clearCheckedShop()">
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
             Löschen
@@ -2005,13 +2025,12 @@ function updatePoolTab(){
 }
 function updateVoteTab(){
   const pending=tasks.filter(t=>needsMyVote(t));
-  // F7: show tab for all group members while any voting is in progress
   const anyVotingOpen=tasks.some(t=>isPoolTask(t)&&t.votingEnabled&&!hasFullScore(t));
-  const scored=tasks.filter(t=>isPoolTask(t)&&t.votingEnabled&&getScore(t)!=null);
   const t3=document.getElementById('t3');
   if(!t3)return;
   const inGroup=group&&users.length>=2;
-  const show=inGroup&&(anyVotingOpen||scored.length);
+  // Only show tab when there are actually tasks to vote on
+  const show=inGroup&&anyVotingOpen;
   if(show){
     t3.style.display='flex';
     t3.classList.toggle('has-votes',pending.length>0);
@@ -4247,12 +4266,47 @@ function renderMealGrid(){
     if(filled.length>0)loadRecipeSuggestions(filled.map(k=>mealPlan[k]));
   }
 }
+let mealRecipeTimer=null;
 function openMealModal(key,day,current){
   editingMealKey=key;
   document.getElementById('mealModalDay').textContent=day;
   document.getElementById('mealFText').value=current||'';
   document.getElementById('mealModal').classList.add('open');
+  // Show recipes immediately if meal already filled
+  if(current&&current.trim()){
+    document.getElementById('mealRecipeArea').style.display='';
+    loadMealRecipes(current.trim());
+  } else {
+    document.getElementById('mealRecipeArea').style.display='none';
+    document.getElementById('mealRecipeList').innerHTML='';
+  }
   setTimeout(()=>document.getElementById('mealFText').focus(),320);
+}
+function onMealTextInput(){
+  const val=document.getElementById('mealFText').value.trim();
+  clearTimeout(mealRecipeTimer);
+  if(!val){document.getElementById('mealRecipeArea').style.display='none';return;}
+  document.getElementById('mealRecipeArea').style.display='';
+  document.getElementById('mealRecipeList').innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Lade Vorschläge…</div>';
+  mealRecipeTimer=setTimeout(()=>loadMealRecipes(val),700);
+}
+async function loadMealRecipes(meal){
+  const list=document.getElementById('mealRecipeList');
+  if(!list)return;
+  list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Lade Rezeptvorschläge…</div>';
+  try{
+    const prompt=`Für das Gericht "${meal}": Schlage 3 konkrete Rezeptvarianten vor. Antworte NUR als JSON-Array (kein Markdown): [{"recipe":"Rezeptname","time":"30 Min","difficulty":"Einfach","tip":"kurzer Tipp"}]`;
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('');
+    const recipes=JSON.parse(text.replace(/```json|```/g,'').trim());
+    list.innerHTML='';
+    recipes.forEach(r=>{
+      const card=document.createElement('div');card.className='recipe-card';
+      card.innerHTML=`<div class="recipe-title">${r.recipe}</div><div class="recipe-sub">⏱ ${r.time} · ${r.difficulty}${r.tip?' · 💡 '+r.tip:''}</div>`;
+      list.appendChild(card);
+    });
+  }catch(e){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Vorschläge verfügbar</div>';}
 }
 function closeMealModal(){document.getElementById('mealModal').classList.remove('open');editingMealKey=null;}
 async function saveMeal(){
@@ -4342,17 +4396,24 @@ function renderShopList(){
       const row=document.createElement('div');row.className='shop-item';
       const rl=repeatLabel(item.repeat);
       const sid=item.id||item._id;
+      const qtyId=`qty-${sid}`;
       row.innerHTML=`
         <div class="shop-chk${item.checked?' done':''}" onclick="toggleShopItem('${sid}',event)">
           ${item.checked?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}
         </div>
-        ${item.photo?`<div class="shop-photo-badge has-photo" onclick="openEditShopItem('${sid}')"><img src="${item.photo}" style="width:36px;height:36px;object-fit:cover;border-radius:8px"><div class="cam-dot"></div></div>`:''}
         <div class="shop-body" onclick="openEditShopItem('${sid}')">
-          <div class="shop-title${item.checked?' done':''}">${item.title}${item.qty?`<span style="font-size:12px;color:var(--text3);font-weight:400"> · ${item.qty}</span>`:''}</div>
+          <div class="shop-title${item.checked?' done':''}">${item.title}</div>
           ${item.comment?`<div class="shop-comment">${item.comment}</div>`:''}
-          ${rl?`<div class="shop-meta"><span class="badge b-blu">${rl}</span></div>`:''}
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;align-items:center">
+            <div class="shop-qty-chip" id="${qtyId}" onclick="event.stopPropagation();startQtyEdit('${sid}','${qtyId}')">
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+              ${item.qty||'Menge'}
+            </div>
+            ${item.price?`<span style="font-size:12px;font-weight:600;color:var(--text2)">${parseFloat(item.price).toFixed(2)} €</span>`:''}
+            ${rl?`<span class="badge b-blu">${rl}</span>`:''}
+          </div>
         </div>
-        ${item.price?`<div class="shop-price">${parseFloat(item.price).toFixed(2)} €</div>`:''}`;
+        ${item.photo?`<div class="shop-photo-thumb" onclick="event.stopPropagation();openLightbox('${item.photo}')"><img src="${item.photo}" alt=""></div>`:''}`;
       wrap.appendChild(row);
     });
     sec.appendChild(wrap);container.appendChild(sec);
@@ -4368,6 +4429,37 @@ function renderShopList(){
 function toggleShopCheckedFilter(){
   shopCheckedOnly=!shopCheckedOnly;
   renderShopList();
+}
+
+// ─ Inline Menge-Bearbeitung ─
+function startQtyEdit(id,chipId){
+  const chip=document.getElementById(chipId);
+  if(!chip)return;
+  const item=shopItems.find(i=>(i.id||i._id)===id);
+  if(!item)return;
+  const inp=document.createElement('input');
+  inp.className='shop-qty-inp';
+  inp.value=item.qty||'';
+  inp.placeholder='Menge…';
+  inp.onclick=e=>e.stopPropagation();
+  chip.replaceWith(inp);
+  inp.focus();
+  inp.select();
+  async function commit(){
+    const val=inp.value.trim();
+    item.qty=val;
+    renderShopList();
+    try{await apiShopPatch(id,{qty:val});}catch(e){showToast('Fehler beim Speichern');}
+  }
+  inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();commit();}if(e.key==='Escape'){renderShopList();}});
+  inp.addEventListener('blur',commit);
+}
+function openLightbox(src){
+  document.getElementById('lightboxImg').src=src;
+  document.getElementById('photoLightbox').classList.add('open');
+}
+function closeLightbox(){
+  document.getElementById('photoLightbox').classList.remove('open');
 }
 
 async function toggleShopItem(id,e){
@@ -4620,10 +4712,24 @@ init();
   <div class="sheet">
     <div class="handle"></div>
     <div class="mhdr"><div class="mtitle" id="mealModalDay">Montag</div><span class="mclose" onclick="closeMealModal()">Abbrechen</span></div>
-    <div class="fg"><label class="fl">Gericht / Mahlzeit</label><input class="fi" id="mealFText" placeholder="Was gibt es zu essen?…"></div>
+    <div class="fg"><label class="fl">Gericht / Mahlzeit</label><input class="fi" id="mealFText" placeholder="Was gibt es zu essen?…" oninput="onMealTextInput()"></div>
     <div style="padding:0 16px 8px"><button class="btn btn-p" onclick="saveMeal()">Speichern</button></div>
     <div style="padding:0 16px 8px"><button class="btn btn-d" onclick="deleteMeal()">Leeren</button></div>
+    <!-- Rezeptvorschläge direkt im Modal -->
+    <div id="mealRecipeArea" style="display:none;padding:0 16px 16px">
+      <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
+        Rezeptvorschläge
+      </div>
+      <div id="mealRecipeList"></div>
+    </div>
   </div>
+</div>
+
+<!-- PHOTO LIGHTBOX -->
+<div class="photo-lightbox" id="photoLightbox" onclick="closeLightbox()">
+  <div class="photo-lightbox-close" onclick="closeLightbox()">✕</div>
+  <img id="lightboxImg" src="" alt="">
 </div>
 
 </body>
