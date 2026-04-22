@@ -4790,15 +4790,10 @@ function buildRepeatBtns(max){
   }
 }
 function getRepeatValue(){
-  if(currentRepeatType==='none')return null;
-  if(currentRepeatType==='always')return{type:'always',n:0};
-  return{type:currentRepeatType,n:currentRepeatN};
+  return{type:'always',n:0};
 }
 function applyRepeatToUI(repeat){
-  if(!repeat||!hasRepeat(repeat)){setRepeatType('none');return;}
-  const t=typeof repeat==='string'?'always':repeat.type;
-  const n=typeof repeat==='object'?repeat.n:1;
-  currentRepeatN=n||1;setRepeatType(t);
+  currentRepeatN=1;currentRepeatType='always';
 }
 
 function openAddShopItem(){
@@ -4810,7 +4805,7 @@ function openAddShopItem(){
   document.getElementById('shopFPrice').value='';
   document.getElementById('shopFComment').value='';
   document.getElementById('delShopItemWrap').innerHTML='';
-  removeShopPhoto();shopPhotoRemoved=false;currentRepeatType='none';currentRepeatN=1;setRepeatType('none');
+  removeShopPhoto();shopPhotoRemoved=false;currentRepeatType='always';currentRepeatN=1;
   document.getElementById('shopItemModal').classList.add('open');
   setTimeout(()=>document.getElementById('shopFTitle').focus(),320);
 }
@@ -4859,7 +4854,6 @@ async function saveShopItem(){
       showToast('Gespeichert');
     }else{
       const created=await apiShopAdd(payload);
-      // Server ignoriert ggf. checked — lokal erzwingen
       created.checked=true;
       shopItems.push(created);
       showToast('Artikel hinzugefügt');
@@ -7278,19 +7272,7 @@ init();
       <div style="flex:1"><label class="fl">Preis (€)</label><input class="fi" id="shopFPrice" type="number" step="0.01" placeholder="0.00" inputmode="decimal"></div>
     </div>
     <div class="fg"><label class="fl">Kommentar</label><input class="fi" id="shopFComment" placeholder="Optional: Hinweis, Marke…"></div>
-    <div class="fg">
-      <label class="fl">Wiederholung</label>
-      <div class="repeat-type-seg">
-        <button class="repeat-type-btn on" id="rTypNone"   onclick="setRepeatType('none')">Einmalig</button>
-        <button class="repeat-type-btn"    id="rTypAlways" onclick="setRepeatType('always')">Immer</button>
-        <button class="repeat-type-btn"    id="rTypWeekly" onclick="setRepeatType('weekly')">Wöchentl.</button>
-        <button class="repeat-type-btn"    id="rTypMonthly" onclick="setRepeatType('monthly')">Monatlich</button>
-      </div>
-      <div id="repeatIntervalWrap" style="display:none">
-        <div style="font-size:11px;color:var(--text3);margin-bottom:8px" id="repeatIntervalLabel">Alle wie viele Wochen?</div>
-        <div class="repeat-interval-row" id="repeatIntervalBtns"></div>
-      </div>
-    </div>
+
     <div style="padding:0 16px 8px"><button class="btn btn-p" onclick="saveShopItem()">Speichern</button></div>
     <div style="padding:0 16px 8px" id="delShopItemWrap"></div>
   </div>
