@@ -653,7 +653,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         </button>
         <button class="shop-finish-btn" id="shopFinishBtn" onclick="openFinishShopping()" style="display:none">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          Einkauf abschließen
+          Einkauf erledigt
         </button>
       </div>
     </div>
@@ -4287,18 +4287,6 @@ async function apiShopLoad(){
   try{
     const [items,plan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
     shopItems=items||[];mealPlan=plan||{};
-    // Alle Artikel die noch keine 'always'-Wiederholung haben, automatisch updaten
-    const toFix=shopItems.filter(i=>{
-      if(!i.repeat)return true;
-      if(typeof i.repeat==='string')return i.repeat!=='always';
-      if(typeof i.repeat==='object')return i.repeat.type!=='always';
-      return false;
-    });
-    if(toFix.length){
-      toFix.forEach(i=>{i.repeat={type:'always',n:0};});
-      // Server-seitig patchen (fire & forget, nicht blockend)
-      toFix.forEach(i=>apiShopPatch(i.id||i._id,{repeat:{type:'always',n:0}}).catch(()=>{}));
-    }
     shopPollHash=shopItems.length+'|'+shopItems.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
   }catch(e){showToast('Einkaufsliste konnte nicht geladen werden');shopItems=[];mealPlan={};}
 }
@@ -4576,15 +4564,15 @@ function renderShopList(){
   SHOP_CATS.forEach(cat=>{
     const allItems=byCat[cat];
     if(!allItems||!allItems.length)return;
-    // list=alle Artikel, shop=nur abgehakte (die mitgenommen werden sollen)
+    // In filter mode: only checked items shown, but category header still appears
     let visibleItems=shopCheckedOnly?allItems.filter(i=>i.checked):allItems;
     if(shopSearchQuery)visibleItems=visibleItems.filter(i=>i.title.toLowerCase().includes(shopSearchQuery));
     if(!visibleItems.length)return;
     anyVisible=true;
     const sec=document.createElement('div');
     const countLabel=shopCheckedOnly
-      ?`${visibleItems.filter(i=>i.checked).length} dabei`
-      :`${allItems.filter(i=>i.checked).length} ausgewählt / ${allItems.length} gesamt`;
+      ?`${visibleItems.length} abgehakt`
+      :`${allItems.filter(i=>!i.checked).length} offen`;
     sec.innerHTML=`<div class="shop-cat-hdr">${cat}<span style="font-size:11px;color:var(--text3)">${countLabel}</span></div>`;
     const wrap=document.createElement('div');wrap.className='shop-section';
     visibleItems.forEach(item=>{
@@ -4617,7 +4605,7 @@ function renderShopList(){
   if(!shopItems.length){
     container.innerHTML='<div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><div class="empty-t">Keine Artikel</div><div class="empty-s">Füge Artikel über + hinzu</div></div>';
   } else if(shopCheckedOnly&&!anyVisible){
-    container.innerHTML='<div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><div class="empty-t">Keine Artikel ausgewählt</div><div class="empty-s">Hake in der Einkaufsliste Artikel an, die du kaufen möchtest.</div></div>';
+    container.innerHTML='<div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><div class="empty-t">Noch nichts abgehakt</div><div class="empty-s">Hake Artikel ab um sie hier zu sehen</div></div>';
   }
 }
 
@@ -4707,24 +4695,24 @@ async function clearCheckedShop(){
 
 // ─ Finish shopping ─
 function openFinishShopping(){
-  const checked=shopItems.filter(i=>i.checked).length;
-  const desc=checked>0
-    ?`${checked} Artikel wurden eingekauft. Alle Häkchen werden zurückgesetzt — beim nächsten Einkauf neu auswählen.`
-    :'Keine Artikel ausgewählt.';
+  const rc=shopItems.filter(i=>i.checked&&hasRepeat(i.repeat)).length;
+  const oc=shopItems.filter(i=>i.checked&&!hasRepeat(i.repeat)).length;
+  let desc='';
+  if(rc>0)desc+=`${rc} Wiederholungsartikel können zurückgesetzt werden. `;
+  if(oc>0)desc+=`${oc} einmalige Artikel werden entfernt.`;
+  if(!desc)desc='Keine abgehakten Artikel vorhanden.';
   document.getElementById('shopFinishDesc').textContent=desc;
   document.getElementById('shopFinishConfirm').classList.add('open');
 }
 function closeFinishShopping(){document.getElementById('shopFinishConfirm').classList.remove('open');}
-async function confirmFinishShopping(){
+async function confirmFinishShopping(resetRepeating){
   try{
-    // Alle abgehakten Artikel unchecken (nicht löschen — bleiben in der Liste)
-    const checked=shopItems.filter(i=>i.checked);
-    checked.forEach(i=>{i.checked=false;});
-    renderShopList();
+    const r=await apiShopFinish(resetRepeating);
     closeFinishShopping();
-    // Server: alle unchecken
-    await Promise.all(checked.map(i=>apiShopPatch(i.id||i._id,{checked:false}).catch(()=>{})));
-    showToast(`Einkauf erledigt · ${checked.length} Artikel zurückgesetzt ✓`);
+    await renderShopTab();
+    showToast(resetRepeating
+      ?`Abgeschlossen · ${r.reset} zurückgesetzt · ${r.deleted} entfernt`
+      :`Abgeschlossen · ${r.deleted} Artikel entfernt`);
   }catch(e){showToast('Fehler: '+e.message);}
 }
 
@@ -4802,12 +4790,15 @@ function buildRepeatBtns(max){
   }
 }
 function getRepeatValue(){
-  // Alle Artikel sind immer auf der Liste — kein einmaliges mehr
-  return{type:'always',n:0};
+  if(currentRepeatType==='none')return null;
+  if(currentRepeatType==='always')return{type:'always',n:0};
+  return{type:currentRepeatType,n:currentRepeatN};
 }
 function applyRepeatToUI(repeat){
-  // Immer auf 'always' setzen — Einzel-Artikel gibt es nicht mehr
-  currentRepeatN=1;setRepeatType('always');
+  if(!repeat||!hasRepeat(repeat)){setRepeatType('none');return;}
+  const t=typeof repeat==='string'?'always':repeat.type;
+  const n=typeof repeat==='object'?repeat.n:1;
+  currentRepeatN=n||1;setRepeatType(t);
 }
 
 function openAddShopItem(){
@@ -4819,7 +4810,7 @@ function openAddShopItem(){
   document.getElementById('shopFPrice').value='';
   document.getElementById('shopFComment').value='';
   document.getElementById('delShopItemWrap').innerHTML='';
-  removeShopPhoto();shopPhotoRemoved=false;currentRepeatType='always';currentRepeatN=1;setRepeatType('always');
+  removeShopPhoto();shopPhotoRemoved=false;currentRepeatType='none';currentRepeatN=1;setRepeatType('none');
   document.getElementById('shopItemModal').classList.add('open');
   setTimeout(()=>document.getElementById('shopFTitle').focus(),320);
 }
@@ -4850,8 +4841,6 @@ async function saveShopItem(){
     comment:document.getElementById('shopFComment').value.trim(),
     repeat:getRepeatValue(),
     photo:pendingShopPhoto!==null?pendingShopPhoto:(shopPhotoRemoved?null:undefined),
-    // Neue Artikel direkt abhaken (= auf Einkaufsliste setzen)
-    ...(!editingShopId&&{checked:true}),
   };
   shopLastSave=Date.now();
   const savingId=editingShopId; // capture BEFORE closeShopItemModal nulls it
@@ -4870,6 +4859,8 @@ async function saveShopItem(){
       showToast('Gespeichert');
     }else{
       const created=await apiShopAdd(payload);
+      // Server ignoriert ggf. checked — lokal erzwingen
+      created.checked=true;
       shopItems.push(created);
       showToast('Artikel hinzugefügt');
     }
@@ -7287,7 +7278,7 @@ init();
       <div style="flex:1"><label class="fl">Preis (€)</label><input class="fi" id="shopFPrice" type="number" step="0.01" placeholder="0.00" inputmode="decimal"></div>
     </div>
     <div class="fg"><label class="fl">Kommentar</label><input class="fi" id="shopFComment" placeholder="Optional: Hinweis, Marke…"></div>
-    <div class="fg" style="display:none">
+    <div class="fg">
       <label class="fl">Wiederholung</label>
       <div class="repeat-type-seg">
         <button class="repeat-type-btn on" id="rTypNone"   onclick="setRepeatType('none')">Einmalig</button>
@@ -7310,10 +7301,11 @@ init();
   <div class="shop-finish-sheet">
     <div style="font-size:19px;font-weight:800;margin-bottom:6px">Einkauf abschließen?</div>
     <div style="font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:18px" id="shopFinishDesc"></div>
-    <button class="btn btn-p" style="margin-bottom:10px" onclick="confirmFinishShopping()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      Einkauf abschließen
+    <button class="btn btn-p" style="margin-bottom:10px" onclick="confirmFinishShopping(true)">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+      Ja, Wiederholungsartikel zurücksetzen
     </button>
+    <button class="btn btn-out" style="margin-bottom:10px" onclick="confirmFinishShopping(false)">Nein, nur abhaken lassen</button>
     <button class="btn btn-g" onclick="closeFinishShopping()">Abbrechen</button>
   </div>
 </div>
