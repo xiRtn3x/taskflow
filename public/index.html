@@ -653,7 +653,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         </button>
         <button class="shop-finish-btn" id="shopFinishBtn" onclick="openFinishShopping()" style="display:none">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-          Einkauf erledigt
+          Einkauf abschließen
         </button>
       </div>
     </div>
@@ -2246,28 +2246,12 @@ function isWgPoolTask(t){return t.type==='wgpool'||t.isWgPool===true;}
 function isSharedTask(t){return t.type==='shared';}
 function isMyTask(t){return t.type==='mine'||(!isPoolTask(t)&&!isWgPoolTask(t)&&!isSharedTask(t));}
 function visibleToMe(t){const myId=me._id?.toString();if(isMyTask(t))return t.assignee===myId;if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;if(isPoolTask(t))return true;if(isWgPoolTask(t))return true;return false;}
-function canComplete(t){
-  const myId=me._id?.toString();
-  if(isMyTask(t))return t.assignee===myId;
-  if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
-  if(isPoolTask(t)){
-    // Alle Gruppenmitglieder können Pool-Aufgaben erledigen
-    return!!(group&&users.length>=2);
-  }
-  if(isWgPoolTask(t)){const wg=appstate.wgPool?.[t._id?.toString()];if(!wg||wg.status!=='active')return false;return wg.queue[wg.currentIdx]===myId;}
-  return false;
-}
+function canComplete(t){const myId=me._id?.toString();if(isMyTask(t))return t.assignee===myId;if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];return a?.assignedUser===myId;}if(isWgPoolTask(t)){const wg=appstate.wgPool?.[t._id?.toString()];if(!wg||wg.status!=='active')return false;return wg.queue[wg.currentIdx]===myId;}return false;}
 function showInMy(t){
   const myId=me._id?.toString();
   if(isMyTask(t))return t.assignee===myId;
   if(isSharedTask(t))return(t.sharedWith||[]).includes(myId)||t.creatorId===myId;
-  if(isPoolTask(t)){
-    // Auch erledigte Pool-Aufgaben anzeigen (erscheinen im Erledigt-Filter)
-    const a=appstate.poolAssigns?.[t._id?.toString()];
-    if(a?.assignedUser===myId)return true;
-    if(a?.subtaskAssignments)return Object.values(a.subtaskAssignments).some(uid=>uid===myId);
-    return false;
-  }
+  if(isPoolTask(t)){const a=appstate.poolAssigns?.[t._id?.toString()];if(a?.assignedUser===myId)return true;if(a?.subtaskAssignments)return Object.values(a.subtaskAssignments).some(uid=>uid===myId);return false;}
   if(isWgPoolTask(t)){const wg=appstate.wgPool?.[t._id?.toString()];if(!wg)return false;return wg.queue[wg.currentIdx]===myId&&wg.status==='active';}
   return false;
 }
@@ -2442,7 +2426,7 @@ function fairShuffleAssigns(ids){
       debt[spick]=(debt[spick]||0)+(getPersonalScore(t,spick)/2);
     });
 
-    a[id]={assignedUser:pick,subtaskAssignments:subA,assignedAt:todayStr()};
+    a[id]={assignedUser:pick,subtaskAssignments:subA};
     debt[pick]=(debt[pick]||0)+getPersonalScore(t,pick);
   });
 
@@ -3023,16 +3007,8 @@ function updatePoolPreview(){
 function shufflePool(autoOnly=false){
   const allPool=tasks.filter(t=>isPoolTask(t)&&!t.done);
   const poolable=allPool.filter(t=>{
-    const _pid=t._id?.toString();
-    if((!t.repeat||t.repeat==='Nie')&&appstate.poolAssigns?.[_pid])return false;
-    // Wiederkehrende: Zuteilung im laufenden Zyklus nicht überschreiben
-    if(t.repeat&&t.repeat!=='Nie'&&appstate.poolAssigns?.[_pid]){
-      const _at=(appstate.poolAssigns[_pid].assignedAt)||'';
-      if(t.repeat==='Täglich'&&_at===todayStr())return false;
-      if(t.repeat==='Wöchentlich'&&_at&&weekStart(_at)===weekStart(todayStr()))return false;
-      if(t.repeat==='Monatlich'&&_at&&_at.slice(0,7)===todayStr().slice(0,7))return false;
-      if(t.repeat==='Jährlich'&&_at&&_at.slice(0,4)===todayStr().slice(0,4))return false;
-    }
+    // One-time tasks already assigned stay with their user — skip in shuffle
+    if((!t.repeat||t.repeat==='Nie')&&appstate.poolAssigns?.[t._id?.toString()])return false;
     return poolTaskEligibleThisWeek(t);
   });
   if(!poolable.length){
@@ -3045,9 +3021,7 @@ function shufflePool(autoOnly=false){
   if(!appstate.recurringPoolShown)appstate.recurringPoolShown={};
   appstate.poolTasks=poolable.map(t=>t._id?.toString());
   const finalAssigns=fairShuffleAssigns(appstate.poolTasks);
-  // Neue Zuteilungen in bestehende mergen, assignedAt für alle sichern
-  Object.values(finalAssigns).forEach(a=>{if(!a.assignedAt)a.assignedAt=todayStr();});
-  appstate.poolAssigns={...appstate.poolAssigns,...finalAssigns};
+  appstate.poolAssigns=finalAssigns;
   appstate.poolFilter='me';
   // Mark pending for all other group members (they see animation on next open)
   appstate.pendingSlotShow=true;
@@ -3200,7 +3174,7 @@ function openDetail(id){
   document.getElementById('detailContent').innerHTML=`<div style="padding:14px 14px 10px"><div style="display:flex;gap:6px;flex-wrap:wrap"><span class="badge ${PRIO_CLS[t.prio]||'b-ora'}">${lang==='en'?{Hoch:'High',Mittel:'Medium',Niedrig:'Low'}[t.prio]||t.prio:t.prio}</span><span class="badge b-blu">${t.cat}</span>${t.done?`<span class="badge b-grn" style="display:inline-flex;align-items:center;gap:3px">${I.check} ${lang==='en'?'Done':'Erledigt'}</span>`:''}${t.repeat&&t.repeat!=='Nie'?`<span class="badge b-rec" style="display:inline-flex;align-items:center;gap:3px">${I.rep} ${lang==='en'?{Täglich:'Daily',Wöchentlich:'Weekly',Monatlich:'Monthly',Jährlich:'Yearly'}[t.repeat]||t.repeat:t.repeat}${t.repeat==='Monatlich'&&(t.repeatInterval||1)>1?` (alle ${t.repeatInterval}M)`:''}</span>`:''}${sc!=null?`<span class="badge b-poop" style="color:${poopColor(sc)};border-color:${poopColor(sc)}30;display:inline-flex;align-items:center;gap:2px">${poopSVG(11)} ${sc}</span>`:''}</div>${t.desc?`<div style="font-size:14px;color:var(--text2);line-height:1.6;margin-top:12px">${t.desc}</div>`:''}</div>${t.subtasks?.length?`<div style="padding:0 14px 4px">${prog(t)}</div>`:''}
   <div class="sec">Details</div><div class="glass-card cg"><div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.user}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Assigned to':'Zuständig'}</span><span style="color:${col};font-weight:600;font-size:14px">${aname}</span></div>${t.deadline?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.cal}</span><span style="flex:1;font-size:14px;color:var(--text2)">Deadline</span><span style="font-size:14px;color:${overdue?'var(--red)':'var(--text3)'}">${fmtD(t.deadline)}${overdue?` ${I.alert}`:''}</span></div>`:''}${isPoolTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.shuf}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Pool':'Pool'}</span><span style="color:var(--green);font-size:14px">${I.check} ${lang==='en'?'Yes':'Ja'}</span></div>`:''}${isSharedTask(t)?`<div class="crow" style="cursor:default"><span style="color:var(--text3)">${I.users}</span><span style="flex:1;font-size:14px;color:var(--text2)">${lang==='en'?'Shared':'Gemeinsam'}</span><span style="font-size:14px;color:var(--text3)">${(t.sharedWith||[]).map(id=>{const u=uById(id);return u?u.name:'?';}).join(', ')}</span></div>`:''}
   </div>${subsH}${voteSection}
-  <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?(lang==='en'?'Reopen':'Wieder öffnen'):(lang==='en'?'Mark as done':'Als erledigt markieren')}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">${lang==='en'?(isPoolTask(t)?'All group members can complete pool tasks':'Only the task creator can complete this task'):(isPoolTask(t)?'Alle Gruppenmitglieder können Pool-Aufgaben erledigen':'Nur der Aufgaben-Ersteller kann diese Aufgabe abschließen')}</div>`}</div>
+  <div style="padding:8px 14px 4px">${canComplete(t)?`<button class="btn btn-p" onclick="toggleTask('${id}',true)">${t.done?(lang==='en'?'Reopen':'Wieder öffnen'):(lang==='en'?'Mark as done':'Als erledigt markieren')}</button>`:`<div style="text-align:center;font-size:13px;color:var(--text3);padding:10px 0">${lang==='en'?(isPoolTask(t)?'Only the assigned user can complete this task':'Only the task creator can complete this task'):(isPoolTask(t)?'Nur der zugewiesene Nutzer kann diese Aufgabe abschließen':'Nur der Aufgaben-Ersteller kann diese Aufgabe abschließen')}</div>`}</div>
   <div style="padding:4px 14px 24px"><button class="btn btn-d" style="gap:6px" onclick="delDetail('${id}')">${I.trash} ${lang==='en'?'Delete':'Löschen'}</button></div>`;
   const dt=document.getElementById('detailTitle');if(dt)dt.textContent=t.title;
   document.getElementById('taskDetail').classList.add('open');
@@ -3314,17 +3288,9 @@ async function toggleTask(id,withCeleb=false){
   const was=t.done;t.done=!t.done;
   if(!was&&t.repeat&&t.repeat!=='Nie'){if(!appstate.recurringLast)appstate.recurringLast={};appstate.recurringLast[id]=todayStr();saveState();}
   if(was&&t.repeat&&t.repeat!=='Nie'&&appstate.recurringLast){delete appstate.recurringLast[id];saveState();}
-  if(!was&&isPoolTask(t)){
-    // Persönlichen Score dem Erledigler anrechnen (nicht nur dem Zugeteilten)
-    const _cid=me._id?.toString();
-    if(!appstate.shuffleDebtScore)appstate.shuffleDebtScore={};
-    const _cv=t.votingEnabled?(t.votes||{})[_cid]:null;
-    const _cs=_cv!=null?_cv:(t.poopScore!=null?t.poopScore:5);
-    appstate.shuffleDebtScore[_cid]=(appstate.shuffleDebtScore[_cid]||0)+_cs;
-    // Einmalige Aufgabe: geplantes Datum löschen
-    if(!t.repeat||t.repeat==='Nie'){
-      if(appstate.poolScheduled?.[id])delete appstate.poolScheduled[id];
-    }
+  if(!was&&isPoolTask(t)&&(!t.repeat||t.repeat==='Nie')){
+    // One-time task done — clear scheduled date so it won't re-enter shuffle
+    if(appstate.poolScheduled?.[id])delete appstate.poolScheduled[id];
     saveState();
   }
   // Fix P3: track completion date for pool recurring tasks (used by poolTaskEligibleThisWeek)
@@ -4321,6 +4287,18 @@ async function apiShopLoad(){
   try{
     const [items,plan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
     shopItems=items||[];mealPlan=plan||{};
+    // Alle Artikel die noch keine 'always'-Wiederholung haben, automatisch updaten
+    const toFix=shopItems.filter(i=>{
+      if(!i.repeat)return true;
+      if(typeof i.repeat==='string')return i.repeat!=='always';
+      if(typeof i.repeat==='object')return i.repeat.type!=='always';
+      return false;
+    });
+    if(toFix.length){
+      toFix.forEach(i=>{i.repeat={type:'always',n:0};});
+      // Server-seitig patchen (fire & forget, nicht blockend)
+      toFix.forEach(i=>apiShopPatch(i.id||i._id,{repeat:{type:'always',n:0}}).catch(()=>{}));
+    }
     shopPollHash=shopItems.length+'|'+shopItems.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
   }catch(e){showToast('Einkaufsliste konnte nicht geladen werden');shopItems=[];mealPlan={};}
 }
@@ -4372,7 +4350,7 @@ function clearShopSearch(){
 
 function setShopFilter(f,btn){
   shopFilter=f;
-  shopCheckedOnly=false; // list=alle zeigen, shop=nur offene
+  shopCheckedOnly=(f==='shop');
   document.querySelectorAll('.shop-fb').forEach(b=>b.classList.remove('on'));
   if(btn)btn.classList.add('on');
   document.getElementById('shopPlanView').style.display=f==='plan'?'':'none';
@@ -4598,16 +4576,15 @@ function renderShopList(){
   SHOP_CATS.forEach(cat=>{
     const allItems=byCat[cat];
     if(!allItems||!allItems.length)return;
-    // In filter mode: only checked items shown, but category header still appears
-    // shop=nur offene (noch zu kaufen), list=alle inkl. abgehakte
-    let visibleItems=(shopFilter==='shop')?allItems.filter(i=>!i.checked):allItems;
+    // list=alle Artikel, shop=nur abgehakte (die mitgenommen werden sollen)
+    let visibleItems=shopCheckedOnly?allItems.filter(i=>i.checked):allItems;
     if(shopSearchQuery)visibleItems=visibleItems.filter(i=>i.title.toLowerCase().includes(shopSearchQuery));
     if(!visibleItems.length)return;
     anyVisible=true;
     const sec=document.createElement('div');
     const countLabel=shopCheckedOnly
-      ?`${visibleItems.length} abgehakt`
-      :`${allItems.filter(i=>!i.checked).length} offen`;
+      ?`${visibleItems.filter(i=>i.checked).length} dabei`
+      :`${allItems.filter(i=>i.checked).length} ausgewählt / ${allItems.length} gesamt`;
     sec.innerHTML=`<div class="shop-cat-hdr">${cat}<span style="font-size:11px;color:var(--text3)">${countLabel}</span></div>`;
     const wrap=document.createElement('div');wrap.className='shop-section';
     visibleItems.forEach(item=>{
@@ -4639,8 +4616,8 @@ function renderShopList(){
   container.appendChild(frag);
   if(!shopItems.length){
     container.innerHTML='<div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><div class="empty-t">Keine Artikel</div><div class="empty-s">Füge Artikel über + hinzu</div></div>';
-  } else if(shopFilter==='shop'&&!anyVisible){
-    container.innerHTML='<div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg><div class="empty-t">Alles erledigt!</div><div class="empty-s">Nichts mehr offen — super!</div></div>';
+  } else if(shopCheckedOnly&&!anyVisible){
+    container.innerHTML='<div class="empty"><svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><div class="empty-t">Keine Artikel ausgewählt</div><div class="empty-s">Hake in der Einkaufsliste Artikel an, die du kaufen möchtest.</div></div>';
   }
 }
 
@@ -4730,24 +4707,24 @@ async function clearCheckedShop(){
 
 // ─ Finish shopping ─
 function openFinishShopping(){
-  const rc=shopItems.filter(i=>i.checked&&hasRepeat(i.repeat)).length;
-  const oc=shopItems.filter(i=>i.checked&&!hasRepeat(i.repeat)).length;
-  let desc='';
-  if(rc>0)desc+=`${rc} Wiederholungsartikel können zurückgesetzt werden. `;
-  if(oc>0)desc+=`${oc} einmalige Artikel werden entfernt.`;
-  if(!desc)desc='Keine abgehakten Artikel vorhanden.';
+  const checked=shopItems.filter(i=>i.checked).length;
+  const desc=checked>0
+    ?`${checked} Artikel wurden eingekauft. Alle Häkchen werden zurückgesetzt — beim nächsten Einkauf neu auswählen.`
+    :'Keine Artikel ausgewählt.';
   document.getElementById('shopFinishDesc').textContent=desc;
   document.getElementById('shopFinishConfirm').classList.add('open');
 }
 function closeFinishShopping(){document.getElementById('shopFinishConfirm').classList.remove('open');}
-async function confirmFinishShopping(resetRepeating){
+async function confirmFinishShopping(){
   try{
-    const r=await apiShopFinish(resetRepeating);
+    // Alle abgehakten Artikel unchecken (nicht löschen — bleiben in der Liste)
+    const checked=shopItems.filter(i=>i.checked);
+    checked.forEach(i=>{i.checked=false;});
+    renderShopList();
     closeFinishShopping();
-    await renderShopTab();
-    showToast(resetRepeating
-      ?`Abgeschlossen · ${r.reset} zurückgesetzt · ${r.deleted} entfernt`
-      :`Abgeschlossen · ${r.deleted} Artikel entfernt`);
+    // Server: alle unchecken
+    await Promise.all(checked.map(i=>apiShopPatch(i.id||i._id,{checked:false}).catch(()=>{})));
+    showToast(`Einkauf erledigt · ${checked.length} Artikel zurückgesetzt ✓`);
   }catch(e){showToast('Fehler: '+e.message);}
 }
 
@@ -4825,15 +4802,12 @@ function buildRepeatBtns(max){
   }
 }
 function getRepeatValue(){
-  if(currentRepeatType==='none')return null;
-  if(currentRepeatType==='always')return{type:'always',n:0};
-  return{type:currentRepeatType,n:currentRepeatN};
+  // Alle Artikel sind immer auf der Liste — kein einmaliges mehr
+  return{type:'always',n:0};
 }
 function applyRepeatToUI(repeat){
-  if(!repeat||!hasRepeat(repeat)){setRepeatType('none');return;}
-  const t=typeof repeat==='string'?'always':repeat.type;
-  const n=typeof repeat==='object'?repeat.n:1;
-  currentRepeatN=n||1;setRepeatType(t);
+  // Immer auf 'always' setzen — Einzel-Artikel gibt es nicht mehr
+  currentRepeatN=1;setRepeatType('always');
 }
 
 function openAddShopItem(){
@@ -4845,7 +4819,7 @@ function openAddShopItem(){
   document.getElementById('shopFPrice').value='';
   document.getElementById('shopFComment').value='';
   document.getElementById('delShopItemWrap').innerHTML='';
-  removeShopPhoto();shopPhotoRemoved=false;currentRepeatType='none';currentRepeatN=1;setRepeatType('none');
+  removeShopPhoto();shopPhotoRemoved=false;currentRepeatType='always';currentRepeatN=1;setRepeatType('always');
   document.getElementById('shopItemModal').classList.add('open');
   setTimeout(()=>document.getElementById('shopFTitle').focus(),320);
 }
@@ -4876,7 +4850,7 @@ async function saveShopItem(){
     comment:document.getElementById('shopFComment').value.trim(),
     repeat:getRepeatValue(),
     photo:pendingShopPhoto!==null?pendingShopPhoto:(shopPhotoRemoved?null:undefined),
-    // Neue Artikel direkt abhaken (beim nächsten Einkauf relevant)
+    // Neue Artikel direkt abhaken (= auf Einkaufsliste setzen)
     ...(!editingShopId&&{checked:true}),
   };
   shopLastSave=Date.now();
@@ -7313,7 +7287,7 @@ init();
       <div style="flex:1"><label class="fl">Preis (€)</label><input class="fi" id="shopFPrice" type="number" step="0.01" placeholder="0.00" inputmode="decimal"></div>
     </div>
     <div class="fg"><label class="fl">Kommentar</label><input class="fi" id="shopFComment" placeholder="Optional: Hinweis, Marke…"></div>
-    <div class="fg">
+    <div class="fg" style="display:none">
       <label class="fl">Wiederholung</label>
       <div class="repeat-type-seg">
         <button class="repeat-type-btn on" id="rTypNone"   onclick="setRepeatType('none')">Einmalig</button>
@@ -7336,11 +7310,10 @@ init();
   <div class="shop-finish-sheet">
     <div style="font-size:19px;font-weight:800;margin-bottom:6px">Einkauf abschließen?</div>
     <div style="font-size:14px;color:var(--text2);line-height:1.5;margin-bottom:18px" id="shopFinishDesc"></div>
-    <button class="btn btn-p" style="margin-bottom:10px" onclick="confirmFinishShopping(true)">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-      Ja, Wiederholungsartikel zurücksetzen
+    <button class="btn btn-p" style="margin-bottom:10px" onclick="confirmFinishShopping()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      Einkauf abschließen
     </button>
-    <button class="btn btn-out" style="margin-bottom:10px" onclick="confirmFinishShopping(false)">Nein, nur abhaken lassen</button>
     <button class="btn btn-g" onclick="closeFinishShopping()">Abbrechen</button>
   </div>
 </div>
