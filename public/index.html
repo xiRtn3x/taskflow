@@ -1793,12 +1793,14 @@ function showApp(){
     // Fix P2: do NOT return early — still check pendingSlotShow below
   }
   // Show slot machine reliably after any shuffle (auto or manual) — only once per shuffle
-  if(appstate.pendingSlotShow&&appstate.poolAssigns&&appstate.poolTasks?.length){
+  if(appstate.pendingSlotShow&&appstate.poolAssigns&&(appstate.poolTasks?.length>0||Object.keys(appstate.poolAssigns||{}).length>0)){
     // Clear flag immediately so re-opens don't show it again
     appstate.pendingSlotShow=false;
     saveState();
+    // Use poolTasks from appstate, or fall back to the assigned task IDs from poolAssigns
+    const slotTaskIds=appstate.poolTasks?.length>0?appstate.poolTasks:Object.keys(appstate.poolAssigns||{});
     setTimeout(()=>{
-      _showSlotMachine(appstate.poolTasks, appstate.poolAssigns, null);
+      _showSlotMachine(slotTaskIds, appstate.poolAssigns, null);
     },700);
   }
 }
@@ -1939,9 +1941,10 @@ function startPolling(){
         // Check auto-shuffle when app comes to foreground (todayKey prevents double-shuffle)
         checkAutoShuffle();
         // Show pending slot machine result if a shuffle happened since last open
-        if(appstate.pendingSlotShow&&appstate.poolAssigns&&appstate.poolTasks?.length){
+        if(appstate.pendingSlotShow&&appstate.poolAssigns&&(appstate.poolTasks?.length>0||Object.keys(appstate.poolAssigns||{}).length>0)){
           appstate.pendingSlotShow=false;saveState();
-          setTimeout(()=>{_showSlotMachine(appstate.poolTasks,appstate.poolAssigns,null);},700);
+          const slotTaskIds=appstate.poolTasks?.length>0?appstate.poolTasks:Object.keys(appstate.poolAssigns||{});
+          setTimeout(()=>{_showSlotMachine(slotTaskIds,appstate.poolAssigns,null);},700);
         }
       }
     });
@@ -3451,7 +3454,7 @@ async function saveTask(){
   if(editingId){
     const idx=tasks.findIndex(t=>t._id?.toString()===editingId);
     if(idx>=0)tasks[idx]={...tasks[idx],...data};
-    newSubs=[];render();closeTaskModal();showToast(lang==='en'?'Saved':'Gespeichert');
+    newSubs=[];render();updateVoteTab();closeTaskModal();showToast(lang==='en'?'Saved':'Gespeichert');
     api('PATCH','/tasks/'+editingId,data).catch(e=>showToast((lang==='en'?'Sync error: ':'Sync-Fehler: ')+e.message));
     saveState();
   } else {
@@ -3471,7 +3474,7 @@ async function saveTask(){
           saveState();
         }
       }
-      render();
+      render();updateVoteTab();
     }).catch(e=>{tasks=tasks.filter(t=>t._id!==tmpId);render();showToast('Fehler: '+e.message);});
     saveState();
   }
