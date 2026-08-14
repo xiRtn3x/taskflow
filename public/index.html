@@ -4223,7 +4223,17 @@ let shopItems=[];
 let shopPollHash=null;
 let shopPollTimer=null;
 let shopLastSave=0;
+// Tracks which item-ids currently have an unconfirmed write in flight (toggle, qty edit,
+// save, delete...) plus items being actively edited in a modal. While an id is "pending",
+// incoming poll data for that id is ignored so we never clobber a local change that the
+// server hasn't caught up with yet - this is what makes multi-user editing safe.
+const shopPendingWrites=new Map(); // id(string) -> count of in-flight operations
+const shopPendingDeletes=new Set(); // ids we've locally removed but delete may not have landed on the server yet
+function beginShopPending(id){id=String(id);shopPendingWrites.set(id,(shopPendingWrites.get(id)||0)+1);}
+function endShopPending(id){id=String(id);const c=(shopPendingWrites.get(id)||1)-1;if(c<=0)shopPendingWrites.delete(id);else shopPendingWrites.set(id,c);}
 let mealPlan={};
+let mealPlanPollHash=null;
+const mealPlanPendingKeys=new Set(); // weekday keys with an unconfirmed local edit
 let shopFilter='plan';
 let shopCheckedOnly=false;
 let editingShopId=null;
@@ -4243,20 +4253,56 @@ function shopItemsHash(){
   return shopItems.length+'|'+shopItems.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
 }
 
+// Merge freshly-fetched server items into the local array without discarding any item
+// that currently has an unconfirmed local write in flight. This is what lets several
+// people use the list at once: each device keeps its own not-yet-saved changes, while
+// everything else picks up other people's changes on the next poll tick.
+function mergeShopItems(fresh){
+  const freshById=new Map(fresh.map(i=>[String(i.id||i._id),i]));
+  const localById=new Map(shopItems.map(i=>[String(i.id||i._id),i]));
+  const merged=[];
+  freshById.forEach((freshItem,id)=>{
+    if(shopPendingDeletes.has(id))return; // we deleted it locally, server just hasn't caught up
+    if(shopPendingWrites.has(id)&&localById.has(id)){
+      merged.push(localById.get(id)); // keep our own unconfirmed version
+    }else{
+      merged.push(freshItem);
+    }
+  });
+  // Keep any locally-known item that the server fetch doesn't (yet) contain, as long as
+  // it's not something we ourselves deleted - covers a brand-new item we just added.
+  localById.forEach((localItem,id)=>{
+    if(!freshById.has(id)&&!shopPendingDeletes.has(id)&&shopPendingWrites.has(id)){
+      merged.push(localItem);
+    }
+  });
+  return merged;
+}
+
 async function pollShopItems(){
   if(curTab!==4)return; // only poll when shop tab is active
   try{
-    const fresh=await api('GET','/shopping');
+    const [fresh,freshPlan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
     const newHash=fresh.length+'|'+fresh.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
     if(newHash!==shopPollHash){
       shopPollHash=newHash;
-      // Skip overwrite if user just saved (give server time to catch up)
-      if(Date.now()-shopLastSave<4000)return;
-      shopItems=fresh;
+      shopItems=mergeShopItems(fresh);
       // Re-dedup silently if needed
       const titleCats=shopItems.map(i=>(i.title||'').toLowerCase().trim()+'|'+(i.category||''));
       if(titleCats.length!==new Set(titleCats).size)await deduplicateShopItems();
       if(shopFilter!=='plan')renderShopList();
+    }
+    // Meal plan: only merge/render while its modal isn't open, and never touch a
+    // weekday key we ourselves have an unconfirmed edit pending for.
+    const newPlanHash=JSON.stringify(freshPlan||{});
+    if(newPlanHash!==mealPlanPollHash){
+      mealPlanPollHash=newPlanHash;
+      if(!document.getElementById('mealModal')?.classList.contains('open')){
+        const merged={...(freshPlan||{})};
+        mealPlanPendingKeys.forEach(k=>{if(k in mealPlan)merged[k]=mealPlan[k];});
+        mealPlan=merged;
+        if(shopFilter==='plan')renderMealGrid();
+      }
     }
   }catch(e){}
 }
@@ -4646,7 +4692,9 @@ function startQtyEdit(id,chipId){
   sel.appendChild(moreOpt);
   async function commitVal(val){
     item.qty=val;renderShopList();
+    beginShopPending(id);
     try{await apiShopPatch(id,{qty:val});}catch(e){showToast('Fehler beim Speichern');}
+    finally{endShopPending(id);}
   }
   function showManual(){
     const inp=document.createElement('input');
@@ -4681,8 +4729,10 @@ async function toggleShopItem(id,e){
   if(!item)return;
   item.checked=!item.checked;
   renderShopList(); // optimistic UI
+  beginShopPending(id);
   try{await apiShopPatch(id,{checked:item.checked});}
   catch(ex){item.checked=!item.checked;renderShopList();showToast('Fehler beim Speichern');}
+  finally{endShopPending(id);}
 }
 
 // Nur manuell ausgewählte einmalige Artikel entfernen
@@ -4815,6 +4865,7 @@ function openAddShopItem(){
 function openEditShopItem(id){
   const item=shopItems.find(i=>(i.id||i._id)===id);if(!item)return;
   editingShopId=id;pendingShopPhoto=item.photo||null;shopPhotoRemoved=false;
+  beginShopPending(id); // protect this item from background sync while modal is open
   document.getElementById('shopItemModalTitle').textContent='Artikel bearbeiten';
   document.getElementById('shopFTitle').value=item.title||'';
   document.getElementById('shopFCat').value=item.category||SHOP_CATS[0];
@@ -4826,7 +4877,11 @@ function openEditShopItem(id){
   document.getElementById('delShopItemWrap').innerHTML=`<button class="btn btn-d" style="margin-top:4px" onclick="deleteShopItem()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg> Artikel löschen</button>`;
   document.getElementById('shopItemModal').classList.add('open');
 }
-function closeShopItemModal(){document.getElementById('shopItemModal').classList.remove('open');editingShopId=null;}
+function closeShopItemModal(keepPending){
+  document.getElementById('shopItemModal').classList.remove('open');
+  if(!keepPending&&editingShopId)endShopPending(editingShopId);
+  editingShopId=null;
+}
 
 async function saveShopItem(){
   const title=document.getElementById('shopFTitle').value.trim();
@@ -4842,19 +4897,25 @@ async function saveShopItem(){
   };
   shopLastSave=Date.now();
   const savingId=editingShopId; // capture BEFORE closeShopItemModal nulls it
-  closeShopItemModal();
+  // Keep the pending-write lock held (it was set when the edit modal opened) until the
+  // request actually finishes, so a background poll can't overwrite it mid-flight.
+  closeShopItemModal(!!savingId);
   try{
     if(savingId){
-      await apiShopPatch(savingId,payload);
-      // Apply our payload directly - don't rely on server response for fields like photo:null
-      const idx=shopItems.findIndex(i=>(i.id||i._id)===savingId);
-      if(idx>-1){
-        const localPayload={...payload};
-        // If photo was explicitly removed, force it to null in local state
-        if(shopPhotoRemoved) localPayload.photo=null;
-        shopItems[idx]={...shopItems[idx],...localPayload};
+      try{
+        await apiShopPatch(savingId,payload);
+        // Apply our payload directly - don't rely on server response for fields like photo:null
+        const idx=shopItems.findIndex(i=>(i.id||i._id)===savingId);
+        if(idx>-1){
+          const localPayload={...payload};
+          // If photo was explicitly removed, force it to null in local state
+          if(shopPhotoRemoved) localPayload.photo=null;
+          shopItems[idx]={...shopItems[idx],...localPayload};
+        }
+        showToast('Gespeichert');
+      }finally{
+        endShopPending(savingId); // release the lock taken by openEditShopItem
       }
-      showToast('Gespeichert');
     }else{
       const created=await apiShopAdd(payload);
       created.checked=true;
