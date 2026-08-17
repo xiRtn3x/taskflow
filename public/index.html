@@ -4281,6 +4281,7 @@ function mergeShopItems(fresh){
 
 async function pollShopItems(){
   if(curTab!==4)return; // only poll when shop tab is active
+  if(shopBulkOpInProgress)return;
   try{
     const [fresh,freshPlan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
     const newHash=fresh.length+'|'+fresh.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
@@ -4337,6 +4338,7 @@ async function apiShopLoad(){
     const [items,plan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
     shopItems=items||[];mealPlan=plan||{};
     shopPollHash=shopItems.length+'|'+shopItems.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
+    mealPlanPollHash=JSON.stringify(mealPlan);
   }catch(e){showToast('Einkaufsliste konnte nicht geladen werden');shopItems=[];mealPlan={};}
 }
 async function apiShopAdd(item){return api('POST','/shopping',item);}
@@ -4347,7 +4349,21 @@ async function apiShopPatch(id,patch){
 }
 async function apiShopDelete(id){return api('DELETE','/shopping/'+id);}
 async function apiShopFinish(resetRepeating){return api('POST','/shopping/finish',{resetRepeating});}
-async function apiMealSave(){return api('PUT','/mealplan',mealPlan);}
+// Fetch the freshest server mealplan and merge in only the given local keys before
+// saving, so a concurrent edit by another user on a different weekday isn't overwritten
+// by our possibly-stale local copy.
+async function apiMealSaveKeys(keys){
+  let serverPlan={};
+  try{serverPlan=await api('GET','/mealplan')||{};}catch(e){serverPlan={...mealPlan};}
+  const merged={...serverPlan};
+  keys.forEach(k=>{
+    if(mealPlan[k]===undefined||mealPlan[k]==='')delete merged[k];
+    else merged[k]=mealPlan[k];
+  });
+  await api('PUT','/mealplan',merged);
+  mealPlan=merged; // adopt the merged result so we also see others' concurrent changes
+  mealPlanPollHash=JSON.stringify(mealPlan);
+}
 
 // ─ Settings toggle ─
 function toggleShopTab(btn){
@@ -4449,6 +4465,7 @@ function renderMealGrid(){
 let mealRecipeTimer=null;
 function openMealModal(key,day,current){
   editingMealKey=key;
+  mealPlanPendingKeys.add(key);
   document.getElementById('mealModalDay').textContent=day;
   document.getElementById('mealFText').value=current||'';
   document.getElementById('mealModal').classList.add('open');
@@ -4481,10 +4498,31 @@ const DE_EN={
   'wrap':'wrap','chili':'chili','tacos':'tacos','wok':'stir fry','auflauf':'casserole',
 };
 function deToEn(word){return DE_EN[word.toLowerCase()]||word;}
+const _mealDbCache=new Map(); // query(lowercased) -> results array, avoids refetching the same term repeatedly
 async function mealDbSearch(q){
-  const r=await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(q)}`);
-  const d=await r.json();
-  return d.meals||[];
+  const key=q.toLowerCase();
+  if(_mealDbCache.has(key))return _mealDbCache.get(key);
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),6000); // never let a slow/unreachable API hang the UI
+  try{
+    const r=await fetch(`https://www.themealdb.com/api/json/v1/1/search.php?s=${encodeURIComponent(q)}`,{signal:ctrl.signal});
+    const d=await r.json();
+    const meals=d.meals||[];
+    _mealDbCache.set(key,meals);
+    return meals;
+  }finally{clearTimeout(timer);}
+}
+// Runs the "try german word, then translated english word" lookup chain for one meal name.
+// Stops at the first word that returns results.
+async function mealDbSearchForMeal(meal){
+  const words=meal.trim().split(/\s+/);
+  for(const w of words){
+    const en=deToEn(w);
+    let found=await mealDbSearch(en);
+    if(found.length)return found;
+    if(en!==w){found=await mealDbSearch(w);if(found.length)return found;}
+  }
+  return [];
 }
 function renderMealCards(meals,list){
   list.innerHTML='';
@@ -4508,35 +4546,35 @@ async function loadMealRecipes(meal){
   if(!list)return;
   list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Suche Rezepte…</div>';
   try{
-    const words=meal.trim().split(/\s+/);
-    let found=[];
-    // Try each word, translated if possible
-    for(const w of words){
-      const en=deToEn(w);
-      found=await mealDbSearch(en);
-      if(found.length)break;
-      if(en!==w){found=await mealDbSearch(w);if(found.length)break;}
-    }
+    const found=await mealDbSearchForMeal(meal);
     if(found.length){renderMealCards(found,list);}
     else{list.innerHTML='';}
     // Always show Chefkoch link
     chefkochLink(meal,list);
   }catch(e){list.innerHTML='';chefkochLink(meal,list);}
 }
-function closeMealModal(){document.getElementById('mealModal').classList.remove('open');editingMealKey=null;}
+function closeMealModal(keepPending){
+  document.getElementById('mealModal').classList.remove('open');
+  if(!keepPending&&editingMealKey)mealPlanPendingKeys.delete(editingMealKey);
+  editingMealKey=null;
+}
 async function saveMeal(){
   if(!editingMealKey)return;
-  mealPlan[editingMealKey]=document.getElementById('mealFText').value.trim();
-  closeMealModal();
+  const key=editingMealKey;
+  mealPlan[key]=document.getElementById('mealFText').value.trim();
+  closeMealModal(true); // keep the pending lock (set in openMealModal) until the save settles
   renderMealGrid();
-  try{await apiMealSave();}catch(e){showToast('Speichern fehlgeschlagen');}
+  try{await apiMealSaveKeys([key]);}catch(e){showToast('Speichern fehlgeschlagen');}
+  finally{mealPlanPendingKeys.delete(key);}
 }
 async function deleteMeal(){
   if(!editingMealKey)return;
-  delete mealPlan[editingMealKey];
-  closeMealModal();
+  const key=editingMealKey;
+  delete mealPlan[key];
+  closeMealModal(true);
   renderMealGrid();
-  try{await apiMealSave();}catch(e){showToast('Speichern fehlgeschlagen');}
+  try{await apiMealSaveKeys([key]);}catch(e){showToast('Speichern fehlgeschlagen');}
+  finally{mealPlanPendingKeys.delete(key);}
 }
 
 // ─ Rezeptvorschläge (TheMealDB + Chefkoch) ─
@@ -4547,16 +4585,15 @@ async function loadRecipeSuggestions(meals){
   list.innerHTML='<div style="font-size:13px;color:var(--text3);padding:4px 0">Suche Rezepte…</div>';
   shopRecipeLoading=true;
   try{
+    const mealNames=meals.slice(0,4);
+    // Fetch all meals' recipes in parallel instead of one-after-another - this is the
+    // main reason recipe loading used to take a long time.
+    const results=await Promise.all(mealNames.map(meal=>
+      mealDbSearchForMeal(meal).catch(()=>[])
+    ));
     list.innerHTML='';
-    for(const meal of meals.slice(0,4)){
-      const words=meal.trim().split(/\s+/);
-      let found=[];
-      for(const w of words){
-        const en=deToEn(w);
-        found=await mealDbSearch(en);
-        if(found.length)break;
-        if(en!==w){found=await mealDbSearch(w);if(found.length)break;}
-      }
+    mealNames.forEach((meal,idx)=>{
+      const found=results[idx];
       if(found.length&&found[0]){
         const m=found[0];
         const card=document.createElement('div');card.className='recipe-card';
@@ -4570,7 +4607,7 @@ async function loadRecipeSuggestions(meals){
         fb.innerHTML=`<a href="https://www.chefkoch.de/rs/s0/${encodeURIComponent(meal)}/Rezepte.html" target="_blank" style="display:flex;align-items:center;gap:8px;color:var(--acc);font-size:13px;font-weight:600;text-decoration:none"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>${meal} auf Chefkoch.de ↗</a>`;
         list.appendChild(fb);
       }
-    }
+    });
     if(!list.children.length)list.innerHTML='<div style="font-size:13px;color:var(--text3)">Keine Rezepte gefunden</div>';
   }catch(e){list.innerHTML='<div style="font-size:13px;color:var(--text3)">Rezeptsuche nicht verfügbar</div>';}
   finally{shopRecipeLoading=false;}
@@ -4739,10 +4776,13 @@ async function toggleShopItem(id,e){
 async function clearCheckedShop(){
   const toRemove=shopItems.filter(i=>i.checked&&!hasRepeat(i.repeat));
   if(!toRemove.length){showToast('Keine einmaligen Artikel abgehakt');return;}
+  const ids=toRemove.map(i=>String(i.id||i._id));
+  ids.forEach(id=>shopPendingDeletes.add(id));
   shopItems=shopItems.filter(i=>!(i.checked&&!hasRepeat(i.repeat)));
   renderShopList();
   try{await Promise.all(toRemove.map(i=>apiShopDelete(i.id||i._id)));}
   catch(ex){showToast('Fehler beim Löschen');await renderShopTab();}
+  finally{ids.forEach(id=>shopPendingDeletes.delete(id));}
   showToast(`${toRemove.length} Artikel entfernt`);
 }
 
@@ -4758,7 +4798,9 @@ function openFinishShopping(){
   document.getElementById('shopFinishConfirm').classList.add('open');
 }
 function closeFinishShopping(){document.getElementById('shopFinishConfirm').classList.remove('open');}
+let shopBulkOpInProgress=false;
 async function confirmFinishShopping(resetRepeating){
+  shopBulkOpInProgress=true;
   try{
     const r=await apiShopFinish(resetRepeating);
     closeFinishShopping();
@@ -4767,6 +4809,7 @@ async function confirmFinishShopping(resetRepeating){
       ?`Abgeschlossen · ${r.reset} zurückgesetzt · ${r.deleted} entfernt`
       :`Abgeschlossen · ${r.deleted} Artikel entfernt`);
   }catch(e){showToast('Fehler: '+e.message);}
+  finally{shopBulkOpInProgress=false;}
 }
 
 // ══ SHOP ITEM MODAL ══
@@ -4929,11 +4972,14 @@ async function saveShopItem(){
 async function deleteShopItem(){
   if(!editingShopId)return;
   const id=editingShopId;
-  closeShopItemModal();
+  closeShopItemModal(true); // keep the pending lock, we manage it below
+  const sid=String(id);
+  shopPendingDeletes.add(sid);
   shopItems=shopItems.filter(i=>(i.id||i._id)!==id);
   renderShopList();
   try{await apiShopDelete(id);showToast('Artikel gelöscht');}
   catch(e){showToast('Fehler: '+e.message);await renderShopTab();}
+  finally{shopPendingDeletes.delete(sid);endShopPending(id);}
 }
 
 
