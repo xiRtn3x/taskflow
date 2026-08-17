@@ -1783,6 +1783,9 @@ function showApp(){
   document.getElementById('onboard').classList.add('hidden');
   document.getElementById('app').style.display='block';
   lang=localStorage.getItem('tf_lang')||'de';applyTheme();applyLang();render();setTimeout(()=>{initSheetDismiss();initPoolSettings();},100);
+  // One-time sync of the shopping list + mealplan for this app session, regardless of
+  // which tab is currently open - avoids re-fetching/re-rendering on every tab switch.
+  apiShopLoad().then(()=>{shopInitialLoadDone=true;if(curTab===4){if(shopFilter==='plan')renderMealGrid();else renderShopList();}});
   // Show tutorial on first ever login
   if(!localStorage.getItem('tf_tutorial_done')){
     setTimeout(()=>{
@@ -4088,7 +4091,7 @@ function switchTab(i,anim=true){
   document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
   document.getElementById('navTitle').textContent=(lang==='en'?NAV_TITLES_EN:NAV_TITLES_DE)[i]||'';
   if(i===1)renderPool();if(i===2)renderCalendar();if(i===3)renderVote();
-  if(i===4){renderShopTab();startShopPolling();}else{stopShopPolling();}
+  if(i===4){renderShopTab();}
   // Show correct sticky sub-filter
   for(let j=0;j<=4;j++){const sf=document.getElementById('sf'+j);if(sf)sf.classList.toggle('active',j===i);}
   // Show/hide FAB on shopping tab
@@ -4279,6 +4282,7 @@ function mergeShopItems(fresh){
   return merged;
 }
 
+let shopSuspectShrinkCount=0;
 async function pollShopItems(){
   if(curTab!==4)return; // only poll when shop tab is active
   if(shopBulkOpInProgress)return;
@@ -4286,12 +4290,18 @@ async function pollShopItems(){
     const [fresh,freshPlan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
     const newHash=fresh.length+'|'+fresh.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
     if(newHash!==shopPollHash){
-      shopPollHash=newHash;
-      shopItems=mergeShopItems(fresh);
-      // Re-dedup silently if needed
-      const titleCats=shopItems.map(i=>(i.title||'').toLowerCase().trim()+'|'+(i.category||''));
-      if(titleCats.length!==new Set(titleCats).size)await deduplicateShopItems();
-      if(shopFilter!=='plan')renderShopList();
+      const looksLikeGlitch=shopItems.length>5&&fresh.length<shopItems.length*0.5;
+      if(looksLikeGlitch&&shopSuspectShrinkCount<1){
+        shopSuspectShrinkCount++;
+      }else{
+        shopSuspectShrinkCount=0;
+        shopPollHash=newHash;
+        shopItems=mergeShopItems(fresh);
+        // Re-dedup silently if needed
+        const titleCats=shopItems.map(i=>(i.title||'').toLowerCase().trim()+'|'+(i.category||''));
+        if(titleCats.length!==new Set(titleCats).size)await deduplicateShopItems();
+        if(shopFilter!=='plan')renderShopList();
+      }
     }
     // Meal plan: only merge/render while its modal isn't open, and never touch a
     // weekday key we ourselves have an unconfirmed edit pending for.
@@ -4346,6 +4356,17 @@ async function apiShopLoad(){
     // Nothing changed server-side -> don't touch local state at all (avoids the
     // visible "reload" every time you switch tabs when nothing is actually new).
     if(newHash===shopPollHash&&JSON.stringify(plan||{})===mealPlanPollHash)return;
+    // Defensive check: if the server suddenly reports far fewer items than we already
+    // have locally, that's much more likely a transient/incomplete response than 426
+    // people-caused deletions happening at once. Require the same shrink to show up
+    // twice in a row before trusting it, so one glitchy fetch can't wipe the list
+    // (and, critically, can't trigger seedDefaultItems() to re-add hundreds of items).
+    const looksLikeGlitch=shopPollHash!==null&&shopItems.length>5&&freshItems.length<shopItems.length*0.5;
+    if(looksLikeGlitch&&shopSuspectShrinkCount<1){
+      shopSuspectShrinkCount++;
+      return; // ignore this round, try again on the next load/poll
+    }
+    shopSuspectShrinkCount=0;
     shopItems=shopPollHash===null?freshItems:mergeShopItems(freshItems);
     mealPlan=mealPlanPollHash===null?(plan||{}):mergeMealPlan(plan||{});
     shopPollHash=newHash;
@@ -4425,13 +4446,21 @@ function setShopFilter(f,btn){
 }
 
 // ─ Main render ─
+let shopInitialLoadDone=false;
 async function renderShopTab(){
   if(shopLoading)return;
+  if(shopInitialLoadDone){
+    // Already synced once this session - just render what we have locally, no re-fetch.
+    if(shopFilter==='plan')renderMealGrid();
+    else{shopCheckedOnly=(shopFilter==='shop');renderShopList();}
+    return;
+  }
   shopLoading=true;
   // Show skeleton while loading
   const container=document.getElementById('shopListContainer');
   if(container&&shopFilter==='list')container.innerHTML='<div style="padding:32px;text-align:center;color:var(--text3)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="animation:spin .8s linear infinite;display:block;margin:0 auto 8px"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Lade…</div>';
   await apiShopLoad();
+  shopInitialLoadDone=true;
   // Seed items from note on first run
   if(!localStorage.getItem('tf_shop_seed_v1'))await seedShopItemsFromNote();
   shopLoading=false;
@@ -6793,7 +6822,9 @@ const DEFAULT_SHOP_ITEMS = [
 ];
 
 async function seedDefaultItems() {
-  if(shopItems.length > 0) return; // Only seed if server is empty
+  if(localStorage.getItem('tf_shop_defaults_seeded_v1'))return; // never seed more than once, ever
+  if(shopItems.length > 0){localStorage.setItem('tf_shop_defaults_seeded_v1','1');return;} // Only seed if server is empty
+  localStorage.setItem('tf_shop_defaults_seeded_v1','1'); // set BEFORE the network calls so a retry/re-entry can't double-seed
   showToast('Liste wird geladen…');
   let added = 0;
   for(const item of DEFAULT_SHOP_ITEMS) {
