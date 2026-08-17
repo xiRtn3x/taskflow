@@ -4299,9 +4299,7 @@ async function pollShopItems(){
     if(newPlanHash!==mealPlanPollHash){
       mealPlanPollHash=newPlanHash;
       if(!document.getElementById('mealModal')?.classList.contains('open')){
-        const merged={...(freshPlan||{})};
-        mealPlanPendingKeys.forEach(k=>{if(k in mealPlan)merged[k]=mealPlan[k];});
-        mealPlan=merged;
+        mealPlan=mergeMealPlan(freshPlan);
         if(shopFilter==='plan')renderMealGrid();
       }
     }
@@ -4333,13 +4331,28 @@ function hasRepeat(r){
 }
 
 // ═══ API calls ═══
+// Shared by apiShopLoad and the poll: merge a freshly-fetched mealplan into the local one,
+// keeping any weekday key that currently has an unconfirmed local edit pending.
+function mergeMealPlan(freshPlan){
+  const merged={...(freshPlan||{})};
+  mealPlanPendingKeys.forEach(k=>{if(k in mealPlan)merged[k]=mealPlan[k];});
+  return merged;
+}
 async function apiShopLoad(){
   try{
     const [items,plan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
-    shopItems=items||[];mealPlan=plan||{};
-    shopPollHash=shopItems.length+'|'+shopItems.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
-    mealPlanPollHash=JSON.stringify(mealPlan);
-  }catch(e){showToast('Einkaufsliste konnte nicht geladen werden');shopItems=[];mealPlan={};}
+    const freshItems=items||[];
+    const newHash=freshItems.length+'|'+freshItems.map(i=>(i.id||i._id)+'='+(i.checked?1:0)).sort().join(',');
+    // Nothing changed server-side -> don't touch local state at all (avoids the
+    // visible "reload" every time you switch tabs when nothing is actually new).
+    if(newHash===shopPollHash&&JSON.stringify(plan||{})===mealPlanPollHash)return;
+    shopItems=shopPollHash===null?freshItems:mergeShopItems(freshItems);
+    mealPlan=mealPlanPollHash===null?(plan||{}):mergeMealPlan(plan||{});
+    shopPollHash=newHash;
+    mealPlanPollHash=JSON.stringify(plan||{});
+  }catch(e){
+    if(!shopItems.length&&!Object.keys(mealPlan).length)showToast('Einkaufsliste konnte nicht geladen werden');
+  }
 }
 async function apiShopAdd(item){return api('POST','/shopping',item);}
 async function apiShopPatch(id,patch){
@@ -4349,19 +4362,11 @@ async function apiShopPatch(id,patch){
 }
 async function apiShopDelete(id){return api('DELETE','/shopping/'+id);}
 async function apiShopFinish(resetRepeating){return api('POST','/shopping/finish',{resetRepeating});}
-// Fetch the freshest server mealplan and merge in only the given local keys before
-// saving, so a concurrent edit by another user on a different weekday isn't overwritten
-// by our possibly-stale local copy.
-async function apiMealSaveKeys(keys){
-  let serverPlan={};
-  try{serverPlan=await api('GET','/mealplan')||{};}catch(e){serverPlan={...mealPlan};}
-  const merged={...serverPlan};
-  keys.forEach(k=>{
-    if(mealPlan[k]===undefined||mealPlan[k]==='')delete merged[k];
-    else merged[k]=mealPlan[k];
-  });
-  await api('PUT','/mealplan',merged);
-  mealPlan=merged; // adopt the merged result so we also see others' concurrent changes
+// Local mealPlan is kept in sync with the server by the poll and by apiShopLoad
+// (both respect mealPlanPendingKeys), so by the time we save it's already close to
+// current for every day except the one we're editing - no extra fetch needed here.
+async function apiMealSaveKeys(){
+  await api('PUT','/mealplan',mealPlan);
   mealPlanPollHash=JSON.stringify(mealPlan);
 }
 
@@ -4564,7 +4569,7 @@ async function saveMeal(){
   mealPlan[key]=document.getElementById('mealFText').value.trim();
   closeMealModal(true); // keep the pending lock (set in openMealModal) until the save settles
   renderMealGrid();
-  try{await apiMealSaveKeys([key]);}catch(e){showToast('Speichern fehlgeschlagen');}
+  try{await apiMealSaveKeys();}catch(e){showToast('Speichern fehlgeschlagen');}
   finally{mealPlanPendingKeys.delete(key);}
 }
 async function deleteMeal(){
@@ -4573,7 +4578,7 @@ async function deleteMeal(){
   delete mealPlan[key];
   closeMealModal(true);
   renderMealGrid();
-  try{await apiMealSaveKeys([key]);}catch(e){showToast('Speichern fehlgeschlagen');}
+  try{await apiMealSaveKeys();}catch(e){showToast('Speichern fehlgeschlagen');}
   finally{mealPlanPendingKeys.delete(key);}
 }
 
