@@ -292,7 +292,6 @@ app.delete('/api/groups/mine', auth, async (req, res) => {
     );
     await db.collection('tasks').deleteMany({ groupId: g._id.toString() });
     await db.collection('appstate').deleteOne({ _id: g._id.toString() });
-    // Auch Shopping-Daten der Gruppe löschen
     await db.collection('shopping').deleteMany({ groupId: g._id.toString() });
     await db.collection('mealplans').deleteOne({ groupId: g._id.toString() });
     await db.collection('groups').deleteOne({ _id: g._id });
@@ -395,7 +394,6 @@ app.post('/api/appstate', auth, async (req, res) => {
 
 // ── SHOPPING ──────────────────────────────────────
 
-// Alle Artikel der Gruppe/des Users laden
 app.get('/api/shopping', auth, async (req, res) => {
   try {
     const items = await db.collection('shopping')
@@ -406,33 +404,35 @@ app.get('/api/shopping', auth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Neuen Artikel anlegen
+// ── FIX: photos-Array und selectedPhotoIndex werden jetzt gespeichert ──
 app.post('/api/shopping', auth, async (req, res) => {
   try {
-    const { title, category, qty, price, comment, repeat, photo } = req.body;
+    const { title, category, qty, price, comment, repeat, photo, photos, selectedPhotoIndex } = req.body;
     if (!title?.trim()) return res.status(400).json({ error: 'Titel fehlt' });
     const doc = {
       ...shopScope(req.user),
-      title:     title.trim(),
-      category:  category  || 'Sonstiges',
-      qty:       qty       || '',
-      price:     price     || '',
-      comment:   comment   || '',
-      repeat:    repeat    || null,
-      photo:     photo     || null,
-      checked:   false,
-      createdAt: new Date(),
+      title:              title.trim(),
+      category:           category || 'Sonstiges',
+      qty:                qty      || '',
+      price:              price    || '',
+      comment:            comment  || '',
+      repeat:             repeat   || null,
+      photo:              photo    || null,
+      photos:             Array.isArray(photos) ? photos : (photo ? [photo] : []),
+      selectedPhotoIndex: typeof selectedPhotoIndex === 'number' ? selectedPhotoIndex : null,
+      checked:            false,
+      createdAt:          new Date(),
     };
     const r = await db.collection('shopping').insertOne(doc);
     res.status(201).json({ ...doc, _id: r.insertedId.toString() });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Artikel aktualisieren (einzelne Felder oder alle)
+// ── FIX: photos und selectedPhotoIndex in der allowed-Liste ergänzt ──
 app.patch('/api/shopping/:id', auth, async (req, res) => {
   try {
     const filter = { _id: new ObjectId(req.params.id), ...shopScope(req.user) };
-    const allowed = ['title','category','qty','price','comment','repeat','photo','checked'];
+    const allowed = ['title','category','qty','price','comment','repeat','photo','photos','selectedPhotoIndex','checked'];
     const update = {};
     allowed.forEach(f => { if (req.body[f] !== undefined) update[f] = req.body[f]; });
     const r = await db.collection('shopping').findOneAndUpdate(
@@ -445,7 +445,6 @@ app.patch('/api/shopping/:id', auth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Artikel löschen
 app.delete('/api/shopping/:id', auth, async (req, res) => {
   try {
     await db.collection('shopping').deleteOne({
@@ -456,12 +455,6 @@ app.delete('/api/shopping/:id', auth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Einkauf abschließen
-// Body: { resetRepeating: true | false }
-//  → Einmalige abgehakte Artikel  → werden gelöscht
-//  → Wiederholende abgehakte Artikel:
-//      resetRepeating=true  → checked auf false (wiederherstellen)
-//      resetRepeating=false → bleiben als abgehakt stehen
 app.post('/api/shopping/finish', auth, async (req, res) => {
   try {
     const { resetRepeating } = req.body;
@@ -486,7 +479,6 @@ app.post('/api/shopping/finish', auth, async (req, res) => {
 
 // ── ESSENSPLAN ────────────────────────────────────
 
-// Essensplan laden
 app.get('/api/mealplan', auth, async (req, res) => {
   try {
     const doc = await db.collection('mealplans').findOne(shopScope(req.user));
@@ -494,8 +486,6 @@ app.get('/api/mealplan', auth, async (req, res) => {
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
-// Essensplan speichern (Upsert)
-// Body: { mo, di, mi, do, fr, sa, so }
 app.put('/api/mealplan', auth, async (req, res) => {
   try {
     const sc = shopScope(req.user);
@@ -523,8 +513,6 @@ app.get('/api/poll', auth, async (req, res) => {
     const stateKey = req.user.groupId || req.user._id.toString();
     const appstate = await db.collection('appstate').findOne({ _id: stateKey });
 
-    // Shopping-Änderungen im Hash miteinbeziehen → andere Mitglieder
-    // bekommen Änderungen automatisch ohne manuelles Reload
     const shopLast = await db.collection('shopping')
       .find(shopScope(req.user))
       .sort({ createdAt: -1 })
