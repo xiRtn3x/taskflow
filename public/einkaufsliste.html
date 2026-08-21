@@ -475,14 +475,15 @@ async function doToggle(id,selectedPhotoIndex){
   item.checked=!item.checked;
   if(item.checked&&typeof selectedPhotoIndex==='number')item.selectedPhotoIndex=selectedPhotoIndex;
   const patch=buildFullPatch(item);
-  renderList();
   beginPending(id);
+  renderList();
   try{await api('PATCH','/shopping/'+id,patch);}
   catch(ex){item.checked=!item.checked;renderList();showToast('Fehler beim Speichern');}
   finally{endPending(id);}
 }
 function openPhotoPick(id){
   _pendingCheckId=id;
+  beginPending(id); // guard against pollOnce overwriting photos while picker is open
   const item=shopItems.find(i=>(i.id||i._id)===id);
   const photos=getItemPhotos(item);
   const grid=document.getElementById('photoPickGrid');
@@ -499,11 +500,12 @@ function pickPhotoIdx(idx){
   const id=_pendingCheckId;
   document.getElementById('photoPickModal').classList.remove('open');
   _pendingCheckId=null;
+  endPending(id); // release the guard set by openPhotoPick; doToggle will set its own
   doToggle(id,idx);
 }
 function closePhotoPick(){
   document.getElementById('photoPickModal').classList.remove('open');
-  _pendingCheckId=null;
+  if(_pendingCheckId){endPending(_pendingCheckId);_pendingCheckId=null;}
 }
 
 // ── add/edit item + photos ──
