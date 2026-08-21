@@ -47,6 +47,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .chk{width:23px;height:23px;border-radius:50%;border:2px solid var(--acc);flex-shrink:0;display:flex;align-items:center;justify-content:center;color:#fff;transition:all .15s;}
 .chk.done{background:var(--acc);}
 .item-thumb{width:36px;height:36px;border-radius:9px;object-fit:cover;flex-shrink:0;background:var(--sep);}
+.item-thumb-lg{width:64px;height:64px;border-radius:12px;object-fit:cover;flex-shrink:0;background:var(--sep);cursor:pointer;}
 .item-body{flex:1;min-width:0;}
 .item-title{font-size:14.5px;font-weight:600;}
 .item-meta{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;align-items:center;}
@@ -137,7 +138,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
   <div id="shopTab" style="display:none">
     <div class="filter-tabs">
       <button class="tab-btn on" id="filterBtnAll" onclick="setFilter('all')">Einkauf planen</button>
-      <button class="tab-btn" id="filterBtnChecked" onclick="setFilter('checked')">Einkaufsliste</button>
+      <button class="tab-btn" id="filterBtnChecked" onclick="setFilter('checked')">Einkaufen</button>
     </div>
     <div class="toolbar-row" id="toolbarRow">
       <div class="search-wrap">
@@ -208,6 +209,11 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
     <div id="ingredientList"></div>
     <button class="btn btn-primary" onclick="confirmIngredientImport()" style="margin-top:4px">Zur Einkaufsliste hinzufügen</button>
   </div>
+</div>
+
+<!-- Foto Zoom Overlay -->
+<div id="photoZoomOv" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:800;align-items:center;justify-content:center;padding:24px" onclick="closePhotoZoom()">
+  <img id="photoZoomImg" style="max-width:100%;max-height:90dvh;border-radius:16px;object-fit:contain;box-shadow:0 8px 40px rgba(0,0,0,.6)">
 </div>
 
 <div class="toast" id="toast"></div>
@@ -416,10 +422,14 @@ function renderList(){
     vis.forEach(item=>{
       const sid=item.id||item._id;
       const photos=getItemPhotos(item);
-      const displayPhoto=listFilter==='checked'
-        ? (typeof item.selectedPhotoIndex==='number'&&photos[item.selectedPhotoIndex]?photos[item.selectedPhotoIndex]:photos[0])
-        : photos[0];
-      const thumb=displayPhoto?`<img class="item-thumb" src="${displayPhoto}">`:'';
+      const selIdx=typeof item.selectedPhotoIndex==='number'&&photos[item.selectedPhotoIndex]?item.selectedPhotoIndex:0;
+      const displayPhoto=photos[selIdx]||photos[0]||null;
+      const isCheckedView=listFilter==='checked';
+      const thumb=displayPhoto
+        ? (isCheckedView
+            ? `<img class="item-thumb-lg" src="${displayPhoto}" onclick="openPhotoZoom('${sid}',event)">`
+            : `<img class="item-thumb" src="${displayPhoto}">`)
+        : '';
       html+=`<div class="item-row">
         <div class="chk${item.checked?' done':''}" onclick="toggleItem('${sid}',event)">${item.checked?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
         ${thumb}
@@ -502,6 +512,20 @@ function pickPhotoIdx(idx){
   _pendingCheckId=null;
   endPending(id); // release the guard set by openPhotoPick; doToggle will set its own
   doToggle(id,idx);
+}
+function openPhotoZoom(id,e){
+  if(e)e.stopPropagation();
+  const item=shopItems.find(i=>(i.id||i._id)===id);if(!item)return;
+  const photos=getItemPhotos(item);
+  const selIdx=typeof item.selectedPhotoIndex==='number'&&photos[item.selectedPhotoIndex]?item.selectedPhotoIndex:0;
+  const src=photos[selIdx]||photos[0];if(!src)return;
+  document.getElementById('photoZoomImg').src=src;
+  const ov=document.getElementById('photoZoomOv');
+  ov.style.display='flex';
+}
+function closePhotoZoom(){
+  document.getElementById('photoZoomOv').style.display='none';
+  document.getElementById('photoZoomImg').src='';
 }
 function closePhotoPick(){
   document.getElementById('photoPickModal').classList.remove('open');
