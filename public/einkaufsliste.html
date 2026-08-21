@@ -130,7 +130,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 
   <div class="tabs">
     <button class="tab-btn on" id="tabBtnPlan" onclick="setMainTab('plan')">Essensplan</button>
-    <button class="tab-btn" id="tabBtnShop" onclick="setMainTab('shop')">Einkaufsliste</button>
+    <button class="tab-btn" id="tabBtnShop" onclick="setMainTab('shop')">Einkaufen</button>
   </div>
 
   <!-- SHOP TAB (filters + list) -->
@@ -200,13 +200,13 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
   </div>
 </div>
 
-<!-- Ingredient import confirm modal -->
+<!-- Ingredient import review modal -->
 <div class="ov ov2" id="ingredientModal">
   <div class="sheet">
-    <div class="mhdr"><div class="mtitle">Zutaten übernehmen?</div><span class="mclose" onclick="closeIngredientModal()">Nein</span></div>
-    <p style="font-size:13.5px;color:var(--text2);margin-bottom:16px" id="ingredientDesc"></p>
-    <button class="btn btn-primary" onclick="confirmIngredientImport(true)" style="margin-bottom:10px">Ja, zur Einkaufsliste hinzufügen</button>
-    <button class="btn btn-ghost" onclick="confirmIngredientImport(false)">Nein danke</button>
+    <div class="mhdr"><div class="mtitle">Zutaten übernehmen</div><span class="mclose" onclick="closeIngredientModal()">Abbrechen</span></div>
+    <p style="font-size:13px;color:var(--text3);margin-bottom:12px" id="ingredientDesc"></p>
+    <div id="ingredientList"></div>
+    <button class="btn btn-primary" onclick="confirmIngredientImport()" style="margin-top:4px">Zur Einkaufsliste hinzufügen</button>
   </div>
 </div>
 
@@ -286,6 +286,7 @@ function beginPending(id){id=String(id);pendingWrites.set(id,(pendingWrites.get(
 function endPending(id){id=String(id);const c=(pendingWrites.get(id)||1)-1;if(c<=0)pendingWrites.delete(id);else pendingWrites.set(id,c);}
 
 let shopHash=null,mealHash=null,shrinkSuspectCount=0;
+let expandedCats=new Set(); // categories expanded in the "Einkauf planen" view; empty = all collapsed
 
 function populateCatSelect(){
   document.getElementById('fCat').innerHTML=SHOP_CATS.map(c=>`<option value="${c}">${c}</option>`).join('');
@@ -397,6 +398,7 @@ function renderList(){
   Object.values(byCat).forEach(arr=>arr.sort((a,b)=>a.title.localeCompare(b.title,'de')));
   let html='';
   let anyVisible=false;
+  const collapsible=listFilter==='all'; // only the full-catalog view collapses; the checked list stays flat
   SHOP_CATS.forEach(cat=>{
     const all=byCat[cat];if(!all||!all.length)return;
     let vis=listFilter==='checked'?all.filter(i=>i.checked):all;
@@ -404,7 +406,13 @@ function renderList(){
     if(!vis.length)return;
     anyVisible=true;
     const count=listFilter==='checked'?`${vis.length} auf der Liste`:`${all.length} im Katalog`;
-    html+=`<div class="section"><div class="cat-hdr"><span>${cat}</span><span>${count}</span></div><div class="cat-box">`;
+    // while searching, force the category open so results are visible without an extra tap
+    const isOpen=!collapsible||searchQuery||expandedCats.has(cat);
+    const chevron=collapsible?`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .15s;transform:rotate(${isOpen?90:0}deg)"><polyline points="9 18 15 12 9 6"/></svg>`:'';
+    const hdrClick=collapsible?` onclick="toggleCatCollapse('${cat.replace(/'/g,"\\'")}')" style="cursor:pointer"`:'';
+    html+=`<div class="section"><div class="cat-hdr"${hdrClick}><span style="display:flex;align-items:center;gap:6px">${chevron}${cat}</span><span>${count}</span></div>`;
+    if(!isOpen){html+='</div>';return;}
+    html+='<div class="cat-box">';
     vis.forEach(item=>{
       const sid=item.id||item._id;
       const photos=getItemPhotos(item);
@@ -428,6 +436,10 @@ function renderList(){
   });
   container.innerHTML=anyVisible?html:'<div class="empty-state">Keine Treffer</div>';
 }
+function toggleCatCollapse(cat){
+  if(expandedCats.has(cat))expandedCats.delete(cat);else expandedCats.add(cat);
+  renderList();
+}
 
 // ── checking an item: mandatory photo pick if it has >1 photo ──
 let _pendingCheckId=null;
@@ -444,15 +456,25 @@ async function toggleItem(id,e){
   }
   await doToggle(id);
 }
+// Always send a complete, known-good snapshot of the item's fields on every PATCH -
+// protects against a backend PATCH handler that replaces the document instead of
+// merging fields (which was silently wiping photos on every checked-toggle before).
+function buildFullPatch(item,overrides){
+  return {
+    title:item.title,category:item.category,qty:item.qty||'',price:item.price||'',
+    comment:item.comment||'',repeat:item.repeat||{type:'always',n:0},
+    photos:getItemPhotos(item),
+    checked:item.checked,
+    selectedPhotoIndex:typeof item.selectedPhotoIndex==='number'?item.selectedPhotoIndex:null,
+    ...overrides
+  };
+}
 async function doToggle(id,selectedPhotoIndex){
   const item=shopItems.find(i=>(i.id||i._id)===id);
   if(!item)return;
   item.checked=!item.checked;
-  const patch={checked:item.checked};
-  if(item.checked&&typeof selectedPhotoIndex==='number'){
-    item.selectedPhotoIndex=selectedPhotoIndex;
-    patch.selectedPhotoIndex=selectedPhotoIndex;
-  }
+  if(item.checked&&typeof selectedPhotoIndex==='number')item.selectedPhotoIndex=selectedPhotoIndex;
+  const patch=buildFullPatch(item);
   renderList();
   beginPending(id);
   try{await api('PATCH','/shopping/'+id,patch);}
@@ -659,7 +681,7 @@ async function deleteMeal(){
 }
 // Called when a recipe from the search results is tapped: saves the recipe title as
 // the day's meal, then asks about importing ingredients.
-let _pendingRecipeMeal=null; // {ingredients:[{name,measure}], mealName}
+let _pendingRecipeMeal=null; // {existingItems:[item], newItems:[{name,measure,category}], mealName,key}
 async function pickRecipe(mealId,mealName){
   const key=editingMealKey;
   if(!key)return;
@@ -674,54 +696,81 @@ async function pickRecipe(mealId,mealName){
     const d=await r.json();
     const meal=d.meals&&d.meals[0];
     if(!meal){pendingMealKeys.delete(key);return;}
-    const ingredients=[];
+    const rawIngredients=[];
     for(let i=1;i<=20;i++){
       const name=meal['strIngredient'+i];
       const measure=meal['strMeasure'+i];
-      if(name&&name.trim())ingredients.push({name:name.trim(),measure:(measure||'').trim()});
+      if(name&&name.trim())rawIngredients.push({name:name.trim(),measure:(measure||'').trim()});
     }
-    if(!ingredients.length){pendingMealKeys.delete(key);return;}
-    _pendingRecipeMeal={ingredients,mealName,key};
-    document.getElementById('ingredientDesc').textContent=`${ingredients.length} Zutaten für "${mealName}" gefunden. Zur Einkaufsliste hinzufügen und abhaken?`;
+    if(!rawIngredients.length){pendingMealKeys.delete(key);return;}
+    // split into items already in the catalog (just get checked, no category needed) vs
+    // genuinely new ones (shown below for category assignment before adding)
+    const existingItems=[];
+    const newItems=[];
+    rawIngredients.forEach(ing=>{
+      const deName=translateIngredient(ing.name);
+      const existing=shopItems.find(i=>i.title.toLowerCase().trim()===deName.toLowerCase().trim());
+      if(existing)existingItems.push(existing);
+      else newItems.push({name:deName,measure:ing.measure,category:guessCategory(deName)});
+    });
+    _pendingRecipeMeal={existingItems,newItems,mealName,key};
+    renderIngredientReview();
     document.getElementById('ingredientModal').classList.add('open');
   }catch(e){pendingMealKeys.delete(key);}
+}
+function renderIngredientReview(){
+  const data=_pendingRecipeMeal;if(!data)return;
+  const parts=[];
+  if(data.existingItems.length)parts.push(`${data.existingItems.length} Zutat${data.existingItems.length===1?'':'en'} schon im Katalog wird${data.existingItems.length===1?'':'en'} abgehakt.`);
+  parts.push(data.newItems.length?`${data.newItems.length} neue Zutat${data.newItems.length===1?'':'en'} - Kategorie prüfen/anpassen:`:'Keine neuen Zutaten.');
+  document.getElementById('ingredientDesc').textContent=`Für "${data.mealName}": `+parts.join(' ');
+  const list=document.getElementById('ingredientList');
+  list.innerHTML=data.newItems.map((ing,idx)=>`
+    <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:600">${escHtml(ing.name)}</div>
+        ${ing.measure?`<div style="font-size:11.5px;color:var(--text3)">${escHtml(ing.measure)}</div>`:''}
+      </div>
+      <select style="width:150px;padding:8px;border-radius:10px;border:1px solid var(--glass-border);background:#fff;font-size:12.5px" onchange="updateIngredientCat(${idx},this.value)">
+        ${SHOP_CATS.map(c=>`<option value="${c}"${c===ing.category?' selected':''}>${c}</option>`).join('')}
+      </select>
+    </div>`).join('');
+}
+function updateIngredientCat(idx,val){
+  if(_pendingRecipeMeal&&_pendingRecipeMeal.newItems[idx])_pendingRecipeMeal.newItems[idx].category=val;
 }
 function closeIngredientModal(){
   document.getElementById('ingredientModal').classList.remove('open');
   if(_pendingRecipeMeal)pendingMealKeys.delete(_pendingRecipeMeal.key);
   _pendingRecipeMeal=null;
 }
-async function confirmIngredientImport(yes){
+async function confirmIngredientImport(){
   document.getElementById('ingredientModal').classList.remove('open');
   const data=_pendingRecipeMeal;_pendingRecipeMeal=null;
-  if(!data){return;}
+  if(!data)return;
   pendingMealKeys.delete(data.key);
-  if(!yes)return;
   let added=0,checked=0;
-  for(const ing of data.ingredients){
-    const deName=translateIngredient(ing.name);
-    const existing=shopItems.find(i=>i.title.toLowerCase().trim()===deName.toLowerCase().trim());
-    if(existing){
-      const sid=existing.id||existing._id;
-      if(!existing.checked){
-        existing.checked=true;
-        beginPending(sid);
-        try{await api('PATCH','/shopping/'+sid,{checked:true});}catch(e){}
-        finally{endPending(sid);}
-      }
-      checked++;
-    }else{
-      try{
-        const created=await api('POST','/shopping',{
-          title:deName,category:guessCategory(deName),qty:ing.measure||'',
-          price:'',comment:'',repeat:{type:'always',n:0},photos:[]
-        });
-        created.checked=true;
-        try{await api('PATCH','/shopping/'+(created.id||created._id),{checked:true});}catch(e){}
-        shopItems.push(created);
-        added++;
-      }catch(e){}
+  for(const existing of data.existingItems){
+    const sid=existing.id||existing._id;
+    if(!existing.checked){
+      existing.checked=true;
+      beginPending(sid);
+      try{await api('PATCH','/shopping/'+sid,buildFullPatch(existing));}catch(e){}
+      finally{endPending(sid);}
     }
+    checked++;
+  }
+  for(const ing of data.newItems){
+    try{
+      const created=await api('POST','/shopping',{
+        title:ing.name,category:ing.category,qty:ing.measure||'',
+        price:'',comment:'',repeat:{type:'always',n:0},photos:[]
+      });
+      created.checked=true;
+      try{await api('PATCH','/shopping/'+(created.id||created._id),buildFullPatch(created));}catch(e){}
+      shopItems.push(created);
+      added++;
+    }catch(e){}
   }
   renderList();
   showToast(`${added} neu hinzugefügt, ${checked} bereits vorhanden abgehakt`);
