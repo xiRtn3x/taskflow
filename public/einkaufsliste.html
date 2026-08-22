@@ -97,6 +97,14 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 .photo-thumb-wrap img{width:100%;height:100%;object-fit:cover;border-radius:12px;border:1px solid var(--glass-border);}
 .photo-remove{position:absolute;top:-6px;right:-6px;width:20px;height:20px;border-radius:50%;background:var(--red);color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.25);}
 .photo-add-btn{width:64px;height:64px;border-radius:12px;border:2px dashed var(--glass-border);background:var(--glass);display:flex;align-items:center;justify-content:center;color:var(--text3);cursor:pointer;flex-direction:column;gap:2px;font-size:10px;font-weight:600;}
+/* auto-suggest grid */
+.img-suggest-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:6px 0 4px;}
+.img-suggest-item{border-radius:12px;overflow:hidden;border:3px solid transparent;cursor:pointer;position:relative;aspect-ratio:1;background:var(--sep);}
+.img-suggest-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.img-suggest-item.sel{border-color:var(--acc);}
+.img-suggest-item.sel::after{content:'✓';position:absolute;top:3px;right:3px;width:18px;height:18px;background:var(--acc);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;}
+.img-suggest-loading{font-size:12px;color:var(--text3);padding:4px 0 8px;display:flex;align-items:center;gap:6px;}
+.img-suggest-skip{font-size:12px;color:var(--acc);cursor:pointer;font-weight:600;padding:2px 0 10px;display:inline-block;}
 .photo-pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:6px 0 16px;}
 .photo-pick-item{border-radius:14px;overflow:hidden;border:3px solid transparent;cursor:pointer;position:relative;aspect-ratio:1;}
 .photo-pick-item img{width:100%;height:100%;object-fit:cover;display:block;}
@@ -164,12 +172,20 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
 <div class="ov" id="itemModal">
   <div class="sheet">
     <div class="mhdr"><div class="mtitle" id="itemModalTitle">Artikel hinzufügen</div><span class="mclose" onclick="closeItemModal()">Abbrechen</span></div>
+    <div class="field"><label>Titel</label><input id="fTitle" placeholder="z.B. Milch" oninput="onTitleInputChange(this.value)"></div>
+    <div class="field" id="imgSuggestField" style="display:none">
+      <label>Bildvorschläge</label>
+      <div id="imgSuggestLoading" class="img-suggest-loading" style="display:none">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>Suche Bilder…
+      </div>
+      <div class="img-suggest-grid" id="imgSuggestGrid"></div>
+      <span class="img-suggest-skip" onclick="skipImgSuggest()">Ohne Bild fortfahren</span>
+    </div>
     <div class="field">
-      <label>Fotos (bis zu 5)</label>
+      <label>Eigene Fotos (bis zu 5)</label>
       <div class="photo-gallery" id="photoGallery"></div>
       <input type="file" id="photoInp" accept="image/*" style="display:none" onchange="handlePhotoInput(this)">
     </div>
-    <div class="field"><label>Titel</label><input id="fTitle" placeholder="z.B. Milch"></div>
     <div class="field"><label>Kategorie</label><select id="fCat"></select></div>
     <div style="display:flex;gap:10px">
       <div class="field" style="flex:1"><label>Menge</label><input id="fQty" placeholder="1"></div>
@@ -264,7 +280,7 @@ function doLogout(){
 function showAppUI(){
   document.getElementById('app').style.display='block';
   populateCatSelect();
-  ensureShopSynced().then(()=>{renderAll();});
+  ensureShopSynced().then(()=>{renderAll();setTimeout(()=>autoFillExistingItems(),2000);});
   document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')pollOnce();});
   startPolling();
 }
@@ -432,7 +448,6 @@ function renderList(){
         : '';
       html+=`<div class="item-row">
         <div class="chk${item.checked?' done':''}" onclick="toggleItem('${sid}',event)">${item.checked?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
-        ${thumb}
         <div class="item-body" onclick="openEditItem('${sid}')">
           <div class="item-title">${escHtml(item.title)}${item.comment?` <em style="color:var(--text3);font-weight:400;font-style:normal;font-size:12.5px">${escHtml(item.comment)}</em>`:''}</div>
           <div class="item-meta">
@@ -440,6 +455,7 @@ function renderList(){
             ${item.price?`<span class="price-tag">${parseFloat(item.price).toFixed(2)} €</span>`:''}
           </div>
         </div>
+        ${thumb}
       </div>`;
     });
     html+='</div></div>';
@@ -534,7 +550,7 @@ function closePhotoPick(){
 
 // ── add/edit item + photos ──
 function openAddItem(){
-  editingId=null;editingPhotos=[];
+  editingId=null;editingPhotos=[];_suggestSelected=null;_suggestUrls=[];
   document.getElementById('itemModalTitle').textContent='Artikel hinzufügen';
   document.getElementById('fTitle').value='';
   document.getElementById('fCat').value=SHOP_CATS[0];
@@ -542,13 +558,15 @@ function openAddItem(){
   document.getElementById('fPrice').value='';
   document.getElementById('fComment').value='';
   document.getElementById('delItemWrap').innerHTML='';
+  document.getElementById('imgSuggestField').style.display='none';
+  document.getElementById('imgSuggestGrid').innerHTML='';
   renderPhotoGallery();
   document.getElementById('itemModal').classList.add('open');
   setTimeout(()=>document.getElementById('fTitle').focus(),250);
 }
 function openEditItem(id){
   const item=shopItems.find(i=>(i.id||i._id)===id);if(!item)return;
-  editingId=id;editingPhotos=[...getItemPhotos(item)];
+  editingId=id;editingPhotos=[...getItemPhotos(item)];_suggestSelected=null;_suggestUrls=[];
   beginPending(id);
   document.getElementById('itemModalTitle').textContent='Artikel bearbeiten';
   document.getElementById('fTitle').value=item.title||'';
@@ -557,6 +575,8 @@ function openEditItem(id){
   document.getElementById('fPrice').value=item.price||'';
   document.getElementById('fComment').value=item.comment||'';
   document.getElementById('delItemWrap').innerHTML='<button class="btn btn-danger" onclick="deleteItem()">Artikel löschen</button>';
+  document.getElementById('imgSuggestField').style.display='none';
+  document.getElementById('imgSuggestGrid').innerHTML='';
   renderPhotoGallery();
   document.getElementById('itemModal').classList.add('open');
 }
@@ -601,6 +621,118 @@ async function handlePhotoInput(inp){
     renderPhotoGallery();
   }catch(e){showToast('Foto konnte nicht verarbeitet werden');}
 }
+// ── AUTO IMAGE SUGGEST ──────────────────────────────────────────
+let _suggestSelected=null; // index in _suggestUrls or null
+let _suggestUrls=[];
+let _titleDebounce=null;
+
+function onTitleInputChange(val){
+  if(editingId)return; // nur beim Neuanlegen
+  clearTimeout(_titleDebounce);
+  const q=val.trim();
+  if(q.length<2){
+    document.getElementById('imgSuggestField').style.display='none';
+    _suggestUrls=[];_suggestSelected=null;
+    return;
+  }
+  _titleDebounce=setTimeout(()=>fetchSuggestImages(q),600);
+}
+
+async function fetchSuggestImages(query){
+  const field=document.getElementById('imgSuggestField');
+  const loading=document.getElementById('imgSuggestLoading');
+  const grid=document.getElementById('imgSuggestGrid');
+  field.style.display='block';
+  loading.style.display='flex';
+  grid.innerHTML='';
+  _suggestUrls=[];_suggestSelected=null;
+
+  const urls=await searchProductImages(query,4);
+  loading.style.display='none';
+  if(!urls.length){field.style.display='none';return;}
+  _suggestUrls=urls;
+  grid.innerHTML=urls.map((u,i)=>
+    `<div class="img-suggest-item" data-idx="${i}" onclick="selectSuggestImg(${i})">
+      <img src="${u}" onerror="this.parentElement.style.display='none'">
+    </div>`
+  ).join('');
+}
+
+function selectSuggestImg(idx){
+  _suggestSelected=(_suggestSelected===idx)?null:idx;
+  document.querySelectorAll('.img-suggest-item').forEach(el=>{
+    el.classList.toggle('sel',Number(el.dataset.idx)===_suggestSelected);
+  });
+}
+
+function skipImgSuggest(){
+  document.getElementById('imgSuggestField').style.display='none';
+  _suggestSelected=null;
+}
+
+// Suche: Open Food Facts → Wikimedia Commons als Fallback
+async function searchProductImages(query,count=4){
+  const urls=[];
+  // 1) Open Food Facts
+  try{
+    const r=await fetch(`https://world.openfoodfacts.org/cgi/search.pl?search_terms=${encodeURIComponent(query)}&search_simple=1&action=process&json=1&page_size=10`);
+    const d=await r.json();
+    for(const p of(d.products||[])){
+      if(urls.length>=count)break;
+      const img=p.image_front_small_url||p.image_url||p.image_small_url;
+      if(img&&!urls.includes(img))urls.push(img);
+    }
+  }catch(e){}
+  // 2) Wikimedia Commons Fallback
+  if(urls.length<count){
+    try{
+      const need=count-urls.length;
+      const r=await fetch(`https://en.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch=${encodeURIComponent(query)}&gsrlimit=6&prop=pageimages&piprop=thumbnail&pithumbsize=300&format=json&origin=*`);
+      const d=await r.json();
+      const pages=Object.values(d?.query?.pages||{});
+      for(const p of pages){
+        if(urls.length>=count)break;
+        const u=p?.thumbnail?.source;
+        if(u&&!urls.includes(u))urls.push(u);
+      }
+    }catch(e){}
+  }
+  return urls.slice(0,count);
+}
+
+// Einmalig bestehende Artikel ohne Fotos im Hintergrund befüllen
+async function autoFillExistingItems(){
+  const without=shopItems.filter(i=>!getItemPhotos(i).length&&i.title);
+  for(const item of without){
+    const id=item.id||item._id;
+    try{
+      const urls=await searchProductImages(item.title,1);
+      if(!urls.length)continue;
+      const b64=await urlToBase64(urls[0]);
+      if(!b64)continue;
+      item.photos=[b64];
+      item.photo=b64;
+      await api('PATCH','/shopping/'+id,{photos:[b64],photo:b64});
+    }catch(e){}
+    // kleine Pause damit wir die APIs nicht fluten
+    await new Promise(r=>setTimeout(r,800));
+  }
+  renderList();
+}
+
+async function urlToBase64(url){
+  try{
+    const r=await fetch(url);
+    const blob=await r.blob();
+    return await new Promise((res,rej)=>{
+      const reader=new FileReader();
+      reader.onload=()=>res(reader.result);
+      reader.onerror=rej;
+      reader.readAsDataURL(blob);
+    });
+  }catch(e){return null;}
+}
+
 function closeItemModal(keepPending){
   document.getElementById('itemModal').classList.remove('open');
   if(!keepPending&&editingId)endPending(editingId);
@@ -609,6 +741,13 @@ function closeItemModal(keepPending){
 async function saveItem(){
   const title=document.getElementById('fTitle').value.trim();
   if(!title){showToast('Titel eingeben');return;}
+  // Bildvorschlag übernehmen falls gewählt
+  let finalPhotos=[...editingPhotos];
+  if(!editingId&&_suggestSelected!==null&&_suggestUrls[_suggestSelected]){
+    showToast('Bild wird geladen…');
+    const b64=await urlToBase64(_suggestUrls[_suggestSelected]);
+    if(b64)finalPhotos=[b64,...finalPhotos];
+  }
   const payload={
     title,
     category:document.getElementById('fCat').value,
@@ -616,7 +755,8 @@ async function saveItem(){
     price:document.getElementById('fPrice').value.trim(),
     comment:document.getElementById('fComment').value.trim(),
     repeat:{type:'always',n:0},
-    photos:editingPhotos,
+    photos:finalPhotos,
+    photo:finalPhotos[0]||null,
   };
   const savingId=editingId;
   closeItemModal(!!savingId);
