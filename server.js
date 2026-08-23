@@ -294,6 +294,7 @@ app.delete('/api/groups/mine', auth, async (req, res) => {
     await db.collection('appstate').deleteOne({ _id: g._id.toString() });
     await db.collection('shopping').deleteMany({ groupId: g._id.toString() });
     await db.collection('mealplans').deleteOne({ groupId: g._id.toString() });
+    await db.collection('recipes').deleteMany({ groupId: g._id.toString() });
     await db.collection('groups').deleteOne({ _id: g._id });
     res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
@@ -474,6 +475,59 @@ app.post('/api/shopping/finish', auth, async (req, res) => {
       );
 
     res.json({ deleted: toDelete.length, reset: resetRepeating ? toReset.length : 0 });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+// ── RECIPES ───────────────────────────────────────
+app.get('/api/recipes', auth, async (req, res) => {
+  try {
+    const items = await db.collection('recipes')
+      .find(shopScope(req.user))
+      .sort({ createdAt: -1 })
+      .toArray();
+    res.json(items.map(i => ({ ...i, _id: i._id.toString() })));
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.post('/api/recipes', auth, async (req, res) => {
+  try {
+    const { name, category, link, ingredients, notes, photo } = req.body;
+    if (!name?.trim()) return res.status(400).json({ error: 'Name fehlt' });
+    const doc = {
+      ...shopScope(req.user),
+      name: name.trim(),
+      category: category || 'Sonstiges',
+      link: link || '',
+      ingredients: Array.isArray(ingredients) ? ingredients : [],
+      notes: notes || '',
+      photo: photo || null,
+      createdAt: new Date(),
+    };
+    const r = await db.collection('recipes').insertOne(doc);
+    res.status(201).json({ ...doc, _id: r.insertedId.toString() });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.patch('/api/recipes/:id', auth, async (req, res) => {
+  try {
+    const filter = { _id: new ObjectId(req.params.id), ...shopScope(req.user) };
+    const allowed = ['name','category','link','ingredients','notes','photo'];
+    const update = {};
+    allowed.forEach(f => { if (req.body[f] !== undefined) update[f] = req.body[f]; });
+    const r = await db.collection('recipes').findOneAndUpdate(
+      filter, { $set: update }, { returnDocument: 'after' }
+    );
+    if (!r) return res.status(404).json({ error: 'Nicht gefunden' });
+    res.json({ ...r, _id: r._id.toString() });
+  } catch(e) { res.status(500).json({ error: e.message }); }
+});
+
+app.delete('/api/recipes/:id', auth, async (req, res) => {
+  try {
+    await db.collection('recipes').deleteOne({
+      _id: new ObjectId(req.params.id), ...shopScope(req.user)
+    });
+    res.json({ ok: true });
   } catch(e) { res.status(500).json({ error: e.message }); }
 });
 
