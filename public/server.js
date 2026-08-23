@@ -491,7 +491,7 @@ app.get('/api/recipes', auth, async (req, res) => {
 
 app.post('/api/recipes', auth, async (req, res) => {
   try {
-    const { name, category, link, ingredients, photo } = req.body;
+    const { name, category, link, ingredients, notes, photo } = req.body;
     if (!name?.trim()) return res.status(400).json({ error: 'Name fehlt' });
     const doc = {
       ...shopScope(req.user),
@@ -499,6 +499,7 @@ app.post('/api/recipes', auth, async (req, res) => {
       category: category || 'Sonstiges',
       link: link || '',
       ingredients: Array.isArray(ingredients) ? ingredients : [],
+      notes: notes || '',
       photo: photo || null,
       createdAt: new Date(),
     };
@@ -510,7 +511,7 @@ app.post('/api/recipes', auth, async (req, res) => {
 app.patch('/api/recipes/:id', auth, async (req, res) => {
   try {
     const filter = { _id: new ObjectId(req.params.id), ...shopScope(req.user) };
-    const allowed = ['name','category','link','ingredients','photo'];
+    const allowed = ['name','category','link','ingredients','notes','photo'];
     const update = {};
     allowed.forEach(f => { if (req.body[f] !== undefined) update[f] = req.body[f]; });
     const r = await db.collection('recipes').findOneAndUpdate(

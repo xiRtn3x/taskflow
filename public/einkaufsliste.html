@@ -181,7 +181,6 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
       <div id="recipeList"></div>
     </div>
   </div>
-</div>
 
   <!-- RECIPES TAB -->
   <div id="recipesTab" style="display:none">
@@ -195,7 +194,8 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
     <div class="recipe-cat-filter" id="recipeCatFilter"></div>
     <div class="recipe-arch-grid" id="recipeArchGrid"></div>
   </div>
-</div>
+
+</div><!-- end #app -->
 
 <!-- Rezept anlegen/bearbeiten Modal -->
 <div class="ov" id="recipeArchModal">
@@ -217,6 +217,10 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
       <label>Zutaten (eine pro Zeile)</label>
       <textarea id="fRecipeIngredients" placeholder="Zwiebel&#10;Knoblauch&#10;Hackfleisch 500g" style="min-height:100px"></textarea>
     </div>
+    <div class="field">
+      <label>Notizen</label>
+      <textarea id="fRecipeNotes" placeholder="Tipps, Variationen, Zubereitungshinweise…" style="min-height:80px"></textarea>
+    </div>
     <button class="btn btn-primary" onclick="saveRecipeArch()" style="margin-top:4px">Speichern</button>
     <div id="delRecipeArchWrap" style="margin-top:8px"></div>
   </div>
@@ -229,6 +233,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
     <div id="recipeDetailImg" style="margin-bottom:12px"></div>
     <div id="recipeDetailLink" style="margin-bottom:10px"></div>
     <div id="recipeDetailIngredients" style="margin-bottom:16px"></div>
+    <div id="recipeDetailNotes" style="margin-bottom:16px"></div>
     <button class="btn btn-primary" onclick="importRecipeToShop()">
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
       Zutaten zur Einkaufsliste
@@ -1201,6 +1206,7 @@ function openAddRecipe(){
   document.getElementById('fRecipeArchCat').value=RECIPE_CATS[0];
   document.getElementById('fRecipeLink').value='';
   document.getElementById('fRecipeIngredients').value='';
+  document.getElementById('fRecipeNotes').value='';
   document.getElementById('recipeArchImgPreview').innerHTML='';
   document.getElementById('delRecipeArchWrap').innerHTML='';
   document.getElementById('recipeArchModal').classList.add('open');
@@ -1216,6 +1222,7 @@ function openEditCurrentRecipe(){
   document.getElementById('fRecipeArchCat').value=r.category||RECIPE_CATS[0];
   document.getElementById('fRecipeLink').value=r.link||'';
   document.getElementById('fRecipeIngredients').value=(r.ingredients||[]).join('\n');
+  document.getElementById('fRecipeNotes').value=r.notes||'';
   document.getElementById('recipeArchImgPreview').innerHTML=r.photo?`<img src="${r.photo}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:4px">`:'';
   document.getElementById('delRecipeArchWrap').innerHTML=`<button class="btn btn-danger" onclick="deleteRecipeArch()">Rezept löschen</button>`;
   document.getElementById('recipeArchModal').classList.add('open');
@@ -1237,6 +1244,7 @@ async function saveRecipeArch(){
     category:document.getElementById('fRecipeArchCat').value,
     link:document.getElementById('fRecipeLink').value.trim(),
     ingredients:document.getElementById('fRecipeIngredients').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    notes:document.getElementById('fRecipeNotes').value.trim(),
     photo:editingRecipeImg||null,
   };
   try{
@@ -1276,6 +1284,9 @@ function openRecipeDetail(rid){
   document.getElementById('recipeDetailIngredients').innerHTML=ings.length
     ?`<div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Zutaten</div>`+ings.map(i=>`<div style="padding:5px 0;border-bottom:1px solid var(--sep);font-size:14px">${escHtml(i)}</div>`).join('')
     :'<div style="color:var(--text3);font-size:13px">Keine Zutaten hinterlegt</div>';
+  document.getElementById('recipeDetailNotes').innerHTML=r.notes
+    ?`<div style="font-size:12px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">Notizen</div><div style="font-size:13.5px;color:var(--text2);white-space:pre-wrap;background:var(--glass);border:1px solid var(--glass-border);border-radius:12px;padding:10px 12px">${escHtml(r.notes)}</div>`
+    :'';
   document.getElementById('recipeDetailModal').classList.add('open');
 }
 function closeRecipeDetailModal(){document.getElementById('recipeDetailModal').classList.remove('open');_viewingRecipe=null;}
