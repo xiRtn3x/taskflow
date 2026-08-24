@@ -685,29 +685,7 @@ function renderPhotoGallery(){
   g.innerHTML=html;
 }
 function removePhotoAt(idx){editingPhotos.splice(idx,1);renderPhotoGallery();}
-// compress/resize an image file down to a reasonable size before storing as base64
-function compressImage(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const img=new Image();
-      img.onload=()=>{
-        const maxDim=640;
-        let w=img.width,h=img.height;
-        if(w>h&&w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}
-        else if(h>=w&&h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}
-        const canvas=document.createElement('canvas');
-        canvas.width=w;canvas.height=h;
-        canvas.getContext('2d').drawImage(img,0,0,w,h);
-        resolve(canvas.toDataURL('image/jpeg',0.72));
-      };
-      img.onerror=reject;
-      img.src=e.target.result;
-    };
-    reader.onerror=reject;
-    reader.readAsDataURL(file);
-  });
-}
+// compressImage wird durch compressToBlob+uploadToCloudinary ersetzt (siehe oben)
 async function handlePhotoInput(inp){
   const file=inp.files[0];inp.value='';if(!file)return;
   if(editingPhotos.length>=5){showToast('Maximal 5 Fotos pro Artikel');return;}
@@ -796,37 +774,127 @@ async function searchProductImages(query,count=4){
   return urls.slice(0,count);
 }
 
+// ── CLOUDINARY ──────────────────────────────────────────────────
+const CLOUDINARY_CLOUD='pywnjejk';
+const CLOUDINARY_PRESET='kiri_upload';
+const CLOUDINARY_URL=`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`;
+
+async function uploadToCloudinary(file){
+  // Erst lokal auf 800px komprimieren damit Upload schnell geht
+  const blob=await compressToBlob(file,800,0.82);
+  const fd=new FormData();
+  fd.append('file',blob,'photo.jpg');
+  fd.append('upload_preset',CLOUDINARY_PRESET);
+  const r=await fetch(CLOUDINARY_URL,{method:'POST',body:fd});
+  if(!r.ok)throw new Error('Cloudinary Upload fehlgeschlagen');
+  const d=await r.json();
+  return d.secure_url; // https://res.cloudinary.com/…/image/upload/…
+}
+
+function compressToBlob(file,maxDim,quality){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>h&&w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}
+        else if(h>=w&&h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}
+        const canvas=document.createElement('canvas');
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        canvas.toBlob(b=>b?resolve(b):reject(new Error('Blob failed')),'image/jpeg',quality);
+      };
+      img.onerror=reject;
+      img.src=e.target.result;
+    };
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Für externe URLs (Bildvorschläge): direkt als URL speichern, kein Base64
+async function urlToCloudinary(url){
+  try{
+    const fd=new FormData();
+    fd.append('file',url);
+    fd.append('upload_preset',CLOUDINARY_PRESET);
+    const r=await fetch(CLOUDINARY_URL,{method:'POST',body:fd});
+    if(!r.ok)return url; // fallback: URL direkt verwenden
+    const d=await r.json();
+    return d.secure_url;
+  }catch(e){return url;}
+}
+
+async function handlePhotoInput(inp){
+  const file=inp.files[0];inp.value='';if(!file)return;
+  if(editingPhotos.length>=5){showToast('Maximal 5 Fotos pro Artikel');return;}
+  showToast('Foto wird hochgeladen…');
+  try{
+    const url=await uploadToCloudinary(file);
+    editingPhotos.push(url);
+    renderPhotoGallery();
+  }catch(e){showToast('Foto konnte nicht hochgeladen werden');}
+}
+
+async function handleRecipeArchImg(inp){
+  const file=inp.files[0];inp.value='';if(!file)return;
+  showToast('Bild wird hochgeladen…');
+  try{
+    const url=await uploadToCloudinary(file);
+    editingRecipeImg=url;
+    document.getElementById('recipeArchImgPreview').innerHTML=`<img src="${url}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:4px">`;
+  }catch(e){showToast('Bild konnte nicht hochgeladen werden');}
+}
+
+// Bestehende Base64-Fotos zu Cloudinary migrieren (einmalig im Hintergrund)
+async function migrateBase64ToCloudinary(){
+  const toMigrate=shopItems.filter(i=>{
+    const photos=getItemPhotos(i);
+    return photos.some(p=>p.startsWith('data:'));
+  });
+  for(const item of toMigrate){
+    const id=item.id||item._id;
+    try{
+      const newPhotos=[];
+      for(const p of getItemPhotos(item)){
+        if(p.startsWith('data:')){
+          // base64 → blob → cloudinary
+          const blob=await(await fetch(p)).blob();
+          const file=new File([blob],'photo.jpg',{type:'image/jpeg'});
+          const url=await uploadToCloudinary(file);
+          newPhotos.push(url);
+        }else{
+          newPhotos.push(p);
+        }
+      }
+      item.photos=newPhotos;
+      item.photo=newPhotos[0]||null;
+      await api('PATCH','/shopping/'+id,{photos:newPhotos,photo:newPhotos[0]||null});
+    }catch(e){}
+    await new Promise(r=>setTimeout(r,500));
+  }
+}
+
 // Einmalig bestehende Artikel ohne Fotos im Hintergrund befüllen
 async function autoFillExistingItems(){
+  // Erst Base64 migrieren
+  await migrateBase64ToCloudinary();
   const without=shopItems.filter(i=>!getItemPhotos(i).length&&i.title);
   for(const item of without){
     const id=item.id||item._id;
     try{
       const urls=await searchProductImages(item.title,1);
       if(!urls.length)continue;
-      const b64=await urlToBase64(urls[0]);
-      if(!b64)continue;
-      item.photos=[b64];
-      item.photo=b64;
-      await api('PATCH','/shopping/'+id,{photos:[b64],photo:b64});
+      // Direkt als URL speichern (kein Base64 mehr)
+      const cloudUrl=await urlToCloudinary(urls[0]);
+      item.photos=[cloudUrl];
+      item.photo=cloudUrl;
+      await api('PATCH','/shopping/'+id,{photos:[cloudUrl],photo:cloudUrl});
     }catch(e){}
-    // kleine Pause damit wir die APIs nicht fluten
     await new Promise(r=>setTimeout(r,800));
   }
   renderList();
-}
-
-async function urlToBase64(url){
-  try{
-    const r=await fetch(url);
-    const blob=await r.blob();
-    return await new Promise((res,rej)=>{
-      const reader=new FileReader();
-      reader.onload=()=>res(reader.result);
-      reader.onerror=rej;
-      reader.readAsDataURL(blob);
-    });
-  }catch(e){return null;}
 }
 
 function closeItemModal(keepPending){
@@ -840,9 +908,9 @@ async function saveItem(){
   // Bildvorschlag übernehmen falls gewählt
   let finalPhotos=[...editingPhotos];
   if(!editingId&&_suggestSelected!==null&&_suggestUrls[_suggestSelected]){
-    showToast('Bild wird geladen…');
-    const b64=await urlToBase64(_suggestUrls[_suggestSelected]);
-    if(b64)finalPhotos=[b64,...finalPhotos];
+    showToast('Bild wird hochgeladen…');
+    const cloudUrl=await urlToCloudinary(_suggestUrls[_suggestSelected]);
+    if(cloudUrl)finalPhotos=[cloudUrl,...finalPhotos];
   }
   const payload={
     title,
@@ -1228,14 +1296,6 @@ function openEditCurrentRecipe(){
   document.getElementById('recipeArchModal').classList.add('open');
 }
 function closeRecipeArchModal(){document.getElementById('recipeArchModal').classList.remove('open');}
-async function handleRecipeArchImg(inp){
-  const file=inp.files[0];inp.value='';if(!file)return;
-  try{
-    const b64=await compressImage(file);
-    editingRecipeImg=b64;
-    document.getElementById('recipeArchImgPreview').innerHTML=`<img src="${b64}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:4px">`;
-  }catch(e){showToast('Bild konnte nicht geladen werden');}
-}
 async function saveRecipeArch(){
   const name=document.getElementById('fRecipeName').value.trim();
   if(!name){showToast('Name eingeben');return;}
@@ -1336,6 +1396,28 @@ async function confirmRecipeIngImport(){
   renderList();
   setMainTab('shop');setFilter('checked');
   showToast(`${added} hinzugefügt${skipped?', '+skipped+' abgehakt':''}`);
+}
+
+// Einfache Kategorie-Erkennung anhand Schlüsselwörter
+function guessCategory(ing){
+  const s=ing.toLowerCase();
+  if(/nudel|pasta|spaghetti|penne|lasagne|mehl|brot|brötchen|baguette|toast|backpulver|hefe/.test(s))return'Nudeln, Backware';
+  if(/soße|sauce|ketchup|senf|mayo|essig|sojasauce|worcester|pesto/.test(s))return'Soßen & Gewürze';
+  if(/öl|olivenöl|sonnenblumenöl|rapsöl|butter|margarine/.test(s))return'Öl & Essig';
+  if(/apfel|banane|orange|zitrone|beere|traube|mango|ananas|obst|früchte/.test(s))return'Obst';
+  if(/tomate|zwiebel|knoblauch|paprika|zucchini|karotte|salat|spinat|broccoli|gemüse|gurke|kohl/.test(s))return'Gemüse';
+  if(/petersilie|basilikum|thymian|rosmarin|oregano|schnittlauch|kräuter|minze/.test(s))return'Kräuter';
+  if(/bier|wein|sekt|schnaps|whisky|vodka|gin|rum/.test(s))return'Alkohol';
+  if(/reis|tofu|curry|kokos|sushi|miso|ingwer|chili|sesam/.test(s))return'Asia & Sonstiges';
+  if(/dose|konserve|kaffee|tee|kakao|bohnen/.test(s))return'Dosen & Kaffee';
+  if(/wurst|aufschnitt|salami|schinken|leberwurst/.test(s))return'Brot & Wurst';
+  if(/tiefkühl|tk|eis|gefroren|frozen/.test(s))return'TK';
+  if(/fleisch|hähnchen|rind|schwein|hackfleisch|steak|schnitzel|lachs|fisch|garnele/.test(s))return'Fleisch';
+  if(/schokolade|süß|gummibär|chips|keks|riegel|bonbon/.test(s))return'Süßkram';
+  if(/käse|joghurt|quark|sahne|milch|ei|eier/.test(s))return'Käse & Kühlregal';
+  if(/wasser|saft|limo|cola|softdrink|getränk/.test(s))return'Getränke';
+  if(/shampoo|seife|zahnpasta|deo|creme|windel|waschmittel/.test(s))return'Drogerie';
+  return'Asia & Sonstiges';
 }
 
 init();
