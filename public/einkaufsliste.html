@@ -146,6 +146,7 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
   <div class="nav">
     <div class="nav-inner">
       <div class="nav-title">Einkaufen</div>
+      <button class="nav-btn" id="shareLinkBtn" onclick="openShareModal()" title="Liste teilen" style="display:none"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>
       <button class="nav-btn" onclick="manualRefresh()" title="Aktualisieren"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg></button>
       <button class="nav-btn" onclick="doLogout()" title="Abmelden"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
     </div>
@@ -163,6 +164,8 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
       <button class="tab-btn on" id="filterBtnAll" onclick="setFilter('all')">Einkauf planen</button>
       <button class="tab-btn" id="filterBtnChecked" onclick="setFilter('checked')">Einkaufen</button>
     </div>
+    <!-- Listenauswahl (Wocheneinkauf + Gastlisten) -->
+    <div id="listTabsRow" style="display:flex;gap:6px;padding:6px 16px 2px;overflow-x:auto;scrollbar-width:none"></div>
     <div class="toolbar-row" id="toolbarRow">
       <div class="search-wrap">
         <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -171,7 +174,12 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
       <button class="fab" onclick="openAddItem()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
     </div>
     <div id="listContainer"></div>
-  </div>
+    <div id="checkLogWrap" style="display:none;padding:16px 16px 8px">
+      <button class="btn btn-ghost" onclick="openCheckLog()" style="font-size:13px;color:var(--text3)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        Einkaufslog anzeigen
+      </button>
+    </div>
 
   <!-- PLAN TAB -->
   <div id="planTab">
@@ -196,6 +204,78 @@ svg{display:inline-block;vertical-align:middle;flex-shrink:0;}
   </div>
 
 </div><!-- end #app -->
+
+<!-- GAST-ANSICHT -->
+<div id="guestScreen" style="display:none">
+  <div class="nav">
+    <div class="nav-inner">
+      <div class="nav-title" id="guestNavTitle">Einkaufsliste</div>
+    </div>
+  </div>
+  <div id="guestListContainer" style="padding-bottom:40px"></div>
+  <div id="guestLogWrap" style="display:none;padding:16px 16px 8px">
+    <button class="btn btn-ghost" onclick="openCheckLog()" style="font-size:13px;color:var(--text3)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      Einkaufslog anzeigen
+    </button>
+  </div>
+</div>
+
+<!-- Gast Name-Eingabe -->
+<div id="guestLoginScreen" style="display:none">
+  <div class="login-wrap">
+    <div class="login-card">
+      <h1>Einkaufsliste</h1>
+      <p id="guestLoginDesc">Du wurdest zur Einkaufsliste eingeladen.</p>
+      <div class="field"><label>Dein Name</label><input id="guestName" type="text" placeholder="z.B. Anna" onkeydown="if(event.key==='Enter')doGuestLogin()"></div>
+      <button class="btn btn-primary" onclick="doGuestLogin()">Zur Liste</button>
+      <div id="guestLoginErr" style="color:var(--red);font-size:12.5px;margin-top:10px;text-align:center"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Share Modal -->
+<div class="ov" id="shareModal">
+  <div class="sheet">
+    <div class="mhdr"><div class="mtitle">Liste teilen</div><span class="mclose" onclick="closeShareModal()">Abbrechen</span></div>
+    <div class="field">
+      <label>Name der Liste (z.B. Party, Grillabend)</label>
+      <input id="shareListName" placeholder="Party" oninput="_shareListName=this.value.trim()">
+    </div>
+    <div class="field">
+      <label>Gültig für</label>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-ghost btn-sm" id="shareDur24" onclick="setShareDur(24)" style="flex:1">24h</button>
+        <button class="btn btn-ghost btn-sm" id="shareDur48" onclick="setShareDur(48)" style="flex:1">48h</button>
+        <button class="btn btn-ghost btn-sm" id="shareDur72" onclick="setShareDur(72)" style="flex:1">72h</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="generateShareLink()" style="margin-top:4px">Link erstellen</button>
+    <div id="shareLinkResult" style="display:none;margin-top:14px">
+      <div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:6px">Link</div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <input id="shareLinkInput" readonly style="flex:1;padding:10px 12px;border-radius:12px;border:1px solid var(--glass-border);background:var(--glass);font-size:13px;color:var(--text)">
+        <button class="btn btn-primary btn-sm" onclick="copyShareLink()">Kopieren</button>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="shareViaSystem()" style="width:100%;margin-top:8px">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+        Teilen…
+      </button>
+      <div id="activeLinksWrap" style="margin-top:14px"></div>
+    </div>
+    <div id="shareGenerating" style="display:none;text-align:center;padding:16px;color:var(--text3);font-size:13px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin" style="margin-bottom:6px"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg><br>Link wird erstellt…
+    </div>
+  </div>
+</div>
+
+<!-- Log Modal -->
+<div class="ov" id="checkLogModal">
+  <div class="sheet">
+    <div class="mhdr"><div class="mtitle">Einkaufslog</div><span class="mclose" onclick="closeCheckLog()">Schließen</span></div>
+    <div id="checkLogList" style="max-height:60vh;overflow-y:auto"></div>
+  </div>
+</div>
 
 <!-- Rezept anlegen/bearbeiten Modal -->
 <div class="ov" id="recipeArchModal">
@@ -335,6 +415,9 @@ function showToast(msg){
 }
 function hideLoader(){document.getElementById('loadingScreen').style.display='none';}
 async function init(){
+  // Gast-Link erkennen: /guest/TOKEN
+  const m=location.pathname.match(/^\/guest\/([a-f0-9]+)$/i);
+  if(m){_guestToken=m[1];await initGuestMode();return;}
   myToken=localStorage.getItem('tf_token');
   if(myToken){
     try{await api('GET','/users/me');hideLoader();showAppUI();return;}
@@ -361,6 +444,7 @@ function doLogout(){
 }
 function showAppUI(){
   document.getElementById('app').style.display='block';
+  document.getElementById('shareLinkBtn').style.display='flex';
   populateCatSelect();
   populateRecipeArchCatSelect();
   ensureShopSynced().then(()=>{renderAll();setTimeout(()=>autoFillExistingItems(),2000);});
@@ -377,10 +461,13 @@ const WEEKDAY_LABELS={mo:'Mo',di:'Di',mi:'Mi',do:'Do',fr:'Fr',sa:'Sa',so:'So'};
 const WEEKDAY_NAMES={mo:'Montag',di:'Dienstag',mi:'Mittwoch',do:'Donnerstag',fr:'Freitag',sa:'Samstag',so:'Sonntag'};
 const RECIPE_CATS=['Pasta','Suppen','Fleisch','Vegetarisch','Backen','Snacks','Frühstück','Dessert','Sonstiges'];
 let shopItems=[];
+let listEntries=[];
+let shopLists=[];
 let mealPlan={};
-let recipes=[]; // Rezept-Archiv
+let recipes=[];
 let mainTab='plan';
 let listFilter='all';
+let activeListId='wocheneinkauf';
 let searchQuery='';
 let recipeSearchQuery='';
 let recipeFilterCat='';
@@ -388,10 +475,15 @@ let editingId=null;
 let editingMealKey=null;
 let editingPhotos=[];
 let editingRecipeId=null;
-let editingRecipeImg=null; // base64
-let _viewingRecipe=null; // aktuell geöffnetes Rezept im Detail-Modal
-
-const pendingWrites=new Map();
+let editingRecipeImg=null;
+let _viewingRecipe=null;
+let _isGuest=false;
+let _guestToken=null;
+let _guestName=null;
+let _guestListId=null;
+let _guestEntries=[];
+let _shareDur=24;
+let _shareListName='';
 const pendingDeletes=new Set();
 const pendingMealKeys=new Set();
 function beginPending(id){id=String(id);pendingWrites.set(id,(pendingWrites.get(id)||0)+1);}
@@ -438,9 +530,23 @@ function ensureShopSynced(){
   if(!_initPromise){
     _initPromise=(async()=>{
       try{
-        const [items,plan,recs]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan'),api('GET','/recipes')]);
-        shopItems=items||[];mealPlan=plan||{};recipes=recs||[];
+        const [items,entries,lists,plan,recs]=await Promise.all([
+          api('GET','/shopping'),
+          api('GET','/listentries'),
+          api('GET','/shoplists'),
+          api('GET','/mealplan'),
+          api('GET','/recipes')
+        ]);
+        shopItems=items||[];listEntries=entries||[];shopLists=lists||[];
+        mealPlan=plan||{};recipes=recs||[];
         shopHash=hashItems(shopItems);mealHash=JSON.stringify(mealPlan);
+        // Migration: checked-Artikel aus alter DB → listentries
+        await api('POST','/migrate/listentries',{});
+        // Nach Migration neu laden
+        const freshEntries=await api('GET','/listentries');
+        listEntries=freshEntries||[];
+        // Abgelaufene Gastlisten abfragen
+        checkExpiredLists();
       }catch(e){showToast('Konnte nicht laden: '+e.message);}
     })();
   }
@@ -449,16 +555,17 @@ function ensureShopSynced(){
 async function manualRefresh(){await pollOnce(true);showToast('Aktualisiert');}
 async function pollOnce(force){
   try{
-    const [fresh,freshPlan]=await Promise.all([api('GET','/shopping'),api('GET','/mealplan')]);
-    const newHash=hashItems(fresh);
+    const [fresh,freshEntries,freshLists,freshPlan]=await Promise.all([
+      api('GET','/shopping'),api('GET','/listentries'),api('GET','/shoplists'),api('GET','/mealplan')
+    ]);
+    const newHash=hashItems(fresh)+'|'+freshEntries.length;
     if(newHash!==shopHash||force){
-      const looksLikeGlitch=shopItems.length>5&&fresh.length<shopItems.length*0.5;
-      if(looksLikeGlitch&&shrinkSuspectCount<1){shrinkSuspectCount++;}
-      else{
-        shrinkSuspectCount=0;shopHash=newHash;
-        shopItems=mergeItems(fresh);
-        if(mainTab==='shop')renderList();
-      }
+      shopHash=newHash;
+      shopItems=mergeItems(fresh);
+      listEntries=freshEntries||[];
+      shopLists=freshLists||[];
+      if(mainTab==='shop')renderList();
+      renderListTabs();
     }
     const newPlanHash=JSON.stringify(freshPlan||{});
     if(newPlanHash!==mealHash){
@@ -468,7 +575,7 @@ async function pollOnce(force){
         if(mainTab==='plan')renderMealGrid();
       }
     }
-  }catch(e){/* transient network errors ignored - next tick retries */}
+  }catch(e){}
 }
 function startPolling(){setInterval(pollOnce,5000);}
 
@@ -490,6 +597,7 @@ function setFilter(f){
   document.getElementById('filterBtnAll').classList.toggle('on',f==='all');
   document.getElementById('filterBtnChecked').classList.toggle('on',f==='checked');
   document.getElementById('toolbarRow').style.display=f==='all'?'':'none';
+  document.getElementById('checkLogWrap').style.display=f==='checked'?'block':'none';
   renderList();
 }
 function onSearch(v){searchQuery=v.trim().toLowerCase();renderList();}
@@ -501,112 +609,170 @@ function renderAll(){
 }
 function escHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 
-// ══════════════════════════════════════════
-// SHOPPING LIST
-// ══════════════════════════════════════════
+function renderListTabs(){
+  const row=document.getElementById('listTabsRow');
+  if(!row)return;
+  const activeLists=[{id:'wocheneinkauf',name:'Wocheneinkauf'},...shopLists.filter(l=>new Date(l.expiresAt)>new Date())];
+  if(activeLists.length<=1){row.style.display='none';return;}
+  row.style.display='flex';
+  row.innerHTML=activeLists.map(l=>`
+    <button class="cat-pill${activeListId===l.id?' on':''}" onclick="setActiveList('${l.id}')">${escHtml(l.name)}</button>
+  `).join('');
+}
+function setActiveList(id){
+  activeListId=id;
+  renderListTabs();
+  renderList();
+}
+
+// Hilfsfunktion: Entry für Artikel+Liste finden
+function getEntry(articleId,listId){
+  return listEntries.find(e=>e.articleId===articleId&&e.listId===(listId||activeListId));
+}
+function isArticleOnList(articleId,listId){
+  return !!getEntry(articleId,listId||activeListId);
+}
+function isArticleChecked(articleId,listId){
+  const e=getEntry(articleId,listId||activeListId);
+  return e?e.checked:false;
+}
+
 function renderList(){
   const container=document.getElementById('listContainer');
+  const byCat={};SHOP_CATS.forEach(c=>byCat[c]=[]);
+  shopItems.forEach(i=>{const c=i.category||SHOP_CATS[0];if(!byCat[c])byCat[c]=[];byCat[c].push(i);});
+  Object.values(byCat).forEach(arr=>arr.sort((a,b)=>a.title.localeCompare(b.title,'de')));
+
+  let html='';let anyVisible=false;
+  const collapsible=listFilter==='all';
+
+  if(listFilter==='checked'){
+    // Einkaufen-Tab: nur Artikel die auf aktiver Liste sind (entry vorhanden), sortiert nach checked
+    const onList=shopItems.filter(i=>isArticleOnList(i.id||i._id,activeListId));
+    const unchecked=onList.filter(i=>!isArticleChecked(i.id||i._id,activeListId));
+    const checked=onList.filter(i=>isArticleChecked(i.id||i._id,activeListId));
+    const all=[...unchecked,...checked];
+    if(!all.length){
+      container.innerHTML='<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><div>Keine Artikel eingeplant</div><div style="font-size:12.5px;margin-top:2px">Hake Artikel unter "Einkauf planen" an</div></div>';
+      document.getElementById('checkLogWrap').style.display='none';
+      return;
+    }
+    html='<div class="section" style="margin-top:14px"><div class="cat-box">';
+    all.forEach(item=>{
+      const sid=item.id||item._id;
+      const entry=getEntry(sid,activeListId);
+      const isChecked=entry?entry.checked:false;
+      const photos=getItemPhotos(item);
+      const selIdx=typeof item.selectedPhotoIndex==='number'&&photos[item.selectedPhotoIndex]?item.selectedPhotoIndex:0;
+      const displayPhoto=photos[selIdx]||photos[0]||null;
+      const thumb=displayPhoto?`<img class="item-thumb-lg" src="${displayPhoto}" onclick="openPhotoZoom('${sid}',event)">`:'';
+      html+=`<div class="item-row${isChecked?' checked-row':''}">
+        <div class="chk${isChecked?' done':''}" onclick="toggleEntry('${entry?entry._id:''}','${sid}',event)">${isChecked?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
+        <div class="item-body" onclick="openEditItem('${sid}')">
+          <div class="item-title" style="${isChecked?'text-decoration:line-through;opacity:.5':''}">${escHtml(item.title)}${item.comment?` <em style="color:var(--text3);font-weight:400;font-style:normal;font-size:12.5px">${escHtml(item.comment)}</em>`:''}</div>
+          <div class="item-meta"><span class="qty-chip">${escHtml(item.qty||'1')}</span>${item.price?`<span class="price-tag">${parseFloat(item.price).toFixed(2)} €</span>`:''}</div>
+        </div>${thumb}</div>`;
+    });
+    html+='</div></div>';
+    container.innerHTML=html;
+    document.getElementById('checkLogWrap').style.display='block';
+    return;
+  }
+
+  // Einkauf planen: Artikelkatalog, Haken = auf Liste setzen/entfernen
   if(!shopItems.length){
     container.innerHTML='<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><div>Noch keine Artikel</div><div style="font-size:12.5px;margin-top:2px">Tipp oben rechts auf + zum Anlegen</div></div>';
     return;
   }
-  const byCat={};SHOP_CATS.forEach(c=>byCat[c]=[]);
-  shopItems.forEach(i=>{const c=i.category||SHOP_CATS[0];if(!byCat[c])byCat[c]=[];byCat[c].push(i);});
-  Object.values(byCat).forEach(arr=>arr.sort((a,b)=>a.title.localeCompare(b.title,'de')));
-  let html='';
-  let anyVisible=false;
-  const collapsible=listFilter==='all'; // only the full-catalog view collapses; the checked list stays flat
   SHOP_CATS.forEach(cat=>{
     const all=byCat[cat];if(!all||!all.length)return;
-    let vis=listFilter==='checked'?all.filter(i=>i.checked):all;
+    let vis=all;
     if(searchQuery)vis=vis.filter(i=>i.title.toLowerCase().includes(searchQuery));
     if(!vis.length)return;
     anyVisible=true;
-    const count=listFilter==='checked'?`${vis.length} auf der Liste`:`${all.length} im Katalog`;
-    // while searching, force the category open so results are visible without an extra tap
+    const onListCount=vis.filter(i=>isArticleOnList(i.id||i._id,activeListId)).length;
+    const count=`${onListCount}/${vis.length} eingeplant`;
     const isOpen=!collapsible||searchQuery||expandedCats.has(cat);
-    const chevron=collapsible?`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .15s;transform:rotate(${isOpen?90:0}deg)"><polyline points="9 18 15 12 9 6"/></svg>`:'';
-    const hdrClick=collapsible?` onclick="toggleCatCollapse('${cat.replace(/'/g,"\\'")}')" style="cursor:pointer"`:'';
+    const chevron=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .15s;transform:rotate(${isOpen?90:0}deg)"><polyline points="9 18 15 12 9 6"/></svg>`;
+    const hdrClick=` onclick="toggleCatCollapse('${cat.replace(/'/g,"\\'")}')" style="cursor:pointer"`;
     const sep=anyVisible?'<div style="height:1px;background:linear-gradient(90deg,transparent,var(--sep),transparent);margin:0 8px 0;"></div>':'';
     html+=`<div class="section" style="margin-top:${anyVisible?4:14}px">${sep}<div class="cat-hdr"${hdrClick}><span style="display:flex;align-items:center;gap:6px">${chevron}${cat}</span><span>${count}</span></div>`;
     if(!isOpen){html+='</div>';return;}
     html+='<div class="cat-box">';
     vis.forEach(item=>{
       const sid=item.id||item._id;
+      const onList=isArticleOnList(sid,activeListId);
       const photos=getItemPhotos(item);
       const selIdx=typeof item.selectedPhotoIndex==='number'&&photos[item.selectedPhotoIndex]?item.selectedPhotoIndex:0;
       const displayPhoto=photos[selIdx]||photos[0]||null;
-      const isCheckedView=listFilter==='checked';
-      const thumb=displayPhoto
-        ? (isCheckedView
-            ? `<img class="item-thumb-lg" src="${displayPhoto}" onclick="openPhotoZoom('${sid}',event)">`
-            : `<img class="item-thumb" src="${displayPhoto}">`)
-        : '';
+      const thumb=displayPhoto?`<img class="item-thumb" src="${displayPhoto}">`:'';
       html+=`<div class="item-row">
-        <div class="chk${item.checked?' done':''}" onclick="toggleItem('${sid}',event)">${item.checked?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
+        <div class="chk${onList?' done':''}" onclick="togglePlan('${sid}',event)">${onList?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
         <div class="item-body" onclick="openEditItem('${sid}')">
           <div class="item-title">${escHtml(item.title)}${item.comment?` <em style="color:var(--text3);font-weight:400;font-style:normal;font-size:12.5px">${escHtml(item.comment)}</em>`:''}</div>
-          <div class="item-meta">
-            <span class="qty-chip">${escHtml(item.qty||'1')}</span>
-            ${item.price?`<span class="price-tag">${parseFloat(item.price).toFixed(2)} €</span>`:''}
-          </div>
-        </div>
-        ${thumb}
-      </div>`;
+          <div class="item-meta"><span class="qty-chip">${escHtml(item.qty||'1')}</span>${item.price?`<span class="price-tag">${parseFloat(item.price).toFixed(2)} €</span>`:''}</div>
+        </div>${thumb}</div>`;
     });
     html+='</div></div>';
   });
   container.innerHTML=anyVisible?html:'<div class="empty-state">Keine Treffer</div>';
 }
-function toggleCatCollapse(cat){
-  if(expandedCats.has(cat))expandedCats.delete(cat);else expandedCats.add(cat);
-  renderList();
+
+// Einkauf planen: Artikel auf Liste setzen oder entfernen
+async function togglePlan(articleId,e){
+  if(e)e.stopPropagation();
+  const existing=getEntry(articleId,activeListId);
+  if(existing){
+    // Von Liste entfernen
+    listEntries=listEntries.filter(en=>en._id!==existing._id);
+    renderList();
+    try{await api('DELETE','/listentries/'+existing._id);}
+    catch(ex){const r=await api('GET','/listentries');listEntries=r||[];renderList();}
+  }else{
+    // Auf Liste setzen
+    const tmpId='tmp_'+Date.now();
+    listEntries.push({_id:tmpId,articleId,listId:activeListId,checked:false});
+    renderList();
+    try{
+      const created=await api('POST','/listentries',{articleId,listId:activeListId});
+      listEntries=listEntries.filter(en=>en._id!==tmpId);
+      listEntries.push(created);
+      renderList();
+    }catch(ex){listEntries=listEntries.filter(en=>en._id!==tmpId);renderList();}
+  }
 }
 
-// ── checking an item: mandatory photo pick if it has >1 photo ──
-let _pendingCheckId=null;
-async function toggleItem(id,e){
+// Einkaufen: checked-Status eines listentry togglen
+async function toggleEntry(entryId,articleId,e){
   if(e)e.stopPropagation();
-  const item=shopItems.find(i=>(i.id||i._id)===id);
-  if(!item)return;
-  if(!item.checked){
+  const entry=listEntries.find(en=>en._id===entryId);
+  if(!entry)return;
+  const item=shopItems.find(i=>(i.id||i._id)===articleId);
+  // Foto-Pick wenn mehrere Fotos
+  if(!entry.checked&&item){
     const photos=getItemPhotos(item);
-    if(photos.length>1){
-      openPhotoPick(id);
-      return; // actual checking happens in confirmPhotoPick()
-    }
+    if(photos.length>1){openPhotoPick(articleId,entryId);return;}
   }
-  await doToggle(id);
+  await doToggleEntry(entryId,articleId);
 }
-// Always send a complete, known-good snapshot of the item's fields on every PATCH -
-// protects against a backend PATCH handler that replaces the document instead of
-// merging fields (which was silently wiping photos on every checked-toggle before).
-function buildFullPatch(item,overrides){
-  return {
-    title:item.title,category:item.category,qty:item.qty||'',price:item.price||'',
-    comment:item.comment||'',repeat:item.repeat||{type:'always',n:0},
-    photos:getItemPhotos(item),
-    checked:item.checked,
-    selectedPhotoIndex:typeof item.selectedPhotoIndex==='number'?item.selectedPhotoIndex:null,
-    ...overrides
-  };
-}
-async function doToggle(id,selectedPhotoIndex){
-  const item=shopItems.find(i=>(i.id||i._id)===id);
-  if(!item)return;
-  item.checked=!item.checked;
-  if(item.checked&&typeof selectedPhotoIndex==='number')item.selectedPhotoIndex=selectedPhotoIndex;
-  const patch=buildFullPatch(item);
-  beginPending(id);
+async function doToggleEntry(entryId,articleId,selectedPhotoIndex){
+  const entry=listEntries.find(en=>en._id===entryId);if(!entry)return;
+  const item=shopItems.find(i=>(i.id||i._id)===articleId);
+  entry.checked=!entry.checked;
+  if(entry.checked&&typeof selectedPhotoIndex==='number'&&item)item.selectedPhotoIndex=selectedPhotoIndex;
   renderList();
-  try{await api('PATCH','/shopping/'+id,patch);}
-  catch(ex){item.checked=!item.checked;renderList();showToast('Fehler beim Speichern');}
-  finally{endPending(id);}
+  try{
+    await api('PATCH','/listentries/'+entryId,{checked:entry.checked});
+    const actor='Du';
+    await writeCheckLog(articleId,item?.title||articleId,entry.checked?'abgehakt':'abgehakt rückgängig',actor);
+  }catch(ex){entry.checked=!entry.checked;renderList();showToast('Fehler beim Speichern');}
 }
-function openPhotoPick(id){
-  _pendingCheckId=id;
-  beginPending(id); // guard against pollOnce overwriting photos while picker is open
-  const item=shopItems.find(i=>(i.id||i._id)===id);
+
+// Foto-Pick für Entry
+function openPhotoPick(articleId,entryId){
+  _pendingCheckId=articleId;
+  _pendingEntryId=entryId;
+  const item=shopItems.find(i=>(i.id||i._id)===articleId);
   const photos=getItemPhotos(item);
   const grid=document.getElementById('photoPickGrid');
   const preselect=typeof item.selectedPhotoIndex==='number'?item.selectedPhotoIndex:0;
@@ -614,16 +780,50 @@ function openPhotoPick(id){
   grid.dataset.sel=preselect;
   document.getElementById('photoPickModal').classList.add('open');
 }
+let _pendingEntryId=null;
 function pickPhotoIdx(idx){
   const grid=document.getElementById('photoPickGrid');
   grid.dataset.sel=idx;
   grid.querySelectorAll('.photo-pick-item').forEach(el=>el.classList.toggle('sel',Number(el.dataset.idx)===idx));
-  // confirm immediately on tap
-  const id=_pendingCheckId;
+  const aid=_pendingCheckId,eid=_pendingEntryId;
   document.getElementById('photoPickModal').classList.remove('open');
-  _pendingCheckId=null;
-  endPending(id); // release the guard set by openPhotoPick; doToggle will set its own
-  doToggle(id,idx);
+  _pendingCheckId=null;_pendingEntryId=null;
+  doToggleEntry(eid,aid,idx);
+}
+function closePhotoPick(){
+  document.getElementById('photoPickModal').classList.remove('open');
+  _pendingCheckId=null;_pendingEntryId=null;
+}
+
+// Abgelaufene Gastlisten erkennen und nachfragen
+function checkExpiredLists(){
+  const expired=shopLists.filter(l=>new Date(l.expiresAt)<=new Date());
+  if(!expired.length)return;
+  expired.forEach(l=>showExpiredListPrompt(l));
+}
+function showExpiredListPrompt(list){
+  const key='expired_asked_'+list._id;
+  if(sessionStorage.getItem(key))return;
+  sessionStorage.setItem(key,'1');
+  setTimeout(()=>{
+    if(confirm(`Die Gastliste "${list.name}" ist abgelaufen. Soll sie gelöscht werden?`)){
+      api('DELETE','/shoplists/'+list._id).then(()=>{
+        shopLists=shopLists.filter(l=>l._id!==list._id);
+        if(activeListId===list._id)activeListId='wocheneinkauf';
+        renderListTabs();renderList();
+        showToast(`"${list.name}" gelöscht`);
+      }).catch(()=>showToast('Fehler beim Löschen'));
+    }
+  },1000);
+}
+function buildFullPatch(item,overrides){
+  return {
+    title:item.title,category:item.category,qty:item.qty||'',price:item.price||'',
+    comment:item.comment||'',repeat:item.repeat||{type:'always',n:0},
+    photos:getItemPhotos(item),
+    selectedPhotoIndex:typeof item.selectedPhotoIndex==='number'?item.selectedPhotoIndex:null,
+    ...overrides
+  };
 }
 function openPhotoZoom(id,e){
   if(e)e.stopPropagation();
@@ -632,16 +832,11 @@ function openPhotoZoom(id,e){
   const selIdx=typeof item.selectedPhotoIndex==='number'&&photos[item.selectedPhotoIndex]?item.selectedPhotoIndex:0;
   const src=photos[selIdx]||photos[0];if(!src)return;
   document.getElementById('photoZoomImg').src=src;
-  const ov=document.getElementById('photoZoomOv');
-  ov.style.display='flex';
+  document.getElementById('photoZoomOv').style.display='flex';
 }
 function closePhotoZoom(){
   document.getElementById('photoZoomOv').style.display='none';
   document.getElementById('photoZoomImg').src='';
-}
-function closePhotoPick(){
-  document.getElementById('photoPickModal').classList.remove('open');
-  if(_pendingCheckId){endPending(_pendingCheckId);_pendingCheckId=null;}
 }
 
 // ── add/edit item + photos ──
@@ -905,7 +1100,6 @@ function closeItemModal(keepPending){
 async function saveItem(){
   const title=document.getElementById('fTitle').value.trim();
   if(!title){showToast('Titel eingeben');return;}
-  // Bildvorschlag übernehmen falls gewählt
   let finalPhotos=[...editingPhotos];
   if(!editingId&&_suggestSelected!==null&&_suggestUrls[_suggestSelected]){
     showToast('Bild wird hochgeladen…');
@@ -934,7 +1128,6 @@ async function saveItem(){
       }finally{endPending(savingId);}
     }else{
       const created=await api('POST','/shopping',payload);
-      created.checked=false;
       shopItems.push(created);
       showToast('Artikel hinzugefügt');
     }
@@ -1079,31 +1272,29 @@ async function confirmIngredientImport(){
   const data=_pendingRecipeMeal;_pendingRecipeMeal=null;
   if(!data)return;
   pendingMealKeys.delete(data.key);
-  let added=0,checked=0;
+  let added=0,planned=0;
+  // Bestehende Artikel auf Wocheneinkaufsliste planen
   for(const existing of data.existingItems){
     const sid=existing.id||existing._id;
-    if(!existing.checked){
-      existing.checked=true;
-      beginPending(sid);
-      try{await api('PATCH','/shopping/'+sid,buildFullPatch(existing));}catch(e){}
-      finally{endPending(sid);}
-    }
-    checked++;
+    if(!isArticleOnList(sid,'wocheneinkauf')){
+      try{
+        const e=await api('POST','/listentries',{articleId:sid,listId:'wocheneinkauf'});
+        listEntries.push(e);planned++;
+      }catch(ex){}
+    }else{planned++;}
   }
   for(const ing of data.newItems){
     try{
-      const created=await api('POST','/shopping',{
-        title:ing.name,category:ing.category,qty:ing.measure||'',
-        price:'',comment:'',repeat:{type:'always',n:0},photos:[]
-      });
-      created.checked=true;
-      try{await api('PATCH','/shopping/'+(created.id||created._id),buildFullPatch(created));}catch(e){}
+      const created=await api('POST','/shopping',{title:ing.name,category:ing.category,qty:ing.measure||'',price:'',comment:'',repeat:{type:'always',n:0},photos:[]});
       shopItems.push(created);
+      const sid=created.id||created._id;
+      const e=await api('POST','/listentries',{articleId:sid,listId:'wocheneinkauf'});
+      listEntries.push(e);
       added++;
     }catch(e){}
   }
   renderList();
-  showToast(`${added} neu hinzugefügt, ${checked} bereits vorhanden abgehakt`);
+  showToast(`${added} neu hinzugefügt, ${planned} eingeplant`);
 }
 
 // ══════════════════════════════════════════
@@ -1371,34 +1562,257 @@ async function confirmRecipeIngImport(){
   const r=_viewingRecipe;if(!r)return;
   const ings=(r.ingredients||[]).filter(Boolean);
   const selects=document.querySelectorAll('#recipeIngCatList select');
-  closeRecipeIngCatModal();
-  closeRecipeDetailModal();
-  let added=0,skipped=0;
+  closeRecipeIngCatModal();closeRecipeDetailModal();
+  let added=0,planned=0;
   for(let idx=0;idx<ings.length;idx++){
     const ing=ings[idx];
     const cat=selects[idx]?.value||SHOP_CATS[0];
-    // check if already exists
     const existing=shopItems.find(i=>i.title.toLowerCase()===ing.toLowerCase());
-    if(existing&&!existing.checked){
-      existing.checked=true;
-      beginPending(String(existing.id||existing._id));
-      try{await api('PATCH','/shopping/'+(existing.id||existing._id),buildFullPatch(existing));}catch(e){}
-      finally{endPending(String(existing.id||existing._id));}
-      skipped++;
-    }else if(!existing){
+    if(existing){
+      const sid=existing.id||existing._id;
+      if(!isArticleOnList(sid,activeListId)){
+        try{const e=await api('POST','/listentries',{articleId:sid,listId:activeListId});listEntries.push(e);}catch(e){}
+      }
+      planned++;
+    }else{
       try{
-        const created=await api('POST','/shopping',{title:ing,category:cat,qty:'',price:'',comment:'',repeat:{type:'always',n:0},photos:[],checked:true});
+        const created=await api('POST','/shopping',{title:ing,category:cat,qty:'',price:'',comment:'',repeat:{type:'always',n:0},photos:[]});
         shopItems.push(created);
-        added++;
+        const sid=created.id||created._id;
+        const e=await api('POST','/listentries',{articleId:sid,listId:activeListId});
+        listEntries.push(e);added++;
       }catch(e){}
     }
   }
-  renderList();
-  setMainTab('shop');setFilter('checked');
-  showToast(`${added} hinzugefügt${skipped?', '+skipped+' abgehakt':''}`);
+  renderList();setMainTab('shop');setFilter('checked');
+  showToast(`${added} hinzugefügt${planned?', '+planned+' eingeplant':''}`);
 }
 
-// Einfache Kategorie-Erkennung anhand Schlüsselwörter
+// ══════════════════════════════════════════
+// GAST-MODUS
+// ══════════════════════════════════════════
+async function guestApi(method,path,body){
+  const opts={method,headers:{'Content-Type':'application/json','x-guest-token':_guestToken,'x-guest-name':_guestName||'Gast'}};
+  if(body!==undefined)opts.body=JSON.stringify(body);
+  const r=await fetch('/api'+path,opts);
+  if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||r.statusText);}
+  return r.json();
+}
+
+async function initGuestMode(){
+  hideLoader();
+  try{
+    const info=await fetch('/api/shoplists/guest/'+_guestToken).then(r=>r.json());
+    if(!info||info.error){
+      document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100dvh;padding:24px;text-align:center;color:#8B9FC0;font-family:-apple-system,sans-serif"><div><div style="font-size:48px;margin-bottom:12px">🔗</div><div style="font-size:18px;font-weight:700;color:#1a1a2e;margin-bottom:6px">Link abgelaufen</div><div style="font-size:14px">Dieser Einkaufslink ist nicht mehr gültig.</div></div></div>';
+      return;
+    }
+    _guestListId=info._id;
+    document.getElementById('guestLoginDesc').textContent=`Du wurdest zur Liste "${info.name}" eingeladen.`;
+    document.getElementById('guestLoginScreen').style.display='block';
+  }catch(e){
+    document.body.innerHTML='<div style="padding:40px;text-align:center;color:#8B9FC0">Fehler beim Laden des Links.</div>';
+  }
+}
+
+async function doGuestLogin(){
+  const name=document.getElementById('guestName').value.trim();
+  if(!name){document.getElementById('guestLoginErr').textContent='Bitte Namen eingeben';return;}
+  _guestName=name;_isGuest=true;
+  document.getElementById('guestLoginScreen').style.display='none';
+  document.getElementById('guestScreen').style.display='block';
+  await loadGuestData();
+  setInterval(loadGuestData,5000);
+}
+
+async function loadGuestData(){
+  try{
+    const d=await fetch('/api/listentries/guest/'+_guestToken).then(r=>r.json());
+    if(d.error)return;
+    _guestEntries=d.entries||[];
+    // Artikelkatalog aus entries zusammenbauen
+    shopItems=_guestEntries.map(e=>e.article).filter(Boolean);
+    document.getElementById('guestNavTitle').textContent=d.list?.name||'Einkaufsliste';
+    renderGuestList();
+  }catch(e){}
+}
+
+function renderGuestList(){
+  const container=document.getElementById('guestListContainer');
+  const unchecked=_guestEntries.filter(e=>!e.checked);
+  const checked=_guestEntries.filter(e=>e.checked);
+  const all=[...unchecked,...checked];
+  if(!all.length){
+    container.innerHTML='<div class="empty-state">Liste ist leer</div>';
+    document.getElementById('guestLogWrap').style.display='none';
+    return;
+  }
+  // Gast-Toolbar mit + Button
+  let html=`<div style="display:flex;gap:8px;padding:10px 16px 4px;align-items:center">
+    <div style="flex:1;font-size:15px;font-weight:700;color:var(--text2)">Artikel</div>
+    <button class="fab" onclick="openGuestAddItem()"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+  </div>
+  <div style="padding:0 16px;margin-top:8px"><div class="cat-box">`;
+  all.forEach(entry=>{
+    const item=entry.article;if(!item)return;
+    const sid=item._id||item.id;
+    const photos=getItemPhotos(item);
+    const displayPhoto=photos[0]||null;
+    const thumb=displayPhoto?`<img class="item-thumb-lg" src="${displayPhoto}">`:'';
+    html+=`<div class="item-row">
+      <div class="chk${entry.checked?' done':''}" onclick="guestToggleEntry('${entry._id}',event)">${entry.checked?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}</div>
+      <div class="item-body">
+        <div class="item-title" style="${entry.checked?'text-decoration:line-through;opacity:.5':''}">${escHtml(item.title||'')}</div>
+        ${item.qty?`<div class="item-meta"><span class="qty-chip">${escHtml(item.qty)}</span></div>`:''}
+      </div>${thumb}
+    </div>`;
+  });
+  html+='</div></div>';
+  container.innerHTML=html;
+  document.getElementById('guestLogWrap').style.display='block';
+}
+
+async function guestToggleEntry(entryId,e){
+  if(e)e.stopPropagation();
+  const entry=_guestEntries.find(en=>en._id===entryId);if(!entry)return;
+  entry.checked=!entry.checked;
+  renderGuestList();
+  try{
+    await fetch('/api/listentries/'+entryId,{method:'PATCH',headers:{'Content-Type':'application/json','x-guest-token':_guestToken,'x-guest-name':_guestName},body:JSON.stringify({checked:entry.checked})});
+    await fetch('/api/checklog',{method:'POST',headers:{'Content-Type':'application/json','x-guest-token':_guestToken,'x-guest-name':_guestName},body:JSON.stringify({itemId:entryId,itemTitle:entry.article?.title||'',action:entry.checked?'abgehakt':'abgehakt rückgängig',actor:_guestName})});
+  }catch(ex){entry.checked=!entry.checked;renderGuestList();}
+}
+
+// Gast: Artikel anlegen
+let _guestAddOpen=false;
+function openGuestAddItem(){
+  const name=prompt('Artikel-Name:');
+  if(!name?.trim())return;
+  addGuestItem(name.trim());
+}
+async function addGuestItem(title){
+  try{
+    const r=await fetch('/api/shopping/guest/'+_guestToken,{method:'POST',headers:{'Content-Type':'application/json','x-guest-name':_guestName},body:JSON.stringify({title,category:'Sonstiges'})});
+    const d=await r.json();
+    if(d.article&&d.entry){
+      _guestEntries.push({...d.entry,article:d.article});
+      shopItems.push(d.article);
+      renderGuestList();
+    }
+  }catch(e){showToast('Fehler beim Hinzufügen');}
+}
+
+// ══════════════════════════════════════════
+// SHARE
+// ══════════════════════════════════════════
+function openShareModal(){
+  document.getElementById('shareLinkResult').style.display='none';
+  document.getElementById('shareGenerating').style.display='none';
+  document.getElementById('shareListName').value='';
+  _shareListName='';
+  setShareDur(24);
+  loadActiveLinks();
+  document.getElementById('shareModal').classList.add('open');
+}
+function closeShareModal(){document.getElementById('shareModal').classList.remove('open');}
+function setShareDur(h){
+  _shareDur=h;
+  [24,48,72].forEach(d=>{
+    const btn=document.getElementById('shareDur'+d);
+    if(btn){btn.style.background=d===h?'var(--acc)':'';btn.style.color=d===h?'#fff':'';}
+  });
+}
+async function generateShareLink(){
+  if(!_shareListName){showToast('Bitte einen Namen eingeben');return;}
+  document.getElementById('shareGenerating').style.display='block';
+  document.getElementById('shareLinkResult').style.display='none';
+  try{
+    const d=await api('POST','/shoplists',{name:_shareListName,hours:_shareDur});
+    shopLists.push(d);
+    const url=location.origin+'/guest/'+d.token;
+    document.getElementById('shareLinkInput').value=url;
+    document.getElementById('shareGenerating').style.display='none';
+    document.getElementById('shareLinkResult').style.display='block';
+    renderListTabs();
+    loadActiveLinks();
+  }catch(e){showToast('Fehler: '+e.message);document.getElementById('shareGenerating').style.display='none';}
+}
+async function loadActiveLinks(){
+  try{
+    const lists=await api('GET','/shoplists');
+    shopLists=lists||[];
+    const wrap=document.getElementById('activeLinksWrap');
+    if(!wrap)return;
+    const active=lists.filter(l=>new Date(l.expiresAt)>new Date());
+    if(!active.length){wrap.innerHTML='';return;}
+    wrap.innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--text3);margin-bottom:8px">Aktive Listen</div>`+
+      active.map(l=>`<div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--sep)">
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">${escHtml(l.name)}</div><div style="font-size:11px;color:var(--text3)">Noch ${Math.ceil((new Date(l.expiresAt)-Date.now())/3600000)}h</div></div>
+        <button class="btn btn-danger btn-sm" style="padding:5px 10px;font-size:11px" onclick="revokeList('${l._id}')">Löschen</button>
+      </div>`).join('');
+  }catch(e){}
+}
+async function revokeList(id){
+  if(!confirm('Gastliste löschen?'))return;
+  try{
+    await api('DELETE','/shoplists/'+id);
+    shopLists=shopLists.filter(l=>l._id!==id);
+    if(activeListId===id){activeListId='wocheneinkauf';renderList();}
+    renderListTabs();loadActiveLinks();
+    showToast('Liste gelöscht');
+  }catch(e){showToast('Fehler');}
+}
+function copyShareLink(){
+  const url=document.getElementById('shareLinkInput').value;
+  navigator.clipboard.writeText(url).then(()=>showToast('Link kopiert!')).catch(()=>{
+    document.getElementById('shareLinkInput').select();document.execCommand('copy');showToast('Link kopiert!');
+  });
+}
+function shareViaSystem(){
+  const url=document.getElementById('shareLinkInput').value;
+  if(navigator.share){navigator.share({title:'Einkaufsliste',url});}else{copyShareLink();}
+}
+
+// ══════════════════════════════════════════
+// CHECK LOG
+// ══════════════════════════════════════════
+async function writeCheckLog(itemId,itemTitle,action,actor){
+  try{
+    const headers={'Content-Type':'application/json'};
+    if(_isGuest){headers['x-guest-token']=_guestToken;headers['x-guest-name']=_guestName;}
+    else{headers['x-token']=myToken;}
+    await fetch('/api/checklog',{method:'POST',headers,body:JSON.stringify({itemId,itemTitle,action,actor})});
+  }catch(e){}
+}
+async function openCheckLog(){
+  document.getElementById('checkLogList').innerHTML='<div style="text-align:center;padding:20px;color:var(--text3)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg></div>';
+  document.getElementById('checkLogModal').classList.add('open');
+  try{
+    const apiCall=_isGuest?guestApi:api;
+    const logs=await apiCall('GET','/checklog');
+    if(!logs.length){
+      document.getElementById('checkLogList').innerHTML='<div style="text-align:center;padding:20px;color:var(--text3)">Noch keine Einträge</div>';
+      return;
+    }
+    document.getElementById('checkLogList').innerHTML=logs.reverse().map(l=>{
+      const d=new Date(l.createdAt);
+      const time=d.toLocaleString('de-DE',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+      const isCheck=l.action==='abgehakt';
+      return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--sep)">
+        <div style="width:26px;height:26px;border-radius:50%;background:${isCheck?'var(--green)':'var(--sep)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="${isCheck?'#fff':'var(--text3)'}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">${isCheck?'<polyline points="20 6 9 17 4 12"/>':'<line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>'}</svg>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13.5px;font-weight:600">${escHtml(l.itemTitle)}</div>
+          <div style="font-size:12px;color:var(--text3);margin-top:2px"><strong>${escHtml(l.actor)}</strong> · ${l.action} · ${time}</div>
+        </div>
+      </div>`;
+    }).join('');
+  }catch(e){document.getElementById('checkLogList').innerHTML='<div style="padding:20px;color:var(--red)">Fehler beim Laden</div>';}
+}
+function closeCheckLog(){document.getElementById('checkLogModal').classList.remove('open');}
+
+
 function guessCategory(ing){
   const s=ing.toLowerCase();
   if(/nudel|pasta|spaghetti|penne|lasagne|mehl|brot|brötchen|baguette|toast|backpulver|hefe/.test(s))return'Nudeln, Backware';
