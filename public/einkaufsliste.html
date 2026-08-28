@@ -852,36 +852,60 @@ function renderPhotoGallery(){
 }
 function removePhotoAt(idx){editingPhotos.splice(idx,1);renderPhotoGallery();}
 // compress/resize an image file down to a reasonable size before storing as base64
-function compressImage(file){
+// ── CLOUDINARY ──────────────────────────────────────────────────
+const CLOUDINARY_CLOUD='pywnjejk';
+const CLOUDINARY_PRESET='kiri_upload';
+const CLOUDINARY_URL=`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`;
+
+async function uploadToCloudinary(file){
+  const blob=await compressToBlob(file,800,0.82);
+  const fd=new FormData();
+  fd.append('file',blob,'photo.jpg');
+  fd.append('upload_preset',CLOUDINARY_PRESET);
+  const r=await fetch(CLOUDINARY_URL,{method:'POST',body:fd});
+  if(!r.ok)throw new Error('Cloudinary Upload fehlgeschlagen');
+  const d=await r.json();
+  return d.secure_url;
+}
+function compressToBlob(file,maxDim,quality){
   return new Promise((resolve,reject)=>{
     const reader=new FileReader();
     reader.onload=e=>{
       const img=new Image();
       img.onload=()=>{
-        const maxDim=640;
         let w=img.width,h=img.height;
         if(w>h&&w>maxDim){h=Math.round(h*maxDim/w);w=maxDim;}
         else if(h>=w&&h>maxDim){w=Math.round(w*maxDim/h);h=maxDim;}
         const canvas=document.createElement('canvas');
         canvas.width=w;canvas.height=h;
         canvas.getContext('2d').drawImage(img,0,0,w,h);
-        resolve(canvas.toDataURL('image/jpeg',0.72));
+        canvas.toBlob(b=>b?resolve(b):reject(new Error('Blob failed')),'image/jpeg',quality);
       };
-      img.onerror=reject;
-      img.src=e.target.result;
+      img.onerror=reject;img.src=e.target.result;
     };
-    reader.onerror=reject;
-    reader.readAsDataURL(file);
+    reader.onerror=reject;reader.readAsDataURL(file);
   });
+}
+async function urlToCloudinary(url){
+  try{
+    const fd=new FormData();
+    fd.append('file',url);
+    fd.append('upload_preset',CLOUDINARY_PRESET);
+    const r=await fetch(CLOUDINARY_URL,{method:'POST',body:fd});
+    if(!r.ok)return url;
+    const d=await r.json();
+    return d.secure_url;
+  }catch(e){return url;}
 }
 async function handlePhotoInput(inp){
   const file=inp.files[0];inp.value='';if(!file)return;
   if(editingPhotos.length>=5){showToast('Maximal 5 Fotos pro Artikel');return;}
+  showToast('Foto wird hochgeladen…');
   try{
-    const compressed=await compressImage(file);
-    editingPhotos.push(compressed);
+    const url=await uploadToCloudinary(file);
+    editingPhotos.push(url);
     renderPhotoGallery();
-  }catch(e){showToast('Foto konnte nicht verarbeitet werden');}
+  }catch(e){showToast('Foto konnte nicht hochgeladen werden');}
 }
 // ── AUTO IMAGE SUGGEST ──────────────────────────────────────────
 let _suggestSelected=null; // index in _suggestUrls or null
@@ -1374,11 +1398,12 @@ function openEditCurrentRecipe(){
 function closeRecipeArchModal(){document.getElementById('recipeArchModal').classList.remove('open');}
 async function handleRecipeArchImg(inp){
   const file=inp.files[0];inp.value='';if(!file)return;
+  showToast('Bild wird hochgeladen…');
   try{
-    const b64=await compressImage(file);
-    editingRecipeImg=b64;
-    document.getElementById('recipeArchImgPreview').innerHTML=`<img src="${b64}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:4px">`;
-  }catch(e){showToast('Bild konnte nicht geladen werden');}
+    const url=await uploadToCloudinary(file);
+    editingRecipeImg=url;
+    document.getElementById('recipeArchImgPreview').innerHTML=`<img src="${url}" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:4px">`;
+  }catch(e){showToast('Bild konnte nicht hochgeladen werden');}
 }
 async function saveRecipeArch(){
   const name=document.getElementById('fRecipeName').value.trim();
