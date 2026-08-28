@@ -554,17 +554,14 @@ function renderList(){
   Object.values(byCat).forEach(arr=>arr.sort((a,b)=>a.title.localeCompare(b.title,'de')));
   if(listFilter==='checked'){
     const onList=shopItems.filter(i=>isOnList(i.id||i._id));
-    const unchecked=onList.filter(i=>!isChecked(i.id||i._id));
-    const checked=onList.filter(i=>isChecked(i.id||i._id));
-    const all=[...unchecked,...checked];
-    if(!all.length){container.innerHTML='<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6"/></svg><div>Keine Artikel eingeplant</div><div style="font-size:12.5px;margin-top:2px">Plane Artikel unter Einkauf planen</div></div>';return;}
+    if(!onList.length){container.innerHTML='<div class="empty-state"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6"/></svg><div>Keine Artikel eingeplant</div><div style="font-size:12.5px;margin-top:2px">Plane Artikel unter Einkauf planen</div></div>';return;}
     let html='<div class="section" style="margin-top:14px"><div class="cat-box">';
-    all.forEach(item=>{
-      const sid=item.id||item._id;const entry=getEntry(sid);const chk=entry?entry.checked:false;
+    onList.forEach(item=>{
+      const sid=item.id||item._id;const entry=getEntry(sid);
       const photos=getItemPhotos(item);const selIdx=typeof item.selectedPhotoIndex==="number"&&photos[item.selectedPhotoIndex]?item.selectedPhotoIndex:0;
       const displayPhoto=photos[selIdx]||photos[0]||null;
       const thumb=displayPhoto?`<img class="item-thumb-lg" src="${displayPhoto}" onclick="openPhotoZoom('${sid}',event)">`:'';
-      html+=`<div class="item-row"><div class="chk${chk?' done':''}" onclick="toggleEntry('${entry?entry._id:''}','${sid}',event)">${chk?'<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>':''}</div><div class="item-body" onclick="openEditItem('${sid}')"><div class="item-title">${escHtml(item.title)}${item.comment?` <em style="color:var(--text3);font-weight:400;font-style:normal;font-size:12.5px">${escHtml(item.comment)}</em>`:''}</div><div class="item-meta"><span class="qty-chip">${escHtml(item.qty||'1')}</span>${item.price?`<span class="price-tag">${parseFloat(item.price).toFixed(2)} €</span>`:''}</div></div>${thumb}</div>`;
+      html+=`<div class="item-row"><div class="chk" onclick="toggleEntry('${entry?entry._id:''}','${sid}',event)"></div><div class="item-body" onclick="openEditItem('${sid}')"><div class="item-title">${escHtml(item.title)}${item.comment?` <em style="color:var(--text3);font-weight:400;font-style:normal;font-size:12.5px">${escHtml(item.comment)}</em>`:''}</div><div class="item-meta"><span class="qty-chip">${escHtml(item.qty||'1')}</span>${item.price?`<span class="price-tag">${parseFloat(item.price).toFixed(2)} \u20ac</span>`:''}</div></div>${thumb}</div>`;
     });
     html+='</div></div>';container.innerHTML=html;return;
   }
@@ -604,17 +601,27 @@ async function toggleEntry(entryId,articleId,e){
   if(e)e.stopPropagation();
   const entry=listEntries.find(en=>en._id===entryId);if(!entry)return;
   const item=shopItems.find(i=>(i.id||i._id)===articleId);
-  if(!entry.checked&&item){const photos=getItemPhotos(item);if(photos.length>1){openPhotoPick(articleId,entryId);return;}}
+  // Foto-Pick wenn mehrere Fotos
+  if(item){
+    const photos=getItemPhotos(item);
+    if(photos.length>1){openPhotoPick(articleId,entryId);return;}
+  }
   await doToggleEntry(entryId,articleId);
 }
 async function doToggleEntry(entryId,articleId,selectedPhotoIndex){
   const entry=listEntries.find(en=>en._id===entryId);if(!entry)return;
   const item=shopItems.find(i=>(i.id||i._id)===articleId);
-  entry.checked=!entry.checked;
-  if(entry.checked&&typeof selectedPhotoIndex==='number'&&item)item.selectedPhotoIndex=selectedPhotoIndex;
+  if(typeof selectedPhotoIndex==='number'&&item)item.selectedPhotoIndex=selectedPhotoIndex;
+  // Abhaken = von der Liste entfernen (zurück in Planung als ungeplant)
+  listEntries=listEntries.filter(en=>en._id!==entryId);
   renderList();
-  try{await api('PATCH','/listentries/'+entryId,{checked:entry.checked});await writeCheckLog(articleId,item?.title||articleId,entry.checked?'abgehakt':'abgehakt rückgängig','Du',activeListId);}
-  catch(ex){entry.checked=!entry.checked;renderList();showToast('Fehler beim Speichern');}
+  try{
+    await api('DELETE','/listentries/'+entryId);
+    await writeCheckLog(articleId,item?.title||articleId,'abgehakt','Du',activeListId);
+  }catch(ex){
+    // Rollback
+    listEntries.push(entry);renderList();showToast('Fehler beim Speichern');
+  }
 }
 function openPhotoPick(articleId,entryId){
   _pendingCheckId=articleId;_pendingEntryId=entryId;
