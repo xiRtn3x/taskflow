@@ -279,13 +279,26 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 .slot-ov.show{opacity:1;pointer-events:all;}
 .slot-card{background:var(--glass);border:1px solid var(--glass-border);border-radius:22px;padding:28px 24px;width:88%;max-width:340px;backdrop-filter:blur(24px);box-shadow:0 20px 60px rgba(0,0,0,.4);}
 .slot-title{font-size:18px;font-weight:700;text-align:center;margin-bottom:20px;color:var(--text);}
-.slot-row{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.07);border-radius:16px;padding:14px 16px;border:1px solid rgba(255,255,255,.12);overflow:hidden;transition:all .4s;position:relative;}
-.slot-row.slot-highlight{background:rgba(91,91,214,.25);border-color:rgba(91,91,214,.5);box-shadow:0 0 20px rgba(91,91,214,.3);}
+.slot-row{display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.07);border-radius:16px;padding:14px 16px;border:1px solid rgba(255,255,255,.12);overflow:hidden;transition:all .5s cubic-bezier(.34,1.56,.64,1);position:relative;transform:translateX(0);}
+.slot-row.slot-enter{animation:slotRowIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes slotRowIn{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+.slot-row.slot-highlight{background:rgba(91,91,214,.28);border-color:rgba(91,91,214,.6);box-shadow:0 0 0 0 rgba(91,91,214,.5);animation:slotPulse 1.4s ease-in-out 2;}
+@keyframes slotPulse{0%,100%{box-shadow:0 0 0 0 rgba(91,91,214,.5)}50%{box-shadow:0 0 0 8px rgba(91,91,214,0)}}
+.slot-row.slot-reveal{animation:slotReveal .5s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes slotReveal{0%{transform:scale(.95);opacity:.3}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
 .slot-task{font-size:15px;font-weight:600;flex:1;color:#fff;}
-.slot-name-wrap{width:90px;overflow:hidden;height:24px;position:relative;}
+.slot-name-wrap{width:90px;overflow:hidden;height:28px;position:relative;}
 .slot-reel{display:flex;flex-direction:column;position:absolute;top:0;width:100%;}
-.slot-name-item{height:24px;font-size:14px;font-weight:700;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:24px;}
-.slot-sub{font-size:13px;color:rgba(255,255,255,.6);text-align:center;margin-top:8px;}
+.slot-name-item{height:28px;font-size:14px;font-weight:700;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:28px;}
+.slot-sub{font-size:13px;color:rgba(255,255,255,.6);text-align:center;margin-top:8px;min-height:18px;transition:opacity .3s;}
+.slot-progress{height:3px;background:rgba(255,255,255,.1);border-radius:2px;margin:10px 16px 0;overflow:hidden;flex-shrink:0;}
+.slot-progress-bar{height:100%;background:linear-gradient(90deg,#5B5BD6,#818CF8);border-radius:2px;width:0%;transition:width .08s linear;}
+.slot-particle{position:absolute;pointer-events:none;border-radius:50%;animation:particleFly .8s ease-out forwards;}
+@keyframes particleFly{0%{opacity:1;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0)}}
+.slot-trigger-btn{width:100%;padding:15px;background:linear-gradient(135deg,#5B5BD6,#818CF8);color:#fff;border:none;border-radius:16px;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 20px rgba(91,91,214,.45);transition:transform .15s,box-shadow .15s;letter-spacing:.2px;}
+.slot-trigger-btn:active{transform:scale(.96);box-shadow:0 2px 10px rgba(91,91,214,.3);}
+.slot-trigger-btn.pulse-glow{animation:btnGlow 1.8s ease-in-out infinite;}
+@keyframes btnGlow{0%,100%{box-shadow:0 4px 20px rgba(91,91,214,.45)}50%{box-shadow:0 4px 32px rgba(91,91,214,.8),0 0 0 4px rgba(91,91,214,.15)}}
 .chlog-ov{position:fixed;inset:0;z-index:9000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(12px);opacity:0;pointer-events:none;transition:opacity .3s;}
 .chlog-ov.show{opacity:1;pointer-events:all;}
 .chlog-card{background:var(--glass);border:1px solid var(--glass-border);backdrop-filter:blur(28px);border-radius:22px;padding:28px 22px 22px;max-width:340px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);max-height:80dvh;overflow-y:auto;}
@@ -709,14 +722,18 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 </div>
 <div class="slot-ov" id="slotOv">
   <div id="slotInner" style="width:100%;max-width:430px;display:flex;flex-direction:column;height:100dvh;padding:env(safe-area-inset-top,20px) 0 0" onclick="event.stopPropagation()">
-    <div style="padding:16px 20px 10px;text-align:center;flex-shrink:0">
+    <div style="padding:16px 20px 6px;text-align:center;flex-shrink:0">
       <div id="slotTitle" style="font-size:20px;font-weight:800;color:#fff;letter-spacing:-.3px">Aufgaben werden verteilt…</div>
       <div class="slot-sub" id="slotSub">Die Würfel fallen…</div>
     </div>
-    <div id="slotRows" style="flex:1;min-height:0;overflow-y:auto;padding:0 16px 20px;display:flex;flex-direction:column;gap:10px"></div>
-    <div style="flex-shrink:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom,0px))">
+    <div class="slot-progress" id="slotProgressWrap" style="display:none"><div class="slot-progress-bar" id="slotProgressBar"></div></div>
+    <div id="slotRows" style="flex:1;min-height:0;overflow-y:auto;padding:12px 16px 20px;display:flex;flex-direction:column;gap:10px"></div>
+    <div style="flex-shrink:0;padding:10px 16px calc(16px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px">
+      <button id="slotTriggerBtn" class="slot-trigger-btn pulse-glow" style="display:none" onclick="triggerSlotReveal()">
+        🎲 Aufdecken!
+      </button>
       <button id="slotDismissBtn" style="display:none;width:100%;padding:14px;background:linear-gradient(135deg,#5B5BD6,#818CF8);color:#fff;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 4px 16px rgba(91,91,214,.35)" onclick="closeSlot()">
-        Verstanden – Los geht's!
+        Verstanden – Los geht's! 🚀
       </button>
     </div>
   </div>
@@ -3277,64 +3294,207 @@ function shufflePool(autoOnly=false){
   }
 }
 
+// ══════════════════════════════════════════
+// BLOCK 8: SLOT-MASCHINEN-ANIMATION (Regel 6)
+// Actionreichere Version: Progress-Bar, Row-Einflug-Animation,
+// Trigger-Button zum manuellen Aufdecken, Partikel-Burst bei Reveal,
+// Pulse-Glow auf eigenen Aufgaben.
+// ══════════════════════════════════════════
+let _slotFinalAssigns=null;
+let _slotSortedIds=[];
+let _slotOnReveal=null;
+let _slotRevealed=false;
+let _slotInterval=null;
+
+function triggerSlotReveal(){
+  if(_slotRevealed)return;
+  _slotRevealed=true;
+  document.getElementById('slotTriggerBtn').style.display='none';
+  if(_slotInterval){clearInterval(_slotInterval);_slotInterval=null;}
+  _doSlotReveal(_slotSortedIds,_slotFinalAssigns,_slotOnReveal);
+}
+
+function _spawnParticles(rowEl){
+  const rect=rowEl.getBoundingClientRect();
+  const container=document.getElementById('slotOv');
+  const cRect=container.getBoundingClientRect();
+  for(let i=0;i<10;i++){
+    const p=document.createElement('div');
+    p.className='slot-particle';
+    const size=4+Math.random()*6;
+    const tx=(Math.random()-0.5)*80;
+    const ty=-(20+Math.random()*50);
+    const colors=['#818CF8','#5B5BD6','#ffd700','#ff6b6b','#4ecdc4'];
+    p.style.cssText=`width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${rect.left-cRect.left+Math.random()*rect.width}px;top:${rect.top-cRect.top}px;--tx:${tx}px;--ty:${ty}px;`;
+    container.appendChild(p);
+    setTimeout(()=>p.remove(),900);
+  }
+}
+
+function _doSlotReveal(sortedIds,finalAssigns,onReveal){
+  if(onReveal)onReveal();
+  const myId=me._id?.toString();
+
+  // Progressbar auf 100%
+  const bar=document.getElementById('slotProgressBar');
+  if(bar)bar.style.width='100%';
+
+  // Titel-Wechsel mit kurzer Fade
+  const titleEl=document.getElementById('slotTitle');
+  const subEl=document.getElementById('slotSub');
+  titleEl.style.transition='opacity .2s';
+  titleEl.style.opacity='0';
+  setTimeout(()=>{
+    titleEl.textContent=lang==='en'?'Results are in!':'Ergebnisse stehen fest!';
+    titleEl.style.opacity='1';
+  },200);
+
+  // Aufgaben nacheinander aufdecken (Regel 6: Spannung)
+  sortedIds.forEach((id,idx)=>{
+    setTimeout(()=>{
+      const reel=document.getElementById('reel-'+id);if(!reel)return;
+      const asgn=finalAssigns[id];
+      const u=uById(asgn?.assignedUser);
+      const col=uColor(asgn?.assignedUser);
+      const isMe=asgn?.assignedUser===myId;
+
+      // Name einblenden
+      reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:15px;font-weight:800;transition:all .3s">${u?.name||'?'}</div>`;
+
+      // Row-Animation
+      const row=document.getElementById('sr-'+id);
+      if(row){
+        row.classList.add('slot-reveal');
+        if(isMe){
+          setTimeout(()=>{
+            row.classList.add('slot-highlight');
+            _spawnParticles(row);
+          },200);
+        }
+      }
+
+      // Letzter Eintrag → Abschluss
+      if(idx===sortedIds.length-1){
+        setTimeout(()=>{
+          const uids=users.map(u=>u._id?.toString());
+          const scoreInfo=uids.map(uid=>{
+            const u=uById(uid);
+            const assigned=sortedIds.filter(id=>finalAssigns[id]?.assignedUser===uid);
+            const total=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);
+            return`${u?.name}: ${poopSVG(10)}${total.toFixed(0)}`;
+          }).join(' · ');
+          subEl.style.transition='opacity .3s';
+          subEl.style.opacity='0';
+          setTimeout(()=>{
+            subEl.innerHTML=scoreInfo||(lang==='en'?'Fairly distributed.':'Ausgeglichen verteilt.');
+            subEl.style.opacity='1';
+          },200);
+
+          // Eigene Aufgabe ins Bild scrollen
+          const myRow=document.getElementById('slotRows').querySelector('.slot-highlight');
+          if(myRow){
+            setTimeout(()=>{
+              myRow.scrollIntoView({behavior:'smooth',block:'center'});
+            },300);
+          }
+
+          titleEl.style.opacity='0';
+          setTimeout(()=>{
+            titleEl.textContent=lang==='en'?'Your tasks are highlighted 🎯':'Deine Aufgaben sind markiert 🎯';
+            titleEl.style.opacity='1';
+          },200);
+          document.getElementById('slotDismissBtn').style.display='block';
+          document.getElementById('slotProgressWrap').style.display='none';
+        },400);
+      }
+    },idx*160);
+  });
+}
+
 function _showSlotMachine(taskIds, finalAssigns, onReveal){
+  _slotRevealed=false;
+  _slotFinalAssigns=finalAssigns;
+  _slotOnReveal=onReveal;
+  if(_slotInterval){clearInterval(_slotInterval);_slotInterval=null;}
+
   const sortedIds=[...taskIds].sort((a,b)=>{
     const ta=tasks.find(t=>t._id?.toString()===a);
     const tb=tasks.find(t=>t._id?.toString()===b);
     return (tb?.poopScore??5)-(ta?.poopScore??5);
   });
+  _slotSortedIds=sortedIds;
+
   const rows=document.getElementById('slotRows');
-  rows.innerHTML=sortedIds.map(id=>{
+  rows.innerHTML=sortedIds.map((id,rowIdx)=>{
     const t=tasks.find(t=>t._id?.toString()===id);if(!t)return'';
     const sc=t.poopScore??null;const subCount=t.subtasks?.length||0;
-    return`<div class="slot-row" id="sr-${id}">
+    return`<div class="slot-row slot-enter" id="sr-${id}" style="animation-delay:${rowIdx*60}ms">
       <div style="flex:1">
         <div class="slot-task">${t.title.slice(0,28)}${t.title.length>28?'…':''}</div>
-        ${sc!=null?`<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">${poopSVG(10)} ${sc}${subCount?' \u00b7 '+subCount+' Unteraufg.':''}</div>`:(subCount?`<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">${subCount} Unteraufg.</div>`:'')}
+        ${sc!=null?`<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">${poopSVG(10)} ${sc}${subCount?' · '+subCount+' Unteraufg.':''}</div>`:(subCount?`<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">${subCount} Unteraufg.</div>`:'')}
       </div>
       <div class="slot-name-wrap" id="slot-${id}"><div class="slot-reel" id="reel-${id}"></div></div>
     </div>`;
   }).join('');
+
   document.getElementById('slotTitle').textContent=lang==='en'?'Shuffling…':'Aufgaben werden verteilt…';
   document.getElementById('slotSub').textContent=lang==='en'?'Rolling the dice…':'Die Würfel fallen…';
   document.getElementById('slotDismissBtn').style.display='none';
+  document.getElementById('slotTriggerBtn').style.display='none';
+
+  // Progressbar einblenden
+  const progWrap=document.getElementById('slotProgressWrap');
+  const progBar=document.getElementById('slotProgressBar');
+  if(progWrap){progWrap.style.display='block';progBar.style.width='0%';}
+
   document.getElementById('slotOv').classList.add('show');
-  const unames=users.map(u=>u.name);let ticker=0;
-  const interval=setInterval(()=>{
+
+  const unames=users.map(u=>u.name);
+  let ticker=0;
+  const TOTAL_TICKS=30;
+
+  _slotInterval=setInterval(()=>{
     ticker++;
+
+    // Progress-Bar
+    if(progBar)progBar.style.width=Math.min((ticker/TOTAL_TICKS)*80,80)+'%';
+
+    // Roulette — Namen rasen durch
     sortedIds.forEach(id=>{
       const reel=document.getElementById('reel-'+id);if(!reel)return;
       const nm=unames[Math.floor(Math.random()*unames.length)];
-      const span=document.createElement('div');span.className='slot-name-item';
-      span.style.color=`hsl(${(ticker*37+sortedIds.indexOf(id)*53)%360},65%,72%)`;
+      const span=document.createElement('div');
+      span.className='slot-name-item';
+      // Geschwindigkeit simulieren: am Anfang schneller wechselnd (jeder Tick), am Ende langsamer
+      const hue=(ticker*37+sortedIds.indexOf(id)*53)%360;
+      span.style.color=`hsl(${hue},65%,72%)`;
       span.textContent=nm;
       reel.insertBefore(span,reel.firstChild);
-      if(reel.children.length>5)reel.removeChild(reel.lastChild);
+      if(reel.children.length>4)reel.removeChild(reel.lastChild);
     });
-    if(ticker===5)document.getElementById('slotSub').textContent=lang==='en'?'Balancing crappiness…':'Scheißigkeits-Ausgleich läuft…';
-    if(ticker===30){
-      clearInterval(interval);
-      if(onReveal)onReveal();
+
+    // Status-Texte
+    if(ticker===6){
+      document.getElementById('slotSub').textContent=lang==='en'?'Calculating fairness…':'Scheißigkeits-Ausgleich läuft…';
+    }
+    if(ticker===16){
+      document.getElementById('slotSub').textContent=lang==='en'?'Almost there…':'Fast fertig…';
+    }
+    if(ticker===24){
+      // Verlangsamen: Intervall wird länger durch Gap-Effekt
       sortedIds.forEach(id=>{
         const reel=document.getElementById('reel-'+id);if(!reel)return;
-        const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);
-        reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:15px;font-weight:800">${u?.name||'?'}</div>`;
+        reel.style.transition='opacity .1s';
       });
-      document.getElementById('slotTitle').textContent=lang==='en'?'Done!':'Fertig!';
-      const uids=users.map(u=>u._id?.toString());
-      const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=sortedIds.filter(id=>finalAssigns[id]?.assignedUser===uid);const total=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: ${poopSVG(10)}${total.toFixed(0)}`;}).join(' · ');
-      document.getElementById('slotSub').innerHTML=scoreInfo||(lang==='en'?'Fairly distributed.':'Ausgeglichen verteilt.');
-      const myId=me._id?.toString();
-      sortedIds.forEach(id=>{
-        const asgn=finalAssigns[id];const row=document.getElementById('sr-'+id);if(!row)return;
-        if(asgn?.assignedUser===myId)row.classList.add('slot-highlight');
-      });
-      setTimeout(()=>{
-        const myRow=document.getElementById('slotRows').querySelector('.slot-highlight');
-        if(myRow){myRow.scrollIntoView({behavior:'smooth',block:'center'});myRow.style.transition='transform .3s';myRow.style.transform='scale(1.03)';setTimeout(()=>{myRow.style.transform='scale(1)';},350);}
-        document.getElementById('slotTitle').textContent=lang==='en'?'Your tasks are highlighted':'Deine Aufgaben sind markiert';
-        document.getElementById('slotDismissBtn').style.display='block';
-      },3000);
+    }
+
+    if(ticker>=TOTAL_TICKS){
+      clearInterval(_slotInterval);_slotInterval=null;
+      // Trigger-Button anzeigen — Nutzer entscheidet wann aufgedeckt wird
+      document.getElementById('slotSub').textContent=lang==='en'?'Ready — tap to reveal!':'Bereit — jetzt aufdecken!';
+      const trigBtn=document.getElementById('slotTriggerBtn');
+      trigBtn.style.display='block';
+      trigBtn.textContent=lang==='en'?'🎲 Reveal now!':'🎲 Aufdecken!';
     }
   },80);
 }
