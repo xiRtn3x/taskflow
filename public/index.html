@@ -287,7 +287,7 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
 .slot-row.slot-reveal{animation:slotReveal .5s cubic-bezier(.34,1.56,.64,1) both;}
 @keyframes slotReveal{0%{transform:scale(.95);opacity:.3}60%{transform:scale(1.03)}100%{transform:scale(1);opacity:1}}
 .slot-task{font-size:15px;font-weight:600;flex:1;color:#fff;}
-.slot-name-wrap{width:90px;overflow:hidden;height:28px;position:relative;}
+.slot-name-wrap{width:100px;overflow:hidden;height:28px;position:relative;}
 .slot-reel{display:flex;flex-direction:column;position:absolute;top:0;width:100%;}
 .slot-name-item{height:28px;font-size:14px;font-weight:700;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:28px;}
 .slot-sub{font-size:13px;color:rgba(255,255,255,.6);text-align:center;margin-top:8px;min-height:18px;transition:opacity .3s;}
@@ -1092,12 +1092,22 @@ body.th-dark .b-poop{background:rgba(139,69,19,.22);color:#d97706;}
         </select>
       </div>
       <div style="height:1px;background:var(--sep)"></div>
-      <div style="padding:16px 0 4px">
-        <button id="poolResetBtn" class="btn btn-d" style="gap:8px;font-size:14px" onclick="resetPool()">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
-          <span id="poolResetLbl">Pool zurücksetzen</span>
-        </button>
-        <div id="poolResetDesc" style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5">Alle Zuteilungen löschen — Aufgaben werden beim nächsten Shuffle neu verteilt. Fairness-Punkte bleiben erhalten.</div>
+      <div style="padding:16px 0 4px;display:flex;flex-direction:column;gap:10px">
+        <div>
+          <button id="poolResetBtn" class="btn btn-d" style="gap:8px;font-size:14px" onclick="resetPool()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+            <span id="poolResetLbl">Pool zurücksetzen</span>
+          </button>
+          <div id="poolResetDesc" style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5">Alle Zuteilungen löschen — Aufgaben werden beim nächsten Shuffle neu verteilt. Fairness-Punkte bleiben erhalten.</div>
+        </div>
+        <div style="height:1px;background:var(--sep)"></div>
+        <div>
+          <button id="fairnessResetBtn" class="btn btn-d" style="gap:8px;font-size:14px" onclick="resetFairness()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            <span id="fairnessResetLbl">Fairness-Punkte zurücksetzen</span>
+          </button>
+          <div id="fairnessResetDesc" style="font-size:12px;color:var(--text3);margin-top:6px;line-height:1.5">Alle gesammelten Schulden-Punkte auf 0 setzen — sinnvoll nach einem kompletten Neustart der App.</div>
+        </div>
       </div>
     </div>
   </div>
@@ -1779,7 +1789,7 @@ async function init(){
         [users,me]=await Promise.all([api('GET','/users'),api('GET','/users/me')]);
         const [t,g,as]=await Promise.all([api('GET','/tasks'),api('GET','/groups/mine').catch(()=>null),api('GET','/appstate').catch(()=>({}))]);
         tasks=t;group=g;appstate={catOrder:[],poolTasks:[],poolAssigns:{},customCats:{},recurringLast:{},shuffleDebtScore:{},lastShuffleWeek:'',autoShuffleEnabled:true,autoShuffleDay:2,pendingSlotShow:false,pendingSlotTaskIds:[],manualDone:{},wgPool:{},poolScheduled:{},...(as||{})};
-        processRecurring();
+        processPersonalRecurring();
       }catch(e){localStorage.removeItem('tf_token');myToken=null;showOnboard();return;}
       return;
     }
@@ -2151,8 +2161,7 @@ function cleanupPoolCycleDone(){
   if(changed)saveState();
 }
 
-// Rückwärts-Compat: alter Code ruft cleanupManualDone() auf
-function cleanupManualDone(){ cleanupPoolCycleDone(); }
+// Rückwärts-Compat: processRecurring → processPersonalRecurring
 function processRecurring(){ processPersonalRecurring(); }
 
 // ══════════════════════════════════════════
@@ -2909,38 +2918,9 @@ function poolTaskEligibleThisWeek(t){
   return true;
 }
 
-// ── MANUAL DONE / POOL RESET ──
-function cleanupManualDone(){
-  if(!appstate.manualDone)return;
-  let changed=false;
-  Object.keys(appstate.manualDone).forEach(id=>{
-    const md=appstate.manualDone[id];
-    const t=tasks.find(t=>t._id?.toString()===id);
-    if(!t){delete appstate.manualDone[id];changed=true;return;}
-    let expired=false;
-    const repeat=md.repeat||t.repeat;
-    if(repeat==='Monatlich'){
-      const interval=t.repeatInterval||1;
-      const doneDate=new Date((md.doneAt||'2000-01')+'-01');
-      const now=new Date();
-      const monthDiff=(now.getFullYear()-doneDate.getFullYear())*12+(now.getMonth()-doneDate.getMonth());
-      if(monthDiff>=interval)expired=true;
-    } else if(repeat==='Jährlich'){
-      if(new Date().getFullYear()>parseInt(md.doneAt||'2000'))expired=true;
-    } else if(repeat==='Wöchentlich'){
-      if(weekStart(todayStr())!==md.doneAt)expired=true;
-    } else {
-      expired=true; // daily / non-recurring: clear immediately
-    }
-    if(expired){
-      delete appstate.manualDone[id];
-      // Also unblock recurringPoolShown so task enters shuffle again
-      if(appstate.recurringPoolShown?.[id]===md.doneAt)delete appstate.recurringPoolShown[id];
-      changed=true;
-    }
-  });
-  if(changed)saveState();
-}
+// ── POOL RESET ──
+// Rückwärts-Compat: cleanupManualDone → cleanupPoolCycleDone (Regel 14)
+function cleanupManualDone(){ cleanupPoolCycleDone(); }
 
 // ══════════════════════════════════════════
 // BLOCK 6: ZURÜCKSTELLEN (Regel 4)
@@ -2990,6 +2970,18 @@ function resetPool(){
   saveState();
   renderPool();renderMy();
   showToast(lang==='en'?'Pool reset ✓':'Pool zurückgesetzt ✓');
+}
+
+// Fairness-Punkte komplett zurücksetzen (Regel 14: Neustart nach Rewrite)
+function resetFairness(){
+  const msg=lang==='en'
+    ?'Reset all fairness points? All accumulated debt scores will be set to 0. This is useful after a fresh start.'
+    :'Fairness-Punkte zurücksetzen? Alle gesammelten Schulden-Punkte werden auf 0 gesetzt. Sinnvoll nach einem kompletten Neustart.';
+  if(!confirm(msg))return;
+  appstate.shuffleDebtScore={};
+  appstate.lastDebtWeek='';
+  saveState();
+  showToast(lang==='en'?'Fairness points reset ✓':'Fairness-Punkte zurückgesetzt ✓');
 }
 
 // ── WG-POOL ──
@@ -3296,139 +3288,34 @@ function shufflePool(autoOnly=false){
 
 // ══════════════════════════════════════════
 // BLOCK 8: SLOT-MASCHINEN-ANIMATION (Regel 6)
-// Actionreichere Version: Progress-Bar, Row-Einflug-Animation,
-// Trigger-Button zum manuellen Aufdecken, Partikel-Burst bei Reveal,
-// Pulse-Glow auf eigenen Aufgaben.
+// Original-Logik beibehalten + größere Namen + finaler Glow-Effekt
 // ══════════════════════════════════════════
-let _slotFinalAssigns=null;
-let _slotSortedIds=[];
-let _slotOnReveal=null;
-let _slotRevealed=false;
-let _slotInterval=null;
-
-function triggerSlotReveal(){
-  if(_slotRevealed)return;
-  _slotRevealed=true;
-  document.getElementById('slotTriggerBtn').style.display='none';
-  if(_slotInterval){clearInterval(_slotInterval);_slotInterval=null;}
-  _doSlotReveal(_slotSortedIds,_slotFinalAssigns,_slotOnReveal);
-}
-
 function _spawnParticles(rowEl){
-  const rect=rowEl.getBoundingClientRect();
   const container=document.getElementById('slotOv');
   const cRect=container.getBoundingClientRect();
-  for(let i=0;i<10;i++){
-    const p=document.createElement('div');
-    p.className='slot-particle';
-    const size=4+Math.random()*6;
-    const tx=(Math.random()-0.5)*80;
-    const ty=-(20+Math.random()*50);
-    const colors=['#818CF8','#5B5BD6','#ffd700','#ff6b6b','#4ecdc4'];
-    p.style.cssText=`width:${size}px;height:${size}px;background:${colors[Math.floor(Math.random()*colors.length)]};left:${rect.left-cRect.left+Math.random()*rect.width}px;top:${rect.top-cRect.top}px;--tx:${tx}px;--ty:${ty}px;`;
+  const rect=rowEl.getBoundingClientRect();
+  for(let i=0;i<12;i++){
+    const p=document.createElement('div');p.className='slot-particle';
+    const size=4+Math.random()*7;
+    const tx=(Math.random()-0.5)*100;const ty=-(25+Math.random()*60);
+    const colors=['#818CF8','#5B5BD6','#a5b4fc','#ffd700','#4ecdc4'];
+    p.style.cssText=`width:${size}px;height:${size}px;background:${colors[i%colors.length]};left:${rect.left-cRect.left+Math.random()*rect.width}px;top:${rect.top-cRect.top+10}px;--tx:${tx}px;--ty:${ty}px;`;
     container.appendChild(p);
     setTimeout(()=>p.remove(),900);
   }
 }
 
-function _doSlotReveal(sortedIds,finalAssigns,onReveal){
-  if(onReveal)onReveal();
-  const myId=me._id?.toString();
-
-  // Progressbar auf 100%
-  const bar=document.getElementById('slotProgressBar');
-  if(bar)bar.style.width='100%';
-
-  // Titel-Wechsel mit kurzer Fade
-  const titleEl=document.getElementById('slotTitle');
-  const subEl=document.getElementById('slotSub');
-  titleEl.style.transition='opacity .2s';
-  titleEl.style.opacity='0';
-  setTimeout(()=>{
-    titleEl.textContent=lang==='en'?'Results are in!':'Ergebnisse stehen fest!';
-    titleEl.style.opacity='1';
-  },200);
-
-  // Aufgaben nacheinander aufdecken (Regel 6: Spannung)
-  sortedIds.forEach((id,idx)=>{
-    setTimeout(()=>{
-      const reel=document.getElementById('reel-'+id);if(!reel)return;
-      const asgn=finalAssigns[id];
-      const u=uById(asgn?.assignedUser);
-      const col=uColor(asgn?.assignedUser);
-      const isMe=asgn?.assignedUser===myId;
-
-      // Name einblenden
-      reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:15px;font-weight:800;transition:all .3s">${u?.name||'?'}</div>`;
-
-      // Row-Animation
-      const row=document.getElementById('sr-'+id);
-      if(row){
-        row.classList.add('slot-reveal');
-        if(isMe){
-          setTimeout(()=>{
-            row.classList.add('slot-highlight');
-            _spawnParticles(row);
-          },200);
-        }
-      }
-
-      // Letzter Eintrag → Abschluss
-      if(idx===sortedIds.length-1){
-        setTimeout(()=>{
-          const uids=users.map(u=>u._id?.toString());
-          const scoreInfo=uids.map(uid=>{
-            const u=uById(uid);
-            const assigned=sortedIds.filter(id=>finalAssigns[id]?.assignedUser===uid);
-            const total=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);
-            return`${u?.name}: ${poopSVG(10)}${total.toFixed(0)}`;
-          }).join(' · ');
-          subEl.style.transition='opacity .3s';
-          subEl.style.opacity='0';
-          setTimeout(()=>{
-            subEl.innerHTML=scoreInfo||(lang==='en'?'Fairly distributed.':'Ausgeglichen verteilt.');
-            subEl.style.opacity='1';
-          },200);
-
-          // Eigene Aufgabe ins Bild scrollen
-          const myRow=document.getElementById('slotRows').querySelector('.slot-highlight');
-          if(myRow){
-            setTimeout(()=>{
-              myRow.scrollIntoView({behavior:'smooth',block:'center'});
-            },300);
-          }
-
-          titleEl.style.opacity='0';
-          setTimeout(()=>{
-            titleEl.textContent=lang==='en'?'Your tasks are highlighted 🎯':'Deine Aufgaben sind markiert 🎯';
-            titleEl.style.opacity='1';
-          },200);
-          document.getElementById('slotDismissBtn').style.display='block';
-          document.getElementById('slotProgressWrap').style.display='none';
-        },400);
-      }
-    },idx*160);
-  });
-}
-
 function _showSlotMachine(taskIds, finalAssigns, onReveal){
-  _slotRevealed=false;
-  _slotFinalAssigns=finalAssigns;
-  _slotOnReveal=onReveal;
-  if(_slotInterval){clearInterval(_slotInterval);_slotInterval=null;}
-
   const sortedIds=[...taskIds].sort((a,b)=>{
     const ta=tasks.find(t=>t._id?.toString()===a);
     const tb=tasks.find(t=>t._id?.toString()===b);
     return (tb?.poopScore??5)-(ta?.poopScore??5);
   });
-  _slotSortedIds=sortedIds;
-
   const rows=document.getElementById('slotRows');
-  rows.innerHTML=sortedIds.map((id,rowIdx)=>{
+  rows.innerHTML=sortedIds.map(id=>{
     const t=tasks.find(t=>t._id?.toString()===id);if(!t)return'';
     const sc=t.poopScore??null;const subCount=t.subtasks?.length||0;
-    return`<div class="slot-row slot-enter" id="sr-${id}" style="animation-delay:${rowIdx*60}ms">
+    return`<div class="slot-row" id="sr-${id}">
       <div style="flex:1">
         <div class="slot-task">${t.title.slice(0,28)}${t.title.length>28?'…':''}</div>
         ${sc!=null?`<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">${poopSVG(10)} ${sc}${subCount?' · '+subCount+' Unteraufg.':''}</div>`:(subCount?`<div style="font-size:11px;color:rgba(255,255,255,.45);margin-top:2px">${subCount} Unteraufg.</div>`:'')}
@@ -3436,65 +3323,63 @@ function _showSlotMachine(taskIds, finalAssigns, onReveal){
       <div class="slot-name-wrap" id="slot-${id}"><div class="slot-reel" id="reel-${id}"></div></div>
     </div>`;
   }).join('');
-
   document.getElementById('slotTitle').textContent=lang==='en'?'Shuffling…':'Aufgaben werden verteilt…';
   document.getElementById('slotSub').textContent=lang==='en'?'Rolling the dice…':'Die Würfel fallen…';
   document.getElementById('slotDismissBtn').style.display='none';
   document.getElementById('slotTriggerBtn').style.display='none';
-
-  // Progressbar einblenden
-  const progWrap=document.getElementById('slotProgressWrap');
-  const progBar=document.getElementById('slotProgressBar');
-  if(progWrap){progWrap.style.display='block';progBar.style.width='0%';}
-
   document.getElementById('slotOv').classList.add('show');
-
-  const unames=users.map(u=>u.name);
-  let ticker=0;
-  const TOTAL_TICKS=30;
-
-  _slotInterval=setInterval(()=>{
+  const unames=users.map(u=>u.name);let ticker=0;
+  const interval=setInterval(()=>{
     ticker++;
-
-    // Progress-Bar
-    if(progBar)progBar.style.width=Math.min((ticker/TOTAL_TICKS)*80,80)+'%';
-
-    // Roulette — Namen rasen durch
     sortedIds.forEach(id=>{
       const reel=document.getElementById('reel-'+id);if(!reel)return;
       const nm=unames[Math.floor(Math.random()*unames.length)];
-      const span=document.createElement('div');
-      span.className='slot-name-item';
-      // Geschwindigkeit simulieren: am Anfang schneller wechselnd (jeder Tick), am Ende langsamer
-      const hue=(ticker*37+sortedIds.indexOf(id)*53)%360;
-      span.style.color=`hsl(${hue},65%,72%)`;
+      const span=document.createElement('div');span.className='slot-name-item';
+      span.style.color=`hsl(${(ticker*37+sortedIds.indexOf(id)*53)%360},65%,72%)`;
       span.textContent=nm;
       reel.insertBefore(span,reel.firstChild);
-      if(reel.children.length>4)reel.removeChild(reel.lastChild);
+      if(reel.children.length>5)reel.removeChild(reel.lastChild);
     });
-
-    // Status-Texte
-    if(ticker===6){
-      document.getElementById('slotSub').textContent=lang==='en'?'Calculating fairness…':'Scheißigkeits-Ausgleich läuft…';
-    }
-    if(ticker===16){
-      document.getElementById('slotSub').textContent=lang==='en'?'Almost there…':'Fast fertig…';
-    }
-    if(ticker===24){
-      // Verlangsamen: Intervall wird länger durch Gap-Effekt
-      sortedIds.forEach(id=>{
-        const reel=document.getElementById('reel-'+id);if(!reel)return;
-        reel.style.transition='opacity .1s';
+    if(ticker===5)document.getElementById('slotSub').textContent=lang==='en'?'Balancing crappiness…':'Scheißigkeits-Ausgleich läuft…';
+    if(ticker===30){
+      clearInterval(interval);
+      if(onReveal)onReveal();
+      const myId=me._id?.toString();
+      // Namen größer + finaler Effekt: nacheinander einblenden
+      sortedIds.forEach((id,idx)=>{
+        setTimeout(()=>{
+          const reel=document.getElementById('reel-'+id);if(!reel)return;
+          const asgn=finalAssigns[id];const u=uById(asgn?.assignedUser);const col=uColor(asgn?.assignedUser);
+          const isMe=asgn?.assignedUser===myId;
+          // Name größer (17px statt 14px) + fett + Farbe der Person
+          reel.innerHTML=`<div class="slot-name-item" style="color:${col};font-size:17px;font-weight:800;letter-spacing:-.3px">${u?.name||'?'}</div>`;
+          // Eigene Aufgabe: Highlight + Partikel
+          const row=document.getElementById('sr-'+id);
+          if(row){
+            row.style.transition='all .35s cubic-bezier(.34,1.56,.64,1)';
+            row.style.transform='scale(1.02)';
+            setTimeout(()=>row.style.transform='scale(1)',350);
+            if(isMe){
+              setTimeout(()=>{
+                row.classList.add('slot-highlight');
+                _spawnParticles(row);
+              },100);
+            }
+          }
+        },idx*120);
       });
-    }
-
-    if(ticker>=TOTAL_TICKS){
-      clearInterval(_slotInterval);_slotInterval=null;
-      // Trigger-Button anzeigen — Nutzer entscheidet wann aufgedeckt wird
-      document.getElementById('slotSub').textContent=lang==='en'?'Ready — tap to reveal!':'Bereit — jetzt aufdecken!';
-      const trigBtn=document.getElementById('slotTriggerBtn');
-      trigBtn.style.display='block';
-      trigBtn.textContent=lang==='en'?'🎲 Reveal now!':'🎲 Aufdecken!';
+      // Titel + Score-Info nach allen Reveals
+      const delay=sortedIds.length*120+400;
+      setTimeout(()=>{
+        document.getElementById('slotTitle').textContent=lang==='en'?'Done!':'Fertig!';
+        const uids=users.map(u=>u._id?.toString());
+        const scoreInfo=uids.map(uid=>{const u=uById(uid);const assigned=sortedIds.filter(id=>finalAssigns[id]?.assignedUser===uid);const total=assigned.reduce((s,id)=>{const t=tasks.find(t=>t._id?.toString()===id);return s+(t?.poopScore||5);},0);return`${u?.name}: ${poopSVG(10)}${total.toFixed(0)}`;}).join(' · ');
+        document.getElementById('slotSub').innerHTML=scoreInfo||(lang==='en'?'Fairly distributed.':'Ausgeglichen verteilt.');
+        const myRow=document.getElementById('slotRows').querySelector('.slot-highlight');
+        if(myRow){myRow.scrollIntoView({behavior:'smooth',block:'center'});}
+        document.getElementById('slotTitle').textContent=lang==='en'?'Your tasks are highlighted':'Deine Aufgaben sind markiert';
+        document.getElementById('slotDismissBtn').style.display='block';
+      },delay);
     }
   },80);
 }
